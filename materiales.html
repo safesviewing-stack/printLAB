@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Atlas de materiales — PrintLab</title>
+  <meta name="description" content="Guía técnica de filamentos y resinas para impresión 3D: PLA, PETG, ABS, ASA, TPU, Nylon, PC y SLA.">
+  <meta name="robots" content="index,follow">
+  
+  <style>
+    :root{--bg:#f6f7f4;--card:#fff;--ink:#0d1110;--muted:#69716c;--line:#dfe4df;--accent:#b8ff3d;--dark:#111715;--max:1240px}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+    a{color:inherit;text-decoration:none}.wrap{max-width:var(--max);margin:auto;padding:0 22px}
+    .top{position:sticky;top:0;z-index:30;background:rgba(246,247,244,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+    nav{min-height:70px;display:flex;align-items:center;gap:24px}.brand{font-size:21px;font-weight:900;letter-spacing:-1.2px;margin-right:auto}.brand span{background:var(--accent);padding:3px 7px;border-radius:7px;margin-left:4px}.nav{display:flex;gap:18px;font-size:13px;color:#404944;font-weight:700}.nav a:hover{text-decoration:underline}
+    .btn{display:inline-flex;align-items:center;justify-content:center;padding:12px 15px;border-radius:11px;border:1px solid var(--ink);font-weight:800;background:var(--ink);color:#fff;cursor:pointer}.btn.light{background:#fff;color:var(--ink);border-color:var(--line)}.btn.green{background:var(--accent);color:var(--ink);border-color:var(--ink)}
+    
+    /* CHIPS PARA NAVEGACIÓN INTERNA */
+    .chips{display:flex;flex-wrap:wrap;gap:9px;margin:24px 0 40px}.chip{display:inline-block;padding:10px 14px;border:1px solid var(--line);background:#fff;border-radius:999px;font-size:13px;font-weight:800;transition:0.15s}.chip:hover{background:var(--bg);border-color:var(--ink)}
+    
+    /* ESTILOS DE ARTÍCULO */
+    .prose{max-width:920px;margin:40px auto}
+    .prose h1{font-size:clamp(38px,6vw,56px);line-height:1;letter-spacing:-2px;margin:10px 0 8px}
+    .prose .subtitle{font-size:18px;color:var(--muted);margin-bottom:30px}
+    
+    /* El scroll-margin hace que los anclajes no queden ocultos bajo el menú fijo */
+    .prose h2{font-size:30px;letter-spacing:-1px;margin-top:60px;scroll-margin-top:100px;border-bottom:2px solid var(--line);padding-bottom:12px}
+    .prose h3{font-size:21px;margin-top:28px}
+    .prose p, .prose li{font-size:16px;color:#3f4843;margin-bottom:16px}
+    .prose ul{padding-left:24px;margin-bottom:24px}
+    .prose li{margin-bottom:6px}
+    .prose blockquote{font-size:19px;font-weight:700;color:var(--ink);border-left:4px solid var(--accent);margin:30px 0;padding-left:20px}
+    .prose table{border-collapse:collapse;width:100%;background:#fff;border:1px solid var(--line);margin:20px 0}
+    .prose th, .prose td{border-bottom:1px solid var(--line);padding:11px;text-align:left;font-size:13px}
+    .callout{padding:24px;border:1px solid var(--line);background:#fff;border-radius:16px;margin:40px 0}
+    .callout b{display:block;font-size:18px;margin-bottom:10px}
+    
+    /* FOOTER */
+    .footer{padding:35px 0 60px;margin-top:60px;border-top:1px solid var(--line);color:#69716c;font-size:12px}.footergrid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:30px}
+    @media(max-width:900px){.nav{display:none}.footergrid{grid-template-columns:1fr 1fr}}@media(max-width:620px){.wrap{padding:0 16px}.footergrid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  
+  <header class="top">
+    <div class="wrap">
+      <nav>
+        <a class="brand" href="index.html">PRINT<span>LAB</span></a>
+        <div class="nav">
+          <a href="index.html#guias">Guías</a>
+          <a href="materiales.html">Materiales</a>
+          <a href="herramientas.html">Herramientas</a>
+          <a href="index.html#comparativas">Comparativas</a>
+          <a href="preguntas-frecuentes.html">FAQ</a>
+          <a href="fuentes.html">Fuentes</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <article class="prose">
+      <h1>Atlas de materiales</h1>
+      <p class="subtitle">Empieza por la propiedad que necesitas, no por la moda.</p>
+      
+      <div class="chips">
+        <a class="chip" href="#pla">PLA</a>
+        <a class="chip" href="#petg">PETG</a>
+        <a class="chip" href="#abs">ABS</a>
+        <a class="chip" href="#asa">ASA</a>
+        <a class="chip" href="#tpu">TPU</a>
+        <a class="chip" href="#nylon">Nylon / PA</a>
+        <a class="chip" href="#pc">PC</a>
+        <a class="chip" href="#resina">Resina</a>
+      </div>
+
+      <section id="pla">
+        <h2>PLA</h2>
+        <p>El PLA, o ácido poliláctico, es un poliéster termoplástico utilizado principalmente en FDM/FFF. Su estructura química procede del ácido láctico y puede fabricarse a partir de materias primas de origen biológico. Es uno de los polímeros más sencillos de procesar mediante extrusión porque presenta una ventana de impresión relativamente amplia y una contracción relativamente baja. Esto explica su enorme popularidad para prototipos, modelos, piezas visuales y fabricación doméstica. Prusa lo clasifica como uno de los materiales más fáciles de imprimir, con temperaturas generales de aproximadamente 185–235 °C en boquilla y 50–60 °C en cama.</p>
+        
+        <p>Desde el punto de vista térmico, el PLA tiene una temperatura de transición vítrea relativamente baja, normalmente alrededor de 50–65 °C dependiendo de la formulación. Esto significa que una pieza rígida a temperatura ambiente puede perder mucha rigidez al calentarse. Es la razón por la que el PLA no es una buena elección para determinadas piezas dentro de vehículos, cerca de motores o en entornos donde la temperatura sea elevada. La temperatura de fusión tampoco es un número único: depende del grado y de su cristalinidad. Además, el PLA puede existir en diferentes grados con diferentes niveles de cristalinidad, nucleantes, modificadores de impacto y pigmentos.</p>
+        
+        <p>Mecánicamente, el PLA destaca por su alto módulo y buena rigidez específica, pero presenta una tenacidad relativamente baja. Una pieza puede aguantar bastante carga estática y, a continuación, fallar de manera brusca cuando recibe un impacto. Su comportamiento depende enormemente del proceso FDM: orientación, altura de capa, ancho de línea, temperatura, refrigeración y porcentaje de unión efectiva entre capas. La pieza final es anisotrópica, por lo que el valor mecánico publicado en una ficha del filamento no debe trasladarse directamente a cualquier geometría impresa.</p>
+        
+        <p>Su absorción de humedad es inferior a la de PA/Nylon, aunque no es despreciable. Un PLA húmedo puede producir hervido del agua en la boquilla, pequeñas explosiones, rugosidad, stringing, variaciones de flujo y deterioro superficial. Prusa incluye el secado y almacenamiento entre los factores que deben controlarse en materiales de impresión.</p>
+        
+        <p>Desde el punto de vista químico, su resistencia no es universal. Hay sustancias que pueden atacar el polímero, y el comportamiento cambia con la temperatura. Tampoco debe confundirse el hecho de que el PLA pueda fabricarse a partir de recursos biológicos con que una pieza de PLA sea compostable o biodegradable rápidamente en un ambiente convencional.</p>
+        
+        <p>En diseño, el PLA resulta especialmente adecuado cuando se necesita rigidez, detalle, acabado superficial, bajo coste y facilidad de fabricación. Es muy apropiado para maquetas, prototipos visuales, carcasas, piezas decorativas, utillaje ligero y demostradores. Es menos apropiado para impactos, temperaturas elevadas, exterior prolongado, mecanismos sometidos a fatiga severa o aplicaciones estructurales críticas.</p>
+        
+        <p>También hay que diferenciar PLA estándar de PLA Tough, High Speed PLA, Matte PLA, Silk PLA, PLA-CF, PLA-GF, Wood PLA y otras variantes. La matriz sigue siendo PLA, pero los aditivos modifican su viscosidad, rigidez, impacto, abrasividad, procesabilidad y aspecto.</p>
+      </section>
+
+      <section id="petg">
+        <h2>PETG</h2>
+        <p>El PETG pertenece a la familia de los poliésteres y deriva de la química del PET modificada con glicol. La modificación reduce determinados problemas de procesado del PET y da como resultado un material muy popular para FDM. Su principal ventaja frente al PLA es que normalmente ofrece mayor tenacidad y mejor comportamiento frente a impactos y determinadas condiciones ambientales, manteniendo una facilidad de impresión razonablemente elevada. Prusa lo describe como uno de los materiales más fáciles de imprimir y adecuado para principiantes.</p>
+        
+        <p>La ventana de proceso depende mucho del producto. La guía general de Prusa sitúa PETG aproximadamente en 215–270 °C para boquilla y 70–90 °C para cama, pero una formulación concreta puede funcionar en una parte muy diferente de ese intervalo.</p>
+        
+        <p>PETG suele presentar una combinación interesante de resistencia mecánica, tenacidad, resistencia química y facilidad de impresión. En muchas aplicaciones es el paso natural desde PLA hacia piezas funcionales. Sin embargo, no debe asumirse que PETG siempre es “más resistente” que PLA en todos los sentidos: normalmente la ventaja está en la tenacidad y el comportamiento frente a determinados esfuerzos, mientras que PLA puede presentar un módulo mayor y una mayor rigidez.</p>
+        
+        <p>Uno de sus inconvenientes de impresión es la tendencia a producir stringing y oozing, especialmente cuando la temperatura es demasiado alta o la retracción no está bien ajustada. También presenta una adhesión entre capas importante y puede adherirse con mucha fuerza a algunas superficies de cama. Esto hace que la elección de superficie y la preparación de la cama tengan importancia.</p>
+        
+        <p>PETG puede utilizarse para carcasas, soportes, piezas mecánicas moderadas, prototipos funcionales, recipientes y componentes expuestos a cierta humedad. La resistencia química es generalmente mejor que la del PLA frente a determinadas sustancias, pero debe comprobarse para cada agente químico.</p>
+        
+        <p>Es también un material sensible a la humedad. Un filamento húmedo puede mostrar pequeñas burbujas, superficies irregulares y extrusión inconsistente. Su almacenamiento correcto mejora considerablemente la repetibilidad.</p>
+        
+        <p>Dentro de la familia aparecen variantes como PETG-CF, PETG-GF, PETG High Speed y PETG reforzado, que pueden cambiar bastante el comportamiento.</p>
+      </section>
+
+      <section id="abs">
+        <h2>ABS</h2>
+        <p>ABS es un copolímero termoplástico de acrilonitrilo, butadieno y estireno. Su importancia no viene solamente de la impresión 3D: es uno de los polímeros de ingeniería más utilizados en productos fabricados industrialmente, especialmente mediante inyección. Se emplea en carcasas, piezas de automoción, componentes electrónicos, juguetes y múltiples productos de consumo.</p>
+        
+        <p>Comparado con PLA, ABS suele ofrecer una combinación más favorable de tenacidad, resistencia al impacto y resistencia térmica, aunque su rigidez puede ser inferior y su impresión mucho más complicada.</p>
+        
+        <p>Prusa recomienda para ABS aproximadamente 230–255 °C de boquilla y 95–110 °C de cama, además de cerramiento recomendado.</p>
+        
+        <p>El gran problema técnico del ABS es su contracción térmica. Cuando el material sale caliente de la boquilla y se enfría, cambia de dimensiones. En piezas grandes o con geometría desfavorable, esta contracción genera tensiones internas que producen warping, levantamiento de esquinas y separación entre capas. Por eso el ambiente térmico de la impresora es mucho más importante que en PLA.</p>
+        
+        <p>La cámara cerrada no solamente ayuda a evitar corrientes de aire: permite controlar la temperatura del entorno y reducir gradientes térmicos entre las diferentes regiones de la pieza. En impresoras industriales, la gestión térmica del volumen de construcción puede ser todavía más sofisticada.</p>
+        
+        <p>ABS puede lijarse, mecanizarse y tratarse con acetona. El alisado químico con acetona puede disolver superficialmente el ABS y reducir la visibilidad de las capas. Sin embargo, la acetona es inflamable y requiere manipulación adecuada.</p>
+        
+        <p>En aplicaciones reales, ABS es interesante para carcasas, piezas mecánicas, componentes interiores, prototipos funcionales y piezas sometidas a impactos y temperaturas moderadas. Para exterior prolongado suele ser preferible ASA.</p>
+        
+        <p>También es un material para el que hay que prestar más atención a las emisiones durante la impresión, especialmente en espacios cerrados.</p>
+      </section>
+
+      <section id="asa">
+        <h2>ASA</h2>
+        <p>ASA es un termoplástico desarrollado para conservar muchas de las propiedades útiles del ABS mientras mejora especialmente su comportamiento frente a la radiación ultravioleta y las condiciones atmosféricas.</p>
+        
+        <blockquote>¿Quiero una pieza para exterior durante meses o años?</blockquote>
+        
+        <p>Si la respuesta es sí, ASA suele ser mucho más interesante que PLA y, en determinadas aplicaciones, que ABS.</p>
+        
+        <p>Prusa clasifica ASA como material técnico apto para exterior por su resistencia térmica y a la luz ultravioleta.</p>
+        
+        <p>Su impresión es similar a ABS y requiere una máquina más exigente. La guía general de Prusa sitúa ASA aproximadamente en 220–275 °C de boquilla y 90–110 °C de cama, con cerramiento recomendado.</p>
+        
+        <p>ASA presenta contracción y warping importantes, por lo que las piezas grandes requieren especial atención al diseño. Chaflanes, esquinas redondeadas, orientación, brim y control térmico pueden reducir tensiones.</p>
+        
+        <p>Su ventaja principal es que la radiación UV deteriora menos rápidamente el material que en ABS estándar. También presenta buena resistencia al agua y se utiliza frecuentemente para piezas exteriores, carcasas, soportes, componentes de automoción, señalización y elementos expuestos al clima.</p>
+        
+        <p>En términos de diseño, ASA es especialmente interesante cuando se necesita un equilibrio entre temperatura, impacto, exterior y durabilidad.</p>
+      </section>
+
+      <section id="tpu">
+        <h2>TPU</h2>
+        <p>TPU es un poliuretano termoplástico elastomérico. Su comportamiento es radicalmente diferente al de PLA, ABS o PC porque está diseñado para permitir grandes deformaciones.</p>
+        
+        <p>La propiedad más importante del TPU suele ser su dureza Shore, especialmente Shore A. Dos TPU diferentes pueden tener durezas muy distintas, por ejemplo alrededor de 60A, 85A o 95A, y por tanto comportamientos completamente diferentes.</p>
+        
+        <p>Prusa sitúa los materiales flexibles aproximadamente en el rango de 60A–90A y destaca su flexibilidad, tenacidad y resistencia química.</p>
+        
+        <p>En diseño, TPU es interesante cuando quieres que una pieza:</p>
+        <ul>
+          <li>Absorba golpes.</li>
+          <li>Se comprima.</li>
+          <li>Se deforme.</li>
+          <li>Vuelva a su forma.</li>
+          <li>Funcione como junta.</li>
+          <li>Amortigüe vibraciones.</li>
+          <li>Proteja otro componente.</li>
+        </ul>
+        
+        <p>Por eso aparece en juntas, ruedas, patas, protectores, fundas, pasacables, amortiguadores, correas y elementos de absorción de impactos.</p>
+        
+        <p>La impresión de TPU tiene un problema fundamental: el filamento es flexible y puede deformarse dentro del sistema de extrusión. Por eso un extrusor con trayectoria del filamento bien guiada (direct drive) suele funcionar mejor que un sistema con mucho espacio libre.</p>
+        
+        <p>El comportamiento también está muy influido por:</p>
+        <ul>
+          <li>Velocidad.</li>
+          <li>Presión en el nozzle.</li>
+          <li>Retracción.</li>
+          <li>Humedad.</li>
+          <li>Diámetro real.</li>
+          <li>Dureza Shore.</li>
+          <li>Geometría de la pieza.</li>
+        </ul>
+        
+        <p>En TPU, la humedad puede tener un efecto particularmente visible y el almacenamiento en seco es crítico.</p>
+        
+        <p>En una ficha técnica avanzada habría que añadir el módulo a diferentes deformaciones, resistencia al desgarro, alargamiento, recuperación elástica, <i>compression set</i>, resistencia a abrasión, <i>creep</i> y comportamiento frente a aceites. Son propiedades mucho más relevantes para un elastómero que simplemente "resistencia a tracción".</p>
+      </section>
+
+      <section id="nylon">
+        <h2>PA / Nylon</h2>
+        <p>Nylon no es una sola sustancia. PA6, PA12, PA11, PA66 y sus variantes reforzadas tienen comportamientos diferentes. Por eso, al hablar de Nylon, es importante empezar aclarando esta diferencia estructural.</p>
+        
+        <p>Las poliamidas son especialmente valiosas por su combinación de tenacidad, resistencia mecánica, resistencia al desgaste, resistencia química y comportamiento frente a fatiga. Prusa lo clasifica como un material técnico adecuado para piezas funcionales.</p>
+        
+        <p>El mayor enemigo del Nylon es la humedad. Es significativamente más higroscópico que PLA y PETG. Esto tiene dos consecuencias: el filamento debe almacenarse correctamente y la propia pieza final puede cambiar sus propiedades mecánicas dependiendo del contenido de agua que absorba del ambiente.</p>
+        
+        <p>Prusa recomienda para PA aproximadamente 240–285 °C de boquilla y 70–115 °C de cama, además de cerramiento recomendado y <i>drybox</i> (caja secadora) activa durante la impresión.</p>
+        
+        <p>Para piezas mecánicas esto es especialmente interesante porque Nylon puede soportar deformaciones sin romperse de forma tan brusca como PLA. También presenta buena resistencia al desgaste, lo que lo hace atractivo para engranajes, poleas, bisagras, mecanismos, cojinetes y piezas sometidas a fricción.</p>
+        
+        <p>Pero hay una característica importante: <b>creep</b> (fluencia). Bajo carga constante y durante largos periodos, el polímero puede deformarse progresivamente. La humedad, la temperatura y el tipo exacto de PA modifican mucho este comportamiento. Por eso para diseño estructural prolongado no basta con conocer la resistencia a tracción inicial.</p>
+        
+        <p>Los nylons reforzados con fibra de carbono (PA-CF) o vidrio (PA-GF) aumentan mucho la rigidez y estabilidad dimensional, pero a cambio pueden disminuir ciertas características de impacto y aumentar drásticamente el desgaste de la boquilla (requiriendo boquillas endurecidas).</p>
+      </section>
+
+      <section id="pc">
+        <h2>PC (Policarbonato)</h2>
+        <p>El policarbonato es un termoplástico de ingeniería conocido por su combinación superior de resistencia al impacto, rigidez y capacidad de trabajar a temperaturas más elevadas.</p>
+        
+        <p>La guía de Prusa lo clasifica como material técnico con gran tenacidad y resistencia al calor, y proporciona rangos de aproximadamente 270–275 °C de boquilla y 100–115 °C de cama, con cerramiento recomendado.</p>
+        
+        <p>La temperatura de transición vítrea (Tg) del PC es mucho mayor que la de PLA o PETG. Esta característica es una de las razones principales por las que puede utilizarse en aplicaciones bajo capó (motor) o entornos donde otros materiales se ablandarían rápidamente.</p>
+        
+        <p>Pero esa ventaja trae un coste directo: <b>es difícil de imprimir</b>. Presenta una alta contracción térmica, <i>warping</i> severo y extrema sensibilidad a los gradientes térmicos. La impresora necesita mayor capacidad de calentamiento y la cama debe ser capaz de mantener temperaturas sostenidas por encima de los 100 °C.</p>
+        
+        <p>El PC también tiene distintas formulaciones comerciales. Existen grados puros, mezclas como PC-ABS y materiales reforzados con fibras para estabilizar la impresión.</p>
+        
+        <p>En aplicaciones avanzadas se evalúa por:</p>
+        <ul>
+          <li>Temperatura de transición vítrea (Tg)</li>
+          <li>Temperatura de deflexión térmica (HDT)</li>
+          <li>Módulo de Young</li>
+          <li>Resistencia a tracción y elongación</li>
+          <li>Resistencia a impacto</li>
+          <li>Expansión térmica</li>
+          <li>Absorción de humedad y <i>creep</i></li>
+          <li>Resistencia química y estabilidad dimensional</li>
+        </ul>
+        
+        <p>Es especialmente útil para piezas sometidas a calor e impacto directo, carcasas extremadamente resistentes, utillaje de taller, componentes mecánicos y prototipos funcionales avanzados.</p>
+      </section>
+
+      <section id="resina">
+        <h2>Resina / SLA / MSLA / DLP</h2>
+        <p>Hablar simplemente de "resina" es técnicamente demasiado amplio. La resina de impresión 3D está formada por una formulación fotopolimérica líquida que contiene una matriz de monómeros/oligómeros, fotoiniciadores y otros aditivos químicos. La luz activa el proceso de polimerización y convierte el líquido en una red sólida.</p>
+        
+        <p>Esto permite conseguir una resolución, tolerancia y un acabado superficial infinitamente superiores a los habituales de FDM en piezas pequeñas e intrincadas. Las tecnologías pueden incluir SLA (láser), DLP (proyector) y MSLA (pantalla LCD), aunque cada una utiliza una arquitectura distinta para exponer y curar la resina.</p>
+        
+        <p>La diferencia fundamental respecto al filamento es que <b>no existe una única "resistencia de la resina"</b>. Dependiendo de sus aditivos, una resina puede estar formulada para potenciar:</p>
+        <ul>
+          <li>Rigidez (resinas estándar o tough)</li>
+          <li>Tenacidad e impacto</li>
+          <li>Elasticidad (resinas flexibles)</li>
+          <li>Transparencia cristalina</li>
+          <li>Alta resistencia térmica</li>
+          <li>Fundición (calcinables para joyería)</li>
+          <li>Odontología y biocompatibilidad médica</li>
+          <li>Resistencia química industrial</li>
+        </ul>
+        
+        <p>Para resinas interesan registros muy específicos: viscosidad, densidad líquida, longitud de onda de exposición (generalmente 405nm), energía necesaria, tiempo de exposición por capa, contracción volumétrica durante el curado, tiempos de lavado, y temperatura/tiempo de postcurado.</p>
+        
+        <p>El postprocesado también es parte integral del material. Una pieza de resina sacada de la impresora no está terminada: debe lavarse (usualmente en alcohol isopropílico) y someterse a curado UV, y sus propiedades finales (como su HDT o módulo) dependen críticamente del estado de este curado final.</p>
+        
+        <p><b>Seguridad:</b> La gran diferencia respecto a FDM es que la resina líquida requiere manipulación con EPIs (guantes de nitrilo, gafas, mascarilla para VOCs). No debe tocarse directamente, y los residuos líquidos y el agua/alcohol contaminados no pueden desecharse por el desagüe sin curar previamente bajo el sol, ya que son tóxicos para la fauna acuática.</p>
+      </section>
+
+      <!-- SECCIÓN DE NOTA EDITORIAL SOBRE EL FUTURO -->
+      <div class="callout">
+        <b>El futuro de PrintLab</b>
+        <p>El objetivo de este proyecto es escalar. Próximamente, cada uno de estos materiales se dividirá en su propia <b>ficha técnica dedicada</b> con más de 20 apartados (Composición química, comportamiento frente a humedad, exposición UV, parámetros avanzados de cama/cámara, variables de diseño, fichas técnicas normalizadas ISO/ASTM, etc.), dejando de ser simples artículos para convertirse en verdaderas referencias de ingeniería.</p>
+      </div>
+
+    </article>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footergrid">
+      <div>
+        <strong>PrintLab</strong>
+        <p>Hub independiente de impresión 3D: guías, herramientas y fuentes primarias. Los parámetros concretos dependen siempre de la impresora, material y fabricante.</p>
+      </div>
+      <div>
+        <strong>Secciones</strong>
+        <p><a href="index.html#guias">Guías</a><br><a href="materiales.html">Materiales</a><br><a href="herramientas.html">Herramientas</a></p>
+      </div>
+      <div>
+        <strong>Transparencia</strong>
+        <p><a href="fuentes.html">Fuentes técnicas</a><br><a href="seguridad.html">Seguridad</a></p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
