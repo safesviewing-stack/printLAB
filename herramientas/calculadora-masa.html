@@ -17,6 +17,7 @@
     .brand{font-size:30px;font-weight:900;letter-spacing:-1.2px;margin-right:auto}
     .brand span{background:var(--accent);padding:5px 11px;border-radius:10px;margin-left:6px}
     .nav{display:flex;gap:32px;font-size:18px;color:#404944;font-weight:700}
+    .nav a:hover{text-decoration:underline}
     
     .tool-header{padding:80px 0 40px; border-bottom:1px solid var(--line); margin-bottom: 50px;}
     .tool-header h1{font-size:clamp(42px, 6vw, 68px); letter-spacing:-2.5px; line-height:1; margin:0 0 16px}
@@ -44,16 +45,26 @@
     .note{background:#1a201d; padding:20px; border-radius:14px; font-size:15px; color:#a4aca7; margin-top:20px}
     .note strong{color:#fff}
 
+    .footer{padding:80px 0 110px;margin-top:100px;border-top:1px solid var(--line);color:#69716c;font-size:17px}
+    .footergrid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:45px}
+
     @media(max-width:1100px){.calc-layout{grid-template-columns:1fr}}
     @media(max-width:650px){.input-grid{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
+  
   <header class="top">
     <div class="wrap">
       <nav>
         <a class="brand" href="../index.html">PRINT<span>LAB</span></a>
-        <div class="nav"><a href="../index.html#guias">Guías</a><a href="../materiales/index.html">Materiales</a><a href="index.html">Herramientas</a></div>
+        <div class="nav">
+          <a href="../index.html#guias">Guías</a>
+          <a href="../materiales/index.html">Materiales</a>
+          <a href="index.html">Herramientas</a>
+          <a href="../index.html#comparativas">Comparativas</a>
+          <a href="../fuentes/index.html">Fuentes técnicas</a>
+        </div>
       </nav>
     </div>
   </header>
@@ -119,13 +130,35 @@
     </div>
   </main>
 
+  <footer class="footer">
+    <div class="wrap footergrid">
+      <div>
+        <strong>PrintLab — Ingeniería 3D</strong>
+        <p>Toda la información técnica publicada se basa en fichas técnicas de materiales (TDS), protocolos de fabricantes (Prusa, UltiMaker, Formlabs) y normativas estandarizadas de la industria.</p>
+      </div>
+      <div>
+        <strong>Centro de recursos</strong>
+        <p>
+          <a href="../guias/index.html">Diagnóstico de problemas</a><br>
+          <a href="../materiales/comparativa.html">Comparativa de filamentos</a><br>
+          <a href="index.html">Calculadoras CAD/CAM</a>
+        </p>
+      </div>
+      <div>
+        <strong>Normativa y Transparencia</strong>
+        <p>
+          <a href="../fuentes/index.html">Metodología (ISO/ASTM)</a><br>
+          <a href="../guias/seguridad.html">Gestión de Riesgos (NIOSH)</a>
+        </p>
+      </div>
+    </div>
+  </footer>
+
   <script>
-    // Actualizar el campo numérico de densidad cuando se cambia el desplegable
     function updateDensity() {
       document.getElementById('den').value = document.getElementById('mat').value;
     }
 
-    // Calcular Masa = Volumen x Densidad
     function calc() {
       const vol = parseFloat(document.getElementById('vol').value) || 0;
       const den = parseFloat(document.getElementById('den').value) || 0;
@@ -134,7 +167,6 @@
       
       document.getElementById('res_mass').innerText = mass.toFixed(2) + ' g';
 
-      // Lógica técnica adicional: Advertencia de flotabilidad basada en agua pura (1 g/cm3)
       const note = document.getElementById('note_buoyancy');
       if (den > 1.0) {
         note.innerHTML = "<strong>Atención (Flotabilidad):</strong> La densidad es mayor que el agua (>1.0 g/cm³). Si se imprime maciza al 100%, la pieza se hundirá.";
