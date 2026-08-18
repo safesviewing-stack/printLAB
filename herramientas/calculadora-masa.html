@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Calculadora de Masa y Densidad 3D — PrintLab</title>
-  <meta name="description" content="Calcula el peso estimado de tus impresiones en gramos basado en el volumen del modelo CAD y la densidad del filamento/resina.">
+  <title>Conversor Dimensional para Impresión 3D — PrintLab</title>
+  <meta name="description" content="Conversor bidireccional instantáneo de milímetros a pulgadas para modelos STL y diseño CAD.">
   <style>
     :root{--bg:#f6f7f4;--card:#fff;--ink:#0d1110;--muted:#69716c;--line:#dfe4df;--accent:#b8ff3d;--dark:#111715;--max:1650px}
     *{box-sizing:border-box}html{scroll-behavior:smooth}
@@ -23,33 +23,25 @@
     .tool-header h1{font-size:clamp(42px, 6vw, 68px); letter-spacing:-2.5px; line-height:1; margin:0 0 16px}
     .tool-header p{font-size:22px; color:var(--muted); max-width:900px; margin:0}
     
-    .calc-layout{display:grid; grid-template-columns: 1.3fr 0.7fr; gap: 60px; align-items: start;}
+    .calc-layout{display:grid; grid-template-columns: 1fr; gap: 60px; max-width: 900px;}
     
     .input-panel{background:var(--card); border:1px solid var(--line); border-radius:26px; padding:40px; margin-bottom: 30px;}
     .input-panel h2{font-size:28px; letter-spacing:-1px; margin:0 0 24px; border-bottom: 2px solid var(--bg); padding-bottom:12px}
     
     .input-grid{display:grid; grid-template-columns: 1fr 1fr; gap:24px}
     .input-group{display:flex; flex-direction:column;}
-    .input-group label{font-size:16px; font-weight:800; margin-bottom:8px;}
-    .input-group label span{color:var(--muted); font-weight:400; font-size:14px; margin-left:6px;}
-    .input-group input, .input-group select{padding:18px; border:1px solid #cdd4cf; border-radius:12px; font-size:18px; background:var(--bg); font-family:inherit}
-    .input-group input:focus, .input-group select:focus{outline:2px solid var(--ink); background:#fff}
+    .input-group label{font-size:16px; font-weight:800; margin-bottom:8px; display:flex; justify-content:space-between}
+    .input-group input{padding:24px; border:1px solid #cdd4cf; border-radius:14px; font-size:28px; font-weight:700; background:var(--bg); transition:.2s; font-family:monospace}
+    .input-group input:focus{outline:3px solid var(--accent); background:#fff; border-color:var(--ink)}
 
-    .result-panel{background:var(--dark); color:#fff; border-radius:32px; padding:42px; position:sticky; top: 130px;}
-    .result-panel h3{font-size:24px; color:#b8c0bb; margin:0 0 24px; font-weight:700}
-    
-    .total-box{background:var(--accent); color:var(--ink); border-radius:20px; padding:28px; text-align:center;}
-    .total-box span{display:block; font-size:18px; font-weight:800; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px}
-    .total-box strong{display:block; font-size:62px; line-height:1; letter-spacing:-2px}
-
-    .note{background:#1a201d; padding:20px; border-radius:14px; font-size:15px; color:#a4aca7; margin-top:20px}
-    .note strong{color:#fff}
+    .note{background:#edf7e8; border:1px solid #cadfbe; padding:24px; border-radius:18px; margin-top:10px}
+    .note h3{margin:0 0 10px; font-size:20px; color:#1e694b}
+    .note p{margin:0; font-size:16px; color:#3f4843}
 
     .footer{padding:80px 0 110px;margin-top:100px;border-top:1px solid var(--line);color:#69716c;font-size:17px}
     .footergrid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:45px}
-
-    @media(max-width:1100px){.calc-layout{grid-template-columns:1fr}}
-    @media(max-width:650px){.input-grid{grid-template-columns:1fr}}
+    
+    @media(max-width:650px){.input-grid{grid-template-columns:1fr} .tool-header h1{font-size:42px}}
   </style>
 </head>
 <body>
@@ -71,61 +63,36 @@
 
   <main class="wrap">
     <div class="tool-header">
-      <h1>Calculadora de Masa Polimérica</h1>
-      <p>Pasa del volumen (dado por tu software CAD) al peso físico en gramos según la densidad técnica del termoplástico o la resina que vayas a usar.</p>
+      <h1>Conversor Dimensional</h1>
+      <p>Traduce dimensiones de archivos STL imperiales (diseñados en pulgadas) al sistema métrico (milímetros) estándar usado por todos los laminadores FDM y SLA.</p>
     </div>
 
     <div class="calc-layout">
-      <!-- PANEL IZQUIERDO -->
-      <div>
-        <div class="input-panel">
-          <h2>Parámetros Físicos</h2>
-          <div class="input-grid">
-            <div class="input-group">
-              <label>Volumen total de la pieza <span>(cm³)</span></label>
-              <input type="number" id="vol" value="150" step="any" oninput="calc()">
-            </div>
-            <div class="input-group">
-              <label>Seleccionar Material</label>
-              <!-- Las densidades estándar de la industria g/cm³ -->
-              <select id="mat" onchange="updateDensity(); calc()">
-                <option value="1.24">PLA (1.24 g/cm³)</option>
-                <option value="1.27">PETG (1.27 g/cm³)</option>
-                <option value="1.04">ABS (1.04 g/cm³)</option>
-                <option value="1.07">ASA (1.07 g/cm³)</option>
-                <option value="1.20">TPU Flexible (1.20 g/cm³)</option>
-                <option value="1.14">Nylon / PA (1.14 g/cm³)</option>
-                <option value="1.20">PC Policarbonato (1.20 g/cm³)</option>
-                <option value="1.10">Resina Estándar SLA (1.10 g/cm³)</option>
-              </select>
-            </div>
-            <div class="input-group">
-              <label>Densidad aplicada <span>(g/cm³)</span></label>
-              <input type="number" id="den" value="1.24" step="0.01" oninput="calc()">
-            </div>
+      <div class="input-panel">
+        <h2>Sincronización en tiempo real</h2>
+        <div class="input-grid">
+          <div class="input-group">
+            <label>Milímetros <span>(mm)</span></label>
+            <input type="number" id="val_mm" value="25.4" step="any" oninput="convert('mm')">
           </div>
-        </div>
-
-        <div style="background:#fff; border:1px solid #dfe4df; border-left:4px solid #0d1110; padding:24px; border-radius:12px; margin-bottom:30px">
-          <h3 style="margin:0 0 10px; font-size:18px">Flotabilidad e Infill</h3>
-          <p style="margin:0; font-size:16px; color:#69716c">Si diseñas un objeto que debe flotar en el agua (densidad = 1.00 g/cm³), recuerda que los termoplásticos son más densos y se hundirán si se imprimen al 100% sólidos. Usa esta calculadora sobre el <strong>volumen de material extrudido</strong> por el laminador (con un Infill del 10-20%), no sobre el volumen matemático del CAD, para garantizar flotabilidad.</p>
+          <div class="input-group">
+            <label>Pulgadas <span>(in)</span></label>
+            <input type="number" id="val_in" value="1" step="any" oninput="convert('in')">
+          </div>
+          <div class="input-group">
+            <label>Centímetros <span>(cm)</span></label>
+            <input type="number" id="val_cm" value="2.54" step="any" oninput="convert('cm')">
+          </div>
+          <div class="input-group">
+            <label>Metros <span>(m)</span></label>
+            <input type="number" id="val_m" value="0.0254" step="any" oninput="convert('m')">
+          </div>
         </div>
       </div>
 
-      <!-- PANEL DERECHO -->
-      <div>
-        <div class="result-panel">
-          <h3>Resultados de Masa</h3>
-          
-          <div class="total-box">
-            <span>Peso de la pieza</span>
-            <strong id="res_mass">186.00 g</strong>
-          </div>
-
-          <div class="note" id="note_buoyancy">
-            <strong>Atención:</strong> Con esta densidad, el material sólido se hundirá en el agua.
-          </div>
-        </div>
+      <div class="note">
+        <h3>¿Por qué mi STL importado mide 2 milímetros en el laminador?</h3>
+        <p>Los archivos STL son "adimensionales"; solo guardan coordenadas matemáticas sin unidad. Si el diseñador modeló un cubo de 2x2x2 pulgadas en SolidWorks y tú lo abres en PrusaSlicer (que lee en mm), el software asumirá que mide 2x2x2 milímetros. <strong>Solución:</strong> Escala tu modelo un <strong>2540%</strong> en el laminador para convertirlo de pulgadas a milímetros reales.</p>
       </div>
     </div>
   </main>
@@ -155,24 +122,23 @@
   </footer>
 
   <script>
-    function updateDensity() {
-      document.getElementById('den').value = document.getElementById('mat').value;
-    }
+    function convert(source) {
+      const v_mm = document.getElementById('val_mm');
+      const v_in = document.getElementById('val_in');
+      const v_cm = document.getElementById('val_cm');
+      const v_m = document.getElementById('val_m');
 
-    function calc() {
-      const vol = parseFloat(document.getElementById('vol').value) || 0;
-      const den = parseFloat(document.getElementById('den').value) || 0;
-      
-      const mass = vol * den;
-      
-      document.getElementById('res_mass').innerText = mass.toFixed(2) + ' g';
+      let mmValue = 0;
 
-      const note = document.getElementById('note_buoyancy');
-      if (den > 1.0) {
-        note.innerHTML = "<strong>Atención (Flotabilidad):</strong> La densidad es mayor que el agua (>1.0 g/cm³). Si se imprime maciza al 100%, la pieza se hundirá.";
-      } else {
-        note.innerHTML = "<strong>Atención (Flotabilidad):</strong> La densidad es menor o igual al agua. La pieza flotará incluso impresa en formato macizo.";
-      }
+      if(source === 'mm') mmValue = parseFloat(v_mm.value) || 0;
+      if(source === 'in') mmValue = (parseFloat(v_in.value) || 0) * 25.4;
+      if(source === 'cm') mmValue = (parseFloat(v_cm.value) || 0) * 10;
+      if(source === 'm')  mmValue = (parseFloat(v_m.value) || 0) * 1000;
+
+      if(source !== 'mm') v_mm.value = +(mmValue).toFixed(4);
+      if(source !== 'in') v_in.value = +(mmValue / 25.4).toFixed(4);
+      if(source !== 'cm') v_cm.value = +(mmValue / 10).toFixed(4);
+      if(source !== 'm')  v_m.value  = +(mmValue / 1000).toFixed(4);
     }
   </script>
 </body>
