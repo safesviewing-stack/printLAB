@@ -17,6 +17,7 @@
     .brand{font-size:30px;font-weight:900;letter-spacing:-1.2px;margin-right:auto}
     .brand span{background:var(--accent);padding:5px 11px;border-radius:10px;margin-left:6px}
     .nav{display:flex;gap:32px;font-size:18px;color:#404944;font-weight:700}
+    .nav a:hover{text-decoration:underline}
     
     .tool-header{padding:80px 0 40px; border-bottom:1px solid var(--line); margin-bottom: 50px;}
     .tool-header h1{font-size:clamp(42px, 6vw, 68px); letter-spacing:-2.5px; line-height:1; margin:0 0 16px}
@@ -44,11 +45,18 @@
   </style>
 </head>
 <body>
+  
   <header class="top">
     <div class="wrap">
       <nav>
         <a class="brand" href="../index.html">PRINT<span>LAB</span></a>
-        <div class="nav"><a href="../index.html#guias">Guías</a><a href="../materiales/index.html">Materiales</a><a href="index.html">Herramientas</a></div>
+        <div class="nav">
+          <a href="../index.html#guias">Guías</a>
+          <a href="../materiales/index.html">Materiales</a>
+          <a href="index.html">Herramientas</a>
+          <a href="../index.html#comparativas">Comparativas</a>
+          <a href="../fuentes/index.html">Fuentes técnicas</a>
+        </div>
       </nav>
     </div>
   </header>
@@ -89,8 +97,31 @@
     </div>
   </main>
 
+  <footer class="footer">
+    <div class="wrap footergrid">
+      <div>
+        <strong>PrintLab — Ingeniería 3D</strong>
+        <p>Toda la información técnica publicada se basa en fichas técnicas de materiales (TDS), protocolos de fabricantes (Prusa, UltiMaker, Formlabs) y normativas estandarizadas de la industria.</p>
+      </div>
+      <div>
+        <strong>Centro de recursos</strong>
+        <p>
+          <a href="../guias/index.html">Diagnóstico de problemas</a><br>
+          <a href="../materiales/comparativa.html">Comparativa de filamentos</a><br>
+          <a href="index.html">Calculadoras CAD/CAM</a>
+        </p>
+      </div>
+      <div>
+        <strong>Normativa y Transparencia</strong>
+        <p>
+          <a href="../fuentes/index.html">Metodología (ISO/ASTM)</a><br>
+          <a href="../guias/seguridad.html">Gestión de Riesgos (NIOSH)</a>
+        </p>
+      </div>
+    </div>
+  </footer>
+
   <script>
-    // Lógica bidireccional de conversión
     function convert(source) {
       const v_mm = document.getElementById('val_mm');
       const v_in = document.getElementById('val_in');
@@ -99,13 +130,11 @@
 
       let mmValue = 0;
 
-      // 1. Convertir la entrada actual a milímetros como base universal
       if(source === 'mm') mmValue = parseFloat(v_mm.value) || 0;
       if(source === 'in') mmValue = (parseFloat(v_in.value) || 0) * 25.4;
       if(source === 'cm') mmValue = (parseFloat(v_cm.value) || 0) * 10;
       if(source === 'm')  mmValue = (parseFloat(v_m.value) || 0) * 1000;
 
-      // 2. Repartir el cálculo al resto (evitando sobrescribir el input activo para no molestar al usuario al escribir)
       if(source !== 'mm') v_mm.value = +(mmValue).toFixed(4);
       if(source !== 'in') v_in.value = +(mmValue / 25.4).toFixed(4);
       if(source !== 'cm') v_cm.value = +(mmValue / 10).toFixed(4);
