@@ -3,151 +3,131 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>PLA vs PETG: Comparativa Técnica para Ingeniería — PrintLab</title>
-  <meta name="description" content="Decide entre PLA y PETG para tus piezas FDM basándote en rigidez, temperatura de transición vítrea (Tg), impacto y fluencia.">
+  <title>PLA vs PETG: Comparativa Técnica - PrintLab</title>
   <style>
-    :root{--bg:#f6f7f4;--card:#fff;--ink:#0d1110;--muted:#69716c;--line:#dfe4df;--accent:#b8ff3d;--dark:#111715;--max:1200px} /* Más estrecho para lectura */
+    :root{--bg:#f6f7f4;--card:#fff;--ink:#0d1110;--muted:#69716c;--line:#dfe4df;--accent:#b8ff3d;--dark:#111715;--max:1100px}
     *{box-sizing:border-box}html{scroll-behavior:smooth}
-    body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.6}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,sans-serif;line-height:1.7}
     a{color:inherit;text-decoration:none}
-    .wrap{max-width:var(--max);margin:auto;padding:0 16px}
+    .wrap{max-width:var(--max);margin:auto;padding:0 20px}
     
-    .top{position:sticky;top:0;z-index:50;background:rgba(246,247,244,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line); max-width: 100%;}
-    nav{min-height:95px;display:flex;align-items:center;gap:36px; max-width:1650px; margin:auto; padding:0 16px}
-    .brand{font-size:30px;font-weight:900;letter-spacing:-1.2px;margin-right:auto}
-    .brand span{background:var(--accent);padding:5px 11px;border-radius:10px;margin-left:6px}
-    .nav{display:flex;gap:32px;font-size:18px;color:#404944;font-weight:700}
-    .nav a:hover{text-decoration:underline}
-    .nav a.active{border-bottom:3px solid var(--accent); padding-bottom: 4px;}
-
-    .hero-guide{padding:80px 0 40px; text-align:center; border-bottom:1px solid var(--line); margin-bottom: 50px;}
-    .hero-guide h1{font-size:clamp(42px, 6vw, 68px); letter-spacing:-2px; line-height:1.1; margin:0 0 20px}
-    .hero-guide p{font-size:22px; color:var(--muted); max-width:800px; margin:auto}
-
-    .content{background:var(--card); padding:60px; border-radius:32px; border:1px solid var(--line); box-shadow:0 15px 35px rgba(0,0,0,.03); margin-bottom:60px}
+    /* HEADER (Igual que la principal, con ruta para volver) */
+    .top{position:sticky;top:0;z-index:50;background:rgba(246,247,244,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+    nav{min-height:80px;display:flex;align-items:center;justify-content:center}
+    .brand{font-size:26px;font-weight:900;letter-spacing:-1px}
+    .brand span{background:var(--accent);padding:4px 9px;border-radius:8px;margin-left:4px;color:var(--ink)}
     
-    .prose h2{font-size:32px; letter-spacing:-1px; margin:40px 0 20px; color:var(--ink)}
-    .prose p{font-size:19px; color:#3f4843; margin-bottom:24px}
+    /* ARTICLE LAYOUT */
+    .article-header{padding:80px 0 40px;border-bottom:1px solid var(--line);margin-bottom:40px}
+    .tag{display:inline-block;padding:6px 12px;border-radius:999px;background:#eef2ee;color:#4d5852;font-size:13px;font-weight:900;text-transform:uppercase;margin-bottom:20px}
+    .article-header h1{font-size:clamp(40px, 5vw, 56px);line-height:1.05;letter-spacing:-2px;margin:0 0 20px;max-width:850px}
+    .article-header p{font-size:22px;color:var(--muted);margin:0;max-width:700px}
     
-    .vs-grid{display:grid; grid-template-columns: 1fr 1fr; gap:30px; margin:40px 0}
-    .vs-col{padding:30px; border-radius:20px; border:1px solid var(--line); background:var(--bg)}
-    .vs-col h3{font-size:24px; margin:0 0 16px; border-bottom:2px solid var(--line); padding-bottom:10px}
-    .vs-col ul{padding-left:20px; font-size:18px; color:#3f4843}
-    .vs-col li{margin-bottom:12px}
-
-    table{width:100%; border-collapse:collapse; margin:40px 0; text-align:left}
-    th{background:var(--ink); color:#fff; padding:16px; font-size:16px; letter-spacing:1px}
-    td{padding:16px; border-bottom:1px solid var(--line); font-size:18px}
-    tr:nth-child(even){background:var(--bg)}
-
-    .verdict{background:var(--dark); color:#fff; padding:40px; border-radius:24px; margin-top:40px}
-    .verdict h3{color:var(--accent); font-size:28px; margin:0 0 16px}
-    .verdict p{font-size:19px; color:#bcc5c0; margin:0}
-
-    .footer{padding:80px 0 110px;margin-top:100px;border-top:1px solid var(--line);color:#69716c;font-size:17px; max-width:1650px; margin-left:auto; margin-right:auto}
-    .footergrid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:45px; padding:0 16px}
+    .content{font-size:19px;color:#2c3330;max-width:800px;margin:0 auto 100px}
+    .content h2{font-size:32px;margin:50px 0 20px;letter-spacing:-1px;color:var(--ink)}
+    .content h3{font-size:24px;margin:30px 0 15px}
+    .content p{margin-bottom:24px}
     
-    @media(max-width:768px){.vs-grid{grid-template-columns:1fr} .content{padding:30px}}
+    /* TABLAS TÉCNICAS */
+    .data-table{width:100%;border-collapse:collapse;margin:30px 0;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 15px rgba(0,0,0,0.03)}
+    .data-table th, .data-table td{padding:16px 20px;text-align:left;border-bottom:1px solid var(--line)}
+    .data-table th{background:var(--dark);color:#fff;font-weight:700}
+    .data-table tr:last-child td{border-bottom:none}
+    
+    /* ALERTAS TÉCNICAS */
+    .alert{background:#fff;border-left:5px solid var(--ink);padding:24px;border-radius:0 12px 12px 0;margin:30px 0;box-shadow:0 4px 15px rgba(0,0,0,0.03)}
+    .alert.warn{border-color:#d9432f;background:#fcf1f0}
+    .alert strong{display:block;font-size:16px;text-transform:uppercase;margin-bottom:8px;letter-spacing:1px}
+    
+    /* FOOTER UNIVERSAL */
+    .footer{padding:80px 0;border-top:1px solid var(--line);color:#69716c;font-size:16px}
+    .footergrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:40px;max-width:1650px}
+    .footer strong{display:block;font-size:18px;color:var(--ink);margin-bottom:12px}
+    .footer a:hover{color:var(--ink);text-decoration:underline}
   </style>
 </head>
 <body>
-  
+
   <header class="top">
-    <nav>
-      <a class="brand" href="../index.html">PRINT<span>LAB</span></a>
-      <div class="nav">
-        <a href="../index.html#guias" class="active">Guías</a>
-        <a href="../materiales/index.html">Materiales</a>
-        <a href="../herramientas/index.html">Herramientas</a>
-      </div>
-    </nav>
+    <div class="wrap">
+      <nav><a class="brand" href="../index.html" title="Volver al inicio">PRINT<span>LAB</span></a></nav>
+    </div>
   </header>
 
   <main class="wrap">
-    
-    <div class="hero-guide">
-      <h1>PLA vs PETG: ¿Cuál elegir?</h1>
-      <p>La eterna duda al imprimir piezas funcionales. Desmontamos los mitos comparando el módulo de tracción, la temperatura de deflexión y la tenacidad real.</p>
-    </div>
+    <header class="article-header content">
+      <span class="tag">Decisión de Diseño</span>
+      <h1>PLA vs PETG: La comparativa técnica para ingeniería</h1>
+      <p>Desglosamos las propiedades mecánicas basadas en normativas ISO/ASTM para elegir el material correcto en piezas funcionales.</p>
+    </header>
 
-    <div class="content prose">
-      <p>Cuando pasas de imprimir figuras decorativas a diseñar piezas mecánicas en CAD (soportes, engranajes, carcasas), la primera decisión técnica es saltar del PLA estándar a algo más resistente. El 90% de los usuarios opta por el PETG, pero <strong>¿es realmente "más fuerte" el PETG? La respuesta de ingeniería es: depende del tipo de fuerza.</strong></p>
+    <article class="content">
+      <p>El error más común en la impresión 3D FDM es asumir que el PETG es siempre superior al PLA. La realidad, respaldada por fichas técnicas de fabricantes como UltiMaker y Prusa, demuestra que ambos polímeros tienen comportamientos opuestos ante el estrés mecánico.</p>
 
-      <div class="vs-grid">
-        <div class="vs-col">
-          <h3>PLA (Poliácido Láctico)</h3>
-          <ul>
-            <li><strong>Mayor Rigidez:</strong> Soporta más peso estático sin doblarse.</li>
-            <li><strong>Quebradizo:</strong> Ante un golpe seco, estalla.</li>
-            <li><strong>Sensible al calor:</strong> A 55ºC se vuelve chicle.</li>
-            <li><strong>Impresión perfecta:</strong> Sin hilos, detalles ultra precisos.</li>
-          </ul>
-        </div>
-        <div class="vs-col">
-          <h3>PETG (Poliéster Modificado)</h3>
-          <ul>
-            <li><strong>Mayor Tenacidad:</strong> Se dobla antes de romperse; absorbe impactos.</li>
-            <li><strong>Flexible:</strong> No apto para piezas que requieran rigidez absoluta.</li>
-            <li><strong>Resiste el calor:</strong> Aguanta hasta ~80ºC sin deformarse.</li>
-            <li><strong>Impresión viscosa:</strong> Tendencia al <i>stringing</i> y <i>oozing</i>.</li>
-          </ul>
-        </div>
-      </div>
+      <h2>1. Propiedades Mecánicas (La realidad de los datos)</h2>
+      <p>El PLA (Ácido Poliláctico) es un material extremadamente <b>rígido pero frágil</b>. El PETG (Polietilentereftalato modificado con Glicol) es <b>más dúctil y tenaz</b>, lo que significa que se dobla antes de romperse.</p>
 
-      <h2>El Mito de la "Fuerza"</h2>
-      <p>Es común pensar que el PETG es mecánicamente superior en todo. Falso. Si imprimes un gancho de pared para colgar una mochila pesada, <strong>el PLA aguantará más peso sin deformarse</strong> debido a su altísimo módulo de elasticidad. Sin embargo, si ese mismo gancho recibe un golpe lateral, el PLA se partirá en dos al instante, mientras que el PETG simplemente cederá un poco y volverá a su sitio.</p>
-
-      <h2>Comparativa Directa de Materiales</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Propiedad Mecánica (ISO/ASTM)</th>
-            <th>PLA</th>
-            <th>PETG</th>
-            <th>Ganador</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Temperatura de deformación (HDT)</td>
-            <td>55 ºC</td>
-            <td>80 ºC</td>
-            <td><strong>PETG</strong> (Apto para exteriores)</td>
-          </tr>
-          <tr>
-            <td>Resistencia al impacto (Tenacidad)</td>
-            <td>Muy Baja</td>
-            <td>Alta</td>
-            <td><strong>PETG</strong> (Absorbe golpes)</td>
-          </tr>
-          <tr>
-            <td>Módulo elástico (Rigidez estática)</td>
-            <td>~ 3300 MPa</td>
-            <td>~ 2100 MPa</td>
-            <td><strong>PLA</strong> (Soporta más peso muerto)</td>
-          </tr>
-          <tr>
-            <td>Adhesión de capas (Eje Z)</td>
-            <td>Buena</td>
-            <td>Excelente</td>
-            <td><strong>PETG</strong> (Menos delaminación)</td>
-          </tr>
-        </tbody>
+      <table class="data-table">
+        <tr>
+          <th>Propiedad Mecánica (Promedio FDM)</th>
+          <th>PLA</th>
+          <th>PETG</th>
+        </tr>
+        <tr>
+          <td>Resistencia a la Tracción (Fuerza de rotura)</td>
+          <td>~ 50 - 65 MPa (Mayor)</td>
+          <td>~ 45 - 50 MPa (Menor)</td>
+        </tr>
+        <tr>
+          <td>Módulo de Flexión (Rigidez)</td>
+          <td>~ 2800 MPa (Muy Rígido)</td>
+          <td>~ 2100 MPa (Más flexible)</td>
+        </tr>
+        <tr>
+          <td>Resistencia al Impacto (Izod)</td>
+          <td>Baja (Se astilla o parte)</td>
+          <td>Alta (Absorbe la energía)</td>
+        </tr>
       </table>
 
-      <div class="verdict">
-        <h3>Veredicto Final: ¿Qué material imprimo?</h3>
-        <p>Utiliza <strong>PLA</strong> si necesitas precisión dimensional estricta (encajes de tolerancia cero), la pieza va a estar en interiores (< 40ºC) y requiere soportar cargas constantes sin flexar. <br><br>
-        Utiliza <strong>PETG</strong> si la pieza va a sufrir caídas, vibraciones (como piezas de una impresora 3D o drones), necesita estar en contacto con el sol/verano, o va a ser sometida a esfuerzos de torsión (como bisagras o abrazaderas).</p>
+      <h2>2. Estabilidad Térmica (Temperatura de transición vítrea)</h2>
+      <p>La temperatura de transición vítrea (Tg) es el punto donde el polímero empieza a ablandarse y pierde su integridad estructural, deformándose bajo su propio peso o carga externa.</p>
+      
+      <div class="alert warn">
+        <strong>⚠️ Advertencia: Piezas en el exterior</strong>
+        El PLA tiene un Tg de aproximadamente <b>55°C a 60°C</b>. Una pieza de PLA dentro de un coche en verano se deformará irreversiblemente. El PETG eleva este umbral hasta los <b>80°C - 85°C</b>, haciéndolo apto para la mayoría de piezas de maquinaria, cajas electrónicas y uso en exteriores, además de soportar mejor la radiación UV.
       </div>
-    </div>
 
+      <h2>3. Dificultad de impresión y postprocesado</h2>
+      <p>Mientras que el PLA perdona casi cualquier error del laminador, el PETG es famoso por dos problemas críticos:</p>
+      <ul>
+        <li><b>Higroscopia severa:</b> El PETG absorbe humedad ambiental rápidamente. Si no se seca antes de imprimir (aprox. 65°C durante 6 horas), el agua en el filamento hervirá en la boquilla, destruyendo la adhesión de capas y provocando exceso de "stringing" (hilos).</li>
+        <li><b>Sobre-adhesión a la cama:</b> El PETG se fusiona a nivel molecular con el vidrio liso o las bases de PEI lisas.</li>
+      </ul>
+
+      <div class="alert">
+        <strong>💡 Consejo de Fabricante (Prusa Research)</strong>
+        Nunca imprimas PETG sobre una cama de cristal limpia o PEI liso sin aplicar una capa separadora (como pegamento en barra o limpia-cristales). Al enfriarse, la contracción del PETG puede literalmente arrancar trozos de cristal de la base.
+      </div>
+
+      <h2>Veredicto Final</h2>
+      <p><b>Elige PLA si:</b> Necesitas la máxima precisión dimensional, vas a pintar o lijar la pieza, requiere alta rigidez bajo cargas estáticas (que no superen los 50ºC) o estás prototipando formas complejas.</p>
+      <p><b>Elige PETG si:</b> La pieza va a sufrir impactos, encajes a presión (snap-fits), necesita resistir químicos moderados (alcoholes, sales) o va a estar expuesta a temperaturas ambientales altas o a la intemperie.</p>
+    </article>
   </main>
 
   <footer class="footer">
-    <div class="footergrid">
-      <div><strong>PrintLab</strong><p>Datos basados en TDS de fabricantes.</p></div>
-      <div><strong>Recursos</strong><p><a href="diagnostico-fallos.html">Diagnóstico de problemas</a></p></div>
+    <div class="wrap footergrid">
+      <div>
+        <strong>PrintLab — Ingeniería 3D</strong>
+        <p>Toda la información técnica publicada se basa en fichas técnicas de materiales (TDS), protocolos de fabricantes (Prusa, UltiMaker, Bambu Lab) y normativas estandarizadas de la industria (ISO, ASTM).</p>
+      </div>
+      <div>
+        <strong>Centro de recursos</strong>
+        <p>
+          <a href="../index.html#guias">Guías y diagnóstico</a><br>
+        </p>
+      </div>
     </div>
   </footer>
 </body>
