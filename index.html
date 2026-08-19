@@ -7,7 +7,7 @@
   <meta name="description" content="Decisiones técnicas de impresión 3D basadas en datos de Prusa, UltiMaker, Formlabs, Bambu Lab, ISO, ASTM, NIOSH y CDC.">
   <meta name="robots" content="index,follow">
   <style>
-    /* Diseño a escala máxima: 1650px para aprovechar toda la pantalla */
+    /* Diseño a escala máxima: 1650px */
     :root{--bg:#f6f7f4;--card:#fff;--ink:#0d1110;--muted:#69716c;--line:#dfe4df;--accent:#b8ff3d;--dark:#111715;--max:1650px}
     
     *{box-sizing:border-box}html{scroll-behavior:smooth}
@@ -15,26 +15,20 @@
     a{color:inherit;text-decoration:none}
     .wrap{max-width:var(--max);margin:auto;padding:0 16px}
     
-    /* CABECERA (Reducida y simplificada) */
+    /* CABECERA */
     .top{position:sticky;top:0;z-index:50;background:rgba(246,247,244,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
     nav{min-height:95px;display:flex;align-items:center;justify-content:center;gap:36px}
-    /* El logo centrado (o a la izquierda) sirve como botón de "Volver al inicio" en toda la web */
     .brand{font-size:30px;font-weight:900;letter-spacing:-1.2px;margin-right:auto}
     .brand span{background:var(--accent);padding:5px 11px;border-radius:10px;margin-left:6px;color:var(--ink)}
     
-    /* BOTONES GLOBALES (Mejorado el contraste con el fondo) */
+    /* BOTONES */
     .btn{display:inline-flex;align-items:center;justify-content:center;padding:18px 28px;border-radius:14px;font-weight:800;font-size:18px;cursor:pointer;transition:.15s}
-    .btn:hover{transform:translateY(-2px)}
-    
-    /* Botón verde con borde fuerte para destacar */
     .btn.green{background:var(--accent);color:var(--ink);border:2px solid var(--ink);box-shadow:0 4px 0px var(--ink)}
     .btn.green:active{transform:translateY(2px);box-shadow:0 0px 0px var(--ink)}
-    
-    /* Botones blancos con borde gris oscuro para separarlos del fondo */
     .btn.light{background:#fff;color:var(--ink);border:2px solid #ced6d1;box-shadow:0 4px 10px rgba(0,0,0,0.04)}
     .btn.light:hover{border-color:var(--ink)}
     
-    /* HERO */
+    /* HERO PRINCIPAL */
     .hero{padding:100px 0 50px;display:grid;grid-template-columns:1.2fr .8fr;gap:60px;align-items:end}
     .eyebrow{font-size:15px;text-transform:uppercase;letter-spacing:2px;font-weight:900;color:#69716c}
     .hero h1{font-size:clamp(58px,8.5vw,115px);line-height:.95;letter-spacing:-4.5px;margin:24px 0 32px;max-width:1050px}
@@ -46,7 +40,6 @@
     .searchbox{display:flex;gap:14px}
     .searchbox input{min-width:0;flex:1;border:1px solid #3b443f;background:#1a201d;color:#fff;border-radius:14px;padding:20px;font-size:18px}
     .searchbox input:focus{outline:2px solid var(--accent);border-color:var(--accent)}
-    .hint{font-size:16px;color:#8f9892;margin-top:16px}
     
     /* ASISTENTE INTERACTIVO */
     .assistant-wrapper{display:none;background:#fff;border:2px solid var(--ink);border-radius:24px;padding:40px;margin-top:30px;animation:slideDown .3s ease-out}
@@ -60,25 +53,40 @@
     .result-box p{font-size:18px;margin:0 0 16px;color:var(--ink)}
     .result-warning{color:#9e3223;font-weight:700;font-size:16px;background:#fcebe8;padding:12px;border-radius:8px}
     
-    /* SECCIONES */
+    /* SECCIONES Y CABECERAS */
     .section{padding:30px 0 20px}
     .sectionhead{display:flex;justify-content:space-between;align-items:end;gap:24px;margin:65px 0 30px}
     .sectionhead h2{font-size:46px;letter-spacing:-1.8px;margin:0}
     .sectionhead p{margin:0;color:var(--muted);font-size:22px}
     
-    /* TARJETAS DE GUÍAS */
+    /* BLOQUE DESTACADO (El cuadrado oscuro restaurado) */
+    .feature{display:grid;grid-template-columns:1.05fr .95fr;gap:32px;margin-bottom:50px}
+    .feature .heroarticle{min-height:460px;background:#101614;color:#fff;border-radius:32px;padding:48px;display:flex;flex-direction:column;justify-content:flex-end}
+    .heroarticle h3{font-size:52px;line-height:1.02;letter-spacing:-2px;margin:22px 0 16px}
+    .heroarticle p{font-size:21px;color:#bcc5c0;max-width:750px;margin-bottom:28px}
+    .heroarticle .tag{background:#2a332f;color:var(--accent)} /* Tag adaptado para el fondo oscuro */
+    
+    /* LISTA LATERAL DEL BLOQUE DESTACADO */
+    .list{border:1px solid var(--line);background:#fff;border-radius:32px;padding:20px}
+    .list a{display:flex;align-items:center;justify-content:space-between;padding:28px 24px;border-bottom:1px solid var(--line);transition:.15s}
+    .list a:last-child{border:0}
+    .list a:hover{background:var(--bg);border-radius:16px}
+    .list strong{display:block;font-size:22px;margin-bottom:6px}
+    .list span{display:block;font-size:17px;color:#727b76}
+    .btn-list{background:var(--line);padding:10px 18px;border-radius:10px;font-weight:800;font-size:15px;color:var(--ink);white-space:nowrap;margin-left:20px;border:1px solid var(--line)}
+    .list a:hover .btn-list{background:var(--accent);border-color:var(--ink)}
+
+    /* TARJETAS NORMALES */
     .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
     .card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:26px;padding:34px;transition:.18s;height:100%}
     .card:hover{transform:translateY(-4px);box-shadow:0 18px 45px rgba(0,0,0,.07)}
     .tag{display:inline-block;align-self:flex-start;padding:8px 14px;border-radius:999px;background:#eef2ee;color:#4d5852;font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:.8px}
     .card h3{font-size:28px;line-height:1.15;margin:22px 0 14px;letter-spacing:-.6px}
     .card p{font-size:18px;color:#626b66;margin:0 0 30px}
-    
-    /* Pseudo-botones dentro de las tarjetas */
     .btn-action{margin-top:auto;display:inline-block;background:var(--bg);color:var(--ink);padding:14px 20px;border-radius:12px;font-weight:800;font-size:16px;border:1px solid var(--line);align-self:flex-start;transition:.15s}
     .card:hover .btn-action{background:var(--ink);color:#fff;border-color:var(--ink)}
     
-    /* FOOTER (Universal para toda la web) */
+    /* FOOTER */
     .footer{padding:80px 0 110px;margin-top:100px;border-top:1px solid var(--line);color:#69716c;font-size:17px}
     .footergrid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:45px}
     .footer strong{display:block;font-size:18px;color:var(--ink);margin-bottom:12px}
@@ -90,13 +98,29 @@
     .searchresults b{font-size:18px}
     .searchresults small{display:block;font-size:16px;color:#707872;margin-top:6px}
     
-    @media(max-width:1250px){.hero{grid-template-columns:1fr}.grid{grid-template-columns:1fr 1fr}.hero h1{letter-spacing:-3px}.footergrid{grid-template-columns:1fr 1fr}}
-    @media(max-width:750px){.wrap{padding:0 20px}.grid,.footergrid{grid-template-columns:1fr}.hero{padding-top:60px}.hero h1{font-size:54px;letter-spacing:-2.5px}.searchbox{display:block}.searchbox input,.searchbox button{width:100%;margin-top:12px}}
+    /* RESPONSIVE */
+    @media(max-width:1250px){
+      .hero, .feature{grid-template-columns:1fr}
+      .grid{grid-template-columns:1fr 1fr}
+      .hero h1{letter-spacing:-3px}
+      .footergrid{grid-template-columns:1fr 1fr}
+    }
+    @media(max-width:750px){
+      .wrap{padding:0 20px}
+      .grid, .footergrid{grid-template-columns:1fr}
+      .hero{padding-top:60px}
+      .hero h1{font-size:54px;letter-spacing:-2.5px}
+      .searchbox{display:block}
+      .searchbox input, .searchbox button{width:100%;margin-top:12px}
+      .heroarticle h3{font-size:38px}
+      .list a{flex-direction:column;align-items:flex-start;gap:16px}
+      .btn-list{margin-left:0}
+    }
   </style>
 </head>
 <body>
   
-  <!-- CABECERA UNIVERSAL: El logo sirve para volver a esta página desde cualquier otra -->
+  <!-- CABECERA -->
   <header class="top">
     <div class="wrap">
       <nav>
@@ -114,12 +138,12 @@
         <p>Soluciones de ingeniería respaldadas por normativas ISO, ASTM y documentación de fabricantes (Prusa, UltiMaker, Formlabs). Deja de adivinar parámetros.</p>
         
         <div style="display:flex;gap:14px;flex-wrap:wrap">
-          <a class="btn green" onclick="toggleAssistant()">¿Qué material necesito?</a>
+          <button class="btn green" onclick="toggleAssistant()">¿Qué material necesito?</button>
           <a class="btn light" href="herramientas/index.html">Explorar herramientas</a>
           <a class="btn light" href="materiales/index.html">Explorar materiales</a>
         </div>
 
-        <!-- ASISTENTE INTERACTIVO JS -->
+        <!-- ASISTENTE INTERACTIVO -->
         <div id="assistant" class="assistant-wrapper">
           <h3 class="assistant-title">¿Qué necesitas fabricar?</h3>
           <div class="assistant-grid">
@@ -151,7 +175,7 @@
       </aside>
     </section>
 
-    <!-- SECCIÓN ÚNICA CENTRAL: Guías, problemas y recursos -->
+    <!-- SECCIÓN ÚNICA CENTRAL: Guías -->
     <section id="guias" class="section">
       <div class="sectionhead">
         <div>
@@ -159,9 +183,44 @@
           <p>Identificación de fallos, diagnóstico, configuración de software y dudas comunes.</p>
         </div>
       </div>
+
+      <!-- EL CUADRADO OSCURO RESTAURADO (Guía destacada) -->
+      <div class="feature">
+        <article class="heroarticle">
+          <span class="tag">Guía Avanzada</span>
+          <h3>Parámetros de impresión: Más allá de lo básico</h3>
+          <p>Una guía profunda sobre cómo el ancho de línea, la superposición térmica de capas y la geometría de la boquilla modifican radicalmente la resistencia anisotrópica final.</p>
+          <a class="btn green" href="guias/guia-completa-parametros.html" style="align-self:flex-start;box-shadow:none">Guía completa de parámetros</a>
+        </article>
+
+        <!-- Lista de accesos rápidos a la derecha del cuadrado -->
+        <div class="list">
+          <a href="guias/fdm-vs-sla.html">
+            <div>
+              <strong>Comparar tecnología FDM y SLA</strong>
+              <span>Análisis de precisión, coste, velocidad y materiales.</span>
+            </div>
+            <span class="btn-list">Ver comparativa</span>
+          </a>
+          <a href="guias/seguridad.html">
+            <div>
+              <strong>¿Qué riesgos debo gestionar? (NIOSH)</strong>
+              <span>Guía de ventilación, partículas, resinas tóxicas y fuego.</span>
+            </div>
+            <span class="btn-list">Guía de seguridad</span>
+          </a>
+          <a href="fuentes/index.html">
+            <div>
+              <strong>¿De dónde sale la información técnica?</strong>
+              <span>Documentación: Prusa, UltiMaker, Formlabs, ISO, ASTM.</span>
+            </div>
+            <span class="btn-list">Ver metodología</span>
+          </a>
+        </div>
+      </div>
       
+      <!-- CUADRÍCULA DE 12 TARJETAS -->
       <div class="grid">
-        <!-- Tarjeta 1 -->
         <a class="card" href="guias/diagnostico-fallos.html">
           <span class="tag">Solución de errores</span>
           <h3>Stringing, warping y mala adhesión</h3>
@@ -169,7 +228,6 @@
           <span class="btn-action">Diagnosticar problemas</span>
         </a>
         
-        <!-- Tarjeta 2 -->
         <a class="card" href="guias/atascos-extrusor.html">
           <span class="tag">Mantenimiento</span>
           <h3>Prevención y solución de Atascos (Clogs)</h3>
@@ -177,7 +235,6 @@
           <span class="btn-action">Guía de desatascos</span>
         </a>
         
-        <!-- Tarjeta 3 -->
         <a class="card" href="guias/pla-vs-petg.html">
           <span class="tag">Decisión de diseño</span>
           <h3>PLA vs PETG: la comparativa</h3>
@@ -185,7 +242,6 @@
           <span class="btn-action">Comparar PLA y PETG</span>
         </a>
         
-        <!-- Tarjeta 4 -->
         <a class="card" href="guias/configuracion-basica.html">
           <span class="tag">Laminado</span>
           <h3>Altura de capa, perímetros e infill</h3>
@@ -193,7 +249,6 @@
           <span class="btn-action">Aprender a configurarlos</span>
         </a>
 
-        <!-- Tarjeta 5 -->
         <a class="card" href="guias/soportes-voladizos.html">
           <span class="tag">Consejos de impresión</span>
           <h3>Soportes, puentes y voladizos</h3>
@@ -201,7 +256,6 @@
           <span class="btn-action">Configurar soportes</span>
         </a>
 
-        <!-- Tarjeta 6 -->
         <a class="card" href="guias/secado-filamentos.html">
           <span class="tag">Dudas Comunes</span>
           <h3>Humedad y secado de filamentos</h3>
@@ -209,7 +263,6 @@
           <span class="btn-action">Guía de secado</span>
         </a>
         
-        <!-- Tarjeta 7 -->
         <a class="card" href="guias/impresion-tpu.html">
           <span class="tag">Materiales Avanzados</span>
           <h3>Cómo imprimir TPU y materiales flexibles</h3>
@@ -217,7 +270,6 @@
           <span class="btn-action">Guía de flexibles</span>
         </a>
 
-        <!-- Tarjeta 8 -->
         <a class="card" href="guias/velocidad-vs-resistencia.html">
           <span class="tag">Configuración Avanzada</span>
           <h3>Velocidad vs Resistencia estructural</h3>
@@ -225,7 +277,6 @@
           <span class="btn-action">Optimizar velocidad</span>
         </a>
 
-        <!-- Tarjeta 9 -->
         <a class="card" href="guias/impresion-sla.html">
           <span class="tag">Resinas fotopoliméricas</span>
           <h3>Fundamentos de la impresión SLA / DLP</h3>
@@ -233,7 +284,6 @@
           <span class="btn-action">Aprender sobre SLA</span>
         </a>
         
-        <!-- Tarjeta 10 -->
         <a class="card" href="herramientas/calculadora-coste.html">
           <span class="tag">Presupuestos</span>
           <h3>Cómo calcular el coste real de una pieza</h3>
@@ -241,15 +291,13 @@
           <span class="btn-action">Calcular presupuestos</span>
         </a>
         
-        <!-- Tarjeta 11 -->
-        <a class="card" href="guias/seguridad.html">
-          <span class="tag">Normativa industrial</span>
-          <h3>Seguridad con FFF y Resinas (NIOSH/CDC)</h3>
-          <p>Gestión real de partículas ultrafinas (UFP), emisiones de gases (VOCs), ventilación, EPIs necesarios y manipulación segura de resinas.</p>
-          <span class="btn-action">Ver guía de seguridad</span>
+        <a class="card" href="guias/calibracion-flujo.html">
+          <span class="tag">Calibración</span>
+          <h3>Calibración del Flujo (Extrusion Multiplier)</h3>
+          <p>Cómo evitar la sobre-extrusión o sub-extrusión. Pruebas de pared simple (vase mode) para medir con calibre y calcular la fórmula matemática exacta.</p>
+          <span class="btn-action">Calibrar extrusión</span>
         </a>
 
-        <!-- Tarjeta 12 -->
         <a class="card" href="guias/faq-preguntas-frecuentes.html">
           <span class="tag">FAQ</span>
           <h3>Preguntas Frecuentes y básicos</h3>
@@ -261,7 +309,7 @@
 
   </main>
 
-  <!-- FOOTER (Diseño estricto para replicar en TODAS las subpáginas) -->
+  <!-- FOOTER UNIVERSAL -->
   <footer class="footer">
     <div class="wrap footergrid">
       <div>
@@ -286,9 +334,8 @@
     </div>
   </footer>
 
-  <!-- SCRIPT -->
+  <!-- SCRIPT DEL ASISTENTE Y BUSCADOR -->
   <script>
-    // Asistente "¿Qué material necesito?"
     const ASSISTANT_DATA = {
       'visual': {
         title: "Material recomendado: PLA",
@@ -342,7 +389,6 @@
       document.getElementById('as-result').style.display = 'block';
     }
 
-    // Buscador interno (Mockup)
     function goSearch() {
       const q = document.getElementById('q').value.trim().toLowerCase();
       const r = document.getElementById('results');
