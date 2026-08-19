@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Velocidad vs Resistencia FDM - PrintLab</title>
+  <style>
+    :root{--bg:#f6f7f4;--card:#fff;--ink:#0d1110;--muted:#69716c;--line:#dfe4df;--accent:#b8ff3d;--dark:#111715;--max:1100px}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;line-height:1.7}
+    a{color:inherit;text-decoration:none}
+    .wrap{max-width:var(--max);margin:auto;padding:0 20px}
+    .top{position:sticky;top:0;z-index:50;background:rgba(246,247,244,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+    nav{min-height:80px;display:flex;align-items:center;justify-content:center}
+    .brand{font-size:26px;font-weight:900;letter-spacing:-1px}
+    .brand span{background:var(--accent);padding:4px 9px;border-radius:8px;margin-left:4px;color:var(--ink)}
+    
+    .article-header{padding:80px 0 40px;border-bottom:1px solid var(--line);margin-bottom:40px}
+    .tag{display:inline-block;padding:6px 12px;border-radius:999px;background:#eef2ee;color:#4d5852;font-size:13px;font-weight:900;text-transform:uppercase;margin-bottom:20px}
+    .article-header h1{font-size:clamp(40px, 5vw, 56px);line-height:1.05;letter-spacing:-2px;margin:0 0 20px}
+    .article-header p{font-size:22px;color:var(--muted);margin:0}
+    
+    .content{font-size:19px;color:#2c3330;max-width:800px;margin:0 auto 100px}
+    .content h2{font-size:32px;margin:50px 0 20px;border-bottom:2px solid var(--line);padding-bottom:10px;color:var(--ink)}
+    
+    .alert{background:#fff;border-left:5px solid var(--ink);padding:24px;border-radius:0 12px 12px 0;margin:30px 0;box-shadow:0 4px 15px rgba(0,0,0,0.03)}
+    .alert.warn{border-color:#d9432f;background:#fcf1f0}
+    .alert strong{display:block;font-size:16px;text-transform:uppercase;margin-bottom:8px}
+    
+    .footer{padding:80px 0;border-top:1px solid var(--line);color:#69716c;font-size:16px}
+    .footergrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:40px}
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="wrap">
+      <nav><a class="brand" href="../index.html">PRINT<span>LAB</span></a></nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <header class="article-header content">
+      <span class="tag">Configuración Avanzada</span>
+      <h1>Velocidad vs Resistencia: El precio del "High-Speed 3D Printing"</h1>
+      <p>Entiende el Flujo Volumétrico y por qué las impresoras que operan a 500 mm/s a menudo generan piezas funcionales frágiles.</p>
+    </header>
+
+    <article class="content">
+      <p>Con la llegada de firmwares como Klipper y máquinas ultrarrápidas, el estándar de impresión ha pasado de 50 mm/s a 300 mm/s. Sin embargo, la termodinámica de los polímeros impone un límite físico inevitable: <b>cuanto más rápido imprimes, más frágil es la pieza.</b></p>
+
+      <h2>1. El límite del Flujo Volumétrico Máximo (mm³/s)</h2>
+      <p>El flujo volumétrico dicta cuánto volumen de plástico puede derretir tu extrusor en un segundo. Al imprimir muy rápido, el filamento pasa tan deprisa por el bloque calentador que no tiene tiempo físico para derretirse de forma homogénea hasta su núcleo (<i>Dwell Time</i>).</p>
+
+      <div class="alert warn">
+        <strong>⚠️ Sub-extrusión invisible</strong>
+        Si fuerzas una boquilla estándar a imprimir a 250 mm/s, el núcleo del filamento se extruye casi sólido. Esto genera micro-vacíos internos en los perímetros. Visualmente la pieza parece perfecta, pero mecánicamente fallará a presiones bajísimas porque es porosa por dentro.
+      </div>
+
+      <h2>2. Adhesión térmica entre capas (Layer Bonding)</h2>
+      <p>La fuerza del eje Z (tracción vertical) depende de que la capa recién extruida esté lo suficientemente caliente como para <b>fundir parcialmente la capa inferior</b> y fusionarse con ella. Imprimir a alta velocidad destruye este proceso por dos vías:</p>
+      <ul>
+        <li>El plástico extruido sale más frío (no tuvo tiempo de absorber calor en la boquilla).</li>
+        <li>Los potentes ventiladores de capa necesarios para imprimir rápido (para evitar que la pieza se deforme por inercia térmica) congelan instantáneamente el plástico antes de que se fusione con el piso inferior.</li>
+      </ul>
+
+      <h2>3. Cómo compensarlo en piezas funcionales</h2>
+      <p>Si necesitas imprimir una pieza resistente, ya sea un soporte de motor o una bisagra, la regla de oro en ingeniería FDM es:</p>
+
+      <div class="alert">
+        <strong>💡 Matriz de compensación técnica</strong>
+        <ol>
+          <li><b>Baja la velocidad de los perímetros exteriores e interiores</b> a 50-60 mm/s, permitiendo una perfecta adhesión térmica e interlaminar.</li>
+          <li><b>Sube la temperatura del nozzle:</b> Si imprimes un PETG habitualmente a 235ºC pero vas a forzar la velocidad a 150 mm/s, debes compensar subiendo la temperatura a 245ºC - 250ºC para garantizar el derretimiento del núcleo del polímero.</li>
+          <li><b>Baja la refrigeración de capa:</b> Si la geometría lo permite (piezas sin grandes voladizos), baja el ventilador al 20-30% para asegurar la fusión de las capas.</li>
+        </ol>
+      </div>
+      <p>Es preferible una impresión funcional que tarde 6 horas y no se rompa, que una impresión de 2 horas que falle bajo tensión mecánica.</p>
+    </article>
+  </main>
+  
+  <footer class="footer"><div class="wrap footergrid"><div><strong>PrintLab</strong><p>Datos técnicos reales.</p></div></div></footer>
+</body>
+</html>
