@@ -3,315 +3,86 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Diagnóstico de problemas de impresión 3D — PrintLab</title>
-  <meta name="description" content="Soluciona problemas de impresión 3D (Stringing, Warping, Under-extrusion) con diagnósticos técnicos basados en datos de Prusa y UltiMaker.">
+  <title>Solución a Stringing, Warping y Adhesión - PrintLab</title>
   <style>
-    :root{--bg:#f6f7f4;--card:#fff;--ink:#0d1110;--muted:#69716c;--line:#dfe4df;--accent:#b8ff3d;--dark:#111715;--max:1650px}
+    :root{--bg:#f6f7f4;--card:#fff;--ink:#0d1110;--muted:#69716c;--line:#dfe4df;--accent:#b8ff3d;--dark:#111715;--max:1100px}
     *{box-sizing:border-box}html{scroll-behavior:smooth}
-    body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.6}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;line-height:1.7}
     a{color:inherit;text-decoration:none}
-    .wrap{max-width:var(--max);margin:auto;padding:0 16px}
-    
+    .wrap{max-width:var(--max);margin:auto;padding:0 20px}
     .top{position:sticky;top:0;z-index:50;background:rgba(246,247,244,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
-    nav{min-height:95px;display:flex;align-items:center;gap:36px}
-    .brand{font-size:30px;font-weight:900;letter-spacing:-1.2px;margin-right:auto}
-    .brand span{background:var(--accent);padding:5px 11px;border-radius:10px;margin-left:6px}
-    .nav{display:flex;gap:32px;font-size:18px;color:#404944;font-weight:700}
-    .nav a:hover{text-decoration:underline}
-    .nav a.active{border-bottom:3px solid var(--accent); padding-bottom: 4px;}
+    nav{min-height:80px;display:flex;align-items:center;justify-content:center}
+    .brand{font-size:26px;font-weight:900;letter-spacing:-1px}
+    .brand span{background:var(--accent);padding:4px 9px;border-radius:8px;margin-left:4px;color:var(--ink)}
     
-    .tool-header{padding:80px 0 40px; border-bottom:1px solid var(--line); margin-bottom: 40px;}
-    .tool-header h1{font-size:clamp(42px, 6vw, 68px); letter-spacing:-2.5px; line-height:1; margin:0 0 16px}
-    .tool-header p{font-size:22px; color:var(--muted); max-width:900px; margin:0}
+    .article-header{padding:80px 0 40px;border-bottom:1px solid var(--line);margin-bottom:40px}
+    .tag{display:inline-block;padding:6px 12px;border-radius:999px;background:#eef2ee;color:#4d5852;font-size:13px;font-weight:900;text-transform:uppercase;margin-bottom:20px}
+    .article-header h1{font-size:clamp(40px, 5vw, 56px);line-height:1.05;letter-spacing:-2px;margin:0 0 20px}
+    .article-header p{font-size:22px;color:var(--muted);margin:0}
     
-    /* Layout del Diagnóstico (Sidebar + Contenido) */
-    .diag-layout{display:grid; grid-template-columns: 350px 1fr; gap: 40px; align-items: start;}
+    .content{font-size:19px;color:#2c3330;max-width:800px;margin:0 auto 100px}
+    .content h2{font-size:32px;margin:50px 0 20px;border-bottom:2px solid var(--line);padding-bottom:10px;color:var(--ink)}
+    .content h3{font-size:24px;margin:30px 0 15px}
     
-    /* Sidebar de síntomas */
-    .symptom-list{display:flex; flex-direction:column; gap:8px; position:sticky; top:130px}
-    .symptom-btn{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px 20px; font-size:17px; font-weight:700; text-align:left; cursor:pointer; transition:.15s; color:var(--muted); display:flex; justify-content:space-between; align-items:center}
-    .symptom-btn:hover{background:var(--bg); border-color:#cdd4cf; color:var(--ink)}
-    .symptom-btn.active{background:var(--ink); color:#fff; border-color:var(--ink)}
+    .alert{background:#fff;border-left:5px solid var(--ink);padding:24px;border-radius:0 12px 12px 0;margin:30px 0;box-shadow:0 4px 15px rgba(0,0,0,0.03)}
+    .alert.warn{border-color:#d9432f;background:#fcf1f0}
+    .alert strong{display:block;font-size:16px;text-transform:uppercase;margin-bottom:8px}
     
-    /* Panel principal de solución */
-    .solution-panel{background:var(--card); border:1px solid var(--line); border-radius:32px; padding:60px; min-height:600px; animation:fadeIn 0.3s ease}
-    @keyframes fadeIn{from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:translateY(0)}}
-    
-    .sol-header{margin-bottom:40px; border-bottom:2px solid var(--bg); padding-bottom:30px}
-    .sol-header h2{font-size:42px; margin:0 0 12px; letter-spacing:-1.5px}
-    .sol-tag{display:inline-block; padding:8px 14px; background:#eef2ee; color:#4d5852; font-size:14px; font-weight:800; border-radius:8px; text-transform:uppercase; letter-spacing:1px}
-    
-    /* Grid interno 2 columnas para Causas y Pruebas */
-    .sol-grid{display:grid; grid-template-columns: 1fr 1fr; gap:30px; margin-bottom:40px}
-    .sol-box{background:var(--bg); padding:30px; border-radius:20px; border:1px solid var(--line)}
-    .sol-box h3{margin:0 0 16px; font-size:20px; color:var(--ink)}
-    .sol-box ul{margin:0; padding-left:20px; color:#3f4843; font-size:17px; display:flex; flex-direction:column; gap:10px}
-    .sol-box li::marker{color:var(--muted)}
-    
-    /* Sección de Acción (Parámetros) */
-    .action-box{background:var(--dark); color:#fff; padding:40px; border-radius:24px}
-    .action-box h3{margin:0 0 20px; font-size:24px; color:var(--accent)}
-    .param-list{display:grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap:20px}
-    .param-item{background:#1a201d; border:1px solid #3b443f; padding:20px; border-radius:14px}
-    .param-item span{display:block; font-size:14px; color:#8f9892; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px}
-    .param-item strong{display:block; font-size:20px}
-
-    .footer{padding:80px 0 110px;margin-top:100px;border-top:1px solid var(--line);color:#69716c;font-size:17px}
-    .footergrid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:45px}
-    
-    @media(max-width:1100px){.diag-layout{grid-template-columns: 1fr; gap:20px} .symptom-list{position:static; flex-direction:row; overflow-x:auto; padding-bottom:10px} .symptom-btn{white-space:nowrap} .solution-panel{padding:30px}}
-    @media(max-width:768px){.sol-grid{grid-template-columns: 1fr} .tool-header h1{font-size:38px}}
+    .footer{padding:80px 0;border-top:1px solid var(--line);color:#69716c;font-size:16px}
+    .footergrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:40px}
   </style>
 </head>
 <body>
-  
   <header class="top">
     <div class="wrap">
-      <nav>
-        <a class="brand" href="../index.html">PRINT<span>LAB</span></a>
-        <div class="nav">
-          <a href="../index.html#guias" class="active">Guías</a>
-          <a href="../materiales/index.html">Materiales</a>
-          <a href="../herramientas/index.html">Herramientas</a>
-          <a href="../index.html#comparativas">Comparativas</a>
-          <a href="../fuentes/index.html">Fuentes técnicas</a>
-        </div>
-      </nav>
+      <nav><a class="brand" href="../index.html">PRINT<span>LAB</span></a></nav>
     </div>
   </header>
 
   <main class="wrap">
-    
-    <div class="tool-header">
-      <h1>Asistente de Diagnóstico</h1>
-      <p>Selecciona el síntoma visual de tu pieza. No cambies parámetros al azar; aísla la variable, comprende el mecanismo del fallo y aplica la solución ingenieril correcta.</p>
-    </div>
+    <header class="article-header content">
+      <span class="tag">Solución de Errores</span>
+      <h1>Diagnóstico: Stringing, Warping y mala adhesión</h1>
+      <p>Causas térmicas y ajustes paramétricos en el laminador para solventar los tres problemas más comunes de FDM.</p>
+    </header>
 
-    <div class="diag-layout">
-      <!-- SIDEBAR INTERACTIVO -->
-      <div class="symptom-list" id="sidebar">
-        <!-- Generado por JS -->
+    <article class="content">
+      <h2>1. Warping (Levantamiento de bordes)</h2>
+      <p>El *warping* ocurre por la física de los termoplásticos. Al extruirse el plástico está caliente y expandido; al enfriarse, se contrae. Si las capas superiores se enfrían demasiado rápido respecto a las inferiores, generan una fuerza de tracción hacia el centro que levanta las esquinas de la base.</p>
+      
+      <h3>Soluciones paramétricas:</h3>
+      <ul>
+        <li><b>Control de refrigeración:</b> Para materiales propensos a la contracción (ABS, ASA, Nylon), el ventilador de capa debe estar al 0% o máximo al 20%. Para PETG, entre el 30% y el 50%. Enfriar agresivamente estas capas las encogerá.</li>
+        <li><b>Brim (Borde):</b> Añadir un Brim de 5 a 10 mm en el laminador aumenta exponencialmente el área de contacto, dispersando la fuerza de tracción.</li>
+        <li><b>Temperatura de Cama:</b> Debe coincidir exactamente con la temperatura de transición vítrea (Tg) del material (Ej: ~60ºC para PLA, ~100ºC para ABS).</li>
+      </ul>
+
+      <h2>2. Stringing (Hilos entre piezas)</h2>
+      <p>Ocurre cuando la presión interna del bloque calentador (hotend) empuja plástico por la boquilla durante un movimiento de viaje sin extrusión.</p>
+
+      <div class="alert warn">
+        <strong>⚠️ Falsa causa: Retracción vs Humedad</strong>
+        El 80% de los usuarios intenta solucionar el stringing subiendo la distancia de retracción infinitamente. Si utilizas PETG o TPU y tu filamento ha absorbido humedad ambiental, el agua hierve en el nozzle, expandiéndose y empujando el plástico. <b>Ningún ajuste de retracción curará el stringing de un filamento húmedo. Sécalo primero.</b>
       </div>
 
-      <!-- PANEL DE RESULTADO -->
-      <div class="solution-panel" id="content-panel">
-        <!-- Generado por JS -->
-      </div>
-    </div>
+      <h3>Ajustes de Retracción recomendados (Extrusor Directo):</h3>
+      <ul>
+        <li><b>Distancia de retracción:</b> 0.5 mm a 1.5 mm.</li>
+        <li><b>Velocidad de retracción:</b> 30 mm/s a 45 mm/s.</li>
+        <li><i>Nota: Exceder los 2 mm en extrusión directa arrastrará plástico fundido hacia la zona fría, provocando un atasco (heat creep) seguro.</i></li>
+      </ul>
 
+      <h2>3. Mala Adhesión de la primera capa</h2>
+      <p>Una primera capa impecable dicta el 90% del éxito de una impresión. No basta con nivelar la cama, el <b>Z-Offset (distancia entre la boquilla y la base)</b> es vital.</p>
+      
+      <div class="alert">
+        <strong>💡 El "Squish" Perfecto (Flujo de la 1ª capa)</strong>
+        El plástico debe depositarse con una ligera presión contra la base. Si las líneas de la primera capa parecen fideos cilíndricos redondos, estás demasiado lejos (Z-Offset positivo). Si la primera capa es tan transparente que se ve la base y el extrusor hace ruidos de "clack" (saltos), estás demasiado cerca y bloqueando la salida.
+      </div>
+      <p><b>El truco de ingeniería:</b> En tu laminador, ajusta la <i>"Altura de la primera capa"</i> entre 0.20 mm y 0.24 mm para filamentos estándar (incluso si imprimes a 0.12mm), y aumenta el <i>"Ancho de línea de la primera capa"</i> (First layer line width) al 120%. Esto inyectará más material a presión, asegurando un agarre mecánico brutal.</p>
+    </article>
   </main>
-
-  <footer class="footer">
-    <div class="wrap footergrid">
-      <div>
-        <strong>PrintLab — Ingeniería 3D</strong>
-        <p>Toda la información técnica publicada se basa en fichas técnicas de materiales (TDS), protocolos de fabricantes (Prusa, UltiMaker, Formlabs) y normativas estandarizadas de la industria.</p>
-      </div>
-      <div>
-        <strong>Centro de recursos</strong>
-        <p>
-          <a href="diagnostico-fallos.html">Diagnóstico de problemas</a><br>
-          <a href="../materiales/comparativa.html">Comparativa de filamentos</a><br>
-          <a href="../herramientas/index.html">Calculadoras CAD/CAM</a>
-        </p>
-      </div>
-      <div>
-        <strong>Normativa y Transparencia</strong>
-        <p>
-          <a href="../fuentes/index.html">Metodología (ISO/ASTM)</a><br>
-          <a href="seguridad.html">Gestión de Riesgos (NIOSH)</a>
-        </p>
-      </div>
-    </div>
-  </footer>
-
-  <!-- SISTEMA DE DATOS Y LÓGICA (JavaScript) -->
-  <script>
-    // BASE DE DATOS TÉCNICA DEL DIAGNÓSTICO
-    const diagnosticData = {
-      "stringing": {
-        name: "Stringing / Hilos",
-        tag: "Material / Laminado",
-        desc: "Finos hilos de plástico que conectan diferentes partes de la pieza (como telarañas) durante los desplazamientos en vacío (Travel moves).",
-        causes: [
-          "Humedad absorbida en el filamento (Especialmente PETG, TPU, PA).",
-          "Temperatura del fusor excesivamente alta (el plástico gotea por gravedad).",
-          "Distancia de retracción insuficiente para liberar presión.",
-          "Velocidad de desplazamiento (Travel speed) muy lenta."
-        ],
-        tests: [
-          "<b>Prueba 1:</b> Dobla el filamento bruscamente. Si cruje o se rompe fácilmente (PLA/PETG), está húmedo.",
-          "<b>Prueba 2:</b> Imprime una 'Temp Tower' (Torre de temperatura) entre 190º y 230º.",
-          "<b>Prueba 3:</b> Imprime un 'Retraction Test' variando la distancia de 1mm en 1mm."
-        ],
-        params: [
-          { name: "Secado", value: "Usa secadora 50ºC/6h" },
-          { name: "Temperatura", value: "Reducir 5 - 10 ºC" },
-          { name: "Retracción (Direct Drive)", value: "0.8 - 1.5 mm" },
-          { name: "Retracción (Bowden)", value: "4.0 - 6.0 mm" }
-        ]
-      },
-      "warping": {
-        name: "Warping / Esquinas levantadas",
-        tag: "Térmico / Adhesión",
-        desc: "Las esquinas de la pieza se contraen, se levantan de la placa de impresión y, a menudo, provocan que el cabezal choque contra la pieza.",
-        causes: [
-          "Contracción térmica masiva por enfriamiento rápido (típico en ABS, ASA, PC).",
-          "Placa de impresión sucia (grasa de los dedos reduce la adhesión).",
-          "Corrientes de aire frío en la habitación.",
-          "Capa inicial muy alta o Z-Offset demasiado lejos de la cama."
-        ],
-        tests: [
-          "<b>Prueba 1:</b> Lava la lámina PEI con agua y jabón lavavajillas (el IPA a veces no quita toda la grasa).",
-          "<b>Prueba 2:</b> Revisa si el ventilador de capa arranca al 100% en las primeras capas (debería estar apagado)."
-        ],
-        params: [
-          { name: "Limpieza", value: "Agua + Jabón (No IPA)" },
-          { name: "Temperatura Cama", value: "Aumentar 5 - 10 ºC" },
-          { name: "Ventilador de capa", value: "0% (Capas 1 a 3)" },
-          { name: "Adherencia adicional", value: "Usar Brim (Borde de 5mm)" }
-        ]
-      },
-      "under-extrusion": {
-        name: "Under-extrusion / Huecos",
-        tag: "Mecánico / Extrusor",
-        desc: "La impresora extruye menos plástico del que el software calcula. Las capas se ven frágiles, esponjosas o con líneas incompletas.",
-        causes: [
-          "Obstrucción parcial en la boquilla (Atasco de teflón o partículas quemadas).",
-          "Temperatura muy baja (el motor pierde pasos al no poder derretir el plástico a tiempo).",
-          "Engranaje del extrusor desgastado o con falta de tensión mecánica.",
-          "Límite volumétrico máximo superado (Imprimir demasiado rápido con boquilla grande)."
-        ],
-        tests: [
-          "<b>Prueba 1:</b> 'Cold Pull' (Tirón en frío) con Nylon o PLA para limpiar la boquilla.",
-          "<b>Prueba 2:</b> Escucha el extrusor. Si hace 'clack, clack', el motor está perdiendo pasos.",
-          "<b>Prueba 3:</b> Imprime a la mitad de velocidad. Si el problema desaparece, el fusor no derrite el plástico lo suficientemente rápido."
-        ],
-        params: [
-          { name: "Mantenimiento", value: "Cold Pull / Cambiar Boquilla" },
-          { name: "Temperatura Fusor", value: "Aumentar 5 - 10 ºC" },
-          { name: "Tensión del engranaje", value: "Apretar tornillo del extrusor" },
-          { name: "Caudal (Flow rate)", value: "Calibrar Multiplicador (100%)" }
-        ]
-      },
-      "elephant-foot": {
-        name: "Pie de Elefante",
-        tag: "Térmico / Z-Offset",
-        desc: "Las primeras capas de la impresión son más anchas (sobresalen) que el resto de la pieza, arruinando las tolerancias y encajes mecánicos.",
-        causes: [
-          "Z-Offset demasiado bajo (la boquilla aplasta excesivamente la primera capa).",
-          "Temperatura de la cama demasiado alta (el plástico se mantiene por encima de su temperatura de transición vítrea y se aplasta por el peso superior).",
-          "Exceso de flujo (Over-extrusion) generalizado."
-        ],
-        tests: [
-          "<b>Prueba 1:</b> Mide con un calibre. Si la pieza mide 20x20mm arriba, pero 20.4x20.4mm abajo, es pie de elefante.",
-          "<b>Prueba 2:</b> Ajusta el Z-Offset (Live Z) un poco más alto y comprueba si mejora."
-        ],
-        params: [
-          { name: "Z-Offset", value: "Levantar 0.02 - 0.05 mm" },
-          { name: "Temp. de cama", value: "Bajar 5 ºC tras la capa 1" },
-          { name: "Elephant foot compensation", value: "0.15 - 0.20 mm (Slicer)" },
-          { name: "Bisel de diseño", value: "Añadir Chamfer 45º en CAD" }
-        ]
-      },
-      "layer-shift": {
-        name: "Layer Shifting / Saltos",
-        tag: "Mecánico / Cinemática",
-        desc: "Una parte de la impresión se desplaza repentinamente en los ejes X o Y, creando escalones y arruinando el modelo completo.",
-        causes: [
-          "Correas (Belts) demasiado flojas o demasiado tensadas.",
-          "Choque del cabezal contra relleno cruzado (Grid) o trozos de pieza levantados por Warping.",
-          "Sobrecalentamiento de los drivers de los motores paso a paso (steppers).",
-          "Poleas (Pulleys) sueltas en el eje del motor."
-        ],
-        tests: [
-          "<b>Prueba 1:</b> Toca las correas. Deben tener una tensión similar a la de una cuerda de bajo, no sueltas, pero tampoco rígidas como alambre.",
-          "<b>Prueba 2:</b> Revisa los tornillos prisioneros (grub screws) de las poleas de los motores; uno debe apretar contra la parte plana del eje."
-        ],
-        params: [
-          { name: "Hardware", value: "Tensar correas X/Y" },
-          { name: "Hardware", value: "Apretar poleas (Grub screws)" },
-          { name: "Patrón de Infill", value: "Evitar 'Grid'. Usar Gyroid o Rectilíneo" },
-          { name: "Colisiones", value: "Activar 'Z-Hop' (0.2mm)" }
-        ]
-      }
-    };
-
-    const sidebar = document.getElementById('sidebar');
-    const panel = document.getElementById('content-panel');
-
-    // 1. Generar los botones del menú lateral dinámicamente
-    function buildMenu() {
-      sidebar.innerHTML = '';
-      Object.keys(diagnosticData).forEach((key, index) => {
-        const btn = document.createElement('button');
-        btn.className = 'symptom-btn';
-        if(index === 0) btn.classList.add('active'); // El primero activo por defecto
-        btn.innerHTML = `${diagnosticData[key].name} <span>→</span>`;
-        btn.onclick = () => selectSymptom(key, btn);
-        sidebar.appendChild(btn);
-      });
-      // Cargar el primero por defecto
-      renderContent(Object.keys(diagnosticData)[0]);
-    }
-
-    // 2. Manejar selección y estilos
-    function selectSymptom(key, btnRef) {
-      document.querySelectorAll('.symptom-btn').forEach(b => b.classList.remove('active'));
-      btnRef.classList.add('active');
-      renderContent(key);
-    }
-
-    // 3. Renderizar el contenido técnico en el panel principal
-    function renderContent(key) {
-      const data = diagnosticData[key];
-      
-      // Reiniciar animación clonando y reemplazando el nodo (truco JS)
-      panel.style.animation = 'none';
-      panel.offsetHeight; // Trigger reflow
-      panel.style.animation = 'fadeIn 0.3s ease';
-
-      // HTML Template
-      let html = `
-        <div class="sol-header">
-          <span class="sol-tag">${data.tag}</span>
-          <h2>${data.name}</h2>
-          <p style="font-size:20px; color:var(--muted); margin:0">${data.desc}</p>
-        </div>
-        
-        <div class="sol-grid">
-          <div class="sol-box">
-            <h3>Causas raíz (Física)</h3>
-            <ul>
-              ${data.causes.map(c => `<li>${c}</li>`).join('')}
-            </ul>
-          </div>
-          <div class="sol-box" style="border-color:#b8c0bb; background:#fff">
-            <h3>Cómo diagnosticarlo</h3>
-            <ul>
-              ${data.tests.map(t => `<li>${t}</li>`).join('')}
-            </ul>
-          </div>
-        </div>
-        
-        <div class="action-box">
-          <h3>🔧 Solución y Parámetros</h3>
-          <div class="param-list">
-            ${data.params.map(p => `
-              <div class="param-item">
-                <span>${p.name}</span>
-                <strong>${p.value}</strong>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-      `;
-      
-      panel.innerHTML = html;
-    }
-
-    // Iniciar
-    buildMenu();
-  </script>
+  
+  <footer class="footer"><div class="wrap footergrid"><div><strong>PrintLab</strong><p>Datos técnicos reales.</p></div></div></footer>
 </body>
 </html>
