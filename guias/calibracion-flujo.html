@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Calibración de Flujo - PrintLab</title>
+  <style>
+    :root{--bg:#f6f7f4;--card:#fff;--ink:#0d1110;--muted:#69716c;--line:#dfe4df;--accent:#b8ff3d;--dark:#111715;--max:1100px}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;line-height:1.7}
+    a{color:inherit;text-decoration:none}
+    .wrap{max-width:var(--max);margin:auto;padding:0 20px}
+    .top{position:sticky;top:0;z-index:50;background:rgba(246,247,244,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+    nav{min-height:80px;display:flex;align-items:center;justify-content:center}
+    .brand{font-size:26px;font-weight:900;letter-spacing:-1px}
+    .brand span{background:var(--accent);padding:4px 9px;border-radius:8px;margin-left:4px;color:var(--ink)}
+    
+    .article-header{padding:80px 0 40px;border-bottom:1px solid var(--line);margin-bottom:40px}
+    .tag{display:inline-block;padding:6px 12px;border-radius:999px;background:#eef2ee;color:#4d5852;font-size:13px;font-weight:900;text-transform:uppercase;margin-bottom:20px}
+    .article-header h1{font-size:clamp(40px, 5vw, 56px);line-height:1.05;letter-spacing:-2px;margin:0 0 20px}
+    .article-header p{font-size:22px;color:var(--muted);margin:0}
+    
+    .content{font-size:19px;color:#2c3330;max-width:800px;margin:0 auto 100px}
+    .content h2{font-size:32px;margin:50px 0 20px;border-bottom:2px solid var(--line);padding-bottom:10px;color:var(--ink)}
+    
+    .alert{background:#fff;border-left:5px solid var(--ink);padding:24px;border-radius:0 12px 12px 0;margin:30px 0;box-shadow:0 4px 15px rgba(0,0,0,0.03)}
+    .alert.warn{border-color:#d9432f;background:#fcf1f0}
+    .alert strong{display:block;font-size:16px;text-transform:uppercase;margin-bottom:8px}
+    
+    .footer{padding:80px 0;border-top:1px solid var(--line);color:#69716c;font-size:16px}
+    .footergrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:40px}
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="wrap">
+      <nav><a class="brand" href="../index.html">PRINT<span>LAB</span></a></nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <header class="article-header content">
+      <span class="tag">Calibración de Precisión</span>
+      <h1>Calibración del Flujo (Extrusion Multiplier)</h1>
+      <p>El paso definitivo para que las piezas encajen. La fórmula matemática para medir y ajustar la tolerancia dimensional de tu impresora FDM.</p>
+    </header>
+
+    <article class="content">
+      <p>Si alguna vez has intentado imprimir un tornillo y una tuerca y no encajan, o si las superficies planas de tus piezas se ven rasposas y con surcos, el culpable casi siempre es el <b>Flujo (Extrusion Multiplier)</b>. Cada bobina de filamento tiene una densidad ligeramente distinta, por lo que el extrusor empuja un volumen de plástico que no siempre coincide con lo que calcula el laminador.</p>
+
+      <h2>El test del "Vase Mode" (Cubo de pared simple)</h2>
+      <p>Para medir el flujo real de tu impresora, necesitamos imprimir algo de lo que conozcamos el grosor teórico exacto. Así se prepara el test:</p>
+      
+      <ol>
+        <li>Carga en el laminador un cubo simple (ej: de 20x20 mm).</li>
+        <li>Activa la opción <b>Modo Vaso</b> (Vase Mode / Spiralize Outer Contour). Esto hará que la impresora trace un perímetro único en espiral.</li>
+        <li>Asegúrate de saber tu <b>Ancho de Extrusión (Line Width)</b>. Para una boquilla de 0.4mm, lo habitual es que el laminador lo ponga a <b>0.45mm</b> (este será tu <i>Grosor Esperado</i>).</li>
+        <li>Imprime el cubo.</li>
+      </ol>
+
+      <div class="alert">
+        <strong>⚙️ Medición con Calibre (Pie de Rey)</strong>
+        Una vez impreso el cubo, utiliza un calibre digital para medir el grosor de la pared en el centro de cada una de las 4 caras (evita medir las esquinas porque tienden a acumular material). Anota las 4 medidas y calcula la media exacta.
+      </div>
+
+      <h2>La Fórmula Matemática</h2>
+      <p>Supongamos que tu <i>Grosor Esperado</i> era 0.45mm, pero tu calibre indica que la pared mide en realidad 0.49mm (Sobre-extrusión). Para corregirlo en el laminador, aplica esta fórmula:</p>
+
+      <div class="alert warn" style="border-color:var(--accent); background:var(--dark); color:#fff;">
+        <strong style="color:var(--accent)">Fórmula del Nuevo Flujo:</strong>
+        <p style="font-family:monospace; font-size:22px; margin:10px 0">(Grosor Esperado / Medición Real) × Multiplicador Actual = Nuevo Multiplicador</p>
+      </div>
+
+      <p>Ejemplo práctico:</p>
+      <ul>
+        <li>Grosor Esperado = <b>0.45 mm</b></li>
+        <li>Medición Real = <b>0.49 mm</b></li>
+        <li>Multiplicador Actual = <b>1</b> (o 100%)</li>
+        <li>Cálculo: (0.45 / 0.49) × 1 = <b>0.918</b></li>
+      </ul>
+      
+      <p>Solo tienes que ir a la configuración de filamento de tu laminador, cambiar el Multiplicador de Extrusión a <b>0.92</b> (o 92% de Flujo), y tus piezas encajarán de ahora en adelante con precisión de ingeniería.</p>
+    </article>
+  </main>
+  
+  <footer class="footer"><div class="wrap footergrid"><div><strong>PrintLab</strong><p>Datos técnicos reales.</p></div></div></footer>
+</body>
+</html>
