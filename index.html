@@ -54,28 +54,17 @@
     .result-warning{color:#9e3223;font-weight:700;font-size:16px;background:#fcebe8;padding:12px;border-radius:8px}
     
     /* SECCIONES Y CABECERAS */
-    .section{padding:30px 0 20px}
-    .sectionhead{display:flex;justify-content:space-between;align-items:end;gap:24px;margin:65px 0 30px}
+    .section{padding:50px 0 20px}
+    .sectionhead{display:flex;justify-content:space-between;align-items:end;gap:24px;margin-bottom:40px}
     .sectionhead h2{font-size:46px;letter-spacing:-1.8px;margin:0}
     .sectionhead p{margin:0;color:var(--muted);font-size:22px}
     
-    /* BLOQUE DESTACADO (El cuadrado oscuro restaurado) */
-    .feature{display:grid;grid-template-columns:1.05fr .95fr;gap:32px;margin-bottom:50px}
-    .feature .heroarticle{min-height:460px;background:#101614;color:#fff;border-radius:32px;padding:48px;display:flex;flex-direction:column;justify-content:flex-end}
-    .heroarticle h3{font-size:52px;line-height:1.02;letter-spacing:-2px;margin:22px 0 16px}
-    .heroarticle p{font-size:21px;color:#bcc5c0;max-width:750px;margin-bottom:28px}
-    .heroarticle .tag{background:#2a332f;color:var(--accent)} /* Tag adaptado para el fondo oscuro */
+    /* BLOQUE DESTACADO (El cuadrado oscuro a full width) */
+    .heroarticle{min-height:420px;background:#101614;background-image:radial-gradient(circle at top right, #1a241f, transparent 40%);color:#fff;border-radius:32px;padding:60px 48px;display:flex;flex-direction:column;justify-content:flex-end}
+    .heroarticle h3{font-size:52px;line-height:1.02;letter-spacing:-2px;margin:22px 0 16px;max-width:850px}
+    .heroarticle p{font-size:21px;color:#bcc5c0;max-width:850px;margin-bottom:34px}
+    .heroarticle .tag{background:#2a332f;color:var(--accent);align-self:flex-start}
     
-    /* LISTA LATERAL DEL BLOQUE DESTACADO */
-    .list{border:1px solid var(--line);background:#fff;border-radius:32px;padding:20px}
-    .list a{display:flex;align-items:center;justify-content:space-between;padding:28px 24px;border-bottom:1px solid var(--line);transition:.15s}
-    .list a:last-child{border:0}
-    .list a:hover{background:var(--bg);border-radius:16px}
-    .list strong{display:block;font-size:22px;margin-bottom:6px}
-    .list span{display:block;font-size:17px;color:#727b76}
-    .btn-list{background:var(--line);padding:10px 18px;border-radius:10px;font-weight:800;font-size:15px;color:var(--ink);white-space:nowrap;margin-left:20px;border:1px solid var(--line)}
-    .list a:hover .btn-list{background:var(--accent);border-color:var(--ink)}
-
     /* TARJETAS NORMALES */
     .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
     .card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:26px;padding:34px;transition:.18s;height:100%}
@@ -100,7 +89,7 @@
     
     /* RESPONSIVE */
     @media(max-width:1250px){
-      .hero, .feature{grid-template-columns:1fr}
+      .hero{grid-template-columns:1fr}
       .grid{grid-template-columns:1fr 1fr}
       .hero h1{letter-spacing:-3px}
       .footergrid{grid-template-columns:1fr 1fr}
@@ -112,9 +101,8 @@
       .hero h1{font-size:54px;letter-spacing:-2.5px}
       .searchbox{display:block}
       .searchbox input, .searchbox button{width:100%;margin-top:12px}
+      .heroarticle{padding:40px 30px}
       .heroarticle h3{font-size:38px}
-      .list a{flex-direction:column;align-items:flex-start;gap:16px}
-      .btn-list{margin-left:0}
     }
   </style>
 </head>
@@ -175,7 +163,17 @@
       </aside>
     </section>
 
-    <!-- SECCIÓN ÚNICA CENTRAL: Guías -->
+    <!-- SECCIÓN DESTACADA (Recuadro oscuro separado) -->
+    <section class="section" style="margin-top: 30px;">
+      <article class="heroarticle">
+        <span class="tag">Guía Avanzada</span>
+        <h3>Parámetros de impresión: Más allá de lo básico</h3>
+        <p>Una guía profunda sobre cómo el ancho de línea, la superposición térmica de capas y la geometría de la boquilla modifican radicalmente la resistencia anisotrópica final.</p>
+        <a class="btn green" href="guias/guia-completa-parametros.html" style="align-self:flex-start;box-shadow:none">Guía completa de parámetros</a>
+      </article>
+    </section>
+
+    <!-- SECCIÓN GUÍAS (Cuadrícula de tarjetas) -->
     <section id="guias" class="section">
       <div class="sectionhead">
         <div>
@@ -184,42 +182,6 @@
         </div>
       </div>
 
-      <!-- EL CUADRADO OSCURO RESTAURADO (Guía destacada) -->
-      <div class="feature">
-        <article class="heroarticle">
-          <span class="tag">Guía Avanzada</span>
-          <h3>Parámetros de impresión: Más allá de lo básico</h3>
-          <p>Una guía profunda sobre cómo el ancho de línea, la superposición térmica de capas y la geometría de la boquilla modifican radicalmente la resistencia anisotrópica final.</p>
-          <a class="btn green" href="guias/guia-completa-parametros.html" style="align-self:flex-start;box-shadow:none">Guía completa de parámetros</a>
-        </article>
-
-        <!-- Lista de accesos rápidos a la derecha del cuadrado -->
-        <div class="list">
-          <a href="guias/fdm-vs-sla.html">
-            <div>
-              <strong>Comparar tecnología FDM y SLA</strong>
-              <span>Análisis de precisión, coste, velocidad y materiales.</span>
-            </div>
-            <span class="btn-list">Ver comparativa</span>
-          </a>
-          <a href="guias/seguridad.html">
-            <div>
-              <strong>¿Qué riesgos debo gestionar? (NIOSH)</strong>
-              <span>Guía de ventilación, partículas, resinas tóxicas y fuego.</span>
-            </div>
-            <span class="btn-list">Guía de seguridad</span>
-          </a>
-          <a href="fuentes/index.html">
-            <div>
-              <strong>¿De dónde sale la información técnica?</strong>
-              <span>Documentación: Prusa, UltiMaker, Formlabs, ISO, ASTM.</span>
-            </div>
-            <span class="btn-list">Ver metodología</span>
-          </a>
-        </div>
-      </div>
-      
-      <!-- CUADRÍCULA DE 12 TARJETAS -->
       <div class="grid">
         <a class="card" href="guias/diagnostico-fallos.html">
           <span class="tag">Solución de errores</span>
