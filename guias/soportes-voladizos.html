@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Soportes y Voladizos - PrintLab</title>
+  <style>
+    :root{--bg:#f6f7f4;--card:#fff;--ink:#0d1110;--muted:#69716c;--line:#dfe4df;--accent:#b8ff3d;--dark:#111715;--max:1100px}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;line-height:1.7}
+    a{color:inherit;text-decoration:none}
+    .wrap{max-width:var(--max);margin:auto;padding:0 20px}
+    .top{position:sticky;top:0;z-index:50;background:rgba(246,247,244,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+    nav{min-height:80px;display:flex;align-items:center;justify-content:center}
+    .brand{font-size:26px;font-weight:900;letter-spacing:-1px}
+    .brand span{background:var(--accent);padding:4px 9px;border-radius:8px;margin-left:4px;color:var(--ink)}
+    
+    .article-header{padding:80px 0 40px;border-bottom:1px solid var(--line);margin-bottom:40px}
+    .tag{display:inline-block;padding:6px 12px;border-radius:999px;background:#eef2ee;color:#4d5852;font-size:13px;font-weight:900;text-transform:uppercase;margin-bottom:20px}
+    .article-header h1{font-size:clamp(40px, 5vw, 56px);line-height:1.05;letter-spacing:-2px;margin:0 0 20px}
+    .article-header p{font-size:22px;color:var(--muted);margin:0}
+    
+    .content{font-size:19px;color:#2c3330;max-width:800px;margin:0 auto 100px}
+    .content h2{font-size:32px;margin:50px 0 20px;border-bottom:2px solid var(--line);padding-bottom:10px;color:var(--ink)}
+    .content h3{font-size:24px;margin:30px 0 15px}
+    
+    .alert{background:#fff;border-left:5px solid var(--ink);padding:24px;border-radius:0 12px 12px 0;margin:30px 0;box-shadow:0 4px 15px rgba(0,0,0,0.03)}
+    .alert.warn{border-color:#d9432f;background:#fcf1f0}
+    .alert strong{display:block;font-size:16px;text-transform:uppercase;margin-bottom:8px}
+    
+    .footer{padding:80px 0;border-top:1px solid var(--line);color:#69716c;font-size:16px}
+    .footergrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:40px}
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="wrap">
+      <nav><a class="brand" href="../index.html">PRINT<span>LAB</span></a></nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <header class="article-header content">
+      <span class="tag">Consejos de Impresión</span>
+      <h1>Domina los soportes y voladizos (Overhangs)</h1>
+      <p>Aprende el parámetro exacto que separa a un soporte que se retira con un chasquido limpio de uno que destruye tu pieza al intentar quitarlo con alicates.</p>
+    </header>
+
+    <article class="content">
+      <h2>1. El límite del voladizo (La Regla de los 45 Grados)</h2>
+      <p>Debido a la naturaleza aditiva de FDM, cada capa necesita la anterior para sostenerse. Como regla general en la industria, cualquier ángulo de voladizo (overhang) menor a 45 grados respecto a la vertical se puede imprimir sin soportes. Ángulos entre 45º y 60º dependerán críticamente de la potencia de tu ventilador de capa.</p>
+
+      <h2>2. El Secreto Maestro: La Distancia Z de Contacto (Z-Distance)</h2>
+      <p>El error más frustrante al imprimir soportes es que estos se fusionen indisolublemente con la pieza final. Esto ocurre cuando la distancia Z entre el último techo del soporte y la primera capa de tu pieza es incorrecta.</p>
+
+      <div class="alert">
+        <strong>⚙️ Parámetro vital: Contact Z Distance</strong>
+        Para que el soporte se rompa con la mano, tiene que existir un pequeño "salto en el aire". 
+        <br><br>
+        En tu laminador (PrusaSlicer, Cura, Bambu Studio), busca <b>Support Z Distance</b> (o Contact Z Distance). Configúralo estrictamente a un valor igual a tu altura de capa o ligeramente superior:
+        <ul>
+          <li><b>Para PLA (Altura de capa 0.20mm):</b> Ajusta el Contact Z a <b>0.20mm</b> (o 0.22mm si se pega mucho).</li>
+          <li><b>Para PETG (Muy pegajoso):</b> Ajusta el Contact Z a <b>0.25mm</b>. Nunca a 0.20mm o se soldarán para siempre.</li>
+        </ul>
+      </div>
+
+      <h2>3. Soportes Orgánicos (Árbol) vs Lineales</h2>
+      <p>La nueva generación de laminadores ha introducido los Soportes Orgánicos (Tree Supports). A menos que imprimas geometrías mecánicas puramente ortogonales, los orgánicos son hoy día la opción por defecto debido a tres factores críticos:</p>
+      <ul>
+        <li><b>Ahorro masivo de tiempo y filamento:</b> Evitan imprimir torres gigantes desde la cama; las ramas crecen rodeando la pieza.</li>
+        <li><b>Marcas superficiales mínimas:</b> El punto de contacto con el techo es una pequeña gota en lugar de una línea entera.</li>
+        <li><b>Protección de agujeros:</b> Puedes configurarlos para tocar solo la cama (Build Plate Only), evitando que generen soportes dentro de agujeros estrechos donde serían imposibles de raspar.</li>
+      </ul>
+
+      <h2>4. Capas de Interfaz (Interface Layers)</h2>
+      <p>Si la parte inferior de tu pieza apoyada sobre soportes queda rugosa como un espagueti, necesitas activar las <b>Interface Layers</b> (Techos de soporte). Esto crea una red sólida (normalmente de 3 capas concentricas) justo debajo de tu pieza. Al retirar el soporte, te llevarás una lámina de plástico lisa, dejando una superficie casi perfecta en tu modelo.</p>
+    </article>
+  </main>
+  
+  <footer class="footer"><div class="wrap footergrid"><div><strong>PrintLab</strong><p>Datos técnicos reales.</p></div></div></footer>
+</body>
+</html>
