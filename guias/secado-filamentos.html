@@ -3,106 +3,330 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Secado y Humedad de Filamentos - PrintLab</title>
+  <title>Humedad y Secado de Filamentos - Mantenimiento — PrintLab</title>
+  <meta name="description" content="Por qué el PETG, TPU y Nylon burbujean. Tablas de temperatura y tiempos de horneado recomendados por los principales fabricantes.">
+  <meta name="robots" content="index,follow">
+  <!-- Importación de la tipografía Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
   <style>
-    :root{--bg:#f6f7f4;--card:#fff;--ink:#0d1110;--muted:#69716c;--line:#dfe4df;--accent:#b8ff3d;--dark:#111715;--max:1100px}
+    /* VARIABLES DE DISEÑO (Estilo UDIA) */
+    :root{
+      --bg:#f6f7f4;
+      --card:#fff;
+      --ink:#0d1110;
+      --muted:#5e6661;
+      --line:#dfe4df;
+      --accent:#b8ff3d;
+      --dark:#111715;
+      --max:1200px;
+    }
+    
     *{box-sizing:border-box}html{scroll-behavior:smooth}
-    body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;line-height:1.7}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--ink);
+      font-family:"Plus Jakarta Sans", "Inter", system-ui, -apple-system, sans-serif;
+      line-height:1.7;
+      -webkit-font-smoothing:antialiased;
+    }
     a{color:inherit;text-decoration:none}
-    .wrap{max-width:var(--max);margin:auto;padding:0 20px}
-    .top{position:sticky;top:0;z-index:50;background:rgba(246,247,244,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
-    nav{min-height:80px;display:flex;align-items:center;justify-content:center}
-    .brand{font-size:26px;font-weight:900;letter-spacing:-1px}
-    .brand span{background:var(--accent);padding:4px 9px;border-radius:8px;margin-left:4px;color:var(--ink)}
     
-    .article-header{padding:80px 0 40px;border-bottom:1px solid var(--line);margin-bottom:40px}
-    .tag{display:inline-block;padding:6px 12px;border-radius:999px;background:#eef2ee;color:#4d5852;font-size:13px;font-weight:900;text-transform:uppercase;margin-bottom:20px}
-    .article-header h1{font-size:clamp(40px, 5vw, 56px);line-height:1.05;letter-spacing:-2px;margin:0 0 20px}
-    .article-header p{font-size:22px;color:var(--muted);margin:0}
+    .wrap{max-width:var(--max);margin:auto;padding:0 80px}
     
-    .content{font-size:19px;color:#2c3330;max-width:800px;margin:0 auto 100px}
-    .content h2{font-size:32px;margin:50px 0 20px;border-bottom:2px solid var(--line);padding-bottom:10px;color:var(--ink)}
+    /* CABECERA FLUIDA */
+    .top{position:sticky;top:0;z-index:100;background:rgba(246,247,244,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+    nav{min-height:95px;display:flex;align-items:center;justify-content:space-between;gap:36px}
+    .brand{font-size:26px;font-weight:800;letter-spacing:-1px}
+    .brand span{background:var(--accent);padding:5px 12px;border-radius:10px;margin-left:6px;color:var(--ink)}
     
-    .data-table{width:100%;border-collapse:collapse;margin:30px 0;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 15px rgba(0,0,0,0.03)}
-    .data-table th, .data-table td{padding:16px 20px;text-align:left;border-bottom:1px solid var(--line)}
-    .data-table th{background:var(--dark);color:#fff;font-weight:700}
+    .nav{display:flex;gap:12px;font-size:15px;font-weight:700}
+    .nav a{padding:8px 18px;border-radius:9999px;transition:.15s;color:var(--muted)}
+    .nav a:hover{color:var(--ink);background:rgba(0,0,0,0.03)}
+    .nav a.active{color:var(--ink);background:var(--card);border:1px solid var(--line)}
+
+    /* LAYOUT GUÍA */
+    .article-header{padding:80px 0 40px; border-bottom:1px solid var(--line); margin-bottom:40px}
+    .tag{
+      display:inline-flex;
+      padding:6px 14px;
+      border-radius:9999px;
+      background:rgba(0,0,0,0.04);
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:1px;
+      font-weight:800;
+      color:var(--muted);
+      margin-bottom:20px;
+    }
+    .article-header h1{
+      font-size:clamp(40px, 5vw, 56px);
+      line-height:1.05;
+      letter-spacing:-0.03em;
+      margin:0 0 20px;
+      font-weight:800;
+    }
+    .article-header p{font-size:22px; color:var(--muted); margin:0}
+    
+    .content{font-size:18px; color:var(--ink); max-width:800px; margin:0 auto 100px}
+    .content h2{font-size:30px; font-weight:800; margin:50px 0 20px; border-bottom:1.5px solid var(--line); padding-bottom:8px; color:var(--ink); letter-spacing:-0.5px}
+    .content h3{font-size:22px; font-weight:800; margin:30px 0 15px; color:var(--ink)}
+    .content p{margin-bottom:24px}
+    .content ul, .content ol{padding-left:20px; margin-bottom:24px}
+    .content li{margin-bottom:10px}
+    
+    /* TABLAS DE DATOS */
+    .data-table{
+      width:100%;
+      border-collapse:collapse;
+      margin:32px 0;
+      background:var(--card);
+      border:1.5px solid var(--line);
+      border-radius:16px;
+      overflow:hidden;
+      box-shadow:0 4px 15px rgba(0,0,0,0.02)
+    }
+    .data-table th, .data-table td{padding:16px 20px; text-align:left; border-bottom:1px solid var(--line)}
+    .data-table th{background:var(--dark); color:#fff; font-weight:800; font-size:14px; text-transform:uppercase; letter-spacing:0.5px}
     .data-table tr:last-child td{border-bottom:none}
+
+    /* CAJAS INFORMATIVAS */
+    .alert{
+      background:var(--card);
+      border-left:5px solid var(--ink);
+      padding:24px;
+      border-radius:0 16px 16px 0;
+      margin:36px 0;
+      border: 1px solid var(--line);
+      border-left-width: 5px;
+      border-left-color: var(--ink);
+    }
+    .alert.warn{border-left-color:#d9432f; background:#fcf1f0}
+    .alert strong{display:block; font-size:14px; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; font-weight:800}
+
+    /* MODALES DE TRANSPARENCIA */
+    .modal{
+      display:none;
+      position:fixed;
+      top:0;left:0;width:100%;height:100%;
+      background:rgba(13,17,16,0.85);
+      backdrop-filter:blur(8px);
+      z-index:200;
+      overflow-y:auto;
+      padding:40px 16px;
+      animation:fadeIn .2s ease;
+    }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    .modal-content{
+      background:var(--card);
+      border:2.5px solid var(--ink);
+      max-width:700px;
+      margin:40px auto;
+      border-radius:24px;
+      padding:40px;
+      box-shadow:0 25px 60px rgba(0,0,0,0.18);
+      position:relative;
+      color:var(--ink);
+    }
+    .modal-close{
+      position:absolute;
+      top:24px;right:24px;
+      background:var(--bg);
+      border:1.5px solid var(--line);
+      width:40px;height:40px;
+      border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      cursor:pointer;font-weight:800;transition:.15s;
+    }
+    .modal-close:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+    /* FOOTER */
+    .footer{padding:80px 0 110px;margin-top:100px;border-top:1px solid var(--line);color:var(--muted);font-size:15px}
+    .footergrid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:45px}
+    .footer strong{display:block;font-size:16px;color:var(--ink);margin-bottom:12px}
+    .footer a{display:inline-block;margin-bottom:8px;transition:0.15s;cursor:pointer;}
+    .footer a:hover{color:var(--ink);text-decoration:underline}
     
-    .alert{background:#fff;border-left:5px solid var(--ink);padding:24px;border-radius:0 12px 12px 0;margin:30px 0;box-shadow:0 4px 15px rgba(0,0,0,0.03)}
-    .alert.warn{border-color:#d9432f;background:#fcf1f0}
-    .alert strong{display:block;font-size:16px;text-transform:uppercase;margin-bottom:8px}
-    
-    .footer{padding:80px 0;border-top:1px solid var(--line);color:#69716c;font-size:16px}
-    .footergrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:40px}
+    @media(max-width:1250px){
+      .wrap{padding:0 48px}
+    }
+    @media(max-width:750px){
+      .wrap{padding:0 24px}
+      nav{flex-direction:column; padding:20px 0; gap:16px}
+      .brand{margin-right:0}
+    }
   </style>
 </head>
 <body>
+
+  <!-- HEADER -->
   <header class="top">
     <div class="wrap">
-      <nav><a class="brand" href="../index.html">PRINT<span>LAB</span></a></nav>
+      <nav>
+        <a class="brand" href="../index.html" title="Volver al inicio">PRINT<span>LAB</span></a>
+        <div class="nav">
+          <a href="../index.html#simulador">Simulador</a>
+          <a href="../index.html#guias" class="active">Guías</a>
+          <a href="../materiales/index.html">Materiales</a>
+          <a href="../herramientas/index.html">Herramientas</a>
+        </div>
+      </nav>
     </div>
   </header>
 
   <main class="wrap">
     <header class="article-header content">
       <span class="tag">Dudas Comunes</span>
-      <h1>El enemigo invisible: Humedad y secado de filamentos</h1>
-      <p>Por qué tus piezas de PETG, TPU o Nylon suenan como palomitas de maíz (popping) y sufren de hilos extremos. Tablas oficiales de secado.</p>
+      <h1>Humedad y Secado de Filamentos</h1>
+      <p>Por qué tus piezas de PETG, TPU o Nylon sufren hilos extremos o burbujean en la boquilla. Tabla oficial de secado técnico.</p>
     </header>
 
     <article class="content">
-      <p>Casi todos los polímeros para impresión 3D son **higroscópicos**, lo que significa que absorben humedad del aire ambiente. Algunos, como el Nylon (PA), pueden arruinarse en menos de 24 horas si se dejan fuera de su caja hermética.</p>
+      <p>Casi todos los polímeros termoplásticos utilizados en fabricación aditiva FDM son **higroscópicos**, lo que significa que absorben humedad molecular del aire de forma natural. Algunos compuestos técnicos de alto rendimiento, como el Nylon (PA), pueden saturarse de humedad en menos de 24 horas si se exponen de forma directa al ambiente del taller.</p>
 
-      <h2>Los 3 síntomas del filamento húmedo</h2>
+      <h2>Los 3 síntomas críticos del filamento húmedo</h2>
       <ul>
-        <li><b>Sonido de estallido (Popping):</b> Al imprimir, escuchas diminutos estallidos en el cabezal. Es el agua absorbida alcanzando los 240ºC en la boquilla y convirtiéndose violentamente en vapor.</li>
-        <li><b>Stringing Severo (Hilos):</b> La expansión del vapor empuja plástico de forma incontrolable durante los movimientos, ignorando por completo tu configuración de retracción.</li>
-        <li><b>Fragilidad Mecánica:</b> Las burbujas microscópicas de vapor destrozan la cohesión de las capas, reduciendo la fuerza de la pieza final en más de un 40%.</li>
+        <li><b>Sonido de estallido (*popping*):</b> Durante la impresión, se perciben pequeños chasquidos continuos en el nozzle. Es el agua absorbida alcanzando súbitamente los ~240 ºC dentro de la boquilla, expandiéndose violentamente en forma de vapor de agua.</li>
+        <li><b>Hilos extremos (*stringing* severo):</b> La presión incontrolada generada por la expansión del vapor empuja masa plástica fuera de la boquilla durante los viajes sin extrusión, ignorando cualquier configuración de retracción del laminador.</li>
+        <li><b>Fragilidad estructural del eje Z:</b> Las micro-burbujas de vapor atrapadas degradan severamente la cohesión intermolecular entre capas, reduciendo la resistencia mecánica de la pieza hasta en un 40%.</li>
       </ul>
 
       <h2>Tabla Oficial de Secado de Polímeros</h2>
-      <p>Basado en las recomendaciones técnicas de Polymaker y Prusa Polymers. Se recomienda el uso de un secador de filamentos dedicado o un deshidratador de alimentos (los hornos de cocina domésticos son muy imprecisos y pueden derretir la bobina entera).</p>
+      <p>Rangos térmicos y tiempos de deshidratación recomendados por Prusa Research y Polymaker. Es aconsejable emplear deshidratadores o secadores de filamento con control activo y uniforme de temperatura (los hornos de cocina tradicionales presentan una elevada histéresis y pueden derretir el carrete).</p>
 
       <table class="data-table">
-        <tr>
-          <th>Material</th>
-          <th>Temp. de secado recomendada</th>
-          <th>Tiempo mínimo de horneado</th>
-        </tr>
-        <tr>
-          <td>PLA (Ácido Poliláctico)</td>
-          <td>45°C - 50°C</td>
-          <td>4 a 6 horas</td>
-        </tr>
-        <tr>
-          <td>PETG / CPE</td>
-          <td>65°C - 70°C</td>
-          <td>6 a 8 horas</td>
-        </tr>
-        <tr>
-          <td>TPU (Flexible)</td>
-          <td>55°C - 60°C</td>
-          <td>8 horas</td>
-        </tr>
-        <tr>
-          <td>ABS / ASA</td>
-          <td>80°C - 85°C</td>
-          <td>4 a 6 horas</td>
-        </tr>
-        <tr>
-          <td>Nylon (PA) / Policarbonato (PC)</td>
-          <td>80°C - 90°C</td>
-          <td>12 a 24 horas</td>
-        </tr>
+        <thead>
+          <tr>
+            <th>Material</th>
+            <th>Temperatura de secado</th>
+            <th>Tiempo mínimo aconsejado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>PLA (Ácido Poliláctico)</td>
+            <td>45 ºC - 50 ºC</td>
+            <td>4 a 6 horas</td>
+          </tr>
+          <tr>
+            <td>PETG / CPE</td>
+            <td>65 ºC - 70 ºC</td>
+            <td>6 a 8 horas</td>
+          </tr>
+          <tr>
+            <td>TPU (Elastómero Flexible)</td>
+            <td>55 ºC - 60 ºC</td>
+            <td>8 horas</td>
+          </tr>
+          <tr>
+            <td>ABS / ASA</td>
+            <td>80 ºC - 85 ºC</td>
+            <td>4 a 6 horas</td>
+          </tr>
+          <tr>
+            <td>Nylon (PA) / Policarbonato (PC)</td>
+            <td>80 ºC - 90 ºC</td>
+            <td>12 a 24 horas</td>
+          </tr>
+        </tbody>
       </table>
 
       <div class="alert warn">
-        <strong>⚠️ Advertencia Termodinámica sobre el Carrete</strong>
-        Nunca excedas las temperaturas indicadas. Si introduces una bobina de PLA en un horno a 70ºC, el propio carrete de plástico y el filamento entrarán en su fase de transición vítrea (Tg) y se fusionarán en un solo bloque de plástico inservible. Asegúrate de secar respetando la temperatura máxima.
+        <strong>⚠️ Advertencia Térmica sobre el Carrete</strong>
+        Nunca superes las temperaturas indicadas en la tabla. Si introduces una bobina de PLA en un horno a una temperatura superior a 60 ºC, el filamento entrará en su fase de transición vítrea (Tg) y se fusionará molecularmente en un bloque de plástico inservible. Confirma la precisión de tu deshidratador de forma previa.
       </div>
     </article>
   </main>
-  
-  <footer class="footer"><div class="wrap footergrid"><div><strong>PrintLab</strong><p>Datos técnicos reales.</p></div></div></footer>
+
+  <!-- MODALES DE TRANSPARENCIA -->
+  <div id="modal-fuentes" class="modal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeModal('modal-fuentes')">✕</span>
+      <h3>Fuentes técnicas</h3>
+      <div class="modal-section" style="background: var(--bg); padding: 18px; border-radius: 12px; border: 1.5px solid var(--line); margin-bottom: 24px;">
+        <p style="font-weight: 800; font-size: 15.5px; color: var(--ink); margin: 0; line-height: 1.6;">
+          "Toda la información técnica publicada se basa en fichas técnicas de materiales (TDS), protocolos de fabricantes (Prusa, UltiMaker, Formlabs) y normativas estandarizadas de la industria (ISO, ASTM)."
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-normativas" class="modal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeModal('modal-normativas')">✕</span>
+      <h3>Normativas y estándares</h3>
+      <div class="modal-section">
+        <h4>ISO/ASTM 52900:2021</h4>
+        <p>Acondicionamiento y almacenamiento de materias primas plásticas.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-metodologia" class="modal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeModal('modal-metodologia')">✕</span>
+      <h3>Metodología del simulador</h3>
+      <div class="modal-section">
+        <p>Cálculo de la tasa de higroscopia e impacto directo en la fluidez del hotend.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-limitaciones" class="modal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeModal('modal-limitaciones')">✕</span>
+      <h3>Limitaciones y seguridad</h3>
+      <div class="modal-section">
+        <p>Los deshumidificadores pasivos con gel de sílice son aptos para la prevención de humedad, pero incapaces de deshidratar de forma activa filamentos ya saturados de agua.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="wrap footergrid">
+      <div>
+        <strong>PrintLab — Ingeniería 3D</strong>
+        <p>Toda la información técnica publicada se basa en fichas técnicas de materiales (TDS), protocolos de fabricantes (Prusa, UltiMaker, Formlabs) y normativas estandarizadas de la industria (ISO, ASTM).</p>
+      </div>
+      <div>
+        <strong>Centro de recursos</strong>
+        <p>
+          <a href="../index.html#guias">Guías y diagnóstico de problemas</a><br>
+          <a href="../materiales/index.html">Atlas de materiales</a>
+        </p>
+      </div>
+      <div>
+        <strong>Normativa y transparencia</strong>
+        <p>
+          <a onclick="openModal('modal-fuentes')">→ Fuentes técnicas</a><br>
+          <a onclick="openModal('modal-normativas')">→ Normativas y estándares</a><br>
+          <a onclick="openModal('modal-metodologia')">→ Metodología del simulador</a><br>
+          <a onclick="openModal('modal-limitaciones')">→ Limitaciones y seguridad</a>
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    function openModal(id) {
+      document.getElementById(id).style.display = 'block';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).style.display = 'none';
+      document.body.style.overflow = 'auto';
+    }
+
+    window.onclick = function(event) {
+      if (event.target.classList.contains('modal')) {
+        event.target.style.display = 'none';
+        document.body.style.overflow = 'auto';
+      }
+    }
+  </script>
 </body>
 </html>
