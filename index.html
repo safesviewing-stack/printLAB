@@ -6,12 +6,12 @@
   <title>PrintLab — Guías, diagnóstico y resoluciones de impresión 3D</title>
   <meta name="description" content="Decisiones técnicas de impresión 3D basadas en datos de Prusa, UltiMaker, Formlabs, Bambu Lab, ISO, ASTM, NIOSH y CDC.">
   <meta name="robots" content="index,follow">
-  <!-- Importación de la tipografía Plus Jakarta Sans (utilizada en UDIA) -->
+  <!-- Tipografía Plus Jakarta Sans para un acabado limpio y profesional -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
   <style>
-    /* Estilos globales y consistencia de jerarquía al estilo UDIA */
+    /* VARIABLES DE DISEÑO (Estilo UDIA) */
     :root{
       --bg:#f6f7f4;
       --card:#fff;
@@ -34,21 +34,20 @@
     }
     a{color:inherit;text-decoration:none}
     
-    /* Contenedor principal con márgenes laterales amplios */
     .wrap{max-width:var(--max);margin:auto;padding:0 80px}
     
-    /* CABECERA Y NAVEGACIÓN */
-    .top{position:sticky;top:0;z-index:50;background:rgba(246,247,244,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+    /* CABECERA FLUIDA */
+    .top{position:sticky;top:0;z-index:100;background:rgba(246,247,244,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
     nav{min-height:95px;display:flex;align-items:center;justify-content:space-between;gap:36px}
     .brand{font-size:26px;font-weight:800;letter-spacing:-1px}
     .brand span{background:var(--accent);padding:5px 12px;border-radius:10px;margin-left:6px;color:var(--ink)}
     
     .nav{display:flex;gap:12px;font-size:15px;font-weight:700}
-    .nav a{padding:8px 16px;border-radius:9999px;transition:.15s;color:var(--muted)}
+    .nav a{padding:8px 18px;border-radius:9999px;transition:.15s;color:var(--muted)}
     .nav a:hover{color:var(--ink);background:rgba(0,0,0,0.03)}
     .nav a.active{color:var(--ink);background:var(--card);border:1px solid var(--line)}
 
-    /* BOTONES ESTILO CÁPSULA (UDIA) */
+    /* BOTONES CÁPSULA */
     .btn{
       display:inline-flex;
       align-items:center;
@@ -85,8 +84,8 @@
       background:var(--bg);
     }
     
-    /* HERO PRINCIPAL */
-    .hero{padding:100px 0 60px;display:grid;grid-template-columns:1.15fr 0.85fr;gap:64px;align-items:center}
+    /* PORTADA (HERO) */
+    .hero{padding:100px 0 60px;display:grid;grid-template-columns:1.15fr 0.85fr;gap:64px;align-items:start}
     .eyebrow{
       display:inline-flex;
       align-items:center;
@@ -115,7 +114,7 @@
       line-height:1.5;
     }
     
-    /* PANEL BUSCADOR (Formas redondeadas UDIA) */
+    /* BUSCADOR TÉCNICO ALINEADO */
     .hero-panel{
       background:var(--dark);
       color:#fff;
@@ -179,7 +178,7 @@
     .result-warning{color:#9e3223;font-weight:700;font-size:14px;background:#fcebe8;padding:12px;border-radius:10px}
     
     /* SECCIONES Y CABECERAS */
-    .section{padding:70px 0 30px}
+    .section{padding:80px 0 30px; scroll-margin-top: 100px;}
     .section-divider{border:0; height:1px; background:var(--line); margin:40px 0}
     .sectionhead{margin-bottom:44px}
     .sectionhead h2{
@@ -191,28 +190,41 @@
     }
     .sectionhead p{margin:0;color:var(--muted);font-size:18px}
     
-    /* BLOQUE DESTACADO */
-    .heroarticle{
-      min-height:380px;
+    /* SIMULADOR INTERACTIVO DE PARÁMETROS (RECURSO NUEVO) */
+    .sim-container{
       background:#101614;
-      background-image:radial-gradient(circle at top right, #1a241f, transparent 40%);
       color:#fff;
       border-radius:24px;
-      padding:54px;
+      padding:48px;
+      display:grid;
+      grid-template-columns:1fr 1.2fr;
+      gap:48px;
+      box-shadow:0 20px 40px rgba(0,0,0,0.08);
+    }
+    .sim-controls{display:flex;flex-direction:column;gap:24px}
+    .sim-control-group{display:flex;flex-direction:column;gap:8px}
+    .sim-control-group label{font-size:14px;font-weight:700;color:#bcc5c0;display:flex;justify-content:space-between}
+    .sim-control-group label span{color:var(--accent)}
+    .sim-control-group input[type="range"]{
+      width:100%;
+      accent-color:var(--accent);
+      cursor:pointer;
+    }
+    .sim-results{
+      background:#1a221f;
+      border-radius:20px;
+      padding:36px;
       display:flex;
       flex-direction:column;
-      justify-content:flex-end;
+      justify-content:space-between;
+      border:1px solid #2a332f;
     }
-    .heroarticle h3{
-      font-size:clamp(30px, 4.5vw, 44px);
-      line-height:1.1;
-      letter-spacing:-0.02em;
-      margin:20px 0 14px;
-      max-width:850px;
-      font-weight:800;
-    }
-    .heroarticle p{font-size:17px;color:#bcc5c0;max-width:800px;margin-bottom:28px}
-    .heroarticle .tag{background:#2a332f;color:var(--accent);align-self:flex-start}
+    .sim-metric{margin-bottom:20px}
+    .sim-metric:last-child{margin-bottom:0}
+    .sim-metric-header{display:flex;justify-content:space-between;font-size:14px;font-weight:700;margin-bottom:8px}
+    .sim-metric-val{color:var(--accent)}
+    .sim-progress{height:8px;background:#2e3a35;border-radius:4px;overflow:hidden}
+    .sim-progress-bar{height:100%;background:var(--accent);width:50%;transition:width 0.15s ease}
     
     /* TARJETAS Y GRID */
     .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:32px}
@@ -285,6 +297,7 @@
     @media(max-width:1250px){
       .wrap{padding:0 48px}
       .hero{grid-template-columns:1fr; gap:40px}
+      .sim-container{grid-template-columns:1fr; gap:36px}
       .footergrid{grid-template-columns:1fr 1fr}
     }
     @media(max-width:750px){
@@ -293,8 +306,6 @@
       .hero h1{font-size:38px}
       .searchbox{display:block}
       .searchbox input, .searchbox button{width:100%;margin-top:12px}
-      .heroarticle{padding:40px 30px}
-      .heroarticle h3{font-size:30px}
       nav{flex-direction:column; padding:20px 0; gap:16px}
       .brand{margin-right:0}
     }
@@ -302,14 +313,14 @@
 </head>
 <body>
   
+  <!-- HEADER CON COMPORTAMIENTO DE SELECCIÓN DINÁMICO -->
   <header class="top">
     <div class="wrap">
       <nav>
         <a class="brand" href="index.html" title="Volver al inicio">PRINT<span>LAB</span></a>
         <div class="nav">
-          <a href="#guias" class="active">Guías</a>
-          <a href="materiales/index.html">Materiales</a>
-          <a href="herramientas/index.html">Herramientas</a>
+          <a href="#guias">Guías</a>
+          <a href="#herramientas">Herramientas</a>
         </div>
       </nav>
     </div>
@@ -317,7 +328,8 @@
 
   <main class="wrap">
     
-    <section class="hero">
+    <!-- PORTADA -->
+    <section id="portada" class="hero" style="scroll-margin-top: 150px;">
       <div>
         <div class="eyebrow">Decisiones basadas en datos técnicos</div>
         <h1>La guía práctica para entender la impresión 3D.</h1>
@@ -325,7 +337,7 @@
         
         <div style="display:flex;gap:12px;flex-wrap:wrap">
           <button class="btn green" onclick="toggleAssistant()">¿Qué material necesito?</button>
-          <a class="btn light" href="herramientas/index.html">Explorar herramientas</a>
+          <a class="btn light" href="materiales/index.html">Explorar materiales</a>
         </div>
 
         <!-- ASISTENTE INTERACTIVO -->
@@ -349,6 +361,7 @@
         </div>
       </div>
       
+      <!-- BUSCADOR CON ALINEACIÓN ABSOLUTA -->
       <aside class="hero-panel">
         <h2>Buscador técnico</h2>
         <p>Encuentra de inmediato soluciones a atascos, parámetros de laminación o guías de materiales avanzados.</p>
@@ -360,22 +373,84 @@
       </aside>
     </section>
 
-    <!-- SECCIÓN DESTACADA -->
-    <section class="section" style="margin-top: 20px;">
-      <article class="heroarticle">
-        <span class="tag">Guía Avanzada</span>
-        <h3>Parámetros de impresión: Más allá de lo básico</h3>
-        <p>Una guía profunda sobre cómo el ancho de línea, la superposición térmica de capas y la geometría de la boquilla modifican radicalmente la resistencia anisotrópica final.</p>
-        <a class="btn green" href="guias/guia-completa-parametros.html" style="align-self:flex-start;box-shadow:none">Guía completa de parámetros</a>
-      </article>
+    <!-- RECURSO INTERACTIVO NUEVO: SIMULADOR FÍSICO DE PARÁMETROS -->
+    <section class="section">
+      <div class="sim-container">
+        <div class="sim-controls">
+          <div class="eyebrow" style="align-self: flex-start; background: rgba(255,255,255,0.08); color: var(--accent);">Interactiva</div>
+          <h3 style="font-size: 28px; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.5px;">Simulador de Parámetros</h3>
+          <p style="color: #bcc5c0; font-size: 15px; margin: 0 0 16px;">Modifica los deslizadores para predecir el comportamiento físico y estético de tu pieza.</p>
+          
+          <div class="sim-control-group">
+            <label>Altura de Capa <span id="val-layer">0.20 mm</span></label>
+            <input type="range" id="param-layer" min="0.08" max="0.30" step="0.04" value="0.20" oninput="updateSimulation()">
+          </div>
+          
+          <div class="sim-control-group">
+            <label>Perímetros de Pared <span id="val-walls">3 perímetros</span></label>
+            <input type="range" id="param-walls" min="1" max="8" step="1" value="3" oninput="updateSimulation()">
+          </div>
+          
+          <div class="sim-control-group">
+            <label>Densidad de Relleno <span id="val-infill">20 %</span></label>
+            <input type="range" id="param-infill" min="10" max="100" step="10" value="20" oninput="updateSimulation()">
+          </div>
+          
+          <div class="sim-control-group">
+            <label>Velocidad de Impresión <span id="val-speed">80 mm/s</span></label>
+            <input type="range" id="param-speed" min="40" max="250" step="10" value="80" oninput="updateSimulation()">
+          </div>
+        </div>
+        
+        <div class="sim-results">
+          <div class="sim-metric">
+            <div class="sim-metric-header">
+              <span>Resistencia Tracción (Mecánica)</span>
+              <span class="sim-metric-val" id="res-strength">65%</span>
+            </div>
+            <div class="sim-progress">
+              <div class="sim-progress-bar" id="bar-strength"></div>
+            </div>
+          </div>
+          
+          <div class="sim-metric">
+            <div class="sim-metric-header">
+              <span>Resolución Superficial (Estética)</span>
+              <span class="sim-metric-val" id="res-finish">50%</span>
+            </div>
+            <div class="sim-progress">
+              <div class="sim-progress-bar" id="bar-finish"></div>
+            </div>
+          </div>
+
+          <div class="sim-metric">
+            <div class="sim-metric-header">
+              <span>Anisotropía (Z-axis Fragility)</span>
+              <span class="sim-metric-val" id="res-aniso">Fuerte</span>
+            </div>
+            <div class="sim-progress">
+              <div class="sim-progress-bar" id="bar-aniso"></div>
+            </div>
+          </div>
+
+          <div class="sim-metric">
+            <div class="sim-metric-header" style="margin-bottom: 0;">
+              <span>Tiempo de Impresión Estimado</span>
+              <span class="sim-metric-val" id="res-time" style="font-size: 18px; font-weight: 800;">2h 15m</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <!-- BLOQUE 1 -->
+    <hr class="section-divider">
+
+    <!-- GUÍAS -->
     <section id="guias" class="section">
       <div class="sectionhead">
-        <div class="eyebrow" style="margin-bottom:12px">01 / DIAGNÓSTICO</div>
-        <h2>Diagnóstico y Resolución de Fallos</h2>
-        <p>Identificación técnica de errores de extrusión, problemas de adhesión y mantenimiento preventivo de hardware.</p>
+        <div class="eyebrow" style="margin-bottom:12px">01 / DIAGNÓSTICO Y CONOCIMIENTO</div>
+        <h2>Base de Conocimiento</h2>
+        <p>Identificación técnica de errores de extrusión, problemas de adhesión y guías de laminación estructural.</p>
       </div>
 
       <div class="grid">
@@ -406,20 +481,7 @@
           <p>Por qué el PETG, TPU y Nylon burbujean. Tablas de temperatura y tiempos de horneado/secado recomendados por los principales fabricantes.</p>
           <span class="btn-action">Guía de secado</span>
         </a>
-      </div>
-    </section>
 
-    <hr class="section-divider">
-
-    <!-- BLOQUE 2 -->
-    <section class="section">
-      <div class="sectionhead">
-        <div class="eyebrow" style="margin-bottom:12px">02 / LAMINADO</div>
-        <h2>Configuración de Software y Laminado</h2>
-        <p>Configuraciones de laminación (Slicing) estructurales para mejorar la robustez de las piezas mecánicas.</p>
-      </div>
-
-      <div class="grid">
         <a class="card" href="guias/configuracion-basica.html">
           <span class="tag">Laminado</span>
           <h3>Altura de capa, perímetros e infill</h3>
@@ -452,41 +514,41 @@
 
     <hr class="section-divider">
 
-    <!-- BLOQUE 3 -->
-    <section class="section">
+    <!-- HERRAMIENTAS -->
+    <section id="herramientas" class="section">
       <div class="sectionhead">
-        <div class="eyebrow" style="margin-bottom:12px">03 / GESTIÓN</div>
-        <h2>Materiales y Gestión Técnica</h2>
-        <p>Análisis en profundidad de polímeros industriales, tecnologías de resina y amortización económica.</p>
+        <div class="eyebrow" style="margin-bottom:12px">02 / INTERACTIVIDAD Y UTILIDAD</div>
+        <h2>Herramientas Interactivas</h2>
+        <p>Calculadoras de ingeniería para optimizar costos de fabricación y predecir encajes mecánicos precisos.</p>
       </div>
 
       <div class="grid">
-        <a class="card" href="guias/pla-vs-petg.html">
-          <span class="tag">Decisión de diseño</span>
-          <h3>PLA vs PETG: La Comparativa</h3>
-          <p>Análisis de resistencia mecánica, módulo elástico, impacto, facilidad de impresión, resistencia a la humedad y aplicaciones reales.</p>
-          <span class="btn-action">Comparar PLA y PETG</span>
-        </a>
-
-        <a class="card" href="guias/impresion-tpu.html">
-          <span class="tag">Materiales Avanzados</span>
-          <h3>Cómo imprimir TPU y materiales flexibles</h3>
-          <p>Ajustes obligatorios de retracción, tensión de los engranajes del extrusor y control de velocidad para evitar que el filamento se enrolle.</p>
-          <span class="btn-action">Guía de flexibles</span>
-        </a>
-
-        <a class="card" href="guias/impresion-sla.html">
-          <span class="tag">Tecnologías</span>
-          <h3>Fundamentos de la impresión SLA / DLP</h3>
-          <p>Diferencias tecnológicas, orientación correcta de piezas, generación de soportes, curado UV, tiempos de exposición y lavado con isopropanol.</p>
-          <span class="btn-action">Aprender sobre SLA</span>
-        </a>
-
         <a class="card" href="herramientas/calculadora-coste.html">
-          <span class="tag">Gestión</span>
-          <h3>Cálculo del coste real de fabricación</h3>
-          <p>La fórmula completa de amortización de piezas: costo de material bruto, depreciación de boquilla/PTFE, energía y tasa esperada de fallos.</p>
-          <span class="btn-action">Calcular presupuestos</span>
+          <div style="font-size: 28px; margin-bottom: 16px;">💶</div>
+          <h3>Calculadora de coste</h3>
+          <p>Determina el coste exacto de fabricación. Evita presupuestar a ciegas incluyendo la amortización de tu hardware, luz y fallos de lote.</p>
+          <span class="btn-action">Calcular coste</span>
+        </a>
+
+        <a class="card" href="herramientas/calculadora-holguras.html">
+          <div style="font-size: 28px; margin-bottom: 16px;">⚙️</div>
+          <h3>Tolerancias y Encajes</h3>
+          <p>Determina las dimensiones exactas para el diseño CAD (agujero y eje) según el tipo de encaje mecánico deseado.</p>
+          <span class="btn-action">Calcular holguras</span>
+        </a>
+
+        <a class="card" href="herramientas/conversor-unidades.html">
+          <div style="font-size: 28px; margin-bottom: 16px;">📏</div>
+          <h3>Conversor dimensional</h3>
+          <p>Traduce dimensiones de archivos STL imperiales (pulgadas) al sistema métrico (milímetros) estándar de los laminadores.</p>
+          <span class="btn-action">Convertir unidades</span>
+        </a>
+
+        <a class="card" href="herramientas/calculadora-masa.html">
+          <div style="font-size: 28px; margin-bottom: 16px;">⚖️</div>
+          <h3>Calculadora de masa</h3>
+          <p>Pasa del volumen (dado por tu software CAD) al peso físico en gramos según la densidad del termoplástico o resina.</p>
+          <span class="btn-action">Calcular masa</span>
         </a>
       </div>
     </section>
@@ -502,9 +564,9 @@
       <div>
         <strong>Centro de recursos</strong>
         <p>
-          <a href="guias/index.html">Guías y diagnóstico de problemas</a><br>
+          <a href="#guias">Guías y diagnóstico de problemas</a><br>
           <a href="materiales/index.html">Base de datos de materiales</a><br>
-          <a href="herramientas/index.html">Herramientas y calculadoras</a>
+          <a href="#herramientas">Herramientas y calculadoras</a>
         </p>
       </div>
       <div>
@@ -518,6 +580,48 @@
   </footer>
 
   <script>
+    /* COMPORTAMIENTO NAVEGACIÓN HEADER DINÁMICO */
+    const navLinks = document.querySelectorAll('.nav a');
+    const sections = document.querySelectorAll('main > section[id]');
+
+    navLinks.forEach(link => {
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        const targetId = link.getAttribute('href');
+        const targetSection = document.querySelector(targetId);
+        if (targetSection) {
+          window.scrollTo({
+            top: targetSection.offsetTop - 110,
+            behavior: 'smooth'
+          });
+        }
+      });
+    });
+
+    window.addEventListener('scroll', () => {
+      let current = "";
+      const scrollPosition = window.scrollY + 160;
+
+      sections.forEach(section => {
+        if (scrollPosition >= section.offsetTop) {
+          current = section.getAttribute('id');
+        }
+      });
+
+      navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (current && link.getAttribute('href') === `#${current}`) {
+          link.classList.add('active');
+        }
+      });
+
+      // Ningún elemento seleccionado si estamos al inicio (portada)
+      if (window.scrollY < 120) {
+        navLinks.forEach(link => link.classList.remove('active'));
+      }
+    });
+
+    /* LÓGICA DEL ASISTENTE */
     const ASSISTANT_DATA = {
       'visual': {
         title: "Material recomendado: PLA",
@@ -579,6 +683,58 @@
       r.style.display = 'block';
     }
     document.getElementById('q').addEventListener('keydown', e => { if(e.key==='Enter') goSearch() });
+
+    /* LÓGICA DEL SIMULADOR FISICO DE PARAMETROS */
+    function updateSimulation() {
+      const layer = parseFloat(document.getElementById('param-layer').value);
+      const walls = parseInt(document.getElementById('param-walls').value);
+      const infill = parseInt(document.getElementById('param-infill').value);
+      const speed = parseInt(document.getElementById('param-speed').value);
+      
+      // Actualización de textos de control
+      document.getElementById('val-layer').innerText = `${layer.toFixed(2)} mm`;
+      document.getElementById('val-walls').innerText = `${walls} ${walls === 1 ? 'perímetro' : 'perímetros'}`;
+      document.getElementById('val-infill').innerText = `${infill} %`;
+      document.getElementById('val-speed').innerText = `${speed} mm/s`;
+
+      // Cálculos físicos aproximados de comportamiento
+      // 1. Resistencia (Influenciada por perímetros y relleno, penalizada por altura de capa gruesa)
+      let strength = Math.min(100, Math.round((walls * 10) + (infill * 0.5) - (layer * 40)));
+      strength = Math.max(10, strength);
+
+      // 2. Acabado (Influenciado por la altura de capa de forma inversa)
+      let finish = Math.round(100 - (layer * 280));
+      finish = Math.max(15, finish);
+
+      // 3. Anisotropía (Z-axis fragility). Capas más finas y más perímetros reducen la fragilidad en Z (mejor isotropía)
+      let anisotropyVal = Math.min(100, Math.round((layer * 220) + (100 - walls * 8)));
+      anisotropyVal = Math.max(10, anisotropyVal);
+
+      // 4. Tiempo estimado (Proporcional a menor velocidad, menor altura de capa y mayor relleno/paredes)
+      let totalMinutes = Math.round((240 / speed) * (infill * 0.15 + walls * 0.3) / layer);
+      let hours = Math.floor(totalMinutes / 60);
+      let minutes = totalMinutes % 60;
+      let timeText = `${hours}h ${minutes}m`;
+
+      // Aplicar resultados visuales
+      document.getElementById('res-strength').innerText = `${strength}%`;
+      document.getElementById('bar-strength').style.width = `${strength}%`;
+
+      document.getElementById('res-finish').innerText = `${finish}%`;
+      document.getElementById('bar-finish').style.width = `${finish}%`;
+
+      let anisoText = "Fuerte (Estable)";
+      if (anisotropyVal > 70) anisoText = "Fragilidad crítica en Z";
+      else if (anisotropyVal > 45) anisoText = "Direccional (Medio)";
+      
+      document.getElementById('res-aniso').innerText = anisoText;
+      document.getElementById('bar-aniso').style.width = `${100 - anisotropyVal}%`; // Representamos la fuerza cohesiva, por eso invertido
+
+      document.getElementById('res-time').innerText = timeText;
+    }
+
+    // Inicializar simulación por defecto en carga
+    window.addEventListener('load', updateSimulation);
   </script>
 </body>
 </html>
