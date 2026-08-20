@@ -451,6 +451,7 @@
           <a href="#simulador">Simulador</a>
           <a href="#guias">Guías</a>
           <a href="materiales/index.html">Materiales</a>
+          <!-- Este enlace ahora apunta internamente a la sección de abajo (#herramientas) -->
           <a href="#herramientas">Herramientas</a>
         </div>
       </nav>
@@ -786,7 +787,7 @@
 
     <hr class="section-divider">
 
-    <!-- SECCIÓN HERRAMIENTAS -->
+    <!-- SECCIÓN HERRAMIENTAS INTERACTIVAS -->
     <section id="herramientas" class="section">
       <div class="sectionhead">
         <div class="eyebrow" style="margin-bottom:12px">02 / INTERACTIVIDAD Y UTILIDAD</div>
@@ -951,12 +952,17 @@
     navLinks.forEach(link => {
       link.addEventListener('click', e => {
         const targetId = link.getAttribute('href');
+        // Si es un enlace de anclaje (comienza con #)
         if (targetId.startsWith('#')) {
           e.preventDefault();
           const targetSection = document.querySelector(targetId);
           if (targetSection) {
+            // Calculamos la posición absoluta restando la altura de la cabecera sticky
+            const yOffset = -110; 
+            const y = targetSection.getBoundingClientRect().top + window.pageYOffset + yOffset;
+            
             window.scrollTo({
-              top: targetSection.offsetTop - 110,
+              top: y,
               behavior: 'smooth'
             });
           }
