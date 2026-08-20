@@ -3,39 +3,161 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Atascos, Heat Creep y Cold Pulls - PrintLab</title>
+  <title>Atascos, Heat Creep y Cold Pulls - Guía de Mantenimiento — PrintLab</title>
+  <meta name="description" content="Entiende la termodinámica de tu fusor (hotend) para prevenir obstrucciones y cómo eliminarlas sin desmontar la máquina.">
+  <meta name="robots" content="index,follow">
+  <!-- Importación de la tipografía Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
   <style>
-    :root{--bg:#f6f7f4;--card:#fff;--ink:#0d1110;--muted:#69716c;--line:#dfe4df;--accent:#b8ff3d;--dark:#111715;--max:1100px}
+    /* VARIABLES DE DISEÑO (Estilo UDIA) */
+    :root{
+      --bg:#f6f7f4;
+      --card:#fff;
+      --ink:#0d1110;
+      --muted:#5e6661;
+      --line:#dfe4df;
+      --accent:#b8ff3d;
+      --dark:#111715;
+      --max:1200px;
+    }
+    
     *{box-sizing:border-box}html{scroll-behavior:smooth}
-    body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;line-height:1.7}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--ink);
+      font-family:"Plus Jakarta Sans", "Inter", system-ui, -apple-system, sans-serif;
+      line-height:1.7;
+      -webkit-font-smoothing:antialiased;
+    }
     a{color:inherit;text-decoration:none}
-    .wrap{max-width:var(--max);margin:auto;padding:0 20px}
-    .top{position:sticky;top:0;z-index:50;background:rgba(246,247,244,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
-    nav{min-height:80px;display:flex;align-items:center;justify-content:center}
-    .brand{font-size:26px;font-weight:900;letter-spacing:-1px}
-    .brand span{background:var(--accent);padding:4px 9px;border-radius:8px;margin-left:4px;color:var(--ink)}
     
-    .article-header{padding:80px 0 40px;border-bottom:1px solid var(--line);margin-bottom:40px}
-    .tag{display:inline-block;padding:6px 12px;border-radius:999px;background:#eef2ee;color:#4d5852;font-size:13px;font-weight:900;text-transform:uppercase;margin-bottom:20px}
-    .article-header h1{font-size:clamp(40px, 5vw, 56px);line-height:1.05;letter-spacing:-2px;margin:0 0 20px}
-    .article-header p{font-size:22px;color:var(--muted);margin:0}
+    .wrap{max-width:var(--max);margin:auto;padding:0 80px}
     
-    .content{font-size:19px;color:#2c3330;max-width:800px;margin:0 auto 100px}
-    .content h2{font-size:32px;margin:50px 0 20px;border-bottom:2px solid var(--line);padding-bottom:10px;color:var(--ink)}
-    .content h3{font-size:24px;margin:30px 0 15px}
+    /* CABECERA FLUIDA */
+    .top{position:sticky;top:0;z-index:100;background:rgba(246,247,244,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+    nav{min-height:95px;display:flex;align-items:center;justify-content:space-between;gap:36px}
+    .brand{font-size:26px;font-weight:800;letter-spacing:-1px}
+    .brand span{background:var(--accent);padding:5px 12px;border-radius:10px;margin-left:6px;color:var(--ink)}
     
-    .alert{background:#fff;border-left:5px solid var(--ink);padding:24px;border-radius:0 12px 12px 0;margin:30px 0;box-shadow:0 4px 15px rgba(0,0,0,0.03)}
-    .alert.warn{border-color:#d9432f;background:#fcf1f0}
-    .alert strong{display:block;font-size:16px;text-transform:uppercase;margin-bottom:8px}
+    .nav{display:flex;gap:12px;font-size:15px;font-weight:700}
+    .nav a{padding:8px 18px;border-radius:9999px;transition:.15s;color:var(--muted)}
+    .nav a:hover{color:var(--ink);background:rgba(0,0,0,0.03)}
+    .nav a.active{color:var(--ink);background:var(--card);border:1px solid var(--line)}
+
+    /* LAYOUT GUÍA */
+    .article-header{padding:80px 0 40px; border-bottom:1px solid var(--line); margin-bottom:40px}
+    .tag{
+      display:inline-flex;
+      padding:6px 14px;
+      border-radius:9999px;
+      background:rgba(0,0,0,0.04);
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:1px;
+      font-weight:800;
+      color:var(--muted);
+      margin-bottom:20px;
+    }
+    .article-header h1{
+      font-size:clamp(40px, 5vw, 56px);
+      line-height:1.05;
+      letter-spacing:-0.03em;
+      margin:0 0 20px;
+      font-weight:800;
+    }
+    .article-header p{font-size:22px; color:var(--muted); margin:0}
     
-    .footer{padding:80px 0;border-top:1px solid var(--line);color:#69716c;font-size:16px}
-    .footergrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:40px}
+    .content{font-size:18px; color:var(--ink); max-width:800px; margin:0 auto 100px}
+    .content h2{font-size:30px; font-weight:800; margin:50px 0 20px; border-bottom:1.5px solid var(--line); padding-bottom:8px; color:var(--ink); letter-spacing:-0.5px}
+    .content h3{font-size:22px; font-weight:800; margin:30px 0 15px; color:var(--ink)}
+    .content p{margin-bottom:24px}
+    .content ul, .content ol{padding-left:20px; margin-bottom:24px}
+    .content li{margin-bottom:10px}
+    
+    /* CAJAS INFORMATIVAS */
+    .alert{
+      background:var(--card);
+      border-left:5px solid var(--ink);
+      padding:24px;
+      border-radius:0 16px 16px 0;
+      margin:36px 0;
+      border: 1px solid var(--line);
+      border-left-width: 5px;
+      border-left-color: var(--ink);
+    }
+    .alert.warn{border-left-color:#d9432f; background:#fcf1f0}
+    .alert strong{display:block; font-size:14px; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; font-weight:800}
+
+    /* MODALES DE TRANSPARENCIA */
+    .modal{
+      display:none;
+      position:fixed;
+      top:0;left:0;width:100%;height:100%;
+      background:rgba(13,17,16,0.85);
+      backdrop-filter:blur(8px);
+      z-index:200;
+      overflow-y:auto;
+      padding:40px 16px;
+      animation:fadeIn .2s ease;
+    }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    .modal-content{
+      background:var(--card);
+      border:2.5px solid var(--ink);
+      max-width:700px;
+      margin:40px auto;
+      border-radius:24px;
+      padding:40px;
+      box-shadow:0 25px 60px rgba(0,0,0,0.18);
+      position:relative;
+      color:var(--ink);
+    }
+    .modal-close{
+      position:absolute;
+      top:24px;right:24px;
+      background:var(--bg);
+      border:1.5px solid var(--line);
+      width:40px;height:40px;
+      border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      cursor:pointer;font-weight:800;transition:.15s;
+    }
+    .modal-close:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+    /* FOOTER */
+    .footer{padding:80px 0 110px;margin-top:100px;border-top:1px solid var(--line);color:var(--muted);font-size:15px}
+    .footergrid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:45px}
+    .footer strong{display:block;font-size:16px;color:var(--ink);margin-bottom:12px}
+    .footer a{display:inline-block;margin-bottom:8px;transition:0.15s;cursor:pointer;}
+    .footer a:hover{color:var(--ink);text-decoration:underline}
+    
+    @media(max-width:1250px){
+      .wrap{padding:0 48px}
+    }
+    @media(max-width:750px){
+      .wrap{padding:0 24px}
+      nav{flex-direction:column; padding:20px 0; gap:16px}
+      .brand{margin-right:0}
+    }
   </style>
 </head>
 <body>
+
+  <!-- HEADER -->
   <header class="top">
     <div class="wrap">
-      <nav><a class="brand" href="../index.html">PRINT<span>LAB</span></a></nav>
+      <nav>
+        <a class="brand" href="../index.html" title="Volver al inicio">PRINT<span>LAB</span></a>
+        <div class="nav">
+          <a href="../index.html#simulador">Simulador</a>
+          <a href="../index.html#guias" class="active">Guías</a>
+          <a href="../materiales/index.html">Materiales</a>
+          <a href="../herramientas/index.html">Herramientas</a>
+        </div>
+      </nav>
     </div>
   </header>
 
@@ -47,34 +169,121 @@
     </header>
 
     <article class="content">
-      <p>La extrusión falla principalmente por un desequilibrio térmico. El diseño de todo cabezal de impresión se divide estrictamente en dos zonas: El <b>Bloque Calentador</b> (donde el plástico se derrite) y el <b>Disipador de Calor</b> (donde el filamento debe mantenerse totalmente rígido). Entre ambos se encuentra una barrera térmica (Heatbreak).</p>
+      <p>La extrusión falla principalmente por un desequilibrio térmico. El diseño de todo cabezal de impresión se divide estrictamente en dos zonas: el <b>Bloque Calentador</b> (donde el plástico se derrite) y el <b>Disipador de Calor</b> (donde el filamento debe mantenerse totalmente rígido). Entre ambos se encuentra una barrera térmica (*heatbreak*).</p>
 
       <h2>¿Qué es el 'Heat Creep' (Avance de calor)?</h2>
-      <p>El heat creep es el problema termodinámico más común. Ocurre cuando el calor del bloque sube a través de la barrera térmica y calienta prematuramente el disipador. Consecuencia: el filamento se ablanda y se hincha <i>antes</i> de llegar a la boquilla, formando un tapón en una zona que debería estar fría. El motor del extrusor intentará empujar pero resbalará, haciendo un sonido de "click, click, click".</p>
+      <p>El *heat creep* es el problema termodinámico más común. Ocurre cuando el calor del bloque sube a través de la barrera térmica y calienta prematuramente el disipador. Consecuencia: el filamento se ablanda y se hincha <i>antes</i> de llegar a la boquilla, formando un tapón en una zona que debería estar fría. El motor del extrusor intentará empujar pero resbalará, haciendo un sonido de "click, click, click".</p>
       
       <h3>Causas principales del Heat Creep:</h3>
       <ul>
-        <li><b>Ventilador del disipador averiado o sucio:</b> (El ventilador frontal, no el de capa). Si baja sus RPM por polvo, no disipará el calor y ocurrirá el atasco.</li>
-        <li><b>Retracciones excesivas:</b> Si usas >3mm de retracción en un extrusor directo, estarás jalando plástico fundido hacia el disipador frío cientos de veces por hora, pegándolo a las paredes.</li>
-        <li><b>Cámara cerrada imprimiendo PLA:</b> El PLA se ablanda a los 55ºC. Si la temperatura ambiente de la impresora supera los 40ºC, el disipador no podrá enfriar por debajo de la temperatura crítica del PLA. (Nunca imprimas PLA con la impresora cerrada).</li>
+        <li><b>Ventilador del disipador averiado o colmatado de polvo:</b> Si bajan las RPM de este ventilador frontal, el disipador no mantendrá la temperatura crítica del plástico en la zona fría.</li>
+        <li><b>Retracciones excesivas en el slicer:</b> Usar más de 2 mm de retracción en un extrusor directo desplaza plástico fundido hacia el disipador frío cientos de veces por hora, adhiriéndolo a las paredes internas.</li>
+        <li><b>Imprimir PLA en cabina completamente cerrada:</b> El PLA se reblandece a los 55 ºC. Si la temperatura del aire dentro de la impresora cerrada supera los 40 ºC, el disipador no podrá enfriar por debajo del punto de reblandecimiento del filamento.</li>
       </ul>
 
       <h2>El "Cold Pull" (Extracción en frío atómica)</h2>
-      <p>Si la boquilla (nozzle) está parcialmente obstruida por residuos carbonizados o polvo, la solución no es meter agujas (que rayan el interior de latón del nozzle), sino realizar un Cold Pull.</p>
+      <p>Si la boquilla (*nozzle*) está parcialmente obstruida por impurezas carbonizadas o polvo acumulado en las paredes de latón, la solución no es insertar agujas (que rayan el interior del nozzle de forma irreversible), sino realizar un Cold Pull.</p>
 
       <div class="alert">
-        <strong>⚙️ Pasos según la documentación de Prusa y UltiMaker:</strong>
+        <strong>⚙️ Procedimiento operativo (Prusa y UltiMaker):</strong>
         <ol>
-          <li>Calienta la boquilla a 250ºC (o 20ºC por encima del plástico que usas) e inserta manualmente filamento de Nylon (recomendado) o en su defecto PETG. Aprieta hasta que salga un poco por abajo.</li>
-          <li>Apaga el calentador del nozzle y deja que la temperatura baje gradualmente hasta los <b>90ºC</b> (para PLA) o <b>160ºC</b> (para PETG).</li>
-          <li>Justo en esa temperatura (cuando el material está en estado pastoso pero sólido), suelta la tensión del extrusor y <b>tira del filamento hacia arriba con un tirón seco y fuerte.</b></li>
+          <li>Calienta la boquilla a 250 ºC (o 20 ºC por encima del rango de extrusión del polímero empleado) e introduce manualmente filamento de Nylon (recomendado) o en su defecto PETG. Empuja de forma directa hasta que fluya por la boquilla.</li>
+          <li>Apaga el bloque calentador y deja que la temperatura descienda de forma gradual hasta alcanzar los <b>90 ºC</b> (para PLA) o <b>160 ºC</b> (para PETG).</li>
+          <li>Justo en ese rango exacto (cuando el plástico se encuentra en estado pastoso o semisólido), suelta la tensión del extrusor y <b>tira del filamento verticalmente con fuerza y un movimiento seco hacia arriba.</b></li>
         </ol>
       </div>
       
-      <p>Si lo has hecho bien, extraerás un filamento que en su punta tendrá un molde exacto y brillante del interior de tu boquilla, llevándose consigo toda la suciedad carbonizada incrustada en las paredes de latón.</p>
+      <p>Si la extracción se realiza correctamente, obtendrás un filamento que en su punta tendrá grabado un molde geométrico exacto y brillante del interior de tu boquilla, arrastrando consigo toda la suciedad e impurezas carbonizadas incrustadas en las paredes.</p>
     </article>
   </main>
-  
-  <footer class="footer"><div class="wrap footergrid"><div><strong>PrintLab</strong><p>Datos técnicos reales.</p></div></div></footer>
+
+  <!-- MODALES DE TRANSPARENCIA -->
+  <div id="modal-fuentes" class="modal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeModal('modal-fuentes')">✕</span>
+      <h3>Fuentes técnicas</h3>
+      <div class="modal-section" style="background: var(--bg); padding: 18px; border-radius: 12px; border: 1.5px solid var(--line); margin-bottom: 24px;">
+        <p style="font-weight: 800; font-size: 15.5px; color: var(--ink); margin: 0; line-height: 1.6;">
+          "Toda la información técnica publicada se basa en fichas técnicas de materiales (TDS), protocolos de fabricantes (Prusa, UltiMaker, Formlabs) y normativas estandarizadas de la industria (ISO, ASTM)."
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-normativas" class="modal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeModal('modal-normativas')">✕</span>
+      <h3>Normativas y estándares</h3>
+      <div class="modal-section">
+        <h4>ISO/ASTM 52900:2021</h4>
+        <p>Especificaciones térmicas e instrumentación en extrusión de material.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-metodologia" class="modal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeModal('modal-metodologia')">✕</span>
+      <h3>Metodología del simulador</h3>
+      <div class="modal-section">
+        <p>Cálculo de balances térmicos y fluidos en el hotend según tasa de extrusión volumétrica.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-limitaciones" class="modal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeModal('modal-limitaciones')">✕</span>
+      <h3>Limitaciones y seguridad</h3>
+      <div class="modal-section">
+        <p>El uso de agujas de acupuntura para desatascos puede ensanchar el diámetro nominal del nozzle, degradando la precisión posterior.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="wrap footergrid">
+      <div>
+        <strong>PrintLab — Ingeniería 3D</strong>
+        <p>Toda la información técnica publicada se basa en fichas técnicas de materiales (TDS), protocolos de fabricantes (Prusa, UltiMaker, Formlabs) y normativas estandarizadas de la industria (ISO, ASTM).</p>
+      </div>
+      <div>
+        <strong>Centro de recursos</strong>
+        <p>
+          <a href="../index.html#guias">Guías y diagnóstico de problemas</a><br>
+          <a href="../materiales/index.html">Atlas de materiales</a>
+        </p>
+      </div>
+      <div>
+        <strong>Normativa y transparencia</strong>
+        <p>
+          <a onclick="openModal('modal-fuentes')">→ Fuentes técnicas</a><br>
+          <a onclick="openModal('modal-normativas')">→ Normativas y estándares</a><br>
+          <a onclick="openModal('modal-metodologia')">→ Metodología del simulador</a><br>
+          <a onclick="openModal('modal-limitaciones')">→ Limitaciones y seguridad</a>
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    function openModal(id) {
+      document.getElementById(id).style.display = 'block';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).style.display = 'none';
+      document.body.style.overflow = 'auto';
+    }
+
+    window.onclick = function(event) {
+      if (event.target.classList.contains('modal')) {
+        event.target.style.display = 'none';
+        document.body.style.overflow = 'auto';
+      }
+    }
+  </script>
 </body>
 </html>
