@@ -3,43 +3,176 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Imprimir TPU y Materiales Flexibles - PrintLab</title>
+  <title>Cómo imprimir TPU y Materiales Flexibles — PrintLab</title>
+  <meta name="description" content="Entiende la física de la compresión de elastómeros. Ajustes mecánicos, tensiones de rodillos y parámetros en el laminador para TPU sin atascos.">
+  <meta name="robots" content="index,follow">
+  <!-- Importación de la tipografía Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
   <style>
-    :root{--bg:#f6f7f4;--card:#fff;--ink:#0d1110;--muted:#69716c;--line:#dfe4df;--accent:#b8ff3d;--dark:#111715;--max:1100px}
+    /* VARIABLES DE DISEÑO (Estilo UDIA) */
+    :root{
+      --bg:#f6f7f4;
+      --card:#fff;
+      --ink:#0d1110;
+      --muted:#5e6661;
+      --line:#dfe4df;
+      --accent:#b8ff3d;
+      --dark:#111715;
+      --max:1200px;
+    }
+    
     *{box-sizing:border-box}html{scroll-behavior:smooth}
-    body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;line-height:1.7}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--ink);
+      font-family:"Plus Jakarta Sans", "Inter", system-ui, -apple-system, sans-serif;
+      line-height:1.7;
+      -webkit-font-smoothing:antialiased;
+    }
     a{color:inherit;text-decoration:none}
-    .wrap{max-width:var(--max);margin:auto;padding:0 20px}
-    .top{position:sticky;top:0;z-index:50;background:rgba(246,247,244,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
-    nav{min-height:80px;display:flex;align-items:center;justify-content:center}
-    .brand{font-size:26px;font-weight:900;letter-spacing:-1px}
-    .brand span{background:var(--accent);padding:4px 9px;border-radius:8px;margin-left:4px;color:var(--ink)}
     
-    .article-header{padding:80px 0 40px;border-bottom:1px solid var(--line);margin-bottom:40px}
-    .tag{display:inline-block;padding:6px 12px;border-radius:999px;background:#eef2ee;color:#4d5852;font-size:13px;font-weight:900;text-transform:uppercase;margin-bottom:20px}
-    .article-header h1{font-size:clamp(40px, 5vw, 56px);line-height:1.05;letter-spacing:-2px;margin:0 0 20px}
-    .article-header p{font-size:22px;color:var(--muted);margin:0}
+    .wrap{max-width:var(--max);margin:auto;padding:0 80px}
     
-    .content{font-size:19px;color:#2c3330;max-width:800px;margin:0 auto 100px}
-    .content h2{font-size:32px;margin:50px 0 20px;border-bottom:2px solid var(--line);padding-bottom:10px;color:var(--ink)}
+    /* CABECERA FLUIDA */
+    .top{position:sticky;top:0;z-index:100;background:rgba(246,247,244,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+    nav{min-height:95px;display:flex;align-items:center;justify-content:space-between;gap:36px}
+    .brand{font-size:26px;font-weight:800;letter-spacing:-1px}
+    .brand span{background:var(--accent);padding:5px 12px;border-radius:10px;margin-left:6px;color:var(--ink)}
     
-    .data-table{width:100%;border-collapse:collapse;margin:30px 0;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 15px rgba(0,0,0,0.03)}
-    .data-table th, .data-table td{padding:16px 20px;text-align:left;border-bottom:1px solid var(--line)}
-    .data-table th{background:var(--dark);color:#fff;font-weight:700}
+    .nav{display:flex;gap:12px;font-size:15px;font-weight:700}
+    .nav a{padding:8px 18px;border-radius:9999px;transition:.15s;color:var(--muted)}
+    .nav a:hover{color:var(--ink);background:rgba(0,0,0,0.03)}
+    .nav a.active{color:var(--ink);background:var(--card);border:1px solid var(--line)}
+
+    /* LAYOUT GUÍA */
+    .article-header{padding:80px 0 40px; border-bottom:1px solid var(--line); margin-bottom:40px}
+    .tag{
+      display:inline-flex;
+      padding:6px 14px;
+      border-radius:9999px;
+      background:rgba(0,0,0,0.04);
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:1px;
+      font-weight:800;
+      color:var(--muted);
+      margin-bottom:20px;
+    }
+    .article-header h1{
+      font-size:clamp(40px, 5vw, 56px);
+      line-height:1.05;
+      letter-spacing:-0.03em;
+      margin:0 0 20px;
+      font-weight:800;
+    }
+    .article-header p{font-size:22px; color:var(--muted); margin:0}
+    
+    .content{font-size:18px; color:var(--ink); max-width:800px; margin:0 auto 100px}
+    .content h2{font-size:30px; font-weight:800; margin:50px 0 20px; border-bottom:1.5px solid var(--line); padding-bottom:8px; color:var(--ink); letter-spacing:-0.5px}
+    .content h3{font-size:22px; font-weight:800; margin:30px 0 15px; color:var(--ink)}
+    .content p{margin-bottom:24px}
+    .content ul, .content ol{padding-left:20px; margin-bottom:24px}
+    .content li{margin-bottom:10px}
+    
+    /* TABLAS DE DATOS */
+    .data-table{
+      width:100%;
+      border-collapse:collapse;
+      margin:32px 0;
+      background:var(--card);
+      border:1.5px solid var(--line);
+      border-radius:16px;
+      overflow:hidden;
+      box-shadow:0 4px 15px rgba(0,0,0,0.02)
+    }
+    .data-table th, .data-table td{padding:16px 20px; text-align:left; border-bottom:1px solid var(--line); font-size:15px}
+    .data-table th{background:var(--dark); color:#fff; font-weight:800; text-transform:uppercase; letter-spacing:0.5px}
     .data-table tr:last-child td{border-bottom:none}
+
+    /* CAJAS INFORMATIVAS */
+    .alert{
+      background:var(--card);
+      border-left:5px solid var(--ink);
+      padding:24px;
+      border-radius:0 16px 16px 0;
+      margin:36px 0;
+      border: 1px solid var(--line);
+      border-left-width: 5px;
+      border-left-color: var(--ink);
+    }
+    .alert.warn{border-left-color:#d9432f; background:#fcf1f0}
+    .alert strong{display:block; font-size:14px; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; font-weight:800}
+
+    /* MODALES DE TRANSPARENCIA */
+    .modal{
+      display:none;
+      position:fixed;
+      top:0;left:0;width:100%;height:100%;
+      background:rgba(13,17,16,0.85);
+      backdrop-filter:blur(8px);
+      z-index:200;
+      overflow-y:auto;
+      padding:40px 16px;
+      animation:fadeIn .2s ease;
+    }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    .modal-content{
+      background:var(--card);
+      border:2.5px solid var(--ink);
+      max-width:700px;
+      margin:40px auto;
+      border-radius:24px;
+      padding:40px;
+      box-shadow:0 25px 60px rgba(0,0,0,0.18);
+      position:relative;
+      color:var(--ink);
+    }
+    .modal-close{
+      position:absolute;
+      top:24px;right:24px;
+      background:var(--bg);
+      border:1.5px solid var(--line);
+      width:40px;height:40px;
+      border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      cursor:pointer;font-weight:800;transition:.15s;
+    }
+    .modal-close:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+    /* FOOTER */
+    .footer{padding:80px 0 110px;margin-top:100px;border-top:1px solid var(--line);color:var(--muted);font-size:15px}
+    .footergrid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:45px}
+    .footer strong{display:block;font-size:16px;color:var(--ink);margin-bottom:12px}
+    .footer a{display:inline-block;margin-bottom:8px;transition:0.15s;cursor:pointer;}
+    .footer a:hover{color:var(--ink);text-decoration:underline}
     
-    .alert{background:#fff;border-left:5px solid var(--ink);padding:24px;border-radius:0 12px 12px 0;margin:30px 0;box-shadow:0 4px 15px rgba(0,0,0,0.03)}
-    .alert.warn{border-color:#d9432f;background:#fcf1f0}
-    .alert strong{display:block;font-size:16px;text-transform:uppercase;margin-bottom:8px}
-    
-    .footer{padding:80px 0;border-top:1px solid var(--line);color:#69716c;font-size:16px}
-    .footergrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:40px}
+    @media(max-width:1250px){
+      .wrap{padding:0 48px}
+    }
+    @media(max-width:750px){
+      .wrap{padding:0 24px}
+      nav{flex-direction:column; padding:20px 0; gap:16px}
+      .brand{margin-right:0}
+    }
   </style>
 </head>
 <body>
+
+  <!-- HEADER -->
   <header class="top">
     <div class="wrap">
-      <nav><a class="brand" href="../index.html">PRINT<span>LAB</span></a></nav>
+      <nav>
+        <a class="brand" href="../index.html" title="Volver al inicio">PRINT<span>LAB</span></a>
+        <div class="nav">
+          <a href="../index.html#simulador">Simulador</a>
+          <a href="../index.html#guias" class="active">Guías</a>
+          <a href="../materiales/index.html">Materiales</a>
+          <a href="../herramientas/index.html">Herramientas</a>
+        </div>
+      </nav>
     </div>
   </header>
 
@@ -51,57 +184,148 @@
     </header>
 
     <article class="content">
-      <p>Intentar empujar un filamento de TPU (Poliuretano Termoplástico) hacia la boquilla es como intentar empujar un fideo mojado. Cualquier resistencia térmica o mecánica en su camino hará que se doble, se enrolle en los engranajes del extrusor y provoque un atasco completo.</p>
+      <p>Intentar empujar de forma lineal un filamento elástico de TPU (Poliuretano Termoplástico) hacia la boquilla fundida es equiparable a intentar guiar un fideo húmedo. Ante cualquier resistencia mecánica o contrapresión térmica en su conducto, el material se doblará y se enrollará de inmediato alrededor de los engranajes tractores del extrusor, induciendo un atasco severo.</p>
 
       <h2>1. El factor mecánico: Direct Drive vs Bowden</h2>
-      <p>El TPU se clasifica por la escala de dureza Shore. Un TPU 95A (duro como la rueda de un monopatín) puede imprimirse en un sistema Bowden con muchos ajustes. Un TPU 85A o más blando (como una goma elástica) <b>requiere obligatoriamente un extrusor de tracción directa (Direct Drive)</b>, donde los engranajes están justo encima de la barrera térmica.</p>
+      <p>El comportamiento elástico del TPU se categoriza según su dureza Shore. Un TPU 95A (comparable a la dureza de la rueda de un monopatín) se puede extruir en configuraciones Bowden con guiados muy específicos de teflón. Compuestos elásticos más blandos de dureza 85A o inferiores (flexibilidad similar a una goma elástica) <b>requieren estrictamente de un cabezal de tracción directa (*Direct Drive*)</b> para reducir el recorrido libre del filamento antes de su entrada a la garganta caliente.</p>
 
       <div class="alert">
-        <strong>⚙️ Ajuste de hardware crítico: Tensión del extrusor</strong>
-        Si tu extrusor tiene un tornillo para ajustar la tensión del engranaje (Idler tension), <b>aflójalo al mínimo posible</b>. Si los engranajes aplastan el TPU, lo deformarán, ensanchándolo hasta que sea imposible que pase por el tubo interior de PTFE.
+        <strong>⚙️ Ajuste de hardware crítico: Tensión del extrusor (Idler)</strong>
+        Si tu extrusor dispone de un tornillo de ajuste para la tensión del rodillo tensor, <b>aflójalo hasta el límite de tracción mínimo funcional</b>. Una presión excesiva de los engranajes aplastará lateralmente el TPU flexible, deformándolo geométricamente y ensanchándolo hasta obstruir el paso del conducto de PTFE.
       </div>
 
-      <h2>2. Parámetros del Laminador para Flexibles</h2>
-      <p>La clave absoluta para imprimir TPU es mantener una <b>presión constante en el cabezal</b>. Los cambios bruscos de velocidad arruinan la extrusión.</p>
+      <h2>2. Parámetros del Slicer para Flexibles</h2>
+      <p>La regla de oro para la extrusión sin fallos de TPU es garantizar una <b>presión hidrostática constante</b> en la boquilla. Las variaciones bruscas de velocidad arruinan la cohesión.</p>
       
       <ul>
-        <li><b>Velocidad constante:</b> Ajusta todas las velocidades (perímetros, relleno, sólidas) al <b>mismo valor</b>, idealmente entre 25 mm/s y 35 mm/s. Si el laminador frena para hacer un perímetro y acelera para el relleno, el material flexible absorberá esa diferencia como un amortiguador, causando sub-extrusión o manchas.</li>
-        <li><b>Retracciones:</b> Desactiva la retracción por completo (0 mm) en TPU blando. En TPU 95A, usa un máximo de 0.5 mm a una velocidad muy lenta (15 mm/s). Es preferible lidiar con algunos hilos (*stringing*) que con un atasco irremediable.</li>
+        <li><b>Velocidad constante unificada:</b> Configura todas las velocidades de trazado (perímetros, relleno y capas sólidas) al <b>mismo valor estricto</b>, idealmente entre 25 mm/s y 35 mm/s. Si la máquina se ve obligada a frenar o acelerar continuamente, el material elástico absorberá esta histéresis de presión provocando subextrusiones severas o acumulación de material.</li>
+        <li><b>Desactivación de retracciones:</b> Desactiva por completo la retracción (0 mm) para TPU blando. Para TPU rígido 95A, limita la retracción a un máximo de 0.5 mm a baja velocidad (15 mm/s). Es preferible lidiar con leves hilos residuales que comprometer la impresión con un atasco irreversible.</li>
       </ul>
 
-      <h2>3. Modificadores de Infill para cambiar la flexibilidad</h2>
-      <p>A diferencia del PLA, donde el Infill apenas afecta, en el TPU el relleno define el comportamiento mecánico de la pieza:</p>
+      <h2>3. Modificadores de Infill para modular la flexibilidad elástica</h2>
+      <p>A diferencia del PLA rígido, el patrón y densidad de relleno en los elastómeros definen la resistencia estructural final de la pieza impresa:</p>
       
       <table class="data-table">
-        <tr>
-          <th>Objetivo de la pieza</th>
-          <th>Perímetros</th>
-          <th>Tipo de Infill y Densidad</th>
-        </tr>
-        <tr>
-          <td>Tope o amortiguador duro</td>
-          <td>4 o 5</td>
-          <td>Giroide (Gyroid) al 40%</td>
-        </tr>
-        <tr>
-          <td>Junta de estanqueidad estática</td>
-          <td>3</td>
-          <td>Concéntrico al 100%</td>
-        </tr>
-        <tr>
-          <td>Blanda, alta compresión</td>
-          <td>2</td>
-          <td>Rejilla (Grid) al 10% - 15%</td>
-        </tr>
+        <thead>
+          <tr>
+            <th>Aplicación de la pieza flexible</th>
+            <th>Perímetros recomendados</th>
+            <th>Patrón y Densidad de Infill</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Tope de fin de carrera o amortiguador duro</td>
+            <td>4 o 5</td>
+            <td>Giroide (Gyroid) al 40%</td>
+          </tr>
+          <tr>
+            <td>Junta estática de estanqueidad hidráulica</td>
+            <td>3</td>
+            <td>Concéntrico al 100% (Sólido)</td>
+          </tr>
+          <tr>
+            <td>Amortiguador blando de gran compresibilidad</td>
+            <td>2</td>
+            <td>Rejilla (Grid) o Cúbico al 10% - 15%</td>
+          </tr>
+        </tbody>
       </table>
 
       <div class="alert warn">
-        <strong>⚠️ Secado de Emergencia</strong>
-        El TPU es absurdamente higroscópico. Un TPU nuevo, recién sacado de su bolsa sellada, ya suele estar demasiado húmedo. Sécalo 8 horas a 55ºC. Si imprime con burbujas, tu pieza será frágil y porosa.
+        <strong>⚠️ Tratamiento de Higroscopia Extrema</strong>
+        El TPU es un polímero extremadamente propenso a absorber humedad. Incluso carretes nuevos sellados al vacío pueden contener un exceso de agua molecular nociva para el proceso. Deshidrata de forma activa tus bobinas a una temperatura constante de 55 ºC durante un mínimo de 8 horas antes de imprimir.
       </div>
     </article>
   </main>
-  
-  <footer class="footer"><div class="wrap footergrid"><div><strong>PrintLab</strong><p>Datos técnicos reales.</p></div></div></footer>
+
+  <!-- MODALES DE TRANSPARENCIA -->
+  <div id="modal-fuentes" class="modal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeModal('modal-fuentes')">✕</span>
+      <h3>Fuentes técnicas</h3>
+      <div class="modal-section" style="background: var(--bg); padding: 18px; border-radius: 12px; border: 1.5px solid var(--line); margin-bottom: 24px;">
+        <p style="font-weight: 800; font-size: 15.5px; color: var(--ink); margin: 0; line-height: 1.6;">
+          "Toda la información técnica publicada se basa en fichas técnicas de materiales (TDS), protocolos de fabricantes (Prusa, UltiMaker, Formlabs) y normativas estandarizadas de la industria (ISO, ASTM)."
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-normativas" class="modal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeModal('modal-normativas')">✕</span>
+      <h3>Normativas y estándares</h3>
+      <div class="modal-section">
+        <h4>ISO/ASTM 52900:2021</h4>
+        <p>Directrices normalizadas para la extrusión y deposición de materiales elásticos y polímeros avanzados.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-metodologia" class="modal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeModal('modal-metodologia')">✕</span>
+      <h3>Metodología del simulador</h3>
+      <div class="modal-section">
+        <p>Cálculo analítico de fricciones internas y pérdidas de empuje elástico en función de la escala Shore y longitud de retracción.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-limitaciones" class="modal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeModal('modal-limitaciones')">✕</span>
+      <h3>Limitaciones y seguridad</h3>
+      <div class="modal-section">
+        <p>Las tolerancias geométricas internas del piñón tractor de empuje son determinantes en la manipulación mecánica de filamentos flexibles de baja escala Shore.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="wrap footergrid">
+      <div>
+        <strong>PrintLab — Ingeniería 3D</strong>
+        <p>Toda la información técnica publicada se basa en fichas técnicas de materiales (TDS), protocolos de fabricantes (Prusa, UltiMaker, Formlabs) y normativas estandarizadas de la industria (ISO, ASTM).</p>
+      </div>
+      <div>
+        <strong>Centro de recursos</strong>
+        <p>
+          <a href="../index.html#guias">Guías y diagnóstico de problemas</a><br>
+          <a href="../materiales/index.html">Atlas de materiales</a>
+        </p>
+      </div>
+      <div>
+        <strong>Normativa y transparencia</strong>
+        <p>
+          <a onclick="openModal('modal-fuentes')">→ Fuentes técnicas</a><br>
+          <a onclick="openModal('modal-normativas')">→ Normativas y estándares</a><br>
+          <a onclick="openModal('modal-metodologia')">→ Metodología del simulador</a><br>
+          <a onclick="openModal('modal-limitaciones')">→ Limitaciones y seguridad</a>
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    function openModal(id) {
+      document.getElementById(id).style.display = 'block';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).style.display = 'none';
+      document.body.style.overflow = 'auto';
+    }
+
+    window.onclick = function(event) {
+      if (event.target.classList.contains('modal')) {
+        event.target.style.display = 'none';
+        document.body.style.overflow = 'auto';
+      }
+    }
+  </script>
 </body>
 </html>
