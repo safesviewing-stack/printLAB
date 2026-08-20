@@ -77,16 +77,10 @@
       letter-spacing:1.5px;
       font-weight:800;
       border-bottom:2px solid var(--ink);
-      cursor:pointer;
-      user-select:none;
-      transition:.2s;
     }
-    th:hover{color:var(--ink); background:var(--bg)}
-    th::after{content:' ↕'; font-size:11px; opacity:0.3}
     
     td{padding:24px 20px; border-bottom:1px solid var(--line); font-size:16px; vertical-align:middle}
     tr:last-child td{border-bottom:none}
-    tr:hover td{background:#fafbfa}
 
     /* ESTILOS DE MATERIALES Y BOTÓN CÁPSULA */
     .mat-name{font-weight:800; font-size:18px; display:flex; align-items:center; justify-content:space-between; gap:12px; letter-spacing:-0.3px}
@@ -163,8 +157,6 @@
     .modal-section:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
     .modal-section h4{font-size:17px;font-weight:800;margin:0 0 10px;color:var(--ink)}
     .modal-section p{font-size:14.5px;color:var(--muted);margin:0 0 10px;line-height:1.5}
-    .modal-link{color:var(--ink);font-weight:800;text-decoration:underline}
-    .modal-link:hover{color:var(--muted)}
 
     /* FOOTER */
     .footer{padding:80px 0 110px;margin-top:100px;border-top:1px solid var(--line);color:var(--muted);font-size:15px}
@@ -209,7 +201,7 @@
     <div class="tool-header">
       <div style="display:inline-flex; align-items:center; padding:6px 14px; border-radius:9999px; background:rgba(0,0,0,0.04); font-size:11px; text-transform:uppercase; letter-spacing:1px; font-weight:800; color:var(--muted); margin-bottom:16px;">Base de datos de ingeniería</div>
       <h1>Atlas de Materiales</h1>
-      <p>Compara de forma estandarizada las propiedades mecánicas y térmicas de los polímeros industriales más comunes. Haz clic sobre las cabeceras para ordenar dinámicamente la matriz de datos.</p>
+      <p>Compara de forma estandarizada las propiedades mecánicas y térmicas de los polímeros industriales más comunes.</p>
     </div>
 
     <!-- TABLA INTERACTIVA -->
@@ -217,13 +209,13 @@
       <table id="matTable">
         <thead>
           <tr>
-            <th onclick="sortTable(0, 'text')">Material</th>
-            <th onclick="sortTable(1, 'star')">Facilidad</th>
-            <th onclick="sortTable(2, 'star')">Rigidez</th>
-            <th onclick="sortTable(3, 'star')">Impacto</th>
-            <th onclick="sortTable(4, 'star')">Calor (HDT)</th>
-            <th onclick="sortTable(5, 'star')">Exterior (UV)</th>
-            <th onclick="sortTable(6, 'star')">Humedad</th>
+            <th>Material</th>
+            <th>Facilidad</th>
+            <th>Rigidez</th>
+            <th>Impacto</th>
+            <th>Calor (HDT)</th>
+            <th>Exterior (UV)</th>
+            <th>Humedad</th>
           </tr>
         </thead>
         <tbody>
@@ -232,96 +224,96 @@
             <td>
               <div class="mat-name">PLA <a href="pla.html" class="mat-btn">Ficha</a></div>
             </td>
-            <td data-val="5"><span class="stars">★★★★★</span></td>
-            <td data-val="4"><span class="stars">★★★★<span class="empty">★</span></span></td>
-            <td data-val="2"><span class="stars">★★<span class="empty">★★★</span></span></td>
-            <td data-val="1"><span class="stars">★<span class="empty">★★★★</span></span></td>
-            <td data-val="2"><span class="stars">★★<span class="empty">★★★</span></span></td>
-            <td data-val="3"><span class="stars">★★★<span class="empty">★★</span></span></td>
+            <td><span class="stars">★★★★★</span></td>
+            <td><span class="stars">★★★★<span class="empty">★</span></span></td>
+            <td><span class="stars">★★<span class="empty">★★★</span></span></td>
+            <td><span class="stars">★<span class="empty">★★★★</span></span></td>
+            <td><span class="stars">★★<span class="empty">★★★</span></span></td>
+            <td><span class="stars">★★★<span class="empty">★★</span></span></td>
           </tr>
           <!-- PETG -->
           <tr>
             <td>
               <div class="mat-name">PETG <a href="petg.html" class="mat-btn">Ficha</a></div>
             </td>
-            <td data-val="4"><span class="stars">★★★★<span class="empty">★</span></span></td>
-            <td data-val="3"><span class="stars">★★★<span class="empty">★★</span></span></td>
-            <td data-val="4"><span class="stars">★★★★<span class="empty">★</span></span></td>
-            <td data-val="3"><span class="stars">★★★<span class="empty">★★</span></span></td>
-            <td data-val="3"><span class="stars">★★★<span class="empty">★★</span></span></td>
-            <td data-val="4"><span class="stars">★★★★<span class="empty">★</span></span></td>
+            <td><span class="stars">★★★★<span class="empty">★</span></span></td>
+            <td><span class="stars">★★★<span class="empty">★★</span></span></td>
+            <td><span class="stars">★★★★<span class="empty">★</span></span></td>
+            <td><span class="stars">★★★<span class="empty">★★</span></span></td>
+            <td><span class="stars">★★★<span class="empty">★★</span></span></td>
+            <td><span class="stars">★★★★<span class="empty">★</span></span></td>
           </tr>
           <!-- ABS -->
           <tr>
             <td>
               <div class="mat-name">ABS <a href="abs.html" class="mat-btn">Ficha</a></div>
             </td>
-            <td data-val="2"><span class="stars">★★<span class="empty">★★★</span></span></td>
-            <td data-val="4"><span class="stars">★★★★<span class="empty">★</span></span></td>
-            <td data-val="4"><span class="stars">★★★★<span class="empty">★</span></span></td>
-            <td data-val="4"><span class="stars">★★★★<span class="empty">★</span></span></td>
-            <td data-val="2"><span class="stars">★★<span class="empty">★★★</span></span></td>
-            <td data-val="4"><span class="stars">★★★★<span class="empty">★</span></span></td>
+            <td><span class="stars">★★<span class="empty">★★★</span></span></td>
+            <td><span class="stars">★★★★<span class="empty">★</span></span></td>
+            <td><span class="stars">★★★★<span class="empty">★</span></span></td>
+            <td><span class="stars">★★★★<span class="empty">★</span></span></td>
+            <td><span class="stars">★★<span class="empty">★★★</span></span></td>
+            <td><span class="stars">★★★★<span class="empty">★</span></span></td>
           </tr>
           <!-- ASA -->
           <tr>
             <td>
               <div class="mat-name">ASA <a href="asa.html" class="mat-btn">Ficha</a></div>
             </td>
-            <td data-val="2"><span class="stars">★★<span class="empty">★★★</span></span></td>
-            <td data-val="4"><span class="stars">★★★★<span class="empty">★</span></span></td>
-            <td data-val="4"><span class="stars">★★★★<span class="empty">★</span></span></td>
-            <td data-val="4"><span class="stars">★★★★<span class="empty">★</span></span></td>
-            <td data-val="5"><span class="stars">★★★★★</span></td>
-            <td data-val="4"><span class="stars">★★★★<span class="empty">★</span></span></td>
+            <td><span class="stars">★★<span class="empty">★★★</span></span></td>
+            <td><span class="stars">★★★★<span class="empty">★</span></span></td>
+            <td><span class="stars">★★★★<span class="empty">★</span></span></td>
+            <td><span class="stars">★★★★<span class="empty">★</span></span></td>
+            <td><span class="stars">★★★★★</span></td>
+            <td><span class="stars">★★★★<span class="empty">★</span></span></td>
           </tr>
           <!-- TPU -->
           <tr>
             <td>
               <div class="mat-name">TPU <a href="tpu.html" class="mat-btn">Ficha</a></div>
             </td>
-            <td data-val="3"><span class="stars">★★★<span class="empty">★★</span></span></td>
-            <td data-val="1"><span class="stars">★<span class="empty">★★★★</span></span></td>
-            <td data-val="5"><span class="stars">★★★★★</span></td>
-            <td data-val="3"><span class="stars">★★★<span class="empty">★★</span></span></td>
-            <td data-val="4"><span class="stars">★★★★<span class="empty">★</span></span></td>
-            <td data-val="3"><span class="stars">★★★<span class="empty">★★</span></span></td>
+            <td><span class="stars">★★★<span class="empty">★★</span></span></td>
+            <td><span class="stars">★<span class="empty">★★★★</span></span></td>
+            <td><span class="stars">★★★★★</span></td>
+            <td><span class="stars">★★★<span class="empty">★★</span></span></td>
+            <td><span class="stars">★★★★<span class="empty">★</span></span></td>
+            <td><span class="stars">★★★<span class="empty">★★</span></span></td>
           </tr>
           <!-- PA (Nylon) -->
           <tr>
             <td>
               <div class="mat-name">PA (Nylon) <a href="nylon.html" class="mat-btn">Ficha</a></div>
             </td>
-            <td data-val="2"><span class="stars">★★<span class="empty">★★★</span></span></td>
-            <td data-val="3"><span class="stars">★★★<span class="empty">★★</span></span></td>
-            <td data-val="5"><span class="stars">★★★★★</span></td>
-            <td data-val="4"><span class="stars">★★★★<span class="empty">★</span></span></td>
-            <td data-val="3"><span class="stars">★★★<span class="empty">★★</span></span></td>
-            <td data-val="1"><span class="stars">★<span class="empty">★★★★</span></span></td>
+            <td><span class="stars">★★<span class="empty">★★★</span></span></td>
+            <td><span class="stars">★★★<span class="empty">★★</span></span></td>
+            <td><span class="stars">★★★★★</span></td>
+            <td><span class="stars">★★★★<span class="empty">★</span></span></td>
+            <td><span class="stars">★★★<span class="empty">★★</span></span></td>
+            <td><span class="stars">★<span class="empty">★★★★</span></span></td>
           </tr>
           <!-- PC -->
           <tr>
             <td>
               <div class="mat-name">PC <a href="pc.html" class="mat-btn">Ficha</a></div>
             </td>
-            <td data-val="1"><span class="stars">★<span class="empty">★★★★</span></span></td>
-            <td data-val="5"><span class="stars">★★★★★</span></td>
-            <td data-val="5"><span class="stars">★★★★★</span></td>
-            <td data-val="5"><span class="stars">★★★★★</span></td>
-            <td data-val="3"><span class="stars">★★★<span class="empty">★★</span></span></td>
-            <td data-val="3"><span class="stars">★★★<span class="empty">★★</span></span></td>
+            <td><span class="stars">★<span class="empty">★★★★</span></span></td>
+            <td><span class="stars">★★★★★</span></td>
+            <td><span class="stars">★★★★★</span></td>
+            <td><span class="stars">★★★★★</span></td>
+            <td><span class="stars">★★★<span class="empty">★★</span></span></td>
+            <td><span class="stars">★★★<span class="empty">★★</span></span></td>
           </tr>
           <!-- RESINA -->
           <tr>
             <td>
               <div class="mat-name">SLA Resina <a href="resinas.html" class="mat-btn">Ficha</a></div>
             </td>
-            <td data-val="2"><span class="stars">★★<span class="empty">★★★</span></span></td>
-            <td data-val="5"><span class="stars">★★★★★</span></td>
-            <td data-val="1"><span class="stars">★<span class="empty">★★★★</span></span></td>
-            <td data-val="2"><span class="stars">★★<span class="empty">★★★</span></span></td>
-            <td data-val="3"><span class="stars">★★★<span class="empty">★★</span></span></td>
-            <td data-val="5"><span class="stars">★★★★★</span></td>
+            <td><span class="stars">★★<span class="empty">★★★</span></span></td>
+            <td><span class="stars">★★★★★</span></td>
+            <td><span class="stars">★<span class="empty">★★★★</span></span></td>
+            <td><span class="stars">★★<span class="empty">★★★</span></span></td>
+            <td><span class="stars">★★★<span class="empty">★★</span></span></td>
+            <td><span class="stars">★★★★★</span></td>
           </tr>
         </tbody>
       </table>
@@ -417,36 +409,7 @@
     </div>
   </footer>
 
-  <!-- SCRIPT PARA ORDENAR LA TABLA -->
   <script>
-    let sortDirection = false;
-
-    function sortTable(columnIndex, type) {
-      const table = document.getElementById("matTable");
-      const tbody = table.tBodies[0];
-      const rows = Array.from(tbody.querySelectorAll("tr"));
-
-      sortDirection = !sortDirection;
-
-      rows.sort((a, b) => {
-        let valA, valB;
-
-        if (type === 'star') {
-          valA = parseInt(a.cells[columnIndex].getAttribute("data-val") || 0);
-          valB = parseInt(b.cells[columnIndex].getAttribute("data-val") || 0);
-        } else {
-          valA = a.cells[columnIndex].innerText.trim().toLowerCase();
-          valB = b.cells[columnIndex].innerText.trim().toLowerCase();
-        }
-
-        if (valA < valB) return sortDirection ? -1 : 1;
-        if (valA > valB) return sortDirection ? 1 : -1;
-        return 0;
-      });
-
-      rows.forEach(row => tbody.appendChild(row));
-    }
-
     function openModal(id) {
       document.getElementById(id).style.display = 'block';
       document.body.style.overflow = 'hidden';
