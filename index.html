@@ -451,7 +451,6 @@
           <a href="#simulador">Simulador</a>
           <a href="#guias">Guías</a>
           <a href="materiales/index.html">Materiales</a>
-          <!-- Este enlace ahora apunta internamente a la sección de abajo (#herramientas) -->
           <a href="#herramientas">Herramientas</a>
         </div>
       </nav>
@@ -787,7 +786,7 @@
 
     <hr class="section-divider">
 
-    <!-- SECCIÓN HERRAMIENTAS INTERACTIVAS -->
+    <!-- SECCIÓN HERRAMIENTAS -->
     <section id="herramientas" class="section">
       <div class="sectionhead">
         <div class="eyebrow" style="margin-bottom:12px">02 / INTERACTIVIDAD Y UTILIDAD</div>
@@ -806,7 +805,7 @@
         <a class="card" href="herramientas/calculadora-holguras.html">
           <div style="font-size: 28px; margin-bottom: 16px;">⚙️</div>
           <h3>Tolerancias y Encajes</h3>
-          <p>Determina las dimensiones exactas para el diseño CAD (agujero y eje) según el tipo de encaje mecánico deseado.</p>
+          <p>Determina las dimensions exactas para el diseño CAD (agujero y eje) según el tipo de encaje mecánico deseado.</p>
           <span class="btn-action">Calcular holguras</span>
         </a>
 
@@ -952,17 +951,12 @@
     navLinks.forEach(link => {
       link.addEventListener('click', e => {
         const targetId = link.getAttribute('href');
-        // Si es un enlace de anclaje (comienza con #)
         if (targetId.startsWith('#')) {
           e.preventDefault();
           const targetSection = document.querySelector(targetId);
           if (targetSection) {
-            // Calculamos la posición absoluta restando la altura de la cabecera sticky
-            const yOffset = -110; 
-            const y = targetSection.getBoundingClientRect().top + window.pageYOffset + yOffset;
-            
             window.scrollTo({
-              top: y,
+              top: targetSection.offsetTop - 110,
               behavior: 'smooth'
             });
           }
