@@ -152,10 +152,10 @@
       <nav>
         <a class="brand" href="../index.html" title="Volver al inicio">PRINT<span>LAB</span></a>
         <div class="nav">
+          <a href="../index.html#portada">Materiales</a>
           <a href="../index.html#simulador">Simulador</a>
           <a href="../index.html#guias" class="active">Guías</a>
-          <a href="../materiales/index.html">Materiales</a>
-          <a href="../herramientas/index.html">Herramientas</a>
+          <a href="../index.html#herramientas">Herramientas</a>
         </div>
       </nav>
     </div>
@@ -170,7 +170,7 @@
 
     <article class="content">
       <h2>1. Warping (Levantamiento de esquinas)</h2>
-      <p>El *warping* es una deformación macroscópica debida a las leyes de contracción volumétrica de los termoplásticos. Al extruirse a altas temperaturas, el plástico se encuentra dilatado; al enfriarse para consolidarse como sólido, su volumen molecular disminuye. Si el gradiente térmico entre la capa depositada y la base de impresión es demasiado agudo, se generarán tensiones internas de tracción elástica que tirarán de la base hacia arriba, deformando las esquinas.</p>
+      <p>El *warping* es una deformación macroscópica debida a las leyes de contracción volumétrica de los termoplásticos. Al extruirse a altas temperaturas, el plástico se encuentra dilatado; al enfriarse para consolidarse como sólido, su volumen molecular disminuye. Si el gradiente térmico entre la capa de material depositada y la base de impresión es demasiado agudo, se generarán tensiones internas de tracción elástica que tirarán de la base hacia arriba, deformando las esquinas.</p>
       
       <h3>Soluciones paramétricas directas:</h3>
       <ul>
@@ -184,7 +184,7 @@
 
       <div class="alert warn">
         <strong>⚠️ Falsa Correlación: Retracción vs Humedad</strong>
-        El error más común de configuración consiste en aumentar exponencialmente la distancia de retracción en el slicer para mitigar hilos. Si utilizas polímeros higroscópicos (como el PETG o TPU) y el filamento ha absorbido humedad del aire, el agua almacenada en su estructura molecular hervirá violentamente dentro del nozzle. La presión de este vapor forzará al plástico a escurrirse, haciendo inútiles los ajustes de retracción. <b>Sécalo de forma previa.</b>
+        El error más común de configuración consiste en aumentar exponencialmente la distancia de retracción en el slicer para mitigar hilos. Si utilizas polímeros higroscópicos (como el PETG o TPU) y el filamento ha absorbido humedad del aire, el agua almacenada en su estructura molecular hervirá violentamente dentro del nozzle. La presión de este vapor forzará al plástico a escurrirse, haciendo inútiles los de por sí agresivos ajustes de retracción. <b>Sécalo de forma previa.</b>
       </div>
 
       <h3>Retracciones de Referencia (Sistemas de Tracción Directa):</h3>
@@ -195,11 +195,11 @@
       </ul>
 
       <h2>3. Mala Adhesión de la primera capa</h2>
-      <p>La estabilidad de la primera capa define el índice de éxito de toda la manufactura. Además de la calibración y nivelación física de la cama de impresión, la distancia vertical de compensación de boquilla o <b>Z-Offset</b> es una variable crítica.</p>
+      <p>La estabilidad de la primera capa de impresión define el índice de éxito de toda la manufactura. Además de la calibración y nivelación física de la cama de impresión, la distancia vertical de compensación de boquilla o <b>Z-Offset</b> es una variable crítica.</p>
       
       <div class="alert">
         <strong>💡 El "Squish" Óptimo (Compresión del fundido)</strong>
-        El plástico debe inyectarse experimentando una leve compresión contra la base de impresión. Si el hilo extruido conserva una sección circular cilíndrica (fideo), el Z-Offset es excesivo y provocará desprendimiento temprano. En cambio, si la capa resultante es translúcida y delgada y el extrusor salta pasos (ruidos mecánicos), la boquilla se encuentra demasiado baja, obstruyendo la salida del material.
+        El plástico debe inyectarse experimentando una leve compresión contra la base de impresión. Si el hilo extruido conserva una sección circular cilíndrica (fideo), el Z-Offset es excesivo y provocará un desprendimiento temprano. En cambio, si la capa resultante es translúcida y delgada y el extrusor salta pasos (ruidos mecánicos), la boquilla se encuentra demasiado baja, obstruyendo la salida del material.
       </div>
       <p><b>Compensación paramétrica:</b> En tu slicer, configura la *Altura de la primera capa* a un grosor constante de entre 0.20 mm y 0.24 mm (independientemente de que imprimas el resto a resoluciones finas de 0.10 mm) e incrementa el *Ancho de línea de la primera capa* a un 120%. Esto inyectará una mayor cantidad de masa plástica a presión, maximizando el agarre mecánico.</p>
     </article>
@@ -234,7 +234,7 @@
       <span class="modal-close" onclick="closeModal('modal-metodologia')">✕</span>
       <h3>Metodología del simulador</h3>
       <div class="modal-section">
-        <p>Cálculo de tensiones residuales de contracción lineal según el perfil térmico configurado.</p>
+        <p>Cálculo de las tensiones residuales de contracción lineal según el perfil térmico configurado.</p>
       </div>
     </div>
   </div>
