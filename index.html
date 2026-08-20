@@ -114,7 +114,7 @@
       line-height:1.5;
     }
     
-    /* BUSCADOR TÉCNICO ALINEADO */
+    /* PANEL BUSCADOR */
     .hero-panel{
       background:var(--dark);
       color:#fff;
@@ -208,35 +208,56 @@
       font-size:15px;
     }
 
-    /* SIMULADOR INTERACTIVO DE PARÁMETROS (DISEÑO PROFUNDO UDIA) */
+    /* SIMULADOR INTERACTIVO DE PARÁMETROS (14 INPUTS - 9 OUTPUTS) */
     .sim-container{
       background:#101614;
       color:#fff;
       border-radius:24px;
-      padding:48px;
+      padding:42px;
       display:grid;
-      grid-template-columns:1fr 1.2fr;
-      gap:48px;
+      grid-template-columns:1.1fr 0.9fr;
+      gap:40px;
       box-shadow:0 20px 40px rgba(0,0,0,0.08);
     }
-    .sim-controls{display:flex;flex-direction:column;gap:24px}
+    .sim-controls{
+      display:flex;
+      flex-direction:column;
+      gap:24px;
+      max-height:850px;
+      overflow-y:auto;
+      padding-right:16px;
+    }
+    /* Estilización del scrollbar interno de controles */
+    .sim-controls::-webkit-scrollbar { width: 6px; }
+    .sim-controls::-webkit-scrollbar-track { background: #1a221f; border-radius: 10px; }
+    .sim-controls::-webkit-scrollbar-thumb { background: #3b443f; border-radius: 10px; }
+
+    .sim-group-title{
+      font-size:13px;
+      text-transform:uppercase;
+      letter-spacing:1.5px;
+      color:var(--accent);
+      font-weight:800;
+      border-bottom:1px solid #2a332f;
+      padding-bottom:6px;
+      margin-top:10px;
+    }
     .sim-control-group{display:flex;flex-direction:column;gap:8px}
-    .sim-control-group label{font-size:14px;font-weight:700;color:#bcc5c0;display:flex;justify-content:space-between}
+    .sim-control-group label{font-size:13.5px;font-weight:700;color:#bcc5c0;display:flex;justify-content:space-between}
     .sim-control-group label span{color:var(--accent)}
     .sim-control-group input[type="range"]{
       width:100%;
       accent-color:var(--accent);
       cursor:pointer;
     }
-    /* Selectores estilizados para modo oscuro */
     .sim-select-dark {
       width: 100%;
       border: 1.5px solid #2a332f;
       background: #1a221f;
       color: #fff;
       border-radius: 9999px;
-      padding: 12px 20px;
-      font-size: 15px;
+      padding: 10px 18px;
+      font-size: 14px;
       font-weight: 700;
       font-family: inherit;
       appearance: none;
@@ -247,35 +268,60 @@
       cursor: pointer;
       outline: none;
     }
-    .sim-select-dark:focus{
-      border-color: var(--accent);
-    }
+    .sim-select-dark:focus{ border-color: var(--accent); }
+    
+    /* Estructura de Salidas (Outputs) */
     .sim-results{
       background:#1a221f;
       border-radius:20px;
-      padding:36px;
+      padding:32px;
       display:flex;
       flex-direction:column;
-      justify-content:space-between;
+      justify-content:flex-start;
       border:1px solid #2a332f;
+      gap:20px;
     }
-    .sim-metric{margin-bottom:20px}
-    .sim-metric:last-child{margin-bottom:0}
-    .sim-metric-header{display:flex;justify-content:space-between;font-size:14px;font-weight:700;margin-bottom:8px}
+    .sim-metric{width:100%}
+    .sim-metric-header{display:flex;justify-content:space-between;font-size:13.5px;font-weight:700;margin-bottom:6px}
     .sim-metric-val{color:var(--accent)}
     .sim-progress{height:8px;background:#2e3a35;border-radius:4px;overflow:hidden}
     .sim-progress-bar{height:100%;background:var(--accent);width:50%;transition:width 0.15s ease}
     
+    /* Métricas numéricas de costo y peso */
+    .sim-row-metrics{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:16px;
+      background:#101614;
+      padding:16px;
+      border-radius:14px;
+      border:1px solid #252e2a;
+    }
+    .sim-box-val{text-align:center}
+    .sim-box-val span{display:block;font-size:12px;color:#bcc5c0;text-transform:uppercase;font-weight:800;margin-bottom:4px}
+    .sim-box-val strong{font-size:20px;color:var(--accent);font-weight:800}
+
+    /* Recomendación final de configuración */
+    .sim-rec-box{
+      background:rgba(255,255,255,0.03);
+      border:1px dashed #2a332f;
+      padding:18px;
+      border-radius:12px;
+      font-size:14px;
+      line-height:1.5;
+    }
+    .sim-rec-box h4{margin:0 0 6px;color:var(--accent);font-weight:800}
+    .sim-rec-box p{margin:0;color:#eef2ee}
+
     /* ALERTAS TÉCNICAS SIMULADOR */
     .sim-alert-box{
       background:#fcebe8;
       border-left:4px solid #9e3223;
       border-radius:12px;
-      padding:16px;
+      padding:14px;
       color:#50140c;
-      font-size:13.5px;
-      line-height:1.5;
-      margin-top:20px;
+      font-size:13px;
+      line-height:1.4;
     }
 
     /* TARJETAS Y GRID */
@@ -341,7 +387,8 @@
     .footer a:hover{color:var(--ink);text-decoration:underline}
     
     .searchresults{margin-top:18px;display:none;background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden}
-    .searchresults a{display:block;padding:16px 20px;border-bottom:1px solid var(--line)}
+    .searchresults a{display:block;padding:16px 20px;border-bottom:1px solid var(--line);transition:background 0.1s}
+    .searchresults a:hover{background:#fafbfa}
     .searchresults b{font-size:16px}
     .searchresults small{display:block;font-size:14px;color:var(--muted);margin-top:4px}
     
@@ -414,19 +461,19 @@
         </div>
       </div>
       
-      <!-- BUSCADOR CON ALINEACIÓN ABSOLUTA -->
+      <!-- BUSCADOR CON ALINEACIÓN ABSOLUTA Y BÚSQUEDA INTERNA REAL -->
       <aside class="hero-panel">
         <h2>Buscador técnico</h2>
-        <p>Encuentra de inmediato soluciones a atascos, parámetros de laminación o guías de materiales avanzados.</p>
+        <p>Busca cualquier palabra de la base de datos de PrintLab para saltar al recurso y resaltarlo en pantalla.</p>
         <div class="searchbox">
-          <input id="q" placeholder="Ej: atasco, warping, resina SLA...">
+          <input id="q" placeholder="Ej: warping, atasco, tpu, coste...">
           <button class="btn green" style="box-shadow:none; padding:16px 24px" onclick="goSearch()">Buscar</button>
         </div>
         <div id="results" class="searchresults"></div>
       </aside>
     </section>
 
-    <!-- SECCIÓN SIMULADOR INTERACTIVO CIENTÍFICO (REDISEÑADO) -->
+    <!-- SECCIÓN SIMULADOR INTERACTIVO CIENTÍFICO (14 INPUTS - 9 OUTPUTS) -->
     <section id="simulador" class="section">
       <div class="sectionhead">
         <div class="eyebrow" style="margin-bottom:12px">Simulador Físico de Manufactura</div>
@@ -435,14 +482,16 @@
       </div>
 
       <div class="sim-container">
-        <!-- Panel de Control Técnico (Izquierda) -->
+        <!-- Panel de Control Técnico: 14 INPUTS (Izquierda) -->
         <div class="sim-controls">
           
+          <div class="sim-group-title">1. Material y Hardware</div>
+          
           <div class="sim-control-group">
-            <label>Polímero Termoplástico</label>
-            <select id="param-material" class="sim-select-dark" onchange="updateSimulation()">
-              <option value="PLA">PLA (Rígido / Biodegradable)</option>
-              <option value="PETG" selected>PETG (Tenaz / Alta Cohesión)</option>
+            <label>Material Utilizado</label>
+            <select id="param-material" class="sim-select-dark" onchange="autoAdjustTemps(); updateSimulation();">
+              <option value="PLA" selected>PLA (Rígido / Biodegradable)</option>
+              <option value="PETG">PETG (Tenaz / Alta Cohesión)</option>
               <option value="ABS">ABS / ASA (Estructural / Térmico)</option>
               <option value="TPU">TPU (Elastómero Flexible)</option>
               <option value="PC">PC / Nylon (Ingeniería de Alto Rendimiento)</option>
@@ -451,17 +500,34 @@
 
           <div class="sim-control-group">
             <label>Diámetro de Boquilla (Nozzle)</label>
-            <select id="param-nozzle" class="sim-select-dark" onchange="updateSimulation()">
+            <select id="param-nozzle" class="sim-select-dark" onchange="autoAdjustLineWidth(); updateSimulation();">
               <option value="0.2">0.2 mm (Ultra Detalle)</option>
               <option value="0.4" selected>0.4 mm (Estándar)</option>
               <option value="0.6">0.6 mm (Funcional / Rápido)</option>
               <option value="0.8">0.8 mm (Industrial / Alto Flujo)</option>
             </select>
           </div>
+
+          <div class="sim-control-group">
+            <label>Temperatura de Impresión <span id="val-temp">210 ºC</span></label>
+            <input type="range" id="param-temp" min="180" max="300" step="5" value="210" oninput="updateSimulation()">
+          </div>
+
+          <div class="sim-control-group">
+            <label>Temperatura de Cama <span id="val-bed">60 ºC</span></label>
+            <input type="range" id="param-bed" min="0" max="120" step="5" value="60" oninput="updateSimulation()">
+          </div>
+
+          <div class="sim-group-title">2. Geometría de Capa</div>
           
           <div class="sim-control-group">
             <label>Altura de Capa <span id="val-layer">0.20 mm</span></label>
             <input type="range" id="param-layer" min="0.02" max="0.64" step="0.01" value="0.20" oninput="updateSimulation()">
+          </div>
+
+          <div class="sim-control-group">
+            <label>Anchura de Línea (Extrusión) <span id="val-width">0.48 mm</span></label>
+            <input type="range" id="param-width" min="0.20" max="1.20" step="0.01" value="0.48" oninput="updateSimulation()">
           </div>
           
           <div class="sim-control-group">
@@ -473,20 +539,70 @@
             <label>Densidad de Relleno <span id="val-infill">20 %</span></label>
             <input type="range" id="param-infill" min="0" max="100" step="5" value="20" oninput="updateSimulation()">
           </div>
-          
+
+          <div class="sim-control-group">
+            <label>Patrón de Relleno</label>
+            <select id="param-pattern" class="sim-select-dark" onchange="updateSimulation()">
+              <option value="giroide" selected>Giroide (Gyroid - Isótropo / Premium)</option>
+              <option value="rejilla">Rejilla (Grid - Alta Compresión Vertical)</option>
+              <option value="lineas">Líneas (Rectilíneo - Rápido / Básico)</option>
+              <option value="alveolar">Alveolar (Honeycomb - Estructura Mecánica)</option>
+            </select>
+          </div>
+
+          <div class="sim-group-title">3. Cinemática y Entorno</div>
+
           <div class="sim-control-group">
             <label>Velocidad de Impresión <span id="val-speed">80 mm/s</span></label>
             <input type="range" id="param-speed" min="30" max="300" step="10" value="80" oninput="updateSimulation()">
           </div>
+
+          <div class="sim-control-group">
+            <label>Refrigeración de Capa (Ventilador)</label>
+            <select id="param-cooling" class="sim-select-dark" onchange="updateSimulation()">
+              <option value="auto" selected>Automática / Auto (Material Dependiente)</option>
+              <option value="on">Máxima (100% activa - Detalle/Puentes)</option>
+              <option value="off">Desactivada (0% - Alta Cohesión Térmica)</option>
+            </select>
+          </div>
+
+          <div class="sim-control-group">
+            <label>Soportes de Voladizos</label>
+            <select id="param-supports" class="sim-select-dark" onchange="updateSimulation()">
+              <option value="none" selected>No requiere soportes</option>
+              <option value="organic">Soportes Orgánicos (Árbol - Fácil Retirada)</option>
+              <option value="linear">Soportes Lineales (Estructura de Rejilla)</option>
+            </select>
+          </div>
+
+          <div class="sim-group-title">4. Orientación y Volumen de Pieza</div>
+
+          <div class="sim-control-group">
+            <label>Orientación de la Pieza</label>
+            <select id="param-orientation" class="sim-select-dark" onchange="updateSimulation()">
+              <option value="flat" selected>Plana / Horizontal (Eje X/Y - Máxima base)</option>
+              <option value="vertical">Vertical (Eje Z - Prototipado vertical)</option>
+              <option value="angled">Inclinada (Ángulo de 45º)</option>
+            </select>
+          </div>
+
+          <div class="sim-control-group">
+            <label>Dimensiones del Modelo</label>
+            <select id="param-dimensions" class="sim-select-dark" onchange="updateSimulation()">
+              <option value="small">Pequeña (Cubo patrón ~20x20x20 mm)</option>
+              <option value="medium" selected>Mediana (Carcasa estructural ~100x100x100 mm)</option>
+              <option value="large">Grande (Modelo industrial ~200x200x200 mm)</option>
+            </select>
+          </div>
         </div>
         
-        <!-- Panel de Diagnósticos Físicos (Derecha) -->
+        <!-- Panel de Diagnósticos Físicos: 9 OUTPUTS (Derecha) -->
         <div class="sim-results">
           
-          <!-- Resistencia Mecánica -->
+          <!-- 1. Resistencia Mecánica -->
           <div class="sim-metric">
             <div class="sim-metric-header">
-              <span>Fuerza Mecánica (Tracción/Impacto)</span>
+              <span>Resistencia Mecánica Estructural</span>
               <span class="sim-metric-val" id="res-strength">65%</span>
             </div>
             <div class="sim-progress">
@@ -494,10 +610,10 @@
             </div>
           </div>
           
-          <!-- Resolución Estética -->
+          <!-- 2. Calidad Superficial -->
           <div class="sim-metric">
             <div class="sim-metric-header">
-              <span>Resolución Superficial (Estética)</span>
+              <span>Calidad Superficial (Acabado/Detalle)</span>
               <span class="sim-metric-val" id="res-finish">50%</span>
             </div>
             <div class="sim-progress">
@@ -505,29 +621,71 @@
             </div>
           </div>
 
-          <!-- Cohesión de Capas (Isotropía) -->
+          <!-- 3. Adhesión entre Capas -->
           <div class="sim-metric">
             <div class="sim-metric-header">
-              <span>Cohesión de Capas (Isotropía Z)</span>
-              <span class="sim-metric-val" id="res-aniso">Fuerte</span>
+              <span>Adhesión entre Capas (Cohesión Z)</span>
+              <span class="sim-metric-val" id="res-cohesion">70%</span>
             </div>
             <div class="sim-progress">
-              <div class="sim-progress-bar" id="bar-aniso"></div>
+              <div class="sim-progress-bar" id="bar-cohesion"></div>
             </div>
           </div>
 
-          <!-- Estimación Relativa del Tiempo de Impresión -->
+          <!-- 4. Facilidad de Impresión -->
           <div class="sim-metric">
             <div class="sim-metric-header">
-              <span>Estimación de Tiempo (No Absoluto)</span>
+              <span>Facilidad de Impresión</span>
+              <span class="sim-metric-val" id="res-ease">85%</span>
+            </div>
+            <div class="sim-progress">
+              <div class="sim-progress-bar" id="bar-ease"></div>
+            </div>
+          </div>
+
+          <!-- 5. Riesgo de Deformación (Warping) -->
+          <div class="sim-metric">
+            <div class="sim-metric-header">
+              <span>Riesgo de Deformación (Warping)</span>
+              <span class="sim-metric-val" id="res-warping">15%</span>
+            </div>
+            <div class="sim-progress">
+              <div class="sim-progress-bar" id="bar-warping"></div>
+            </div>
+          </div>
+
+          <!-- 6. Tiempo Estimado (Barra de aproximación) -->
+          <div class="sim-metric">
+            <div class="sim-metric-header">
+              <span>Tiempo de Impresión Estimado</span>
               <span class="sim-metric-val" id="res-time" style="font-weight: 800;">Medio</span>
             </div>
             <div class="sim-progress">
-              <div class="sim-progress-bar" id="bar-time" style="background-color: #888;"></div>
+              <div class="sim-progress-bar" id="bar-time" style="background-color:#888;"></div>
             </div>
           </div>
 
-          <!-- Div de Alertas Técnicas / Recomendaciones de Ingeniería -->
+          <!-- Métricas cuantitativas agrupadas -->
+          <div class="sim-row-metrics">
+            <!-- 7. Material Utilizado -->
+            <div class="sim-box-val">
+              <span>Material Utilizado</span>
+              <strong id="res-weight">45 g</strong>
+            </div>
+            <!-- 8. Coste Estimado -->
+            <div class="sim-box-val">
+              <span>Coste Estimado</span>
+              <strong id="res-cost">1.50 €</strong>
+            </div>
+          </div>
+
+          <!-- 9. Recomendación de Configuración -->
+          <div class="sim-rec-box">
+            <h4>Recomendación de Configuración</h4>
+            <p id="res-recommendation">Ideal para prototipado estructural genérico en PETG. Asegura una buena ventilación para evitar hilos.</p>
+          </div>
+
+          <!-- Div de Alertas Técnicas en tiempo real -->
           <div id="sim-warnings" class="sim-alert-box" style="display:none;"></div>
         </div>
       </div>
@@ -751,6 +909,92 @@
       }
     });
 
+    /* BUSCADOR INTERNO DINÁMICO (REAL EN LA PÁGINA) */
+    function goSearch() {
+      const q = document.getElementById('q').value.trim().toLowerCase();
+      const r = document.getElementById('results');
+      if(!q) { r.style.display = 'none'; return; }
+      
+      r.innerHTML = ''; // Limpiar resultados anteriores
+      
+      const searchable = [];
+      
+      // Escanea títulos principales de sección, sub-secciones y tarjetas del sitio
+      document.querySelectorAll('main h2, main h3, main .card').forEach(el => {
+        let text = el.innerText || el.textContent;
+        let title = text;
+        let type = "Sección";
+        
+        if (el.tagName === 'H2') {
+          type = "Categoría Principal";
+          title = text;
+        } else if (el.tagName === 'H3') {
+          type = "Sub-Sección";
+          title = text;
+        } else if (el.classList.contains('card')) {
+          type = "Guía / Recurso";
+          const h3 = el.querySelector('h3');
+          title = h3 ? h3.innerText : text.substring(0, 30) + '...';
+        }
+        
+        if (text.toLowerCase().includes(q)) {
+          // Genera un ID temporal si el elemento no lo tiene para permitir scroll-to
+          if (!el.id) {
+            el.id = 'search-match-' + Math.random().toString(36).substr(2, 9);
+          }
+          searchable.push({ 
+            id: el.id, 
+            title: title, 
+            type: type, 
+            snippet: text.replace(/\s+/g, ' ').substring(0, 95) + '...' 
+          });
+        }
+      });
+      
+      if (searchable.length === 0) {
+        r.innerHTML = `<div style="padding: 18px 22px; color: var(--muted); font-size: 15px;">No se encontraron coincidencias en esta página.</div>`;
+      } else {
+        searchable.forEach(item => {
+          const itemLink = document.createElement('a');
+          itemLink.href = `#${item.id}`;
+          itemLink.style.display = 'block';
+          itemLink.style.padding = '18px 22px';
+          itemLink.style.borderBottom = '1px solid var(--line)';
+          itemLink.style.cursor = 'pointer';
+          
+          itemLink.innerHTML = `
+            <b>${item.title}</b> 
+            <span style="font-size:10px; text-transform:uppercase; background:var(--accent); padding:3px 10px; border-radius:10px; margin-left:8px; color:var(--ink); font-weight:800; letter-spacing:0.5px;">${item.type}</span>
+            <small style="display:block; font-size:13px; color:var(--muted); margin-top:6px; line-height:1.4;">${item.snippet}</small>
+          `;
+          
+          // Efecto de desplazamiento y destello para localización rápida
+          itemLink.addEventListener('click', e => {
+            e.preventDefault();
+            const target = document.getElementById(item.id);
+            if (target) {
+              window.scrollTo({
+                top: target.offsetTop - 120,
+                behavior: 'smooth'
+              });
+              
+              // Animación temporal de resalte (highlight en verde)
+              target.style.transition = 'background-color 0.5s ease';
+              const originalBg = target.style.backgroundColor;
+              target.style.backgroundColor = 'rgba(184, 255, 61, 0.25)';
+              
+              setTimeout(() => {
+                target.style.backgroundColor = originalBg;
+              }, 2200);
+            }
+          });
+          r.appendChild(itemLink);
+        });
+      }
+      r.style.display = 'block';
+    }
+    document.getElementById('q').addEventListener('keydown', e => { if(e.key === 'Enter') goSearch() });
+
     /* LÓGICA DEL ASISTENTE DE MATERIALES */
     const ASSISTANT_DATA = {
       'visual': {
@@ -805,172 +1049,271 @@
       document.getElementById('as-result').style.display = 'block';
     }
 
-    function goSearch() {
-      const q = document.getElementById('q').value.trim().toLowerCase();
-      const r = document.getElementById('results');
-      if(!q) { r.style.display = 'none'; return; }
-      r.innerHTML = `<a href="guias/diagnostico-fallos.html"><b>Buscar: ${q}</b><small>Explorar base de datos de PrintLab...</small></a>`;
-      r.style.display = 'block';
-    }
-    document.getElementById('q').addEventListener('keydown', e => { if(e.key==='Enter') goSearch() });
-
-    /* LÓGICA DEL SIMULADOR FÍSICO DE PARÁMETROS (AVANZADA Y PRECISA) */
-    function updateSimulation() {
+    /* SISTEMA DE AUTO-AJUSTE PARA EL SIMULADOR */
+    function autoAdjustTemps() {
       const material = document.getElementById('param-material').value;
-      const nozzle = parseFloat(document.getElementById('param-nozzle').value);
-      const layer = parseFloat(document.getElementById('param-layer').value);
-      const walls = parseInt(document.getElementById('param-walls').value);
-      const infill = parseInt(document.getElementById('param-infill').value);
-      const speed = parseInt(document.getElementById('param-speed').value);
+      let extTemp = 210;
+      let bedTemp = 60;
+      
+      if (material === 'PLA') { extTemp = 210; bedTemp = 60; }
+      else if (material === 'PETG') { extTemp = 240; bedTemp = 80; }
+      else if (material === 'ABS') { extTemp = 255; bedTemp = 100; }
+      else if (material === 'TPU') { extTemp = 225; bedTemp = 50; }
+      else if (material === 'PC') { extTemp = 280; bedTemp = 110; }
 
-      // Actualización de etiquetas en el DOM
+      document.getElementById('param-temp').value = extTemp;
+      document.getElementById('param-bed').value = bedTemp;
+    }
+
+    function autoAdjustLineWidth() {
+      const nozzle = parseFloat(document.getElementById('param-nozzle').value);
+      // El ancho de línea ideal por defecto es 1.2 veces el nozzle
+      const defaultWidth = nozzle * 1.2;
+      document.getElementById('param-width').value = defaultWidth.toFixed(2);
+    }
+
+    /* LÓGICA DEL SIMULADOR FÍSICO (14 INPUTS - 9 OUTPUTS REQUERIDOS) */
+    function updateSimulation() {
+      // 14 INPUTS
+      const material = document.getElementById('param-material').value; // Input 1
+      const nozzle = parseFloat(document.getElementById('param-nozzle').value); // Input 2
+      const temp = parseInt(document.getElementById('param-temp').value); // Input 9
+      const bed = parseInt(document.getElementById('param-bed').value); // Input 10
+      const layer = parseFloat(document.getElementById('param-layer').value); // Input 3
+      const width = parseFloat(document.getElementById('param-width').value); // Input 4
+      const walls = parseInt(document.getElementById('param-walls').value); // Input 5
+      const infill = parseInt(document.getElementById('param-infill').value); // Input 6
+      const pattern = document.getElementById('param-pattern').value; // Input 7
+      const speed = parseInt(document.getElementById('param-speed').value); // Input 8
+      const cooling = document.getElementById('param-cooling').value; // Input 11
+      const supports = document.getElementById('param-supports').value; // Input 12
+      const orientation = document.getElementById('param-orientation').value; // Input 13
+      const dimensions = document.getElementById('param-dimensions').value; // Input 14
+
+      // Actualizar valores de texto en controles
+      document.getElementById('val-temp').innerText = `${temp} ºC`;
+      document.getElementById('val-bed').innerText = `${bed} ºC`;
       document.getElementById('val-layer').innerText = `${layer.toFixed(2)} mm`;
+      document.getElementById('val-width').innerText = `${width.toFixed(2)} mm`;
       document.getElementById('val-walls').innerText = `${walls} ${walls === 1 ? 'perímetro' : 'perímetros'}`;
       document.getElementById('val-infill').innerText = `${infill} %`;
       document.getElementById('val-speed').innerText = `${speed} mm/s`;
 
-      // 1. CÁLCULO DE FLUJO VOLUMÉTRICO (Q) REAL
-      // El ancho de extrusión física promedio es 1.2 veces el diámetro de la boquilla
-      const extrusionWidth = nozzle * 1.2;
-      const flowRate = layer * extrusionWidth * speed; // mm³/s
-
-      // Límite de seguridad de altura de capa basado en el Nozzle
+      // CÁLCULOS FÍSICOS REALES (Reología y volumetría de extrusión)
+      const flowRate = layer * width * speed; // Flujo volumétrico mm³/s
       const minLayer = nozzle * 0.15;
       const maxLayer = nozzle * 0.75;
-
+      
       let warnings = [];
 
-      // Validaciones geométricas de extrusión
+      // Validaciones geométricas de la extrusión física
       if (layer < minLayer) {
-        warnings.push(`⚠️ <strong>Altura de Capa muy baja:</strong> Para una boquilla de ${nozzle}mm, el límite mínimo recomendado es ${minLayer.toFixed(2)}mm. Riesgo de retroceso de presión térmica y sobrecalentamiento.`);
+        warnings.push(`⚠️ <strong>Capa excesivamente baja:</strong> El límite mecánico aconsejable para boquilla de ${nozzle}mm es ${minLayer.toFixed(2)}mm. Riesgo de acumulación de calor e interrupciones por presión.`);
       } else if (layer > maxLayer) {
-        warnings.push(`⚠️ <strong>Altura de Capa excesiva:</strong> Para una boquilla de ${nozzle}mm, el límite máximo recomendado es ${maxLayer.toFixed(2)}mm (75% del diámetro). Riesgo severo de mala cohesión y delaminación.`);
+        warnings.push(`⚠️ <strong>Capa excesivamente alta:</strong> El límite para boquilla de ${nozzle}mm es ${maxLayer.toFixed(2)}mm (75% del diámetro). Riesgo extremo de delaminación instantánea.`);
       }
 
-      // Validaciones de flujo volumétrico del Hotend
+      if (width < nozzle) {
+        warnings.push(`⚠️ <strong>Ancho de línea muy estrecho:</strong> El ancho de extrusión no debe ser inferior al diámetro de la boquilla (${nozzle}mm) para evitar subextrusión geométrica.`);
+      }
+
+      // Validaciones físicas del Hotend
       if (flowRate > 15) {
-        warnings.push(`⚠️ <strong>Flujo Volumétrico Excedido (Q = ${flowRate.toFixed(1)} mm³/s):</strong> Los hotends estándar no pueden fundir plástico más allá de 15 mm³/s. Riesgo inminente de saltos en el extrusor y subextrusión. Reduce la velocidad de impresión o la altura de capa.`);
+        warnings.push(`⚠️ <strong>Flujo volumétrico crítico (Q = ${flowRate.toFixed(1)} mm³/s):</strong> Los extrusores estándar colapsan al superar los 15 mm³/s. Se producirán saltos en el motor de empuje y vacíos en la pieza.`);
       }
 
-      // Limitaciones físicas de materiales específicos
-      if (material === 'TPU' && speed > 60) {
-        warnings.push(`⚠️ <strong>Velocidad crítica para TPU (elastómero):</strong> Se recomienda imprimir a menos de 60 mm/s. El filamento flexible tiende a flexionarse fuera de los engranajes si aumenta la presión a velocidades altas.`);
+      // Validaciones térmicas y de enfriamiento
+      if (material === 'PLA' && (cooling === 'off' || (cooling === 'auto' && temp > 230))) {
+        warnings.push(`⚠️ <strong>Falta de refrigeración (PLA):</strong> El PLA requiere ventilador de capa activo para evitar deformaciones térmicas por calor residual.`);
       }
-      if ((material === 'ABS' || material === 'PC') && speed > 160) {
-        warnings.push(`💡 <strong>Nota sobre polímeros industriales:</strong> Imprimir a ${speed} mm/s requiere temperaturas muy altas de extrusión (>260ºC) y un entorno calefactado cerrado activo para prevenir fisuras por choque térmico.`);
+      if ((material === 'ABS' || material === 'PC') && cooling === 'on') {
+        warnings.push(`⚠️ <strong>Enfriamiento excesivo (ABS/PC):</strong> Activar el ventilador de capa al 100% en estos polímeros arruina la cohesión y produce warping severo instantáneo.`);
+      }
+      if (material === 'TPU' && speed > 55) {
+        warnings.push(`⚠️ <strong>Velocidad excesiva (TPU):</strong> Los elastómeros se doblan y obstruyen los extrusores si se imprimen a más de 55 mm/s.`);
       }
 
-      // Render de Alertas Técnicas
-      const alertDiv = document.getElementById('sim-warnings');
+      // Renderizado de alertas
+      const warnDiv = document.getElementById('sim-warnings');
       if (warnings.length > 0) {
-        alertDiv.innerHTML = warnings.join('<br><br>');
-        alertDiv.style.display = 'block';
+        warnDiv.innerHTML = warnings.join('<br><br>');
+        warnDiv.style.display = 'block';
       } else {
-        alertDiv.style.display = 'none';
+        warnDiv.style.display = 'none';
       }
 
-      // 2. RESISTENCIA MECÁNICA DE LA PIEZA (Cálculo paramétrico de ingeniería)
+      // 9 OUTPUTS
+
+      // Output 1: Resistencia Mecánica
       let baseStrength = 70;
-      if (material === 'PLA') baseStrength = 60; // Alta rigidez pero frágil al impacto
-      else if (material === 'PETG') baseStrength = 78; // Gran tenacidad
-      else if (material === 'ABS') baseStrength = 72; // Resistente
-      else if (material === 'TPU') baseStrength = 85; // Flexible pero indeformable/irrompible
-      else if (material === 'PC') baseStrength = 95; // Grado de ingeniería estructural
+      if (material === 'PLA') baseStrength = 55;
+      else if (material === 'PETG') baseStrength = 75;
+      else if (material === 'ABS') baseStrength = 70;
+      else if (material === 'TPU') baseStrength = 82;
+      else if (material === 'PC') baseStrength = 95;
 
-      // Impacto del laminado (Los perímetros aportan mucha más fuerza estructural que el relleno)
-      const fWall = Math.min(1.0, 0.4 + (walls - 1) * 0.15); // Máximo con 5 perímetros
+      const fWall = Math.min(1.0, 0.4 + (walls - 1) * 0.15);
       const fInfill = 0.3 + (infill / 100) * 0.7;
-      const fSlicing = (fWall * 0.6) + (fInfill * 0.4);
+      let fPattern = 0.85; // Rectilíneo
+      if (pattern === 'giroide') fPattern = 1.0;
+      else if (pattern === 'alveolar') fPattern = 0.95;
 
-      // Impacto del Nozzle (Líneas más anchas mejoran drásticamente la resistencia estructural real)
+      const fSlicing = ((fWall * 0.6) + (fInfill * 0.4)) * fPattern;
       const fNozzle = 0.8 + (nozzle - 0.2) * 0.5;
 
-      // Penalización por altura de capa demasiado gruesa (Reduce el área de contacto molecular)
-      let fLayer = 1.0;
-      const ratio = layer / nozzle;
-      if (ratio > 0.6) {
-        fLayer = 1.0 - (ratio - 0.6) * 1.5;
-      }
+      let fOrientation = 1.0;
+      if (orientation === 'vertical') fOrientation = 0.60; // Penalización del 40% (tracción perpendicular a capas)
+      else if (orientation === 'angled') fOrientation = 0.85;
 
-      // Penalización por velocidad/flujo (Melt cohesion drop)
-      let fSpeed = 1.0;
-      if (flowRate > 10) {
-        fSpeed = Math.max(0.7, 1.0 - (flowRate - 10) * 0.015);
-      }
-
-      let strength = Math.min(100, Math.round(baseStrength * fSlicing * fNozzle * fLayer * fSpeed));
+      let strength = Math.min(100, Math.round(baseStrength * fSlicing * fNozzle * fOrientation));
       strength = Math.max(10, strength);
 
-      // 3. CALIDAD DE ACABADO SUPERFICIAL (Detalle Estético)
+      // Output 2: Calidad Superficial
       let baseFinish = 80;
-      if (material === 'PLA') baseFinish = 90; // Excelente definición y enfriamiento
-      else if (material === 'PETG') baseFinish = 70; // Tendencia a hilos (stringing)
-      else if (material === 'ABS') baseFinish = 80; // Suave pero propenso a deformaciones
-      else if (material === 'TPU') baseFinish = 60; // Stringing y dificultades de retracción
-      else if (material === 'PC') baseFinish = 65; // Técnico, no prioriza estética
+      if (material === 'PLA') baseFinish = 92;
+      else if (material === 'PETG') baseFinish = 72;
+      else if (material === 'ABS') baseFinish = 80;
+      else if (material === 'TPU') baseFinish = 60;
+      else if (material === 'PC') baseFinish = 65;
 
-      const fNozzleFinish = 1.3 - nozzle * 0.75; // Boquilla pequeña = más resolución
-      const fLayerFinish = 1.3 - ratio * 0.8; // Menor altura de capa = menos escalonamiento (stair-stepping)
+      const fNozzleFinish = 1.3 - nozzle * 0.75;
+      const fLayerFinish = 1.35 - (layer / nozzle) * 0.85;
       
       let fSpeedFinish = 1.0;
-      if (speed > 60) {
-        fSpeedFinish = Math.max(0.6, 1.0 - (speed - 60) * 0.0015);
-      }
+      if (speed > 60) fSpeedFinish = Math.max(0.6, 1.0 - (speed - 60) * 0.0015);
 
       let finish = Math.min(100, Math.round(baseFinish * fNozzleFinish * fLayerFinish * fSpeedFinish));
+      if (supports !== 'none') finish = Math.round(finish * 0.90); // Los soportes dejan marcas superficiales
       finish = Math.max(10, finish);
 
-      // 4. COHESIÓN DE CAPAS (Isotropía y adhesión en eje Z)
+      // Output 3: Adhesión entre capas (Cohesión)
       let baseCohesion = 60;
       if (material === 'PLA') baseCohesion = 55;
-      else if (material === 'PETG') baseCohesion = 75; // Excelente cohesión térmica
-      else if (material === 'ABS') baseCohesion = 50; // Propenso a delaminación
-      else if (material === 'TPU') baseCohesion = 95; // Unión intermolecular casi homogénea (Isótropo)
-      else if (material === 'PC') baseCohesion = 70;
+      else if (material === 'PETG') baseCohesion = 78;
+      else if (material === 'ABS') baseCohesion = 50;
+      else if (material === 'TPU') baseCohesion = 98;
+      else if (material === 'PC') baseCohesion = 72;
 
-      const fRatioCohesion = Math.max(0.3, 1.15 - ratio * 1.3); // Mayor compresión de la capa = mejor adhesión
-      const fSpeedCohesion = Math.max(0.4, 1.0 - (flowRate / 25));
+      const fCompresion = Math.max(0.4, 1.2 - (layer / nozzle) * 1.3);
+      const fTempCohesion = Math.min(1.15, temp / (material === 'PLA' ? 210 : 250));
 
-      let cohesion = Math.min(100, Math.round(baseCohesion * fRatioCohesion * fSpeedCohesion));
+      let cohesion = Math.min(100, Math.round(baseCohesion * fCompresion * fTempCohesion));
       cohesion = Math.max(10, cohesion);
 
-      // 5. ESTIMACIÓN RELATIVA DE TIEMPO DE IMPRESIÓN (Índice de Depósito No Absoluto)
-      const volumeWeight = (walls * extrusionWidth) + (infill * 0.01 * extrusionWidth);
-      const outputRate = speed * layer * extrusionWidth;
-      const timeIndex = (volumeWeight / outputRate) * 350;
+      // Output 4: Facilidad de Impresión
+      let baseEase = 50;
+      if (material === 'PLA') baseEase = 95;
+      else if (material === 'PETG') baseEase = 75;
+      else if (material === 'ABS') baseEase = 40;
+      else if (material === 'TPU') baseEase = 50;
+      else if (material === 'PC') baseEase = 30;
+
+      let ease = baseEase;
+      if (supports !== 'none') ease -= 15; // Retirar soportes requiere procesado manual duro
+      if (speed > 120) ease -= 10;
+      ease = Math.max(10, Math.min(100, ease));
+
+      // Output 5: Riesgo de Deformación (Warping)
+      let baseWarping = 20;
+      if (material === 'PLA') baseWarping = 5;
+      else if (material === 'PETG') baseWarping = 15;
+      else if (material === 'ABS') baseWarping = 75;
+      else if (material === 'TPU') baseWarping = 10;
+      else if (material === 'PC') baseWarping = 85;
+
+      let warping = baseWarping;
+      // Penalizar camas frías
+      if (material === 'ABS' && bed < 90) warping += 20;
+      if (material === 'PC' && bed < 100) warping += 15;
+      if (dimensions === 'large') warping += 20; // Piezas grandes = más tensión interna
+      if (dimensions === 'small') warping -= 10;
+
+      warping = Math.max(5, Math.min(100, warping));
+
+      // Output 6: Tiempo Estimado
+      const volumeMultiplier = dimensions === 'small' ? 8 : (dimensions === 'medium' ? 125 : 1000);
+      const densityProxy = (walls * width) + (infill * 0.01 * width);
+      const volumeProxy = volumeMultiplier * densityProxy;
+      const depositionRate = speed * layer * width;
+      const timeIndex = (volumeProxy / depositionRate) * 45;
 
       let timeLabel = "Medio";
-      let timeBarVal = Math.min(100, Math.round(timeIndex / 2.5));
+      let timeBarVal = Math.min(100, Math.round(timeIndex / 2.2));
       timeBarVal = Math.max(10, timeBarVal);
 
-      if (timeIndex < 25) {
-        timeLabel = "Muy Corto (Baja resolución y alto flujo)";
-      } else if (timeIndex < 50) {
-        timeLabel = "Corto (Laminación optimizada para velocidad)";
-      } else if (timeIndex < 90) {
-        timeLabel = "Medio (Equilibrio de velocidad/acabado)";
-      } else if (timeIndex < 180) {
-        timeLabel = "Largo (Detalle fino o alta densidad)";
-      } else {
-        timeLabel = "Muy Largo (Tiempos extendidos por ultra detalle)";
+      if (timeIndex < 25) timeLabel = "Corto (Proceso rápido / Pieza simple)";
+      else if (timeIndex < 70) timeLabel = "Moderado (Equilibrio idóneo)";
+      else if (timeIndex < 180) timeLabel = "Largo (Pieza densa / Requiere tiempo)";
+      else timeLabel = "Muy Largo (Manufactura extendida y compleja)";
+
+      // Output 7: Material Utilizado (Masa en gramos)
+      let density = 1.24; // PLA
+      if (material === 'PETG') density = 1.27;
+      else if (material === 'ABS') density = 1.07;
+      else if (material === 'TPU') density = 1.21;
+      else if (material === 'PC') density = 1.15;
+
+      const estimatedVolumeCm3 = volumeMultiplier * (0.12 * walls + (infill / 100) * 0.4);
+      const weight = Math.max(2, Math.round(estimatedVolumeCm3 * density));
+
+      // Output 8: Coste Estimado (EUR)
+      let pricePerGram = 0.022; // PLA
+      if (material === 'PETG') pricePerGram = 0.024;
+      else if (material === 'ABS') pricePerGram = 0.028;
+      else if (material === 'TPU') pricePerGram = 0.038;
+      else if (material === 'PC') pricePerGram = 0.052;
+
+      const powerCost = 0.35; // Amortización por base
+      const finalCost = weight * pricePerGram + powerCost;
+
+      // Output 9: Recomendación de Configuración
+      let recText = "Configuración equilibrada para PLA. Ideal para modelado dimensional.";
+      if (material === 'PLA') {
+        recText = "PLA óptimo. Se aconseja mantener el ventilador al 100% en los puentes y voladizos para una máxima resolución.";
+      } else if (material === 'PETG') {
+        recText = "PETG funcional. Reduce un 15% la velocidad de retracción si experimentas stringing (hilos finos).";
+      } else if (material === 'ABS') {
+        recText = "¡Atención! El ABS requiere cama caliente (>95ºC) y se recomienda imprimir sin ventilador de capa en un habitáculo cerrado.";
+      } else if (material === 'TPU') {
+        recText = "TPU flexible. Imprescindible extrusor de tracción directa. Desactiva retracciones para evitar que el filamento se enrolle.";
+      } else if (material === 'PC') {
+        recText = "PC de alta ingeniería. Aplica laca adhesiva estructural sobre la cama y asegura temperaturas de extrusión elevadas (>275ºC).";
       }
 
-      // Aplicación de métricas al DOM
+      if (orientation === 'vertical' && strength > 50) {
+        recText += " Nota: Debido a la orientación vertical, evita esfuerzos de cizalla paralelos a las líneas de capa.";
+      }
+
+      // APLICAR A LA INTERFAZ
       document.getElementById('res-strength').innerText = `${strength}%`;
       document.getElementById('bar-strength').style.width = `${strength}%`;
 
       document.getElementById('res-finish').innerText = `${finish}%`;
       document.getElementById('bar-finish').style.width = `${finish}%`;
 
-      document.getElementById('res-aniso').innerText = `${cohesion}%`;
-      document.getElementById('bar-aniso').style.width = `${cohesion}%`;
+      document.getElementById('res-cohesion').innerText = `${cohesion}%`;
+      document.getElementById('bar-cohesion').style.width = `${cohesion}%`;
+
+      document.getElementById('res-ease').innerText = `${ease}%`;
+      document.getElementById('bar-ease').style.width = `${ease}%`;
+
+      document.getElementById('res-warping').innerText = `${warping}%`;
+      document.getElementById('bar-warping').style.width = `${warping}%`;
 
       document.getElementById('res-time').innerText = timeLabel;
       document.getElementById('bar-time').style.width = `${timeBarVal}%`;
+
+      document.getElementById('res-weight').innerText = `${weight} g`;
+      document.getElementById('res-cost').innerText = `${finalCost.toFixed(2)} €`;
+      document.getElementById('res-recommendation').innerText = recText;
     }
 
     // Inicialización del simulador en carga
-    window.addEventListener('load', updateSimulation);
+    window.addEventListener('load', () => {
+      autoAdjustTemps();
+      autoAdjustLineWidth();
+      updateSimulation();
+    });
   </script>
 </body>
 </html>
