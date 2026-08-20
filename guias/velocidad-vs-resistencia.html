@@ -3,38 +3,161 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Velocidad vs Resistencia FDM - PrintLab</title>
+  <title>Velocidad vs Resistencia Estructural - Slicing Avanzado — PrintLab</title>
+  <meta name="description" content="El impacto directo del flujo volumétrico máximo y la temperatura en la adhesión de capas. Imprimir más rápido suele significar piezas más frágiles.">
+  <meta name="robots" content="index,follow">
+  <!-- Importación de la tipografía Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
   <style>
-    :root{--bg:#f6f7f4;--card:#fff;--ink:#0d1110;--muted:#69716c;--line:#dfe4df;--accent:#b8ff3d;--dark:#111715;--max:1100px}
+    /* VARIABLES DE DISEÑO (Estilo UDIA) */
+    :root{
+      --bg:#f6f7f4;
+      --card:#fff;
+      --ink:#0d1110;
+      --muted:#5e6661;
+      --line:#dfe4df;
+      --accent:#b8ff3d;
+      --dark:#111715;
+      --max:1200px;
+    }
+    
     *{box-sizing:border-box}html{scroll-behavior:smooth}
-    body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;line-height:1.7}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--ink);
+      font-family:"Plus Jakarta Sans", "Inter", system-ui, -apple-system, sans-serif;
+      line-height:1.7;
+      -webkit-font-smoothing:antialiased;
+    }
     a{color:inherit;text-decoration:none}
-    .wrap{max-width:var(--max);margin:auto;padding:0 20px}
-    .top{position:sticky;top:0;z-index:50;background:rgba(246,247,244,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
-    nav{min-height:80px;display:flex;align-items:center;justify-content:center}
-    .brand{font-size:26px;font-weight:900;letter-spacing:-1px}
-    .brand span{background:var(--accent);padding:4px 9px;border-radius:8px;margin-left:4px;color:var(--ink)}
     
-    .article-header{padding:80px 0 40px;border-bottom:1px solid var(--line);margin-bottom:40px}
-    .tag{display:inline-block;padding:6px 12px;border-radius:999px;background:#eef2ee;color:#4d5852;font-size:13px;font-weight:900;text-transform:uppercase;margin-bottom:20px}
-    .article-header h1{font-size:clamp(40px, 5vw, 56px);line-height:1.05;letter-spacing:-2px;margin:0 0 20px}
-    .article-header p{font-size:22px;color:var(--muted);margin:0}
+    .wrap{max-width:var(--max);margin:auto;padding:0 80px}
     
-    .content{font-size:19px;color:#2c3330;max-width:800px;margin:0 auto 100px}
-    .content h2{font-size:32px;margin:50px 0 20px;border-bottom:2px solid var(--line);padding-bottom:10px;color:var(--ink)}
+    /* CABECERA FLUIDA */
+    .top{position:sticky;top:0;z-index:100;background:rgba(246,247,244,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+    nav{min-height:95px;display:flex;align-items:center;justify-content:space-between;gap:36px}
+    .brand{font-size:26px;font-weight:800;letter-spacing:-1px}
+    .brand span{background:var(--accent);padding:5px 12px;border-radius:10px;margin-left:6px;color:var(--ink)}
     
-    .alert{background:#fff;border-left:5px solid var(--ink);padding:24px;border-radius:0 12px 12px 0;margin:30px 0;box-shadow:0 4px 15px rgba(0,0,0,0.03)}
-    .alert.warn{border-color:#d9432f;background:#fcf1f0}
-    .alert strong{display:block;font-size:16px;text-transform:uppercase;margin-bottom:8px}
+    .nav{display:flex;gap:12px;font-size:15px;font-weight:700}
+    .nav a{padding:8px 18px;border-radius:9999px;transition:.15s;color:var(--muted)}
+    .nav a:hover{color:var(--ink);background:rgba(0,0,0,0.03)}
+    .nav a.active{color:var(--ink);background:var(--card);border:1px solid var(--line)}
+
+    /* LAYOUT GUÍA */
+    .article-header{padding:80px 0 40px; border-bottom:1px solid var(--line); margin-bottom:40px}
+    .tag{
+      display:inline-flex;
+      padding:6px 14px;
+      border-radius:9999px;
+      background:rgba(0,0,0,0.04);
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:1px;
+      font-weight:800;
+      color:var(--muted);
+      margin-bottom:20px;
+    }
+    .article-header h1{
+      font-size:clamp(40px, 5vw, 56px);
+      line-height:1.05;
+      letter-spacing:-0.03em;
+      margin:0 0 20px;
+      font-weight:800;
+    }
+    .article-header p{font-size:22px; color:var(--muted); margin:0}
     
-    .footer{padding:80px 0;border-top:1px solid var(--line);color:#69716c;font-size:16px}
-    .footergrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:40px}
+    .content{font-size:18px; color:var(--ink); max-width:800px; margin:0 auto 100px}
+    .content h2{font-size:30px; font-weight:800; margin:50px 0 20px; border-bottom:1.5px solid var(--line); padding-bottom:8px; color:var(--ink); letter-spacing:-0.5px}
+    .content h3{font-size:22px; font-weight:800; margin:30px 0 15px; color:var(--ink)}
+    .content p{margin-bottom:24px}
+    .content ul, .content ol{padding-left:20px; margin-bottom:24px}
+    .content li{margin-bottom:10px}
+    
+    /* CAJAS INFORMATIVAS */
+    .alert{
+      background:var(--card);
+      border-left:5px solid var(--ink);
+      padding:24px;
+      border-radius:0 16px 16px 0;
+      margin:36px 0;
+      border: 1px solid var(--line);
+      border-left-width: 5px;
+      border-left-color: var(--ink);
+    }
+    .alert.warn{border-left-color:#d9432f; background:#fcf1f0}
+    .alert strong{display:block; font-size:14px; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; font-weight:800}
+
+    /* MODALES DE TRANSPARENCIA */
+    .modal{
+      display:none;
+      position:fixed;
+      top:0;left:0;width:100%;height:100%;
+      background:rgba(13,17,16,0.85);
+      backdrop-filter:blur(8px);
+      z-index:200;
+      overflow-y:auto;
+      padding:40px 16px;
+      animation:fadeIn .2s ease;
+    }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    .modal-content{
+      background:var(--card);
+      border:2.5px solid var(--ink);
+      max-width:700px;
+      margin:40px auto;
+      border-radius:24px;
+      padding:40px;
+      box-shadow:0 25px 60px rgba(0,0,0,0.18);
+      position:relative;
+      color:var(--ink);
+    }
+    .modal-close{
+      position:absolute;
+      top:24px;right:24px;
+      background:var(--bg);
+      border:1.5px solid var(--line);
+      width:40px;height:40px;
+      border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      cursor:pointer;font-weight:800;transition:.15s;
+    }
+    .modal-close:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+    /* FOOTER */
+    .footer{padding:80px 0 110px;margin-top:100px;border-top:1px solid var(--line);color:var(--muted);font-size:15px}
+    .footergrid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:45px}
+    .footer strong{display:block;font-size:16px;color:var(--ink);margin-bottom:12px}
+    .footer a{display:inline-block;margin-bottom:8px;transition:0.15s;cursor:pointer;}
+    .footer a:hover{color:var(--ink);text-decoration:underline}
+    
+    @media(max-width:1250px){
+      .wrap{padding:0 48px}
+    }
+    @media(max-width:750px){
+      .wrap{padding:0 24px}
+      nav{flex-direction:column; padding:20px 0; gap:16px}
+      .brand{margin-right:0}
+    }
   </style>
 </head>
 <body>
+
+  <!-- HEADER -->
   <header class="top">
     <div class="wrap">
-      <nav><a class="brand" href="../index.html">PRINT<span>LAB</span></a></nav>
+      <nav>
+        <a class="brand" href="../index.html" title="Volver al inicio">PRINT<span>LAB</span></a>
+        <div class="nav">
+          <a href="../index.html#simulador">Simulador</a>
+          <a href="../index.html#guias" class="active">Guías</a>
+          <a href="../materiales/index.html">Materiales</a>
+          <a href="../herramientas/index.html">Herramientas</a>
+        </div>
+      </nav>
     </div>
   </header>
 
@@ -46,38 +169,125 @@
     </header>
 
     <article class="content">
-      <p>Con la llegada de firmwares como Klipper y máquinas ultrarrápidas, el estándar de impresión ha pasado de 50 mm/s a 300 mm/s. Sin embargo, la termodinámica de los polímeros impone un límite físico inevitable: <b>cuanto más rápido imprimes, más frágil es la pieza.</b></p>
+      <p>Con la llegada de firmwares avanzados como Klipper y mecánicas CoreXY ultrarrápidas, el estándar de impresión ha pasado de 50 mm/s a velocidades superiores a 300 mm/s. Sin embargo, la termodinámica fundamental de los polímeros impone un límite físico inevitable: <b>cuanto más rápido se imprime, más frágil es el comportamiento mecánico de la pieza resultante.</b></p>
 
       <h2>1. El límite del Flujo Volumétrico Máximo (mm³/s)</h2>
-      <p>El flujo volumétrico dicta cuánto volumen de plástico puede derretir tu extrusor en un segundo. Al imprimir muy rápido, el filamento pasa tan deprisa por el bloque calentador que no tiene tiempo físico para derretirse de forma homogénea hasta su núcleo (<i>Dwell Time</i>).</p>
+      <p>El flujo volumétrico dicta la cantidad de material (volumen en mm³) que el bloque fusor puede derretir homogéneamente por segundo. Al imprimir a velocidades críticas, el filamento atraviesa el canal térmico tan rápido que no experimenta el tiempo de permanencia (*Dwell Time*) físico requerido para fundirse uniformemente hasta su núcleo.</p>
 
       <div class="alert warn">
         <strong>⚠️ Sub-extrusión invisible</strong>
-        Si fuerzas una boquilla estándar a imprimir a 250 mm/s, el núcleo del filamento se extruye casi sólido. Esto genera micro-vacíos internos en los perímetros. Visualmente la pieza parece perfecta, pero mecánicamente fallará a presiones bajísimas porque es porosa por dentro.
+        Forzar una boquilla estándar a extruir a más de 200 mm/s a menudo hace que el núcleo del filamento salga semisólido. Esto genera micro-vacíos internos de aire en la costura de los perímetros. Visualmente, el acabado estético superficial parece perfecto, pero mecánicamente la pieza colapsará ante esfuerzos de tracción reducidos por ser porosa en su interior.
       </div>
 
       <h2>2. Adhesión térmica entre capas (Layer Bonding)</h2>
-      <p>La fuerza del eje Z (tracción vertical) depende de que la capa recién extruida esté lo suficientemente caliente como para <b>fundir parcialmente la capa inferior</b> y fusionarse con ella. Imprimir a alta velocidad destruye este proceso por dos vías:</p>
+      <p>La resistencia del eje Z (tracción vertical) depende de que la capa de material fundido recién extruida conserve la suficiente energía térmica para <b>fundir parcialmente la capa inferior</b> sobre la que se deposita, fusionando ambas a nivel intermolecular. Imprimir a velocidades elevadas anula este proceso por dos vías:</p>
       <ul>
-        <li>El plástico extruido sale más frío (no tuvo tiempo de absorber calor en la boquilla).</li>
-        <li>Los potentes ventiladores de capa necesarios para imprimir rápido (para evitar que la pieza se deforme por inercia térmica) congelan instantáneamente el plástico antes de que se fusione con el piso inferior.</li>
+        <li>El plástico extruido sale a una temperatura menor debido a la falta de tiempo de fusión uniforme en el hotend.</li>
+        <li>Los potentes ventiladores de capa que exigen las altas velocidades (necesarios para enfriar rápido y evitar deformaciones por inercia térmica) congelan instantáneamente el plástico antes de que se fusione con la capa precedente.</li>
       </ul>
 
       <h2>3. Cómo compensarlo en piezas funcionales</h2>
-      <p>Si necesitas imprimir una pieza resistente, ya sea un soporte de motor o una bisagra, la regla de oro en ingeniería FDM es:</p>
+      <p>Si necesitas fabricar una pieza resistente que trabaje bajo tensiones estructurales (un soporte de motor o una fijación mecánica), aplica las siguientes directrices:</p>
 
       <div class="alert">
-        <strong>💡 Matriz de compensación técnica</strong>
+        <strong>💡 Matriz de compensación técnica:</strong>
         <ol>
-          <li><b>Baja la velocidad de los perímetros exteriores e interiores</b> a 50-60 mm/s, permitiendo una perfecta adhesión térmica e interlaminar.</li>
-          <li><b>Sube la temperatura del nozzle:</b> Si imprimes un PETG habitualmente a 235ºC pero vas a forzar la velocidad a 150 mm/s, debes compensar subiendo la temperatura a 245ºC - 250ºC para garantizar el derretimiento del núcleo del polímero.</li>
-          <li><b>Baja la refrigeración de capa:</b> Si la geometría lo permite (piezas sin grandes voladizos), baja el ventilador al 20-30% para asegurar la fusión de las capas.</li>
+          <li><b>Baja la velocidad de los perímetros exteriores e interiores:</b> Configúralos a un rango moderado de 50-70 mm/s, facilitando una excelente fusión molecular interlaminar.</li>
+          <li><b>Sube la temperatura del cabezal:</b> Si imprimes un filamento de PETG habitualmente a 235 ºC pero vas a forzar la velocidad a 150 mm/s, eleva la temperatura a 245 ºC - 250 ºC para compensar y garantizar la fusión uniforme del núcleo.</li>
+          <li><b>Baja la refrigeración de capa:</b> Si la geometría espacial no tiene voladizos extremos, restringe la velocidad del ventilador de capa al 20-30% para retrasar el enfriamiento de la resina fundida y facilitar su fusión de contacto.</li>
         </ol>
       </div>
-      <p>Es preferible una impresión funcional que tarde 6 horas y no se rompa, que una impresión de 2 horas que falle bajo tensión mecánica.</p>
+      <p>Es preferible una impresión estructural que tarde 6 horas y mantenga sus propiedades intactas, que una fabricación de 2 horas que se fracture al primer esfuerzo mecánico.</p>
     </article>
   </main>
-  
-  <footer class="footer"><div class="wrap footergrid"><div><strong>PrintLab</strong><p>Datos técnicos reales.</p></div></div></footer>
+
+  <!-- MODALES DE TRANSPARENCIA -->
+  <div id="modal-fuentes" class="modal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeModal('modal-fuentes')">✕</span>
+      <h3>Fuentes técnicas</h3>
+      <div class="modal-section" style="background: var(--bg); padding: 18px; border-radius: 12px; border: 1.5px solid var(--line); margin-bottom: 24px;">
+        <p style="font-weight: 800; font-size: 15.5px; color: var(--ink); margin: 0; line-height: 1.6;">
+          "Toda la información técnica publicada se basa en fichas técnicas de materiales (TDS), protocolos de fabricantes (Prusa, UltiMaker, Formlabs) y normativas estandarizadas de la industria (ISO, ASTM)."
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-normativas" class="modal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeModal('modal-normativas')">✕</span>
+      <h3>Normativas y estándares</h3>
+      <div class="modal-section">
+        <h4>ASTM D638 / ISO 527</h4>
+        <p>Análisis normalizado de la tracción y anisotropía mecánica en plásticos.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-metodologia" class="modal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeModal('modal-metodologia')">✕</span>
+      <h3>Metodología del simulador</h3>
+      <div class="modal-section">
+        <p>Cálculo de resistencia y delaminación del eje Z en función de la temperatura del fundido y velocidad del ventilador de capa.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-limitaciones" class="modal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeModal('modal-limitaciones')">✕</span>
+      <h3>Limitaciones y seguridad</h3>
+      <div class="modal-section">
+        <p>El flujo volumétrico máximo admitido depende críticamente de la longitud de la zona de fusión (*melt zone*) del hotend instalado.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="wrap footergrid">
+      <div>
+        <strong>PrintLab — Ingeniería 3D</strong>
+        <p>Toda la información técnica publicada se basa en fichas técnicas de materiales (TDS), protocolos de fabricantes (Prusa, UltiMaker, Formlabs) y normativas estandarizadas de la industria (ISO, ASTM).</p>
+      </div>
+      <div>
+        <strong>Centro de recursos</strong>
+        <p>
+          <a href="../index.html#guias">Guías y diagnóstico de problemas</a><br>
+          <a href="../materiales/index.html">Atlas de materiales</a>
+        </p>
+      </div>
+      <div>
+        <strong>Normativa y transparencia</strong>
+        <p>
+          <a onclick="openModal('modal-fuentes')">→ Fuentes técnicas</a><br>
+          <a onclick="openModal('modal-normativas')">→ Normativas y estándares</a><br>
+          <a onclick="openModal('modal-metodologia')">→ Metodología del simulador</a><br>
+          <a onclick="openModal('modal-limitaciones')">→ Limitaciones y seguridad</a>
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    function openModal(id) {
+      document.getElementById(id).style.display = 'block';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).style.display = 'none';
+      document.body.style.overflow = 'auto';
+    }
+
+    window.onclick = function(event) {
+      if (event.target.classList.contains('modal')) {
+        event.target.style.display = 'none';
+        document.body.style.overflow = 'auto';
+      }
+    }
+  </script>
 </body>
 </html>
