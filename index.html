@@ -208,7 +208,7 @@
       font-size:15px;
     }
 
-    /* SIMULADOR INTERACTIVO (10 INPUTS SELECCIONADOS - 7 OUTPUTS ADAPTADOS) */
+    /* SIMULADOR INTERACTIVO (10 INPUTS - 7 OUTPUTS) */
     .sim-container{
       background:#101614;
       color:#fff;
@@ -231,16 +231,6 @@
     .sim-controls::-webkit-scrollbar-track { background: #1a221f; border-radius: 10px; }
     .sim-controls::-webkit-scrollbar-thumb { background: #3b443f; border-radius: 10px; }
 
-    .sim-group-title{
-      font-size:13px;
-      text-transform:uppercase;
-      letter-spacing:1.5px;
-      color:var(--accent);
-      font-weight:800;
-      border-bottom:1px solid #2a332f;
-      padding-bottom:6px;
-      margin-top:10px;
-    }
     .sim-control-group{display:flex;flex-direction:column;gap:8px}
     .sim-control-group label{font-size:13.5px;font-weight:700;color:#bcc5c0;display:flex;justify-content:space-between}
     .sim-control-group label span{color:var(--accent)}
@@ -268,6 +258,19 @@
       outline: none;
     }
     .sim-select-dark:focus{ border-color: var(--accent); }
+
+    /* ADVERTENCIAS PARÁMETROS IN-SITU (NUEVO) */
+    .param-warning{
+      font-size:11.5px;
+      color:#ffa294;
+      font-weight:700;
+      line-height:1.4;
+      margin-top:2px;
+      background:rgba(158,50,35,0.2);
+      padding:6px 12px;
+      border-radius:8px;
+      border-left:3px solid #9e3223;
+    }
     
     /* Estructura de Salidas (Outputs) */
     .sim-results{
@@ -364,11 +367,53 @@
     }
     .card:hover .btn-action{background:var(--ink);color:#fff;border-color:var(--ink)}
     
+    /* MODALES DE TRANSPARENCIA (UDIA STYLE) */
+    .modal{
+      display:none;
+      position:fixed;
+      top:0;left:0;width:100%;height:100%;
+      background:rgba(13,17,16,0.85);
+      backdrop-filter:blur(8px);
+      z-index:200;
+      overflow-y:auto;
+      padding:40px 16px;
+      animation:fadeIn .2s ease;
+    }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    .modal-content{
+      background:var(--card);
+      border:2.5px solid var(--ink);
+      max-width:700px;
+      margin:40px auto;
+      border-radius:24px;
+      padding:40px;
+      box-shadow:0 25px 60px rgba(0,0,0,0.18);
+      position:relative;
+    }
+    .modal-close{
+      position:absolute;
+      top:24px;right:24px;
+      background:var(--bg);
+      border:1.5px solid var(--line);
+      width:40px;height:40px;
+      border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      cursor:pointer;font-weight:800;transition:.15s;
+    }
+    .modal-close:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
+    .modal h3{font-size:28px;font-weight:800;letter-spacing:-0.5px;margin:0 0 24px}
+    .modal-section{margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid var(--line)}
+    .modal-section:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
+    .modal-section h4{font-size:17px;font-weight:800;margin:0 0 10px;color:var(--ink)}
+    .modal-section p{font-size:14.5px;color:var(--muted);margin:0 0 10px;line-height:1.5}
+    .modal-link{color:var(--ink);font-weight:800;text-decoration:underline}
+    .modal-link:hover{color:var(--muted)}
+
     /* FOOTER */
     .footer{padding:80px 0 110px;margin-top:100px;border-top:1px solid var(--line);color:var(--muted);font-size:15px}
     .footergrid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:45px}
     .footer strong{display:block;font-size:16px;color:var(--ink);margin-bottom:12px}
-    .footer a{display:inline-block;margin-bottom:8px;transition:0.15s}
+    .footer a{display:inline-block;margin-bottom:8px;transition:0.15s;cursor:pointer;}
     .footer a:hover{color:var(--ink);text-decoration:underline}
     
     .searchresults{margin-top:18px;display:none;background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden}
@@ -467,10 +512,8 @@
       </div>
 
       <div class="sim-container">
-        <!-- Panel de Control Técnico: 10 INPUTS (Izquierda) -->
+        <!-- Panel de Control Técnico: 10 INPUTS (Izquierda) sin títulos numerados -->
         <div class="sim-controls">
-          
-          <div class="sim-group-title">1. Material y Hardware</div>
           
           <div class="sim-control-group">
             <label>Material Utilizado</label>
@@ -496,34 +539,36 @@
           <div class="sim-control-group">
             <label>Temperatura de Impresión <span id="val-temp">210 ºC</span></label>
             <input type="range" id="param-temp" min="180" max="300" step="5" value="210" oninput="updateSimulation()">
+            <div id="warn-temp" class="param-warning" style="display:none;"></div>
           </div>
 
           <div class="sim-control-group">
             <label>Temperatura de Cama <span id="val-bed">60 ºC</span></label>
             <input type="range" id="param-bed" min="0" max="120" step="5" value="60" oninput="updateSimulation()">
+            <div id="warn-bed" class="param-warning" style="display:none;"></div>
           </div>
-
-          <div class="sim-group-title">2. Geometría de Capa</div>
           
           <div class="sim-control-group">
             <label>Altura de Capa <span id="val-layer">0.20 mm</span></label>
             <input type="range" id="param-layer" min="0.02" max="0.64" step="0.01" value="0.20" oninput="updateSimulation()">
+            <div id="warn-layer" class="param-warning" style="display:none;"></div>
           </div>
           
           <div class="sim-control-group">
             <label>Perímetros de Pared <span id="val-walls">3 perímetros</span></label>
             <input type="range" id="param-walls" min="1" max="10" step="1" value="3" oninput="updateSimulation()">
+            <div id="warn-walls" class="param-warning" style="display:none;"></div>
           </div>
           
           <div class="sim-control-group">
             <label>Densidad de Relleno <span id="val-infill">20 %</span></label>
             <input type="range" id="param-infill" min="0" max="100" step="5" value="20" oninput="updateSimulation()">
+            <div id="warn-infill" class="param-warning" style="display:none;"></div>
           </div>
 
           <div class="sim-control-group">
             <label>Patrón de Relleno (Bambu/Prusa/Orca)</label>
             <select id="param-pattern" class="sim-select-dark" onchange="updateSimulation()">
-              <!-- Colección completa recopilada de slicers líderes -->
               <option value="giroide" selected>Giroide (Gyroid)</option>
               <option value="rejilla">Rejilla (Grid)</option>
               <option value="cubico">Cúbico (Cubic)</option>
@@ -547,14 +592,11 @@
             </select>
           </div>
 
-          <div class="sim-group-title">3. Cinemática y Entorno</div>
-
           <div class="sim-control-group">
             <label>Velocidad de Impresión <span id="val-speed">80 mm/s</span></label>
             <input type="range" id="param-speed" min="30" max="300" step="10" value="80" oninput="updateSimulation()">
+            <div id="warn-speed" class="param-warning" style="display:none;"></div>
           </div>
-
-          <div class="sim-group-title">4. Orientación de la Pieza</div>
 
           <div class="sim-control-group">
             <label>Orientación de la Pieza</label>
@@ -799,6 +841,98 @@
 
   </main>
 
+  <!-- MODAL: FUENTES TÉCNICAS -->
+  <div id="modal-fuentes" class="modal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeModal('modal-fuentes')">✕</span>
+      <h3>Fuentes técnicas</h3>
+      <div class="modal-section">
+        <h4>Prusa Research — Filament Material Guide</h4>
+        <p><strong>Información obtenida:</strong> Rangos óptimos de fusión, compatibilidad de bases de impresión, higroscopia del nylon y TPU, y distorsión molecular térmica.</p>
+        <p><strong>Uso en la web:</strong> Determinación de los rangos de seguridad térmica de cada material en las advertencias del simulador.</p>
+        <p><a href="https://help.prusa3d.com/category/material-guide_220" target="_blank" rel="noopener" class="modal-link">Acceder al repositorio oficial de Prusa Research</a></p>
+      </div>
+      <div class="modal-section">
+        <h4>Bambu Lab — Technical Data Sheet (TDS)</h4>
+        <p><strong>Información obtenida:</strong> Resistencia a la flexión (XY/Z), el módulo de Young para flexión y tracción, y límites volumétricos recomendados de fusión constante.</p>
+        <p><strong>Uso en la web:</strong> Escala de porcentajes de resistencia mecánica relativa del simulador y alertas de flujo de extrusión.</p>
+        <p><a href="https://bambulab.com/en/download/datasheet" target="_blank" rel="noopener" class="modal-link">Acceder a los TDS oficiales de Bambu Lab</a></p>
+      </div>
+      <div class="modal-section">
+        <h4>Formlabs — Plastics Mechanical Properties & Standards</h4>
+        <p><strong>Información obtenida:</strong> Métodos estandarizados para comparar materiales termoplásticos y fotocurables SLA bajo cargas dinámicas.</p>
+        <p><strong>Uso en la web:</strong> Base científica para el atlas de materiales y comparativas de resinas frente a filamentos.</p>
+        <p><a href="https://formlabs.com/materials/" target="_blank" rel="noopener" class="modal-link">Ver guías técnicas de Formlabs</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: NORMATIVAS Y ESTÁNDARES -->
+  <div id="modal-normativas" class="modal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeModal('modal-normativas')">✕</span>
+      <h3>Normativas y estándares</h3>
+      <div class="modal-section">
+        <h4>ISO/ASTM 52900:2021</h4>
+        <p><strong>Uso como referencia:</strong> Estandarización de la terminología general y principios fundamentales de los procesos de fabricación aditiva, específicamente la clasificación del modelado por deposición fundida dentro de la categoría de extrusión de material (MEX).</p>
+      </div>
+      <div class="modal-section">
+        <h4>ASTM D638</h4>
+        <p><strong>Uso como referencia:</strong> Método estandarizado para la determinación de las propiedades de resistencia a la tracción en plásticos. Se utiliza como base mecánica del optimizador del simulador para medir la dirección de carga molecular y los efectos de la anisotropía en el eje Z.</p>
+      </div>
+      <div class="modal-section">
+        <h4>ISO 178</h4>
+        <p><strong>Uso como referencia:</strong> Norma internacional para medir el módulo de flexión de los plásticos técnicos, referenciada en la base de datos para clasificar la rigidez relativa de los filamentos del Atlas.</p>
+      </div>
+      <div class="modal-section">
+        <h4>ISO 75 (Partes 1 y 2)</h4>
+        <p><strong>Uso como referencia:</strong> Estándar de ensayo para determinar la temperatura de deflexión bajo carga (HDT), utilizado para fijar los límites de deformación térmica de los polímeros en las fichas del Atlas y en el asistente.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: METODOLOGÍA DEL SIMULADOR -->
+  <div id="modal-metodologia" class="modal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeModal('modal-metodologia')">✕</span>
+      <h3>Metodología del simulador</h3>
+      <div class="modal-section">
+        <h4>¿Cómo calcula el simulador los resultados?</h4>
+        <p>El simulador es un modelo matemático de optimización conceptual que no se comporta de forma lineal. Está programado para interpretar la interacción física de las 10 variables de entrada basándose en dos tipos de datos:</p>
+        <p><strong>1. Datos Experimentales de Origen (Fabricantes):</strong> Las temperaturas recomendadas, HDT de los polímeros, elasticidad de los filamentos e higroscopia se mapean directamente de las fichas técnicas (TDS) de Prusa y Bambu Lab.</p>
+        <p><strong>2. Reducciones Algorítmicas Propias:</strong> La influencia de los parámetros de corte (Slicing) se rige por estimaciones de ingeniería de la plataforma:</p>
+        <ul>
+          <li>La resistencia mecánica disminuye de forma no lineal si la temperatura excede o cae del umbral del polímero debido a la cristalización ineficiente o degradación térmica.</li>
+          <li>La resistencia disminuye un 40% en orientación vertical debido al comportamiento anisotrópico del eje Z (conforme al estándar ASTM D638).</li>
+          <li>El tiempo de impresión estimado es un cálculo relativo de volumen/extrusión sobre una geometría de control mediana (100 cm³), no un tiempo físico de máquina.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: LIMITACIONES Y SEGURIDAD -->
+  <div id="modal-limitaciones" class="modal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeModal('modal-limitaciones')">✕</span>
+      <h3>Limitaciones y seguridad</h3>
+      <div class="modal-section">
+        <h4>Limitaciones del Simulador</h4>
+        <p>Las estimaciones provienen de un entorno controlado ideal. Los resultados en el taller real variarán sustancialmente de acuerdo a:</p>
+        <ul>
+          <li>La calibración exacta de la extrusión y pasos de motor de la impresora (E-steps).</li>
+          <li>La marca, lote, humedad absorbida y aditivos colorantes del filamento utilizado.</li>
+          <li>Condiciones ambientales de la habitación (corrientes de aire frío o humedad ambiental elevada).</li>
+        </ul>
+      </div>
+      <div class="modal-section">
+        <h4>Seguridad y Gestión de Riesgos</h4>
+        <p><strong>Emisiones nocivas (COVs y UFPs):</strong> Termoplásticos como el ABS, ASA o PC liberan estireno y partículas ultra finas nocivas durante el proceso de fusión. Es imprescindible imprimir estos materiales con sistemas de filtrado por carbón activo/HEPA o en habitaciones con ventilación forzada controlada hacia el exterior.</p>
+        <p><strong>Riesgos Térmicos:</strong> Las temperaturas de hotend (>220ºC) y cama pueden producir quemaduras graves. Corta siempre el flujo de alimentación antes de intervenir el extrusor.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER UNIVERSAL -->
   <footer class="footer">
     <div class="wrap footergrid">
       <div>
@@ -814,10 +948,12 @@
         </p>
       </div>
       <div>
-        <strong>Normativa y Transparencia</strong>
+        <strong>Normativa y transparencia</strong>
         <p>
-          <a href="fuentes/index.html">Metodología y fuentes</a><br>
-          <a href="guias/seguridad.html">Gestión de Riesgos (NIOSH/CDC)</a>
+          <a onclick="openModal('modal-fuentes')">→ Fuentes técnicas</a><br>
+          <a onclick="openModal('modal-normativas')">→ Normativas y estándares</a><br>
+          <a onclick="openModal('modal-metodologia')">→ Metodología del simulador</a><br>
+          <a onclick="openModal('modal-limitaciones')">→ Limitaciones y seguridad</a>
         </p>
       </div>
     </div>
@@ -865,6 +1001,25 @@
       }
     });
 
+    /* LÓGICA DE MODALES (NORMATIVA Y TRANSPARENCIA) */
+    function openModal(id) {
+      document.getElementById(id).style.display = 'block';
+      document.body.style.overflow = 'hidden'; // Detiene scroll del body
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).style.display = 'none';
+      document.body.style.overflow = 'auto'; // Restaura scroll
+    }
+
+    // Cierra modal al hacer click fuera del contenedor principal
+    window.onclick = function(event) {
+      if (event.target.classList.contains('modal')) {
+        event.target.style.display = 'none';
+        document.body.style.overflow = 'auto';
+      }
+    }
+
     /* BUSCADOR INTERNO DINÁMICO (REAL EN LA PÁGINA) */
     function goSearch() {
       const q = document.getElementById('q').value.trim().toLowerCase();
@@ -881,7 +1036,7 @@
         let title = text;
         let type = "Sección";
         
-        if (el.tagName === 'H2') {
+        if (el.id === 'simulador' || el.tagName === 'H2') {
           type = "Categoría Principal";
           title = text;
         } else if (el.tagName === 'H3') {
@@ -1021,19 +1176,29 @@
       document.getElementById('param-bed').value = bedTemp;
     }
 
-    /* LÓGICA DEL SIMULADOR FÍSICO (10 INPUTS - 7 OUTPUTS REQUERIDOS) */
+    /* FUNCIÓN AUXILIAR DE RENDER DE ADVERTENCIA BAJO PARÁMETRO */
+    function renderParamWarning(id, text) {
+      const el = document.getElementById(id);
+      if (text) {
+        el.innerHTML = text;
+        el.style.display = 'block';
+      } else {
+        el.style.display = 'none';
+      }
+    }
+
+    /* LÓGICA DEL SIMULADOR FÍSICO CON COMPORTAMIENTO NO LINEAL Y ALERTAS ESPECÍFICAS DE MATERIAL */
     function updateSimulation() {
-      // 10 INPUTS
-      const material = document.getElementById('param-material').value; // Input 1
-      const nozzle = parseFloat(document.getElementById('param-nozzle').value); // Input 2
-      const temp = parseInt(document.getElementById('param-temp').value); // Input 8
-      const bed = parseInt(document.getElementById('param-bed').value); // Input 9
-      const layer = parseFloat(document.getElementById('param-layer').value); // Input 3
-      const walls = parseInt(document.getElementById('param-walls').value); // Input 4
-      const infill = parseInt(document.getElementById('param-infill').value); // Input 5
-      const pattern = document.getElementById('param-pattern').value; // Input 6
-      const speed = parseInt(document.getElementById('param-speed').value); // Input 7
-      const orientation = document.getElementById('param-orientation').value; // Input 10
+      const material = document.getElementById('param-material').value; 
+      const nozzle = parseFloat(document.getElementById('param-nozzle').value); 
+      const temp = parseInt(document.getElementById('param-temp').value); 
+      const bed = parseInt(document.getElementById('param-bed').value); 
+      const layer = parseFloat(document.getElementById('param-layer').value); 
+      const walls = parseInt(document.getElementById('param-walls').value); 
+      const infill = parseInt(document.getElementById('param-infill').value); 
+      const pattern = document.getElementById('param-pattern').value; 
+      const speed = parseInt(document.getElementById('param-speed').value); 
+      const orientation = document.getElementById('param-orientation').value; 
 
       // Actualizar valores de texto en controles
       document.getElementById('val-temp').innerText = `${temp} ºC`;
@@ -1043,46 +1208,137 @@
       document.getElementById('val-infill').innerText = `${infill} %`;
       document.getElementById('val-speed').innerText = `${speed} mm/s`;
 
-      // CÁLCULOS FÍSICOS REALES (Reología y volumetría de extrusión)
-      const extrusionWidth = nozzle * 1.2;
-      const flowRate = layer * extrusionWidth * speed; // Flujo volumétrico mm³/s
+      // 1. ESTABLECIMIENTO DE UMBRALES Y ADVERTENCIAS IN-SITU ESPECÍFICAS
+      let minOptTemp, maxOptTemp, minOptBed, maxOptBed, maxOptSpeed;
+      let textWarnTemp = "", textWarnBed = "", textWarnSpeed = "";
+
+      if (material === 'PLA') {
+        minOptTemp = 195; maxOptTemp = 220; minOptBed = 45; maxOptBed = 65; maxOptSpeed = 150;
+        if (temp < minOptTemp) textWarnTemp = `⚠️ Temperatura baja para PLA: riesgo de extrusión deficiente, atasco y baja fuerza de adherencia entre capas.`;
+        else if (temp > maxOptTemp) textWarnTemp = `⚠️ Temperatura elevada para PLA: riesgo alto de stringing (hilos), goteo constante de boquilla y pérdida de precisión en detalles finos.`;
+        
+        if (bed < minOptBed) textWarnBed = `⚠️ Cama fría para PLA: riesgo de desprendimiento de pieza.`;
+        else if (bed > maxOptBed) textWarnBed = `⚠️ Cama caliente para PLA: reblandecimiento excesivo de la base (efecto pata de elefante).`;
+
+        if (speed > maxOptSpeed) textWarnSpeed = `⚠️ Velocidad alta: el PLA puede perder calidad superficial y provocar subextrusión en extrusores estándar.`;
+      } 
+      else if (material === 'PETG') {
+        minOptTemp = 225; maxOptTemp = 250; minOptBed = 70; maxOptBed = 90; maxOptSpeed = 100;
+        if (temp < minOptTemp) textWarnTemp = `⚠️ Temperatura baja para PETG: cohesión intermolecular muy deficiente y fragilidad extrema de la pieza.`;
+        else if (temp > maxOptTemp) textWarnTemp = `⚠️ Temperatura elevada para PETG: stringing severo, escurrimiento de filamento y degradación térmica.`;
+        
+        if (bed < minOptBed) textWarnBed = `⚠️ Cama fría para PETG: alta probabilidad de desprendimiento (warping).`;
+        else if (bed > maxOptBed) textWarnBed = `⚠️ Cama caliente para PETG: deformación de las capas inferiores por reblandecimiento.`;
+
+        if (speed > maxOptSpeed) textWarnSpeed = `⚠️ Velocidad alta para PETG: genera stringing masivo y pérdida de cohesión estructural.`;
+      } 
+      else if (material === 'ABS') {
+        minOptTemp = 240; maxOptTemp = 265; minOptBed = 90; maxOptBed = 110; maxOptSpeed = 120;
+        if (temp < minOptTemp) textWarnTemp = `⚠️ Temperatura baja para ABS: el material no fundirá adecuadamente, delaminación inminente de capas.`;
+        else if (temp > maxOptTemp) textWarnTemp = `⚠️ Temperatura elevada para ABS: emisión de gases nocivos de estireno y cristalización acelerada perjudicial.`;
+        
+        if (bed < minOptBed) textWarnBed = `⚠️ Cama fría para ABS: delaminación severa de la base (warping térmico inevitable por contracción plástica).`;
+        else if (bed > maxOptBed) textWarnBed = `⚠️ Cama excesivamente caliente para ABS: inestabilidad dimensional de la base.`;
+
+        if (speed > maxOptSpeed) textWarnSpeed = `⚠️ Velocidad alta para ABS: enfriamiento de capa demasiado rápido, propiciando fisuras de contracción interna.`;
+      } 
+      else if (material === 'TPU') {
+        minOptTemp = 215; maxOptTemp = 235; minOptBed = 30; maxOptBed = 60; maxOptSpeed = 50;
+        if (temp < minOptTemp) textWarnTemp = `⚠️ Temperatura baja para TPU: atascos en el extrusor por alta resistencia mecánica a la fricción de la boquilla.`;
+        else if (temp > maxOptTemp) textWarnTemp = `⚠️ Temperatura elevada para TPU: stringing extremo, goteo constante y quemaduras en el material.`;
+        
+        if (bed > maxOptBed) textWarnBed = `⚠️ Cama caliente para TPU: adherencia molecular excesiva, puede dañar la superficie de construcción al retirar la pieza.`;
+
+        if (speed > maxOptSpeed) textWarnSpeed = `⚠️ Velocidad excesiva para TPU: el filamento flexible se doblará y se enrollará en el extrusor arruinando la impresión.`;
+      } 
+      else if (material === 'PC') {
+        minOptTemp = 260; maxOptTemp = 295; minOptBed = 100; maxOptBed = 120; maxOptSpeed = 90;
+        if (temp < minOptTemp) textWarnTemp = `⚠️ Temperatura insuficiente para PC: nula adherencia entre capas y delaminación instantánea por falta de energía térmica en el fundido.`;
+        else if (temp > maxOptTemp) textWarnTemp = `⚠️ Límite térmico alcanzado: riesgo de degradación molecular del polímero de ingeniería.`;
+        
+        if (bed < minOptBed) textWarnBed = `⚠️ Cama fría para PC: desprendimiento agresivo con alta contracción térmica debido al alto coeficiente de expansión térmica.`;
+
+        if (speed > maxOptSpeed) textWarnSpeed = `⚠️ Velocidad alta para PC: imposibilidad de fundir a tasa constante, subextrusión inminente por incapacidad del hotend.`;
+      }
+
+      // Advertencia de Altura de Capa respecto a la Boquilla
+      let textWarnLayer = "";
       const minLayer = nozzle * 0.15;
       const maxLayer = nozzle * 0.75;
-      
-      let warnings = [];
-
-      // Validaciones geométricas de la extrusión física
       if (layer < minLayer) {
-        warnings.push(`⚠️ <strong>Capa excesivamente baja:</strong> El límite mecánico aconsejable para boquilla de ${nozzle}mm es ${minLayer.toFixed(2)}mm. Riesgo de acumulación de calor e interrupciones por presión.`);
+        textWarnLayer = `⚠️ Altura de capa baja: riesgo de retroceso de presión térmica y sobrecalentamiento de la boquilla.`;
       } else if (layer > maxLayer) {
-        warnings.push(`⚠️ <strong>Capa excesivamente alta:</strong> El límite para boquilla de ${nozzle}mm es ${maxLayer.toFixed(2)}mm (75% del diámetro). Riesgo extremo de delaminación instantánea.`);
+        textWarnLayer = `⚠️ Altura de capa excesiva: supera el 75% del diámetro de la boquilla de ${nozzle}mm, provocando nula cohesión de capas.`;
       }
 
-      // Validaciones físicas del Hotend
+      // Advertencia de Infill Sweet Spot
+      let textWarnInfill = "";
+      if (infill > 50) {
+        textWarnInfill = `⚠️ Relleno elevado: aumenta la resistencia y rigidez, pero a partir de determinados niveles el beneficio adicional disminuye mientras aumentan considerablemente el tiempo y el consumo de material.`;
+      } else if (infill < 10 && infill > 0) {
+        textWarnInfill = `⚠️ Relleno bajo: puede provocar hundimientos en las capas superiores y fragilidad estructural en piezas funcionales.`;
+      } else if (infill === 0) {
+        textWarnInfill = `⚠️ Relleno al 0%: Estructura completamente hueca. Nula resistencia interna ante esfuerzos de compresión.`;
+      }
+
+      // Advertencia de Perímetros (Walls)
+      let textWarnWalls = "";
+      if (walls < 2) {
+        textWarnWalls = `⚠️ Perímetros insuficientes: propenso a roturas en las costuras laterales y fragilidad estructural extrema.`;
+      } else if (walls > 5) {
+        textWarnWalls = `⚠️ Perímetros elevados: aumenta el tiempo de impresión de forma drástica con mejoras marginales de rigidez.`;
+      }
+
+      // Renderizado in-situ de advertencias
+      renderParamWarning('warn-temp', textWarnTemp);
+      renderParamWarning('warn-bed', textWarnBed);
+      renderParamWarning('warn-layer', textWarnLayer);
+      renderParamWarning('warn-walls', textWarnWalls);
+      renderParamWarning('warn-infill', textWarnInfill);
+      renderParamWarning('warn-speed', textWarnSpeed);
+
+      // 2. ALERTAS DEL SISTEMA GENERALES (Volumetría de extrusión)
+      const extrusionWidth = nozzle * 1.2;
+      const flowRate = layer * extrusionWidth * speed;
+      let globalWarnings = [];
+
       if (flowRate > 15) {
-        warnings.push(`⚠️ <strong>Flujo volumétrico crítico (Q = ${flowRate.toFixed(1)} mm³/s):</strong> Los extrusores estándar colapsan al superar los 15 mm³/s. Se producirán saltos en el motor de empuje y vacíos en la pieza.`);
+        globalWarnings.push(`⚠️ <strong>Flujo volumétrico crítico (Q = ${flowRate.toFixed(1)} mm³/s):</strong> Los extrusores estándar colapsan al superar los 15 mm³/s. Se producirán saltos en el motor de empuje y vacíos en la pieza.`);
       }
-
-      // Validaciones térmicas
-      if (material === 'TPU' && speed > 55) {
-        warnings.push(`⚠️ <strong>Velocidad excesiva (TPU):</strong> Los elastómeros se doblan y obstruyen los extrusores si se imprimen a más de 55 mm/s.`);
-      }
-      if ((material === 'ABS' || material === 'PC') && speed > 160) {
-        warnings.push(`💡 <strong>Nota sobre polímeros industriales:</strong> Imprimir a ${speed} mm/s requiere temperaturas muy altas de extrusión (>260ºC) y un entorno calefactado cerrado activo para prevenir fisuras por choque térmico.`);
-      }
-
-      // Renderizado de alertas
       const warnDiv = document.getElementById('sim-warnings');
-      if (warnings.length > 0) {
-        warnDiv.innerHTML = warnings.join('<br><br>');
+      if (globalWarnings.length > 0) {
+        warnDiv.innerHTML = globalWarnings.join('<br><br>');
         warnDiv.style.display = 'block';
       } else {
         warnDiv.style.display = 'none';
       }
 
-      // 7 OUTPUTS
 
-      // Output 1: Resistencia Mecánica
+      // 3. MODELO DE RESULTADOS NO LINEAL (Basado en Sweet Spots)
+      
+      // Coeficiente de temperatura no lineal (Mejora hasta Sweet Spot, luego se degrada)
+      let fTempModStrength = 1.0;
+      let fTempModFinish = 1.0;
+      
+      if (temp < minOptTemp) {
+        const diff = minOptTemp - temp;
+        fTempModStrength = Math.max(0.4, 1.0 - (diff * 0.015));
+        fTempModFinish = Math.max(0.6, 1.0 - (diff * 0.01));
+      } else if (temp > maxOptTemp) {
+        const diff = temp - maxOptTemp;
+        fTempModStrength = Math.max(0.8, 1.0 - (diff * 0.005)); // La degradación térmica baja la fuerza
+        fTempModFinish = Math.max(0.4, 1.0 - (diff * 0.02)); // El exceso de calor arruina la estética
+      }
+
+      // Coeficiente de cama no lineal para Warping
+      let fBedModWarping = 1.0;
+      if (bed < minOptBed) {
+        fBedModWarping = 1.0 + (minOptBed - bed) * 0.03; // Cama fría = Warping masivo
+      } else if (bed > maxOptBed) {
+        fBedModWarping = 1.0 + (bed - maxOptBed) * 0.01; // Cama excesivamente caliente deforma
+      }
+
+      // Output 1: Resistencia Mecánica Estructural
       let baseStrength = 70;
       if (material === 'PLA') baseStrength = 55;
       else if (material === 'PETG') baseStrength = 75;
@@ -1093,26 +1349,26 @@
       const fWall = Math.min(1.0, 0.4 + (walls - 1) * 0.15);
       const fInfill = 0.3 + (infill / 100) * 0.7;
       
-      // Factores de resistencia específicos para cada patrón de Bambu/Prusa/OrcaSlicer
+      // Factores de resistencia específicos para patrones
       let fPattern = 0.85; 
-      if (pattern === 'giroide' || pattern === 'cubico-adaptativo' || pattern === 'lattice-2d') {
-        fPattern = 1.05; // Excelente rigidez 3D isótropa
-      } else if (pattern === 'cubico' || pattern === 'alveolar-3d' || pattern === 'tri-hexagonal' || pattern === 'alveolar') {
-        fPattern = 1.0; 
-      } else if (pattern === 'triangulos' || pattern === 'rejilla' || pattern === 'estrellas') {
-        fPattern = 0.95; 
-      } else if (pattern === 'rayo' || pattern === 'concentrico') {
-        fPattern = 0.50; // Orientación cosmética, no mecánica
-      }
+      if (pattern === 'giroide' || pattern === 'cubico-adaptativo' || pattern === 'lattice-2d') fPattern = 1.05;
+      else if (pattern === 'cubico' || pattern === 'alveolar-3d' || pattern === 'tri-hexagonal' || pattern === 'alveolar') fPattern = 1.0; 
+      else if (pattern === 'triangulos' || pattern === 'rejilla' || pattern === 'estrellas') fPattern = 0.95; 
+      else if (pattern === 'rayo' || pattern === 'concentrico') fPattern = 0.50;
 
       const fSlicing = ((fWall * 0.6) + (fInfill * 0.4)) * fPattern;
       const fNozzle = 0.8 + (nozzle - 0.2) * 0.5;
 
       let fOrientation = 1.0;
-      if (orientation === 'vertical') fOrientation = 0.60; // Penalización del 40% (esfuerzo de tracción perpendicular a capas)
+      if (orientation === 'vertical') fOrientation = 0.60; // Penalización del 40% (ASTM D638)
       else if (orientation === 'angled') fOrientation = 0.85;
 
-      let strength = Math.min(100, Math.round(baseStrength * fSlicing * fNozzle * fOrientation));
+      // Penalización por altura de capa demasiado gruesa
+      let fLayer = 1.0;
+      const ratio = layer / nozzle;
+      if (ratio > 0.6) fLayer = 1.0 - (ratio - 0.6) * 1.5;
+
+      let strength = Math.min(100, Math.round(baseStrength * fSlicing * fNozzle * fOrientation * fLayer * fTempModStrength));
       strength = Math.max(10, strength);
 
       // Output 2: Calidad Superficial
@@ -1124,12 +1380,12 @@
       else if (material === 'PC') baseFinish = 65;
 
       const fNozzleFinish = 1.3 - nozzle * 0.75;
-      const fLayerFinish = 1.35 - (layer / nozzle) * 0.85;
+      const fLayerFinish = 1.35 - ratio * 0.85;
       
       let fSpeedFinish = 1.0;
       if (speed > 60) fSpeedFinish = Math.max(0.6, 1.0 - (speed - 60) * 0.0015);
 
-      let finish = Math.min(100, Math.round(baseFinish * fNozzleFinish * fLayerFinish * fSpeedFinish));
+      let finish = Math.min(100, Math.round(baseFinish * fNozzleFinish * fLayerFinish * fSpeedFinish * fTempModFinish));
       finish = Math.max(10, finish);
 
       // Output 3: Adhesión entre capas (Cohesión)
@@ -1140,10 +1396,9 @@
       else if (material === 'TPU') baseCohesion = 98;
       else if (material === 'PC') baseCohesion = 72;
 
-      const fCompresion = Math.max(0.4, 1.2 - (layer / nozzle) * 1.3);
-      const fTempCohesion = Math.min(1.15, temp / (material === 'PLA' ? 210 : 250));
+      const fCompresion = Math.max(0.4, 1.2 - ratio * 1.3);
 
-      let cohesion = Math.min(100, Math.round(baseCohesion * fCompresion * fTempCohesion));
+      let cohesion = Math.min(100, Math.round(baseCohesion * fCompresion * fTempModStrength));
       cohesion = Math.max(10, cohesion);
 
       // Output 4: Facilidad de Impresión
@@ -1155,7 +1410,8 @@
       else if (material === 'PC') baseEase = 30;
 
       let ease = baseEase;
-      if (speed > 120) ease -= 10;
+      if (speed > 120) ease -= 15;
+      if (temp < minOptTemp || temp > maxOptTemp) ease -= 15; // Las temperaturas incorrectas reducen éxito
       ease = Math.max(10, Math.min(100, ease));
 
       // Output 5: Riesgo de Deformación (Warping)
@@ -1166,11 +1422,8 @@
       else if (material === 'TPU') baseWarping = 10;
       else if (material === 'PC') baseWarping = 85;
 
-      let warping = baseWarping;
-      if (material === 'ABS' && bed < 90) warping += 20;
-      if (material === 'PC' && bed < 100) warping += 15;
-
-      warping = Math.max(5, Math.min(100, warping));
+      let warping = Math.min(100, Math.round(baseWarping * fBedModWarping));
+      warping = Math.max(5, warping);
 
       // Output 6: Tiempo Estimado (Escalado relativo de tiempo sobre una pieza patrón estándar)
       const densityProxy = (walls * extrusionWidth) + (infill * 0.02);
@@ -1191,7 +1444,7 @@
       if (material === 'PLA') {
         recText = "PLA óptimo. El enfriamiento rápido de capa ayuda a sostener voladizos y puentes complejos.";
       } else if (material === 'PETG') {
-        recText = "PETG funcional. Reduce la retracción si encuentras stringing (pelo fino) con el patrón " + pattern.toUpperCase() + ".";
+        recText = "PETG funcional. Reduce la retracción si encuentras stringing (hilos finos) con el patrón " + pattern.toUpperCase() + ".";
       } else if (material === 'ABS') {
         recText = "¡Atención! El ABS requiere cama caliente (>95ºC) y se recomienda imprimir sin ventilador de capa en un habitáculo cerrado.";
       } else if (material === 'TPU') {
