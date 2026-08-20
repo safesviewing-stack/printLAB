@@ -6,7 +6,7 @@
   <title>PrintLab — Guías, diagnóstico y resoluciones de impresión 3D</title>
   <meta name="description" content="Decisiones técnicas de impresión 3D basadas en datos de Prusa, UltiMaker, Formlabs, Bambu Lab, ISO, ASTM, NIOSH y CDC.">
   <meta name="robots" content="index,follow">
-  <!-- Tipografía Plus Jakarta Sans para un acabado limpio y profesional -->
+  <!-- Importación de la tipografía Plus Jakarta Sans (utilizada en UDIA) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -180,7 +180,7 @@
     /* SECCIONES Y CABECERAS */
     .section{padding:80px 0 30px; scroll-margin-top: 100px;}
     .section-divider{border:0; height:1px; background:var(--line); margin:40px 0}
-    .sectionhead{margin-bottom:44px}
+    .sectionhead{margin-bottom:32px}
     .sectionhead h2{
       font-size:clamp(32px, 4vw, 42px);
       letter-spacing:-0.02em;
@@ -190,7 +190,25 @@
     }
     .sectionhead p{margin:0;color:var(--muted);font-size:18px}
     
-    /* SIMULADOR INTERACTIVO DE PARÁMETROS (RECURSO NUEVO) */
+    /* SUB-CABECERAS INTERNAS PARA ORDENAR GUÍAS */
+    .sub-sectionhead{
+      margin:36px 0 24px;
+      border-left:4px solid var(--accent);
+      padding-left:16px;
+    }
+    .sub-sectionhead h3{
+      font-size:22px;
+      font-weight:800;
+      margin:0 0 4px;
+      letter-spacing:-0.3px;
+    }
+    .sub-sectionhead p{
+      margin:0;
+      color:var(--muted);
+      font-size:15px;
+    }
+
+    /* SIMULADOR INTERACTIVO DE PARÁMETROS (DISEÑO PROFUNDO UDIA) */
     .sim-container{
       background:#101614;
       color:#fff;
@@ -210,6 +228,28 @@
       accent-color:var(--accent);
       cursor:pointer;
     }
+    /* Selectores estilizados para modo oscuro */
+    .sim-select-dark {
+      width: 100%;
+      border: 1.5px solid #2a332f;
+      background: #1a221f;
+      color: #fff;
+      border-radius: 9999px;
+      padding: 12px 20px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: inherit;
+      appearance: none;
+      background-image: url("data:image/svg+xml;utf8,<svg fill='%23ffffff' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+      background-repeat: no-repeat;
+      background-position-x: calc(100% - 16px);
+      background-position-y: 50%;
+      cursor: pointer;
+      outline: none;
+    }
+    .sim-select-dark:focus{
+      border-color: var(--accent);
+    }
     .sim-results{
       background:#1a221f;
       border-radius:20px;
@@ -226,6 +266,18 @@
     .sim-progress{height:8px;background:#2e3a35;border-radius:4px;overflow:hidden}
     .sim-progress-bar{height:100%;background:var(--accent);width:50%;transition:width 0.15s ease}
     
+    /* ALERTAS TÉCNICAS SIMULADOR */
+    .sim-alert-box{
+      background:#fcebe8;
+      border-left:4px solid #9e3223;
+      border-radius:12px;
+      padding:16px;
+      color:#50140c;
+      font-size:13.5px;
+      line-height:1.5;
+      margin-top:20px;
+    }
+
     /* TARJETAS Y GRID */
     .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:32px}
     .card{
@@ -319,6 +371,7 @@
       <nav>
         <a class="brand" href="index.html" title="Volver al inicio">PRINT<span>LAB</span></a>
         <div class="nav">
+          <a href="#simulador">Simulador</a>
           <a href="#guias">Guías</a>
           <a href="#herramientas">Herramientas</a>
         </div>
@@ -373,39 +426,67 @@
       </aside>
     </section>
 
-    <!-- RECURSO INTERACTIVO NUEVO: SIMULADOR FÍSICO DE PARÁMETROS -->
-    <section class="section">
+    <!-- SECCIÓN SIMULADOR INTERACTIVO CIENTÍFICO (REDISEÑADO) -->
+    <section id="simulador" class="section">
+      <div class="sectionhead">
+        <div class="eyebrow" style="margin-bottom:12px">Simulador Físico de Manufactura</div>
+        <h2>Optimizador de Parámetros de Extrusión</h2>
+        <p>Ajusta las variables de laminación para predecir con base científica la viabilidad mecánica, térmica y volumétrica de tu fabricación.</p>
+      </div>
+
       <div class="sim-container">
+        <!-- Panel de Control Técnico (Izquierda) -->
         <div class="sim-controls">
-          <div class="eyebrow" style="align-self: flex-start; background: rgba(255,255,255,0.08); color: var(--accent);">Interactiva</div>
-          <h3 style="font-size: 28px; font-weight: 800; margin: 0 0 8px; letter-spacing: -0.5px;">Simulador de Parámetros</h3>
-          <p style="color: #bcc5c0; font-size: 15px; margin: 0 0 16px;">Modifica los deslizadores para predecir el comportamiento físico y estético de tu pieza.</p>
+          
+          <div class="sim-control-group">
+            <label>Polímero Termoplástico</label>
+            <select id="param-material" class="sim-select-dark" onchange="updateSimulation()">
+              <option value="PLA">PLA (Rígido / Biodegradable)</option>
+              <option value="PETG" selected>PETG (Tenaz / Alta Cohesión)</option>
+              <option value="ABS">ABS / ASA (Estructural / Térmico)</option>
+              <option value="TPU">TPU (Elastómero Flexible)</option>
+              <option value="PC">PC / Nylon (Ingeniería de Alto Rendimiento)</option>
+            </select>
+          </div>
+
+          <div class="sim-control-group">
+            <label>Diámetro de Boquilla (Nozzle)</label>
+            <select id="param-nozzle" class="sim-select-dark" onchange="updateSimulation()">
+              <option value="0.2">0.2 mm (Ultra Detalle)</option>
+              <option value="0.4" selected>0.4 mm (Estándar)</option>
+              <option value="0.6">0.6 mm (Funcional / Rápido)</option>
+              <option value="0.8">0.8 mm (Industrial / Alto Flujo)</option>
+            </select>
+          </div>
           
           <div class="sim-control-group">
             <label>Altura de Capa <span id="val-layer">0.20 mm</span></label>
-            <input type="range" id="param-layer" min="0.08" max="0.30" step="0.04" value="0.20" oninput="updateSimulation()">
+            <input type="range" id="param-layer" min="0.02" max="0.64" step="0.01" value="0.20" oninput="updateSimulation()">
           </div>
           
           <div class="sim-control-group">
             <label>Perímetros de Pared <span id="val-walls">3 perímetros</span></label>
-            <input type="range" id="param-walls" min="1" max="8" step="1" value="3" oninput="updateSimulation()">
+            <input type="range" id="param-walls" min="1" max="10" step="1" value="3" oninput="updateSimulation()">
           </div>
           
           <div class="sim-control-group">
             <label>Densidad de Relleno <span id="val-infill">20 %</span></label>
-            <input type="range" id="param-infill" min="10" max="100" step="10" value="20" oninput="updateSimulation()">
+            <input type="range" id="param-infill" min="0" max="100" step="5" value="20" oninput="updateSimulation()">
           </div>
           
           <div class="sim-control-group">
             <label>Velocidad de Impresión <span id="val-speed">80 mm/s</span></label>
-            <input type="range" id="param-speed" min="40" max="250" step="10" value="80" oninput="updateSimulation()">
+            <input type="range" id="param-speed" min="30" max="300" step="10" value="80" oninput="updateSimulation()">
           </div>
         </div>
         
+        <!-- Panel de Diagnósticos Físicos (Derecha) -->
         <div class="sim-results">
+          
+          <!-- Resistencia Mecánica -->
           <div class="sim-metric">
             <div class="sim-metric-header">
-              <span>Resistencia Tracción (Mecánica)</span>
+              <span>Fuerza Mecánica (Tracción/Impacto)</span>
               <span class="sim-metric-val" id="res-strength">65%</span>
             </div>
             <div class="sim-progress">
@@ -413,6 +494,7 @@
             </div>
           </div>
           
+          <!-- Resolución Estética -->
           <div class="sim-metric">
             <div class="sim-metric-header">
               <span>Resolución Superficial (Estética)</span>
@@ -423,9 +505,10 @@
             </div>
           </div>
 
+          <!-- Cohesión de Capas (Isotropía) -->
           <div class="sim-metric">
             <div class="sim-metric-header">
-              <span>Anisotropía (Z-axis Fragility)</span>
+              <span>Cohesión de Capas (Isotropía Z)</span>
               <span class="sim-metric-val" id="res-aniso">Fuerte</span>
             </div>
             <div class="sim-progress">
@@ -433,12 +516,19 @@
             </div>
           </div>
 
+          <!-- Estimación Relativa del Tiempo de Impresión -->
           <div class="sim-metric">
-            <div class="sim-metric-header" style="margin-bottom: 0;">
-              <span>Tiempo de Impresión Estimado</span>
-              <span class="sim-metric-val" id="res-time" style="font-size: 18px; font-weight: 800;">2h 15m</span>
+            <div class="sim-metric-header">
+              <span>Estimación de Tiempo (No Absoluto)</span>
+              <span class="sim-metric-val" id="res-time" style="font-weight: 800;">Medio</span>
+            </div>
+            <div class="sim-progress">
+              <div class="sim-progress-bar" id="bar-time" style="background-color: #888;"></div>
             </div>
           </div>
+
+          <!-- Div de Alertas Técnicas / Recomendaciones de Ingeniería -->
+          <div id="sim-warnings" class="sim-alert-box" style="display:none;"></div>
         </div>
       </div>
     </section>
@@ -448,11 +538,16 @@
     <!-- GUÍAS -->
     <section id="guias" class="section">
       <div class="sectionhead">
-        <div class="eyebrow" style="margin-bottom:12px">01 / DIAGNÓSTICO Y CONOCIMIENTO</div>
+        <div class="eyebrow" style="margin-bottom:12px">01 / CONOCIMIENTO Y TEORÍA</div>
         <h2>Base de Conocimiento</h2>
-        <p>Identificación técnica de errores de extrusión, problemas de adhesión y guías de laminación estructural.</p>
+        <p>Documentación técnica unificada y estructurada por especialidades de ingeniería.</p>
       </div>
 
+      <!-- subgrupo a: MANTENIMIENTO Y RESOLUCIÓN -->
+      <div class="sub-sectionhead">
+        <h3>Calibración, Errores y Diagnóstico</h3>
+        <p>Ajustes de hardware y corrección de fallas críticas en el proceso físico de extrusión.</p>
+      </div>
       <div class="grid">
         <a class="card" href="guias/diagnostico-fallos.html">
           <span class="tag">Solución de errores</span>
@@ -481,7 +576,14 @@
           <p>Por qué el PETG, TPU y Nylon burbujean. Tablas de temperatura y tiempos de horneado/secado recomendados por los principales fabricantes.</p>
           <span class="btn-action">Guía de secado</span>
         </a>
+      </div>
 
+      <!-- subgrupo b: SOFTWARE Y PARÁMETROS -->
+      <div class="sub-sectionhead">
+        <h3>Laminación y Parámetros Estructurales</h3>
+        <p>Configuración óptima de perímetros, soportes, velocidades y flujos de trabajo en el slicer.</p>
+      </div>
+      <div class="grid">
         <a class="card" href="guias/configuracion-basica.html">
           <span class="tag">Laminado</span>
           <h3>Altura de capa, perímetros e infill</h3>
@@ -510,11 +612,39 @@
           <span class="btn-action">Ver FAQ</span>
         </a>
       </div>
+
+      <!-- subgrupo c: MATERIALES Y TECNOLOGÍAS -->
+      <div class="sub-sectionhead">
+        <h3>Materiales Avanzados y Tecnologías Industriales</h3>
+        <p>Comparaciones físicas de filamentos de alto rendimiento y tecnologías alternativas de curado.</p>
+      </div>
+      <div class="grid">
+        <a class="card" href="guias/pla-vs-petg.html">
+          <span class="tag">Decisión de diseño</span>
+          <h3>PLA vs PETG: La Comparativa</h3>
+          <p>Análisis de resistencia mecánica, módulo elástico, impacto, facilidad de impresión, resistencia a la humedad y aplicaciones reales.</p>
+          <span class="btn-action">Comparar PLA y PETG</span>
+        </a>
+
+        <a class="card" href="guias/impresion-tpu.html">
+          <span class="tag">Materiales Avanzados</span>
+          <h3>Cómo imprimir TPU y materiales flexibles</h3>
+          <p>Ajustes obligatorios de retracción, tensión de los engranajes del extrusor y control de velocidad para evitar que el filamento se enrolle.</p>
+          <span class="btn-action">Guía de flexibles</span>
+        </a>
+
+        <a class="card" href="guias/impresion-sla.html">
+          <span class="tag">Tecnologías</span>
+          <h3>Fundamentos de la impresión SLA / DLP</h3>
+          <p>Diferencias tecnológicas, orientación correcta de piezas, generación de soportes, curado UV, tiempos de exposición y lavado con isopropanol.</p>
+          <span class="btn-action">Aprender sobre SLA</span>
+        </a>
+      </div>
     </section>
 
     <hr class="section-divider">
 
-    <!-- HERRAMIENTAS -->
+    <!-- SECCIÓN HERRAMIENTAS -->
     <section id="herramientas" class="section">
       <div class="sectionhead">
         <div class="eyebrow" style="margin-bottom:12px">02 / INTERACTIVIDAD Y UTILIDAD</div>
@@ -621,7 +751,7 @@
       }
     });
 
-    /* LÓGICA DEL ASISTENTE */
+    /* LÓGICA DEL ASISTENTE DE MATERIALES */
     const ASSISTANT_DATA = {
       'visual': {
         title: "Material recomendado: PLA",
@@ -684,56 +814,162 @@
     }
     document.getElementById('q').addEventListener('keydown', e => { if(e.key==='Enter') goSearch() });
 
-    /* LÓGICA DEL SIMULADOR FISICO DE PARAMETROS */
+    /* LÓGICA DEL SIMULADOR FÍSICO DE PARÁMETROS (AVANZADA Y PRECISA) */
     function updateSimulation() {
+      const material = document.getElementById('param-material').value;
+      const nozzle = parseFloat(document.getElementById('param-nozzle').value);
       const layer = parseFloat(document.getElementById('param-layer').value);
       const walls = parseInt(document.getElementById('param-walls').value);
       const infill = parseInt(document.getElementById('param-infill').value);
       const speed = parseInt(document.getElementById('param-speed').value);
-      
-      // Actualización de textos de control
+
+      // Actualización de etiquetas en el DOM
       document.getElementById('val-layer').innerText = `${layer.toFixed(2)} mm`;
       document.getElementById('val-walls').innerText = `${walls} ${walls === 1 ? 'perímetro' : 'perímetros'}`;
       document.getElementById('val-infill').innerText = `${infill} %`;
       document.getElementById('val-speed').innerText = `${speed} mm/s`;
 
-      // Cálculos físicos aproximados de comportamiento
-      // 1. Resistencia (Influenciada por perímetros y relleno, penalizada por altura de capa gruesa)
-      let strength = Math.min(100, Math.round((walls * 10) + (infill * 0.5) - (layer * 40)));
+      // 1. CÁLCULO DE FLUJO VOLUMÉTRICO (Q) REAL
+      // El ancho de extrusión física promedio es 1.2 veces el diámetro de la boquilla
+      const extrusionWidth = nozzle * 1.2;
+      const flowRate = layer * extrusionWidth * speed; // mm³/s
+
+      // Límite de seguridad de altura de capa basado en el Nozzle
+      const minLayer = nozzle * 0.15;
+      const maxLayer = nozzle * 0.75;
+
+      let warnings = [];
+
+      // Validaciones geométricas de extrusión
+      if (layer < minLayer) {
+        warnings.push(`⚠️ <strong>Altura de Capa muy baja:</strong> Para una boquilla de ${nozzle}mm, el límite mínimo recomendado es ${minLayer.toFixed(2)}mm. Riesgo de retroceso de presión térmica y sobrecalentamiento.`);
+      } else if (layer > maxLayer) {
+        warnings.push(`⚠️ <strong>Altura de Capa excesiva:</strong> Para una boquilla de ${nozzle}mm, el límite máximo recomendado es ${maxLayer.toFixed(2)}mm (75% del diámetro). Riesgo severo de mala cohesión y delaminación.`);
+      }
+
+      // Validaciones de flujo volumétrico del Hotend
+      if (flowRate > 15) {
+        warnings.push(`⚠️ <strong>Flujo Volumétrico Excedido (Q = ${flowRate.toFixed(1)} mm³/s):</strong> Los hotends estándar no pueden fundir plástico más allá de 15 mm³/s. Riesgo inminente de saltos en el extrusor y subextrusión. Reduce la velocidad de impresión o la altura de capa.`);
+      }
+
+      // Limitaciones físicas de materiales específicos
+      if (material === 'TPU' && speed > 60) {
+        warnings.push(`⚠️ <strong>Velocidad crítica para TPU (elastómero):</strong> Se recomienda imprimir a menos de 60 mm/s. El filamento flexible tiende a flexionarse fuera de los engranajes si aumenta la presión a velocidades altas.`);
+      }
+      if ((material === 'ABS' || material === 'PC') && speed > 160) {
+        warnings.push(`💡 <strong>Nota sobre polímeros industriales:</strong> Imprimir a ${speed} mm/s requiere temperaturas muy altas de extrusión (>260ºC) y un entorno calefactado cerrado activo para prevenir fisuras por choque térmico.`);
+      }
+
+      // Render de Alertas Técnicas
+      const alertDiv = document.getElementById('sim-warnings');
+      if (warnings.length > 0) {
+        alertDiv.innerHTML = warnings.join('<br><br>');
+        alertDiv.style.display = 'block';
+      } else {
+        alertDiv.style.display = 'none';
+      }
+
+      // 2. RESISTENCIA MECÁNICA DE LA PIEZA (Cálculo paramétrico de ingeniería)
+      let baseStrength = 70;
+      if (material === 'PLA') baseStrength = 60; // Alta rigidez pero frágil al impacto
+      else if (material === 'PETG') baseStrength = 78; // Gran tenacidad
+      else if (material === 'ABS') baseStrength = 72; // Resistente
+      else if (material === 'TPU') baseStrength = 85; // Flexible pero indeformable/irrompible
+      else if (material === 'PC') baseStrength = 95; // Grado de ingeniería estructural
+
+      // Impacto del laminado (Los perímetros aportan mucha más fuerza estructural que el relleno)
+      const fWall = Math.min(1.0, 0.4 + (walls - 1) * 0.15); // Máximo con 5 perímetros
+      const fInfill = 0.3 + (infill / 100) * 0.7;
+      const fSlicing = (fWall * 0.6) + (fInfill * 0.4);
+
+      // Impacto del Nozzle (Líneas más anchas mejoran drásticamente la resistencia estructural real)
+      const fNozzle = 0.8 + (nozzle - 0.2) * 0.5;
+
+      // Penalización por altura de capa demasiado gruesa (Reduce el área de contacto molecular)
+      let fLayer = 1.0;
+      const ratio = layer / nozzle;
+      if (ratio > 0.6) {
+        fLayer = 1.0 - (ratio - 0.6) * 1.5;
+      }
+
+      // Penalización por velocidad/flujo (Melt cohesion drop)
+      let fSpeed = 1.0;
+      if (flowRate > 10) {
+        fSpeed = Math.max(0.7, 1.0 - (flowRate - 10) * 0.015);
+      }
+
+      let strength = Math.min(100, Math.round(baseStrength * fSlicing * fNozzle * fLayer * fSpeed));
       strength = Math.max(10, strength);
 
-      // 2. Acabado (Influenciado por la altura de capa de forma inversa)
-      let finish = Math.round(100 - (layer * 280));
-      finish = Math.max(15, finish);
+      // 3. CALIDAD DE ACABADO SUPERFICIAL (Detalle Estético)
+      let baseFinish = 80;
+      if (material === 'PLA') baseFinish = 90; // Excelente definición y enfriamiento
+      else if (material === 'PETG') baseFinish = 70; // Tendencia a hilos (stringing)
+      else if (material === 'ABS') baseFinish = 80; // Suave pero propenso a deformaciones
+      else if (material === 'TPU') baseFinish = 60; // Stringing y dificultades de retracción
+      else if (material === 'PC') baseFinish = 65; // Técnico, no prioriza estética
 
-      // 3. Anisotropía (Z-axis fragility). Capas más finas y más perímetros reducen la fragilidad en Z (mejor isotropía)
-      let anisotropyVal = Math.min(100, Math.round((layer * 220) + (100 - walls * 8)));
-      anisotropyVal = Math.max(10, anisotropyVal);
+      const fNozzleFinish = 1.3 - nozzle * 0.75; // Boquilla pequeña = más resolución
+      const fLayerFinish = 1.3 - ratio * 0.8; // Menor altura de capa = menos escalonamiento (stair-stepping)
+      
+      let fSpeedFinish = 1.0;
+      if (speed > 60) {
+        fSpeedFinish = Math.max(0.6, 1.0 - (speed - 60) * 0.0015);
+      }
 
-      // 4. Tiempo estimado (Proporcional a menor velocidad, menor altura de capa y mayor relleno/paredes)
-      let totalMinutes = Math.round((240 / speed) * (infill * 0.15 + walls * 0.3) / layer);
-      let hours = Math.floor(totalMinutes / 60);
-      let minutes = totalMinutes % 60;
-      let timeText = `${hours}h ${minutes}m`;
+      let finish = Math.min(100, Math.round(baseFinish * fNozzleFinish * fLayerFinish * fSpeedFinish));
+      finish = Math.max(10, finish);
 
-      // Aplicar resultados visuales
+      // 4. COHESIÓN DE CAPAS (Isotropía y adhesión en eje Z)
+      let baseCohesion = 60;
+      if (material === 'PLA') baseCohesion = 55;
+      else if (material === 'PETG') baseCohesion = 75; // Excelente cohesión térmica
+      else if (material === 'ABS') baseCohesion = 50; // Propenso a delaminación
+      else if (material === 'TPU') baseCohesion = 95; // Unión intermolecular casi homogénea (Isótropo)
+      else if (material === 'PC') baseCohesion = 70;
+
+      const fRatioCohesion = Math.max(0.3, 1.15 - ratio * 1.3); // Mayor compresión de la capa = mejor adhesión
+      const fSpeedCohesion = Math.max(0.4, 1.0 - (flowRate / 25));
+
+      let cohesion = Math.min(100, Math.round(baseCohesion * fRatioCohesion * fSpeedCohesion));
+      cohesion = Math.max(10, cohesion);
+
+      // 5. ESTIMACIÓN RELATIVA DE TIEMPO DE IMPRESIÓN (Índice de Depósito No Absoluto)
+      const volumeWeight = (walls * extrusionWidth) + (infill * 0.01 * extrusionWidth);
+      const outputRate = speed * layer * extrusionWidth;
+      const timeIndex = (volumeWeight / outputRate) * 350;
+
+      let timeLabel = "Medio";
+      let timeBarVal = Math.min(100, Math.round(timeIndex / 2.5));
+      timeBarVal = Math.max(10, timeBarVal);
+
+      if (timeIndex < 25) {
+        timeLabel = "Muy Corto (Baja resolución y alto flujo)";
+      } else if (timeIndex < 50) {
+        timeLabel = "Corto (Laminación optimizada para velocidad)";
+      } else if (timeIndex < 90) {
+        timeLabel = "Medio (Equilibrio de velocidad/acabado)";
+      } else if (timeIndex < 180) {
+        timeLabel = "Largo (Detalle fino o alta densidad)";
+      } else {
+        timeLabel = "Muy Largo (Tiempos extendidos por ultra detalle)";
+      }
+
+      // Aplicación de métricas al DOM
       document.getElementById('res-strength').innerText = `${strength}%`;
       document.getElementById('bar-strength').style.width = `${strength}%`;
 
       document.getElementById('res-finish').innerText = `${finish}%`;
       document.getElementById('bar-finish').style.width = `${finish}%`;
 
-      let anisoText = "Fuerte (Estable)";
-      if (anisotropyVal > 70) anisoText = "Fragilidad crítica en Z";
-      else if (anisotropyVal > 45) anisoText = "Direccional (Medio)";
-      
-      document.getElementById('res-aniso').innerText = anisoText;
-      document.getElementById('bar-aniso').style.width = `${100 - anisotropyVal}%`; // Representamos la fuerza cohesiva, por eso invertido
+      document.getElementById('res-aniso').innerText = `${cohesion}%`;
+      document.getElementById('bar-aniso').style.width = `${cohesion}%`;
 
-      document.getElementById('res-time').innerText = timeText;
+      document.getElementById('res-time').innerText = timeLabel;
+      document.getElementById('bar-time').style.width = `${timeBarVal}%`;
     }
 
-    // Inicializar simulación por defecto en carga
+    // Inicialización del simulador en carga
     window.addEventListener('load', updateSimulation);
   </script>
 </body>
