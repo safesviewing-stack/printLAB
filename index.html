@@ -715,7 +715,7 @@
         <a class="card" href="guias/secado-filamentos.html">
           <span class="tag">Mantenimiento</span>
           <h3>Humedad y secado de filamentos</h3>
-          <p>Por qué el PETG, TPU y Nylon burbujean. Tablas de temperatura y tiempos de horneado/secado recomendados por los principales fabricantes.</p>
+          <p>Por qué el PETG, TPU and Nylon burbujean. Tablas de temperatura y tiempos de horneado/secado recomendados por los principales fabricantes.</p>
           <span class="btn-action">Guía de secado</span>
         </a>
       </div>
@@ -805,7 +805,7 @@
         <a class="card" href="herramientas/calculadora-holguras.html">
           <div style="font-size: 28px; margin-bottom: 16px;">⚙️</div>
           <h3>Tolerancias y Encajes</h3>
-          <p>Determina las dimensions exactas para el diseño CAD (agujero y eje) según el tipo de encaje mecánico deseado.</p>
+          <p>Determina las dimensiones exactas para el diseño CAD (agujero y eje) según el tipo de encaje mecánico deseado.</p>
           <span class="btn-action">Calcular holguras</span>
         </a>
 
@@ -1361,9 +1361,24 @@
       document.getElementById('res-recommendation').innerText = recText;
     }
 
+    /* Soporte para scroll con compensación (offset) cuando se entra a la página desde un enlace externo con anclaje hash (#) */
     window.addEventListener('load', () => {
       autoAdjustTemps();
       updateSimulation();
+
+      if (window.location.hash) {
+        const target = document.querySelector(window.location.hash);
+        if (target) {
+          setTimeout(() => {
+            const yOffset = -110;
+            const y = target.getBoundingClientRect().top + window.pageYOffset + yOffset;
+            window.scrollTo({
+              top: y,
+              behavior: 'smooth'
+            });
+          }, 150); // Un pequeño retardo para asegurar la carga completa de dimensiones
+        }
+      }
     });
   </script>
 </body>
