@@ -3,54 +3,176 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>PLA vs PETG: Comparativa Técnica - PrintLab</title>
+  <title>PLA vs PETG: Comparativa Mecánica y Térmica — PrintLab</title>
+  <meta name="description" content="Desglosamos las propiedades mecánicas basadas en normativas ISO/ASTM para elegir el material correcto en piezas funcionales.">
+  <meta name="robots" content="index,follow">
+  <!-- Importación de la tipografía Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
   <style>
-    :root{--bg:#f6f7f4;--card:#fff;--ink:#0d1110;--muted:#69716c;--line:#dfe4df;--accent:#b8ff3d;--dark:#111715;--max:1100px}
+    /* VARIABLES DE DISEÑO (Estilo UDIA) */
+    :root{
+      --bg:#f6f7f4;
+      --card:#fff;
+      --ink:#0d1110;
+      --muted:#5e6661;
+      --line:#dfe4df;
+      --accent:#b8ff3d;
+      --dark:#111715;
+      --max:1200px;
+    }
+    
     *{box-sizing:border-box}html{scroll-behavior:smooth}
-    body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,sans-serif;line-height:1.7}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--ink);
+      font-family:"Plus Jakarta Sans", "Inter", system-ui, -apple-system, sans-serif;
+      line-height:1.7;
+      -webkit-font-smoothing:antialiased;
+    }
     a{color:inherit;text-decoration:none}
-    .wrap{max-width:var(--max);margin:auto;padding:0 20px}
     
-    /* HEADER (Igual que la principal, con ruta para volver) */
-    .top{position:sticky;top:0;z-index:50;background:rgba(246,247,244,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
-    nav{min-height:80px;display:flex;align-items:center;justify-content:center}
-    .brand{font-size:26px;font-weight:900;letter-spacing:-1px}
-    .brand span{background:var(--accent);padding:4px 9px;border-radius:8px;margin-left:4px;color:var(--ink)}
+    .wrap{max-width:var(--max);margin:auto;padding:0 80px}
     
-    /* ARTICLE LAYOUT */
-    .article-header{padding:80px 0 40px;border-bottom:1px solid var(--line);margin-bottom:40px}
-    .tag{display:inline-block;padding:6px 12px;border-radius:999px;background:#eef2ee;color:#4d5852;font-size:13px;font-weight:900;text-transform:uppercase;margin-bottom:20px}
-    .article-header h1{font-size:clamp(40px, 5vw, 56px);line-height:1.05;letter-spacing:-2px;margin:0 0 20px;max-width:850px}
-    .article-header p{font-size:22px;color:var(--muted);margin:0;max-width:700px}
+    /* CABECERA FLUIDA */
+    .top{position:sticky;top:0;z-index:100;background:rgba(246,247,244,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+    nav{min-height:95px;display:flex;align-items:center;justify-content:space-between;gap:36px}
+    .brand{font-size:26px;font-weight:800;letter-spacing:-1px}
+    .brand span{background:var(--accent);padding:5px 12px;border-radius:10px;margin-left:6px;color:var(--ink)}
     
-    .content{font-size:19px;color:#2c3330;max-width:800px;margin:0 auto 100px}
-    .content h2{font-size:32px;margin:50px 0 20px;letter-spacing:-1px;color:var(--ink)}
-    .content h3{font-size:24px;margin:30px 0 15px}
+    .nav{display:flex;gap:12px;font-size:15px;font-weight:700}
+    .nav a{padding:8px 18px;border-radius:9999px;transition:.15s;color:var(--muted)}
+    .nav a:hover{color:var(--ink);background:rgba(0,0,0,0.03)}
+    .nav a.active{color:var(--ink);background:var(--card);border:1px solid var(--line)}
+
+    /* LAYOUT GUÍA */
+    .article-header{padding:80px 0 40px; border-bottom:1px solid var(--line); margin-bottom:40px}
+    .tag{
+      display:inline-flex;
+      padding:6px 14px;
+      border-radius:9999px;
+      background:rgba(0,0,0,0.04);
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:1px;
+      font-weight:800;
+      color:var(--muted);
+      margin-bottom:20px;
+    }
+    .article-header h1{
+      font-size:clamp(40px, 5vw, 56px);
+      line-height:1.05;
+      letter-spacing:-0.03em;
+      margin:0 0 20px;
+      font-weight:800;
+    }
+    .article-header p{font-size:22px; color:var(--muted); margin:0}
+    
+    .content{font-size:18px; color:var(--ink); max-width:800px; margin:0 auto 100px}
+    .content h2{font-size:30px; font-weight:800; margin:50px 0 20px; border-bottom:1.5px solid var(--line); padding-bottom:8px; color:var(--ink); letter-spacing:-0.5px}
+    .content h3{font-size:22px; font-weight:800; margin:30px 0 15px; color:var(--ink)}
     .content p{margin-bottom:24px}
+    .content ul, .content ol{padding-left:20px; margin-bottom:24px}
+    .content li{margin-bottom:10px}
     
-    /* TABLAS TÉCNICAS */
-    .data-table{width:100%;border-collapse:collapse;margin:30px 0;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 15px rgba(0,0,0,0.03)}
-    .data-table th, .data-table td{padding:16px 20px;text-align:left;border-bottom:1px solid var(--line)}
-    .data-table th{background:var(--dark);color:#fff;font-weight:700}
+    /* TABLAS DE DATOS */
+    .data-table{
+      width:100%;
+      border-collapse:collapse;
+      margin:32px 0;
+      background:var(--card);
+      border:1.5px solid var(--line);
+      border-radius:16px;
+      overflow:hidden;
+      box-shadow:0 4px 15px rgba(0,0,0,0.02)
+    }
+    .data-table th, .data-table td{padding:16px 20px; text-align:left; border-bottom:1px solid var(--line); font-size:15px}
+    .data-table th{background:var(--dark); color:#fff; font-weight:800; text-transform:uppercase; letter-spacing:0.5px}
     .data-table tr:last-child td{border-bottom:none}
-    
-    /* ALERTAS TÉCNICAS */
-    .alert{background:#fff;border-left:5px solid var(--ink);padding:24px;border-radius:0 12px 12px 0;margin:30px 0;box-shadow:0 4px 15px rgba(0,0,0,0.03)}
-    .alert.warn{border-color:#d9432f;background:#fcf1f0}
-    .alert strong{display:block;font-size:16px;text-transform:uppercase;margin-bottom:8px;letter-spacing:1px}
-    
-    /* FOOTER UNIVERSAL */
-    .footer{padding:80px 0;border-top:1px solid var(--line);color:#69716c;font-size:16px}
-    .footergrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:40px;max-width:1650px}
-    .footer strong{display:block;font-size:18px;color:var(--ink);margin-bottom:12px}
+
+    /* CAJAS INFORMATIVAS */
+    .alert{
+      background:var(--card);
+      border-left:5px solid var(--ink);
+      padding:24px;
+      border-radius:0 16px 16px 0;
+      margin:36px 0;
+      border: 1px solid var(--line);
+      border-left-width: 5px;
+      border-left-color: var(--ink);
+    }
+    .alert.warn{border-left-color:#d9432f; background:#fcf1f0}
+    .alert strong{display:block; font-size:14px; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; font-weight:800}
+
+    /* MODALES DE TRANSPARENCIA */
+    .modal{
+      display:none;
+      position:fixed;
+      top:0;left:0;width:100%;height:100%;
+      background:rgba(13,17,16,0.85);
+      backdrop-filter:blur(8px);
+      z-index:200;
+      overflow-y:auto;
+      padding:40px 16px;
+      animation:fadeIn .2s ease;
+    }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    .modal-content{
+      background:var(--card);
+      border:2.5px solid var(--ink);
+      max-width:700px;
+      margin:40px auto;
+      border-radius:24px;
+      padding:40px;
+      box-shadow:0 25px 60px rgba(0,0,0,0.18);
+      position:relative;
+      color:var(--ink);
+    }
+    .modal-close{
+      position:absolute;
+      top:24px;right:24px;
+      background:var(--bg);
+      border:1.5px solid var(--line);
+      width:40px;height:40px;
+      border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      cursor:pointer;font-weight:800;transition:.15s;
+    }
+    .modal-close:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+    /* FOOTER */
+    .footer{padding:80px 0 110px;margin-top:100px;border-top:1px solid var(--line);color:var(--muted);font-size:15px}
+    .footergrid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:45px}
+    .footer strong{display:block;font-size:16px;color:var(--ink);margin-bottom:12px}
+    .footer a{display:inline-block;margin-bottom:8px;transition:0.15s;cursor:pointer;}
     .footer a:hover{color:var(--ink);text-decoration:underline}
+    
+    @media(max-width:1250px){
+      .wrap{padding:0 48px}
+    }
+    @media(max-width:750px){
+      .wrap{padding:0 24px}
+      nav{flex-direction:column; padding:20px 0; gap:16px}
+      .brand{margin-right:0}
+    }
   </style>
 </head>
 <body>
 
+  <!-- HEADER -->
   <header class="top">
     <div class="wrap">
-      <nav><a class="brand" href="../index.html" title="Volver al inicio">PRINT<span>LAB</span></a></nav>
+      <nav>
+        <a class="brand" href="../index.html" title="Volver al inicio">PRINT<span>LAB</span></a>
+        <div class="nav">
+          <a href="../index.html#simulador">Simulador</a>
+          <a href="../index.html#guias" class="active">Guías</a>
+          <a href="../materiales/index.html">Materiales</a>
+          <a href="../herramientas/index.html">Herramientas</a>
+        </div>
+      </nav>
     </div>
   </header>
 
@@ -62,73 +184,151 @@
     </header>
 
     <article class="content">
-      <p>El error más común en la impresión 3D FDM es asumir que el PETG es siempre superior al PLA. La realidad, respaldada por fichas técnicas de fabricantes como UltiMaker y Prusa, demuestra que ambos polímeros tienen comportamientos opuestos ante el estrés mecánico.</p>
+      <p>El error más común en la impresión 3D FDM es asumir que el PETG es siempre superior al PLA en cualquier escenario. La realidad experimental, respaldada por las fichas técnicas (TDS) de fabricantes industriales como UltiMaker y Prusa Polymers, demuestra que ambos polímeros tienen comportamientos opuestos ante esfuerzos mecánicos específicos.</p>
 
       <h2>1. Propiedades Mecánicas (La realidad de los datos)</h2>
-      <p>El PLA (Ácido Poliláctico) es un material extremadamente <b>rígido pero frágil</b>. El PETG (Polietilentereftalato modificado con Glicol) es <b>más dúctil y tenaz</b>, lo que significa que se dobla antes de romperse.</p>
+      <p>El PLA (Ácido Poliláctico) es un material extremadamente <b>rígido pero frágil</b>. El PETG (Poliéster Glicolizado) es <b>más dúctil y tenaz</b>, lo que significa que experimenta deformación plástica permanente antes de fracturarse de forma catastrófica.</p>
 
       <table class="data-table">
-        <tr>
-          <th>Propiedad Mecánica (Promedio FDM)</th>
-          <th>PLA</th>
-          <th>PETG</th>
-        </tr>
-        <tr>
-          <td>Resistencia a la Tracción (Fuerza de rotura)</td>
-          <td>~ 50 - 65 MPa (Mayor)</td>
-          <td>~ 45 - 50 MPa (Menor)</td>
-        </tr>
-        <tr>
-          <td>Módulo de Flexión (Rigidez)</td>
-          <td>~ 2800 MPa (Muy Rígido)</td>
-          <td>~ 2100 MPa (Más flexible)</td>
-        </tr>
-        <tr>
-          <td>Resistencia al Impacto (Izod)</td>
-          <td>Baja (Se astilla o parte)</td>
-          <td>Alta (Absorbe la energía)</td>
-        </tr>
+        <thead>
+          <tr>
+            <th>Propiedad Mecánica (Promedio FDM)</th>
+            <th>PLA (Ácido Poliláctico)</th>
+            <th>PETG (Poliéster Glicolizado)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Resistencia a la Tracción (Esfuerzo de rotura)</td>
+            <td>~ 50 - 65 MPa (Mayor)</td>
+            <td>~ 45 - 50 MPa (Menor)</td>
+          </tr>
+          <tr>
+            <td>Módulo de Flexión (Rigidez elástica)</td>
+            <td>~ 2800 MPa (Muy Rígido)</td>
+            <td>~ 2100 MPa (Más flexible)</td>
+          </tr>
+          <tr>
+            <td>Resistencia al Impacto (Izod con muesca)</td>
+            <td>Baja (Se astilla con facilidad)</td>
+            <td>Alta (Absorbe y disipa el choque)</td>
+          </tr>
+        </tbody>
       </table>
 
       <h2>2. Estabilidad Térmica (Temperatura de transición vítrea)</h2>
-      <p>La temperatura de transición vítrea (Tg) es el punto donde el polímero empieza a ablandarse y pierde su integridad estructural, deformándose bajo su propio peso o carga externa.</p>
+      <p>La temperatura de transición vítrea (Tg) define el umbral térmico en el que el polímero pasa de un estado amorfo rígido vítreo a un comportamiento pastoso dúctil, perdiendo su estabilidad estructural.</p>
       
       <div class="alert warn">
-        <strong>⚠️ Advertencia: Piezas en el exterior</strong>
-        El PLA tiene un Tg de aproximadamente <b>55°C a 60°C</b>. Una pieza de PLA dentro de un coche en verano se deformará irreversiblemente. El PETG eleva este umbral hasta los <b>80°C - 85°C</b>, haciéndolo apto para la mayoría de piezas de maquinaria, cajas electrónicas y uso en exteriores, además de soportar mejor la radiación UV.
+        <strong>⚠️ Advertencia: Exposición exterior y calor</strong>
+        El PLA tiene una temperatura Tg de aproximadamente <b>55 ºC a 60 ºC</b>. Una pieza funcional instalada en el habitáculo cerrado de un vehículo en verano colapsará por gravedad bajo su propio peso. El PETG eleva este umbral térmico estable hasta los <b>80 ºC - 85 ºC</b>, haciéndolo idóneo para la mayoría de cubiertas protectoras activas y aplicaciones en exteriores, sumado a una mayor tolerancia natural frente a la radiación solar UV.
       </div>
 
       <h2>3. Dificultad de impresión y postprocesado</h2>
-      <p>Mientras que el PLA perdona casi cualquier error del laminador, el PETG es famoso por dos problemas críticos:</p>
+      <p>Aunque el PLA perdona casi cualquier error de reología o velocidad del laminador, el PETG es propenso a manifestar dos problemas específicos:</p>
       <ul>
-        <li><b>Higroscopia severa:</b> El PETG absorbe humedad ambiental rápidamente. Si no se seca antes de imprimir (aprox. 65°C durante 6 horas), el agua en el filamento hervirá en la boquilla, destruyendo la adhesión de capas y provocando exceso de "stringing" (hilos).</li>
-        <li><b>Sobre-adhesión a la cama:</b> El PETG se fusiona a nivel molecular con el vidrio liso o las bases de PEI lisas.</li>
+        <li><b>Higroscopia elevada:</b> El PETG absorbe humedad molecular ambiental a gran velocidad. Si no se deshidrata de forma activa antes de iniciar la fabricación, el agua acumulada hervirá dentro del bloque térmico degradando de forma masiva la adhesión de capas y provocando desprendimiento de hilos (*stringing*).</li>
+        <li><b>Sobre-adhesión molecular a la cama:</b> Al enfriarse, el PETG se contrae firmemente y puede llegar a fracturar y arrancar esquirlas de bases de vidrio o PEI liso si no se aplica un material desmoldante separador.</li>
       </ul>
 
       <div class="alert">
         <strong>💡 Consejo de Fabricante (Prusa Research)</strong>
-        Nunca imprimas PETG sobre una cama de cristal limpia o PEI liso sin aplicar una capa separadora (como pegamento en barra o limpia-cristales). Al enfriarse, la contracción del PETG puede literalmente arrancar trozos de cristal de la base.
+        Nunca imprimas filamento PETG sobre camas de cristal liso o láminas PEI lisas desnudas sin aplicar previamente una capa intermedia (como pegamento en barra o laca protectora). Esta película actúa como agente desmoldante elástico facilitando el despegue al enfriarse.
       </div>
 
       <h2>Veredicto Final</h2>
-      <p><b>Elige PLA si:</b> Necesitas la máxima precisión dimensional, vas a pintar o lijar la pieza, requiere alta rigidez bajo cargas estáticas (que no superen los 50ºC) o estás prototipando formas complejas.</p>
-      <p><b>Elige PETG si:</b> La pieza va a sufrir impactos, encajes a presión (snap-fits), necesita resistir químicos moderados (alcoholes, sales) o va a estar expuesta a temperaturas ambientales altas o a la intemperie.</p>
+      <p><b>Elige PLA si:</b> Exiges la máxima precisión dimensional en geometrías microscópicas complejas, vas a postprocesar la superficie por lijado mecánico o pintura, o necesitas alta rigidez estática bajo temperaturas inferiores a 50 ºC.</p>
+      <p><b>Elige PETG si:</b> La pieza va a sufrir tensiones cíclicas por impactos dinámicos, acoples mecánicos a presión (*snap-fits*), requiere resistencia química moderada frente a grasas y aceites, o va a trabajar en exteriores.</p>
     </article>
   </main>
 
+  <!-- MODALES DE TRANSPARENCIA -->
+  <div id="modal-fuentes" class="modal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeModal('modal-fuentes')">✕</span>
+      <h3>Fuentes técnicas</h3>
+      <div class="modal-section" style="background: var(--bg); padding: 18px; border-radius: 12px; border: 1.5px solid var(--line); margin-bottom: 24px;">
+        <p style="font-weight: 800; font-size: 15.5px; color: var(--ink); margin: 0; line-height: 1.6;">
+          "Toda la información técnica publicada se basa en fichas técnicas de materiales (TDS), protocolos de fabricantes (Prusa, UltiMaker, Formlabs) y normativas estandarizadas de la industria (ISO, ASTM)."
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-normativas" class="modal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeModal('modal-normativas')">✕</span>
+      <h3>Normativas y estándares</h3>
+      <div class="modal-section">
+        <h4>ISO 178 / ASTM D790</h4>
+        <p>Métodos de ensayo normalizados para la determinación de propiedades a la flexión en plásticos.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-metodologia" class="modal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeModal('modal-metodologia')">✕</span>
+      <h3>Metodología del simulador</h3>
+      <div class="modal-section">
+        <p>Cálculo de resiliencia e inercia estructural de flexión elástica según tipo de polímero.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-limitaciones" class="modal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeModal('modal-limitaciones')">✕</span>
+      <h3>Limitaciones y seguridad</h3>
+      <div class="modal-section">
+        <p>La degradación de propiedades por envejecimiento hidrolítico escapa del modelado matemático controlado.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
   <footer class="footer">
     <div class="wrap footergrid">
       <div>
         <strong>PrintLab — Ingeniería 3D</strong>
-        <p>Toda la información técnica publicada se basa en fichas técnicas de materiales (TDS), protocolos de fabricantes (Prusa, UltiMaker, Bambu Lab) y normativas estandarizadas de la industria (ISO, ASTM).</p>
+        <p>Toda la información técnica publicada se basa en fichas técnicas de materiales (TDS), protocolos de fabricantes (Prusa, UltiMaker, Formlabs) y normativas estandarizadas de la industria (ISO, ASTM).</p>
       </div>
       <div>
         <strong>Centro de recursos</strong>
         <p>
-          <a href="../index.html#guias">Guías y diagnóstico</a><br>
+          <a href="../index.html#guias">Guías y diagnóstico de problemas</a><br>
+          <a href="../materiales/index.html">Atlas de materiales</a>
+        </p>
+      </div>
+      <div>
+        <strong>Normativa y transparencia</strong>
+        <p>
+          <a onclick="openModal('modal-fuentes')">→ Fuentes técnicas</a><br>
+          <a onclick="openModal('modal-normativas')">→ Normativas y estándares</a><br>
+          <a onclick="openModal('modal-metodologia')">→ Metodología del simulador</a><br>
+          <a onclick="openModal('modal-limitaciones')">→ Limitaciones y seguridad</a>
         </p>
       </div>
     </div>
   </footer>
+
+  <script>
+    function openModal(id) {
+      document.getElementById(id).style.display = 'block';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).style.display = 'none';
+      document.body.style.overflow = 'auto';
+    }
+
+    window.onclick = function(event) {
+      if (event.target.classList.contains('modal')) {
+        event.target.style.display = 'none';
+        document.body.style.overflow = 'auto';
+      }
+    }
+  </script>
 </body>
 </html>
