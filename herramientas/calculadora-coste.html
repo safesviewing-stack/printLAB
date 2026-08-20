@@ -60,7 +60,8 @@
       max-width: 100%;
     }
     
-    .input-panel{background:var(--card); border:1.5px solid var(--line); border-radius:26px; padding:40px; margin-bottom: 30px;}
+    /* Paddings internos laterales simétricos a 32px */
+    .input-panel{background:var(--card); border:1.5px solid var(--line); border-radius:26px; padding:40px 32px; margin-bottom: 30px; width:100%}
     .input-panel h2{font-size:26px; letter-spacing:-1px; margin:0 0 24px; border-bottom: 1.5px solid var(--line); padding-bottom:12px; font-weight:800}
     
     .input-grid{display:grid; grid-template-columns: 1fr 1fr; gap:24px}
@@ -94,6 +95,7 @@
     .result-panel h3{font-size:22px; font-weight:800; margin:0 0 24px; color:#b8c0bb}
     
     .result-row{display:flex; justify-content:space-between; align-items:center; border-bottom:1px dashed #2a332f; padding-bottom:12px; margin-bottom:20px; font-size:16px}
+    /* Añadido bloqueo de salto de línea para evitar desalineación de la moneda */
     .result-row span:last-child{font-weight:800; font-size:18px; white-space: nowrap;}
     
     .total-box{background:var(--accent); color:var(--ink); border-radius:20px; padding:28px; margin-top:35px; text-align:center;}
