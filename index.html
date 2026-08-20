@@ -448,9 +448,9 @@
       <nav>
         <a class="brand" href="index.html" title="Volver al inicio">PRINT<span>LAB</span></a>
         <div class="nav">
+          <a href="#portada">Materiales</a>
           <a href="#simulador">Simulador</a>
           <a href="#guias">Guías</a>
-          <a href="materiales/index.html">Materiales</a>
           <a href="#herramientas">Herramientas</a>
         </div>
       </nav>
@@ -715,7 +715,7 @@
         <a class="card" href="guias/secado-filamentos.html">
           <span class="tag">Mantenimiento</span>
           <h3>Humedad y secado de filamentos</h3>
-          <p>Por qué el PETG, TPU and Nylon burbujean. Tablas de temperatura y tiempos de horneado/secado recomendados por los principales fabricantes.</p>
+          <p>Por qué el PETG, TPU y Nylon burbujean. Tablas de temperatura y tiempos de horneado/secado recomendados por los principales fabricantes.</p>
           <span class="btn-action">Guía de secado</span>
         </a>
       </div>
@@ -980,10 +980,6 @@
           link.classList.add('active');
         }
       });
-
-      if (window.scrollY < 120) {
-        navLinks.forEach(link => link.classList.remove('active'));
-      }
     });
 
     /* LÓGICA DE MODALES */
@@ -1296,7 +1292,7 @@
       let baseEase = 50;
       if (material === 'PLA') baseEase = 95;
       else if (material === 'PETG') baseEase = 75;
-      else if (material === 'ABS') baseEase = 40;
+      else if (material === 'ABS', baseEase = 40);
       else if (material === 'TPU') baseEase = 50;
       else if (material === 'PC') baseEase = 30;
 
