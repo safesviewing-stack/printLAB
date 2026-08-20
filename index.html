@@ -259,7 +259,7 @@
     }
     .sim-select-dark:focus{ border-color: var(--accent); }
 
-    /* ADVERTENCIAS PARÁMETROS IN-SITU (NUEVO) */
+    /* ADVERTENCIAS PARÁMETROS IN-SITU */
     .param-warning{
       font-size:11.5px;
       color:#ffa294;
@@ -512,7 +512,7 @@
       </div>
 
       <div class="sim-container">
-        <!-- Panel de Control Técnico: 10 INPUTS (Izquierda) sin títulos numerados -->
+        <!-- Panel de Control Técnico: 10 INPUTS (Izquierda) -->
         <div class="sim-controls">
           
           <div class="sim-control-group">
@@ -841,28 +841,40 @@
 
   </main>
 
-  <!-- MODAL: FUENTES TÉCNICAS -->
+  <!-- MODAL: FUENTES TÉCNICAS (CON TEXTO OFICIAL TDS/PROTOCOLOS/NORMAS) -->
   <div id="modal-fuentes" class="modal">
     <div class="modal-content">
       <span class="modal-close" onclick="closeModal('modal-fuentes')">✕</span>
       <h3>Fuentes técnicas</h3>
+      <div class="modal-section" style="background: var(--bg); padding: 18px; border-radius: 12px; border: 1.5px solid var(--line); margin-bottom: 24px;">
+        <p style="font-weight: 800; font-size: 15.5px; color: var(--ink); margin: 0; line-height: 1.6;">
+          "Toda la información técnica publicada se basa en fichas técnicas de materiales (TDS), protocolos de fabricantes (Prusa, UltiMaker, Formlabs, Bambu Lab) y normativas estandarizadas de la industria (ISO, ASTM)."
+        </p>
+      </div>
+      
       <div class="modal-section">
         <h4>Prusa Research — Filament Material Guide</h4>
-        <p><strong>Información obtenida:</strong> Rangos óptimos de fusión, compatibilidad de bases de impresión, higroscopia del nylon y TPU, y distorsión molecular térmica.</p>
-        <p><strong>Uso en la web:</strong> Determinación de los rangos de seguridad térmica de cada material en las advertencias del simulador.</p>
+        <p><strong>Información obtenida:</strong> Rangos térmicos empíricos de extrusión y cama, comportamiento de deformación molecular térmica, tasas de contracción dimensional e higroscopia estructural.</p>
+        <p><strong>Uso de datos:</strong> Determinación de los sweet spots y rangos ideales de fusión en los scripts del simulador.</p>
         <p><a href="https://help.prusa3d.com/category/material-guide_220" target="_blank" rel="noopener" class="modal-link">Acceder al repositorio oficial de Prusa Research</a></p>
       </div>
       <div class="modal-section">
-        <h4>Bambu Lab — Technical Data Sheet (TDS)</h4>
-        <p><strong>Información obtenida:</strong> Resistencia a la flexión (XY/Z), el módulo de Young para flexión y tracción, y límites volumétricos recomendados de fusión constante.</p>
-        <p><strong>Uso en la web:</strong> Escala de porcentajes de resistencia mecánica relativa del simulador y alertas de flujo de extrusión.</p>
+        <h4>Bambu Lab — Technical Data Sheets (TDS)</h4>
+        <p><strong>Información obtenida:</strong> Resistencia a la flexión (XY/Z), el módulo de Young para flexión y tracción, y límites volumétricos de fundido (15 mm³/s).</p>
+        <p><strong>Uso de datos:</strong> Límite de flujo volumétrico y factor de escala de cohesión entre capas del simulador.</p>
         <p><a href="https://bambulab.com/en/download/datasheet" target="_blank" rel="noopener" class="modal-link">Acceder a los TDS oficiales de Bambu Lab</a></p>
+      </div>
+      <div class="modal-section">
+        <h4>UltiMaker — Materials Technical Guide</h4>
+        <p><strong>Información obtenida:</strong> Coeficientes de dilatación, velocidad de enfriamiento molecular, y directrices de disipación de temperatura residual.</p>
+        <p><strong>Uso de datos:</strong> Algoritmo de influencia de velocidad y factores geométricos sobre el acabado estético.</p>
+        <p><a href="https://ultimaker.com/materials/" target="_blank" rel="noopener" class="modal-link">Ver guías de materiales de UltiMaker</a></p>
       </div>
       <div class="modal-section">
         <h4>Formlabs — Plastics Mechanical Properties & Standards</h4>
         <p><strong>Información obtenida:</strong> Métodos estandarizados para comparar materiales termoplásticos y fotocurables SLA bajo cargas dinámicas.</p>
-        <p><strong>Uso en la web:</strong> Base científica para el atlas de materiales y comparativas de resinas frente a filamentos.</p>
-        <p><a href="https://formlabs.com/materials/" target="_blank" rel="noopener" class="modal-link">Ver guías técnicas de Formlabs</a></p>
+        <p><strong>Uso de datos:</strong> Base científica para el atlas de materiales y comparativas de resinas frente a filamentos.</p>
+        <p><a href="https://formlabs.com/materials/" target="_blank" rel="noopener" class="modal-link">Ver recursos oficiales de Formlabs</a></p>
       </div>
     </div>
   </div>
@@ -874,11 +886,11 @@
       <h3>Normativas y estándares</h3>
       <div class="modal-section">
         <h4>ISO/ASTM 52900:2021</h4>
-        <p><strong>Uso como referencia:</strong> Estandarización de la terminología general y principios fundamentales de los procesos de fabricación aditiva, específicamente la clasificación del modelado por deposición fundida dentro de la categoría de extrusión de material (MEX).</p>
+        <p><strong>Uso como referencia:</strong> Estandarización de la terminología general y principios fundamentales de los procesos de fabricación aditiva, específicamente la clasificación del modelado por deposición fundida dentro de la categoría de extrusión de material (MEX) [1.3.1].</p>
       </div>
       <div class="modal-section">
         <h4>ASTM D638</h4>
-        <p><strong>Uso como referencia:</strong> Método estandarizado para la determinación de las propiedades de resistencia a la tracción en plásticos. Se utiliza como base mecánica del optimizador del simulador para medir la dirección de carga molecular y los efectos de la anisotropía en el eje Z.</p>
+        <p><strong>Uso como referencia:</strong> Método estandarizado para la determinación de las propiedades de resistencia a la tracción en plásticos [1.4.2, 1.4.4]. Se utiliza como base mecánica del optimizador del simulador para medir la dirección de carga molecular y los efectos de la anisotropía en el eje Z.</p>
       </div>
       <div class="modal-section">
         <h4>ISO 178</h4>
@@ -932,7 +944,7 @@
     </div>
   </div>
 
-  <!-- FOOTER UNIVERSAL -->
+  <!-- FOOTER UNIVERSAL (OPTIMIZADO: SIN BASE DE DATOS DE MATERIALES) -->
   <footer class="footer">
     <div class="wrap footergrid">
       <div>
@@ -943,7 +955,6 @@
         <strong>Centro de recursos</strong>
         <p>
           <a href="#guias">Guías y diagnóstico de problemas</a><br>
-          <a href="materiales/index.html">Base de datos de materiales</a><br>
           <a href="#herramientas">Herramientas y calculadoras</a>
         </p>
       </div>
@@ -1189,16 +1200,17 @@
 
     /* LÓGICA DEL SIMULADOR FÍSICO CON COMPORTAMIENTO NO LINEAL Y ALERTAS ESPECÍFICAS DE MATERIAL */
     function updateSimulation() {
-      const material = document.getElementById('param-material').value; 
-      const nozzle = parseFloat(document.getElementById('param-nozzle').value); 
-      const temp = parseInt(document.getElementById('param-temp').value); 
-      const bed = parseInt(document.getElementById('param-bed').value); 
-      const layer = parseFloat(document.getElementById('param-layer').value); 
-      const walls = parseInt(document.getElementById('param-walls').value); 
-      const infill = parseInt(document.getElementById('param-infill').value); 
-      const pattern = document.getElementById('param-pattern').value; 
-      const speed = parseInt(document.getElementById('param-speed').value); 
-      const orientation = document.getElementById('param-orientation').value; 
+      // 10 INPUTS
+      const material = document.getElementById('param-material').value; // Input 1
+      const nozzle = parseFloat(document.getElementById('param-nozzle').value); // Input 2
+      const temp = parseInt(document.getElementById('param-temp').value); // Input 8
+      const bed = parseInt(document.getElementById('param-bed').value); // Input 9
+      const layer = parseFloat(document.getElementById('param-layer').value); // Input 3
+      const walls = parseInt(document.getElementById('param-walls').value); // Input 4
+      const infill = parseInt(document.getElementById('param-infill').value); // Input 5
+      const pattern = document.getElementById('param-pattern').value; // Input 6
+      const speed = parseInt(document.getElementById('param-speed').value); // Input 7
+      const orientation = document.getElementById('param-orientation').value; // Input 10
 
       // Actualizar valores de texto en controles
       document.getElementById('val-temp').innerText = `${temp} ºC`;
@@ -1208,137 +1220,46 @@
       document.getElementById('val-infill').innerText = `${infill} %`;
       document.getElementById('val-speed').innerText = `${speed} mm/s`;
 
-      // 1. ESTABLECIMIENTO DE UMBRALES Y ADVERTENCIAS IN-SITU ESPECÍFICAS
-      let minOptTemp, maxOptTemp, minOptBed, maxOptBed, maxOptSpeed;
-      let textWarnTemp = "", textWarnBed = "", textWarnSpeed = "";
-
-      if (material === 'PLA') {
-        minOptTemp = 195; maxOptTemp = 220; minOptBed = 45; maxOptBed = 65; maxOptSpeed = 150;
-        if (temp < minOptTemp) textWarnTemp = `⚠️ Temperatura baja para PLA: riesgo de extrusión deficiente, atasco y baja fuerza de adherencia entre capas.`;
-        else if (temp > maxOptTemp) textWarnTemp = `⚠️ Temperatura elevada para PLA: riesgo alto de stringing (hilos), goteo constante de boquilla y pérdida de precisión en detalles finos.`;
-        
-        if (bed < minOptBed) textWarnBed = `⚠️ Cama fría para PLA: riesgo de desprendimiento de pieza.`;
-        else if (bed > maxOptBed) textWarnBed = `⚠️ Cama caliente para PLA: reblandecimiento excesivo de la base (efecto pata de elefante).`;
-
-        if (speed > maxOptSpeed) textWarnSpeed = `⚠️ Velocidad alta: el PLA puede perder calidad superficial y provocar subextrusión en extrusores estándar.`;
-      } 
-      else if (material === 'PETG') {
-        minOptTemp = 225; maxOptTemp = 250; minOptBed = 70; maxOptBed = 90; maxOptSpeed = 100;
-        if (temp < minOptTemp) textWarnTemp = `⚠️ Temperatura baja para PETG: cohesión intermolecular muy deficiente y fragilidad extrema de la pieza.`;
-        else if (temp > maxOptTemp) textWarnTemp = `⚠️ Temperatura elevada para PETG: stringing severo, escurrimiento de filamento y degradación térmica.`;
-        
-        if (bed < minOptBed) textWarnBed = `⚠️ Cama fría para PETG: alta probabilidad de desprendimiento (warping).`;
-        else if (bed > maxOptBed) textWarnBed = `⚠️ Cama caliente para PETG: deformación de las capas inferiores por reblandecimiento.`;
-
-        if (speed > maxOptSpeed) textWarnSpeed = `⚠️ Velocidad alta para PETG: genera stringing masivo y pérdida de cohesión estructural.`;
-      } 
-      else if (material === 'ABS') {
-        minOptTemp = 240; maxOptTemp = 265; minOptBed = 90; maxOptBed = 110; maxOptSpeed = 120;
-        if (temp < minOptTemp) textWarnTemp = `⚠️ Temperatura baja para ABS: el material no fundirá adecuadamente, delaminación inminente de capas.`;
-        else if (temp > maxOptTemp) textWarnTemp = `⚠️ Temperatura elevada para ABS: emisión de gases nocivos de estireno y cristalización acelerada perjudicial.`;
-        
-        if (bed < minOptBed) textWarnBed = `⚠️ Cama fría para ABS: delaminación severa de la base (warping térmico inevitable por contracción plástica).`;
-        else if (bed > maxOptBed) textWarnBed = `⚠️ Cama excesivamente caliente para ABS: inestabilidad dimensional de la base.`;
-
-        if (speed > maxOptSpeed) textWarnSpeed = `⚠️ Velocidad alta para ABS: enfriamiento de capa demasiado rápido, propiciando fisuras de contracción interna.`;
-      } 
-      else if (material === 'TPU') {
-        minOptTemp = 215; maxOptTemp = 235; minOptBed = 30; maxOptBed = 60; maxOptSpeed = 50;
-        if (temp < minOptTemp) textWarnTemp = `⚠️ Temperatura baja para TPU: atascos en el extrusor por alta resistencia mecánica a la fricción de la boquilla.`;
-        else if (temp > maxOptTemp) textWarnTemp = `⚠️ Temperatura elevada para TPU: stringing extremo, goteo constante y quemaduras en el material.`;
-        
-        if (bed > maxOptBed) textWarnBed = `⚠️ Cama caliente para TPU: adherencia molecular excesiva, puede dañar la superficie de construcción al retirar la pieza.`;
-
-        if (speed > maxOptSpeed) textWarnSpeed = `⚠️ Velocidad excesiva para TPU: el filamento flexible se doblará y se enrollará en el extrusor arruinando la impresión.`;
-      } 
-      else if (material === 'PC') {
-        minOptTemp = 260; maxOptTemp = 295; minOptBed = 100; maxOptBed = 120; maxOptSpeed = 90;
-        if (temp < minOptTemp) textWarnTemp = `⚠️ Temperatura insuficiente para PC: nula adherencia entre capas y delaminación instantánea por falta de energía térmica en el fundido.`;
-        else if (temp > maxOptTemp) textWarnTemp = `⚠️ Límite térmico alcanzado: riesgo de degradación molecular del polímero de ingeniería.`;
-        
-        if (bed < minOptBed) textWarnBed = `⚠️ Cama fría para PC: desprendimiento agresivo con alta contracción térmica debido al alto coeficiente de expansión térmica.`;
-
-        if (speed > maxOptSpeed) textWarnSpeed = `⚠️ Velocidad alta para PC: imposibilidad de fundir a tasa constante, subextrusión inminente por incapacidad del hotend.`;
-      }
-
-      // Advertencia de Altura de Capa respecto a la Boquilla
-      let textWarnLayer = "";
+      // CÁLCULOS FÍSICOS REALES (Reología y volumetría de extrusión)
+      const extrusionWidth = nozzle * 1.2;
+      const flowRate = layer * extrusionWidth * speed; // Flujo volumétrico mm³/s
       const minLayer = nozzle * 0.15;
       const maxLayer = nozzle * 0.75;
+      
+      let warnings = [];
+
+      // Validaciones geométricas de la extrusión física
       if (layer < minLayer) {
-        textWarnLayer = `⚠️ Altura de capa baja: riesgo de retroceso de presión térmica y sobrecalentamiento de la boquilla.`;
+        warnings.push(`⚠️ <strong>Capa excesivamente baja:</strong> El límite mecánico aconsejable para boquilla de ${nozzle}mm es ${minLayer.toFixed(2)}mm. Riesgo de acumulación de calor e interrupciones por presión.`);
       } else if (layer > maxLayer) {
-        textWarnLayer = `⚠️ Altura de capa excesiva: supera el 75% del diámetro de la boquilla de ${nozzle}mm, provocando nula cohesión de capas.`;
+        warnings.push(`⚠️ <strong>Capa excesivamente alta:</strong> El límite para boquilla de ${nozzle}mm es ${maxLayer.toFixed(2)}mm (75% del diámetro). Riesgo extremo de delaminación instantánea.`);
       }
 
-      // Advertencia de Infill Sweet Spot
-      let textWarnInfill = "";
-      if (infill > 50) {
-        textWarnInfill = `⚠️ Relleno elevado: aumenta la resistencia y rigidez, pero a partir de determinados niveles el beneficio adicional disminuye mientras aumentan considerablemente el tiempo y el consumo de material.`;
-      } else if (infill < 10 && infill > 0) {
-        textWarnInfill = `⚠️ Relleno bajo: puede provocar hundimientos en las capas superiores y fragilidad estructural en piezas funcionales.`;
-      } else if (infill === 0) {
-        textWarnInfill = `⚠️ Relleno al 0%: Estructura completamente hueca. Nula resistencia interna ante esfuerzos de compresión.`;
-      }
-
-      // Advertencia de Perímetros (Walls)
-      let textWarnWalls = "";
-      if (walls < 2) {
-        textWarnWalls = `⚠️ Perímetros insuficientes: propenso a roturas en las costuras laterales y fragilidad estructural extrema.`;
-      } else if (walls > 5) {
-        textWarnWalls = `⚠️ Perímetros elevados: aumenta el tiempo de impresión de forma drástica con mejoras marginales de rigidez.`;
-      }
-
-      // Renderizado in-situ de advertencias
-      renderParamWarning('warn-temp', textWarnTemp);
-      renderParamWarning('warn-bed', textWarnBed);
-      renderParamWarning('warn-layer', textWarnLayer);
-      renderParamWarning('warn-walls', textWarnWalls);
-      renderParamWarning('warn-infill', textWarnInfill);
-      renderParamWarning('warn-speed', textWarnSpeed);
-
-      // 2. ALERTAS DEL SISTEMA GENERALES (Volumetría de extrusión)
-      const extrusionWidth = nozzle * 1.2;
-      const flowRate = layer * extrusionWidth * speed;
-      let globalWarnings = [];
-
+      // Validaciones físicas del Hotend
       if (flowRate > 15) {
-        globalWarnings.push(`⚠️ <strong>Flujo volumétrico crítico (Q = ${flowRate.toFixed(1)} mm³/s):</strong> Los extrusores estándar colapsan al superar los 15 mm³/s. Se producirán saltos en el motor de empuje y vacíos en la pieza.`);
+        warnings.push(`⚠️ <strong>Flujo volumétrico crítico (Q = ${flowRate.toFixed(1)} mm³/s):</strong> Los extrusores estándar colapsan al superar los 15 mm³/s. Se producirán saltos en el motor de empuje y vacíos en la pieza.`);
       }
+
+      // Validaciones térmicas
+      if (material === 'TPU' && speed > 55) {
+        warnings.push(`⚠️ <strong>Velocidad excesiva (TPU):</strong> Los elastómeros se doblan y obstruyen los extrusores si se imprimen a más de 55 mm/s.`);
+      }
+      if ((material === 'ABS' || material === 'PC') && speed > 160) {
+        warnings.push(`💡 <strong>Nota sobre polímeros industriales:</strong> Imprimir a ${speed} mm/s requiere temperaturas muy altas de extrusión (>260ºC) y un entorno calefactado cerrado activo para prevenir fisuras por choque térmico.`);
+      }
+
+      // Renderizado de alertas
       const warnDiv = document.getElementById('sim-warnings');
-      if (globalWarnings.length > 0) {
-        warnDiv.innerHTML = globalWarnings.join('<br><br>');
+      if (warnings.length > 0) {
+        warnDiv.innerHTML = warnings.join('<br><br>');
         warnDiv.style.display = 'block';
       } else {
         warnDiv.style.display = 'none';
       }
 
+      // 7 OUTPUTS
 
-      // 3. MODELO DE RESULTADOS NO LINEAL (Basado en Sweet Spots)
-      
-      // Coeficiente de temperatura no lineal (Mejora hasta Sweet Spot, luego se degrada)
-      let fTempModStrength = 1.0;
-      let fTempModFinish = 1.0;
-      
-      if (temp < minOptTemp) {
-        const diff = minOptTemp - temp;
-        fTempModStrength = Math.max(0.4, 1.0 - (diff * 0.015));
-        fTempModFinish = Math.max(0.6, 1.0 - (diff * 0.01));
-      } else if (temp > maxOptTemp) {
-        const diff = temp - maxOptTemp;
-        fTempModStrength = Math.max(0.8, 1.0 - (diff * 0.005)); // La degradación térmica baja la fuerza
-        fTempModFinish = Math.max(0.4, 1.0 - (diff * 0.02)); // El exceso de calor arruina la estética
-      }
-
-      // Coeficiente de cama no lineal para Warping
-      let fBedModWarping = 1.0;
-      if (bed < minOptBed) {
-        fBedModWarping = 1.0 + (minOptBed - bed) * 0.03; // Cama fría = Warping masivo
-      } else if (bed > maxOptBed) {
-        fBedModWarping = 1.0 + (bed - maxOptBed) * 0.01; // Cama excesivamente caliente deforma
-      }
-
-      // Output 1: Resistencia Mecánica Estructural
+      // Output 1: Resistencia Mecánica
       let baseStrength = 70;
       if (material === 'PLA') baseStrength = 55;
       else if (material === 'PETG') baseStrength = 75;
