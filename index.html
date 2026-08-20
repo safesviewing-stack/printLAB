@@ -6,83 +6,267 @@
   <title>PrintLab — Guías, diagnóstico y resoluciones de impresión 3D</title>
   <meta name="description" content="Decisiones técnicas de impresión 3D basadas en datos de Prusa, UltiMaker, Formlabs, Bambu Lab, ISO, ASTM, NIOSH y CDC.">
   <meta name="robots" content="index,follow">
+  <!-- Importación de la tipografía Plus Jakarta Sans (utilizada en UDIA) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
   <style>
-    /* Estilos globales y consistencia de jerarquía */
-    :root{--bg:#f6f7f4;--card:#fff;--ink:#0d1110;--muted:#5e6661;--line:#dfe4df;--accent:#b8ff3d;--dark:#111715;--max:1100px}
+    /* Estilos globales y consistencia de jerarquía al estilo UDIA */
+    :root{
+      --bg:#f6f7f4;
+      --card:#fff;
+      --ink:#0d1110;
+      --muted:#5e6661;
+      --line:#dfe4df;
+      --accent:#b8ff3d;
+      --dark:#111715;
+      --max:1200px;
+    }
     
     *{box-sizing:border-box}html{scroll-behavior:smooth}
-    body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.6}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--ink);
+      font-family:"Plus Jakarta Sans", "Inter", system-ui, -apple-system, sans-serif;
+      line-height:1.6;
+      -webkit-font-smoothing:antialiased;
+    }
     a{color:inherit;text-decoration:none}
     
-    /* Contenedor principal alineado a 1100px de lectura cómoda */
+    /* Contenedor principal con márgenes laterales amplios */
     .wrap{max-width:var(--max);margin:auto;padding:0 80px}
     
-    /* CABECERA Y NAVEGACIÓN CONSISTENTE */
+    /* CABECERA Y NAVEGACIÓN */
     .top{position:sticky;top:0;z-index:50;background:rgba(246,247,244,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
     nav{min-height:95px;display:flex;align-items:center;justify-content:space-between;gap:36px}
-    .brand{font-size:30px;font-weight:900;letter-spacing:-1.2px}
-    .brand span{background:var(--accent);padding:5px 11px;border-radius:10px;margin-left:6px;color:var(--ink)}
+    .brand{font-size:26px;font-weight:800;letter-spacing:-1px}
+    .brand span{background:var(--accent);padding:5px 12px;border-radius:10px;margin-left:6px;color:var(--ink)}
     
-    .nav{display:flex;gap:32px;font-size:16px;color:#404944;font-weight:700}
-    .nav a{transition:color .15s}
-    .nav a:hover{color:var(--ink)}
-    .nav a.active{border-bottom:3px solid var(--accent); padding-bottom: 4px; color:var(--ink)}
+    .nav{display:flex;gap:12px;font-size:15px;font-weight:700}
+    .nav a{padding:8px 16px;border-radius:9999px;transition:.15s;color:var(--muted)}
+    .nav a:hover{color:var(--ink);background:rgba(0,0,0,0.03)}
+    .nav a.active{color:var(--ink);background:var(--card);border:1px solid var(--line)}
 
-    /* BOTONES */
-    .btn{display:inline-flex;align-items:center;justify-content:center;padding:16px 26px;border-radius:14px;font-weight:800;font-size:16px;cursor:pointer;transition:.15s}
-    .btn.green{background:var(--accent);color:var(--ink);border:2px solid var(--ink);box-shadow:0 4px 0px var(--ink)}
-    .btn.green:active{transform:translateY(2px);box-shadow:0 0px 0px var(--ink)}
-    .btn.light{background:#fff;color:var(--ink);border:2px solid #ced6d1;box-shadow:0 4px 10px rgba(0,0,0,0.04)}
-    .btn.light:hover{border-color:var(--ink)}
+    /* BOTONES ESTILO CÁPSULA (UDIA) */
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:14px 28px;
+      border-radius:9999px;
+      font-weight:800;
+      font-size:15px;
+      cursor:pointer;
+      transition:.2s ease;
+      letter-spacing:-0.2px;
+    }
+    .btn.green{
+      background:var(--accent);
+      color:var(--ink);
+      border:2px solid var(--ink);
+      box-shadow:0 4px 0px var(--ink);
+    }
+    .btn.green:hover{
+      transform:translateY(-1px);
+      box-shadow:0 6px 0px var(--ink);
+    }
+    .btn.green:active{
+      transform:translateY(3px);
+      box-shadow:0 1px 0px var(--ink);
+    }
+    .btn.light{
+      background:#fff;
+      color:var(--ink);
+      border:1.5px solid #ced6d1;
+    }
+    .btn.light:hover{
+      border-color:var(--ink);
+      background:var(--bg);
+    }
     
-    /* HERO PRINCIPAL EQUILIBRADO */
-    .hero{padding:90px 0 50px;display:grid;grid-template-columns:1.1fr 0.9fr;gap:50px;align-items:start}
-    .eyebrow{font-size:13px;text-transform:uppercase;letter-spacing:1.5px;font-weight:900;color:var(--muted)}
-    .hero h1{font-size:clamp(38px, 5.5vw, 64px);line-height:1;letter-spacing:-2.5px;margin:20px 0 24px;max-width:1050px}
-    .hero p{font-size:19px;color:var(--muted);max-width:900px;margin-bottom:30px}
+    /* HERO PRINCIPAL */
+    .hero{padding:100px 0 60px;display:grid;grid-template-columns:1.15fr 0.85fr;gap:64px;align-items:center}
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      padding:6px 14px;
+      border-radius:9999px;
+      background:rgba(0,0,0,0.04);
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:1px;
+      font-weight:800;
+      color:var(--muted);
+    }
+    .hero h1{
+      font-size:clamp(44px, 5.5vw, 72px);
+      line-height:1.05;
+      letter-spacing:-0.03em;
+      font-weight:800;
+      margin:24px 0;
+      max-width:1050px;
+    }
+    .hero p{
+      font-size:19px;
+      color:var(--muted);
+      max-width:900px;
+      margin-bottom:32px;
+      line-height:1.5;
+    }
     
-    /* PANEL BUSCADOR (Estructura secundaria limpia) */
-    .hero-panel{background:var(--dark);color:#fff;border-radius:28px;padding:36px;box-shadow:0 15px 35px rgba(0,0,0,0.05)}
-    .hero-panel h2{font-size:26px;margin:0 0 10px;letter-spacing:-0.5px}
-    .hero-panel p{font-size:15px;color:#b8c0bb;margin-bottom:24px;line-height:1.4}
+    /* PANEL BUSCADOR (Formas redondeadas UDIA) */
+    .hero-panel{
+      background:var(--dark);
+      color:#fff;
+      border-radius:24px;
+      padding:42px;
+      box-shadow:0 20px 40px rgba(0,0,0,0.06);
+    }
+    .hero-panel h2{
+      font-size:26px;
+      font-weight:800;
+      margin:0 0 12px;
+      letter-spacing:-0.5px;
+    }
+    .hero-panel p{
+      font-size:15px;
+      color:#b8c0bb;
+      margin-bottom:24px;
+      line-height:1.4;
+    }
     .searchbox{display:flex;gap:12px}
-    .searchbox input{min-width:0;flex:1;border:1px solid #3b443f;background:#1a201d;color:#fff;border-radius:12px;padding:16px;font-size:16px}
+    .searchbox input{
+      min-width:0;
+      flex:1;
+      border:1px solid #3b443f;
+      background:#1a201d;
+      color:#fff;
+      border-radius:9999px;
+      padding:16px 24px;
+      font-size:15px;
+    }
     .searchbox input:focus{outline:2px solid var(--accent);border-color:var(--accent)}
     
     /* ASISTENTE INTERACTIVO */
-    .assistant-wrapper{display:none;background:#fff;border:2px solid var(--ink);border-radius:24px;padding:36px;margin-top:30px;animation:slideDown .3s ease-out}
+    .assistant-wrapper{
+      display:none;
+      background:#fff;
+      border:2px solid var(--ink);
+      border-radius:24px;
+      padding:36px;
+      margin-top:30px;
+      animation:slideDown .3s ease-out;
+    }
     @keyframes slideDown{from{opacity:0;transform:translateY(-15px)}to{opacity:1;transform:translateY(0)}}
-    .assistant-title{font-size:24px;font-weight:900;margin:0 0 20px;letter-spacing:-0.5px}
+    .assistant-title{font-size:24px;font-weight:800;margin:0 0 20px;letter-spacing:-0.5px}
     .assistant-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
-    .as-btn{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:14px;font-size:15px;font-weight:700;text-align:left;cursor:pointer;transition:.15s}
+    .as-btn{
+      background:var(--bg);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:16px;
+      font-size:14px;
+      font-weight:700;
+      text-align:left;
+      cursor:pointer;
+      transition:.15s;
+    }
     .as-btn:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
-    .result-box{display:none;background:#f0f4f0;border-left:5px solid var(--accent);padding:24px;border-radius:12px;margin-top:24px}
+    .result-box{display:none;background:#f0f4f0;border-left:5px solid var(--accent);padding:24px;border-radius:14px;margin-top:24px}
     .result-box h4{font-size:22px;margin:0 0 10px;letter-spacing:-0.5px}
-    .result-box p{font-size:17px;margin:0 0 16px;color:var(--ink)}
-    .result-warning{color:#9e3223;font-weight:700;font-size:15px;background:#fcebe8;padding:12px;border-radius:8px}
+    .result-box p{font-size:16px;margin:0 0 16px;color:var(--ink)}
+    .result-warning{color:#9e3223;font-weight:700;font-size:14px;background:#fcebe8;padding:12px;border-radius:10px}
     
-    /* SECCIONES Y CABECERAS CON JERARQUÍA CLARA */
-    .section{padding:60px 0 20px}
+    /* SECCIONES Y CABECERAS */
+    .section{padding:70px 0 30px}
     .section-divider{border:0; height:1px; background:var(--line); margin:40px 0}
-    .sectionhead{margin-bottom:36px}
-    .sectionhead h2{font-size:32px;letter-spacing:-1px;margin:0 0 8px;font-weight:800}
-    .sectionhead p{margin:0;color:var(--muted);font-size:17px}
+    .sectionhead{margin-bottom:44px}
+    .sectionhead h2{
+      font-size:clamp(32px, 4vw, 42px);
+      letter-spacing:-0.02em;
+      margin:0 0 12px;
+      font-weight:800;
+      line-height:1.1;
+    }
+    .sectionhead p{margin:0;color:var(--muted);font-size:18px}
     
     /* BLOQUE DESTACADO */
-    .heroarticle{min-height:360px;background:#101614;background-image:radial-gradient(circle at top right, #1a241f, transparent 40%);color:#fff;border-radius:28px;padding:50px;display:flex;flex-direction:column;justify-content:flex-end}
-    .heroarticle h3{font-size:36px;line-height:1.05;letter-spacing:-1.5px;margin:18px 0 12px;max-width:850px}
+    .heroarticle{
+      min-height:380px;
+      background:#101614;
+      background-image:radial-gradient(circle at top right, #1a241f, transparent 40%);
+      color:#fff;
+      border-radius:24px;
+      padding:54px;
+      display:flex;
+      flex-direction:column;
+      justify-content:flex-end;
+    }
+    .heroarticle h3{
+      font-size:clamp(30px, 4.5vw, 44px);
+      line-height:1.1;
+      letter-spacing:-0.02em;
+      margin:20px 0 14px;
+      max-width:850px;
+      font-weight:800;
+    }
     .heroarticle p{font-size:17px;color:#bcc5c0;max-width:800px;margin-bottom:28px}
     .heroarticle .tag{background:#2a332f;color:var(--accent);align-self:flex-start}
     
-    /* TARJETAS Y GRID DE GUÍAS */
-    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:28px}
-    .card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:32px;transition:.18s;height:100%}
-    .card:hover{transform:translateY(-4px);box-shadow:0 12px 35px rgba(0,0,0,.04)}
+    /* TARJETAS Y GRID */
+    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:32px}
+    .card{
+      display:flex;
+      flex-direction:column;
+      background:var(--card);
+      border:1.5px solid var(--line);
+      border-radius:24px;
+      padding:36px;
+      transition:.2s;
+      height:100%;
+    }
+    .card:hover{
+      transform:translateY(-6px);
+      box-shadow:0 16px 36px rgba(0,0,0,.04);
+      border-color:var(--ink);
+    }
     
-    .tag{display:inline-block;align-self:flex-start;padding:6px 12px;border-radius:999px;background:#eef2ee;color:#45504a;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1px}
-    .card h3{font-size:22px;line-height:1.2;margin:18px 0 10px;letter-spacing:-0.5px}
+    .tag{
+      display:inline-flex;
+      align-self:flex-start;
+      padding:6px 14px;
+      border-radius:9999px;
+      background:#eef2ee;
+      color:#45504a;
+      font-size:10px;
+      font-weight:800;
+      text-transform:uppercase;
+      letter-spacing:1px;
+    }
+    .card h3{
+      font-size:clamp(20px, 2.5vw, 24px);
+      line-height:1.2;
+      margin:20px 0 12px;
+      letter-spacing:-0.5px;
+      font-weight:700;
+    }
     .card p{font-size:15px;color:var(--muted);margin:0 0 24px;line-height:1.5}
-    .btn-action{margin-top:auto;display:inline-block;background:var(--bg);color:var(--ink);padding:12px 18px;border-radius:10px;font-weight:800;font-size:15px;border:1px solid var(--line);align-self:flex-start;transition:.15s}
+    
+    .btn-action{
+      margin-top:auto;
+      display:inline-flex;
+      align-items:center;
+      background:var(--bg);
+      color:var(--ink);
+      padding:12px 24px;
+      border-radius:9999px;
+      font-weight:800;
+      font-size:14px;
+      border:1.5px solid var(--line);
+      align-self:flex-start;
+      transition:.15s;
+    }
     .card:hover .btn-action{background:var(--ink);color:#fff;border-color:var(--ink)}
     
     /* FOOTER */
@@ -92,7 +276,7 @@
     .footer a{display:inline-block;margin-bottom:8px;transition:0.15s}
     .footer a:hover{color:var(--ink);text-decoration:underline}
     
-    .searchresults{margin-top:18px;display:none;background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+    .searchresults{margin-top:18px;display:none;background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden}
     .searchresults a{display:block;padding:16px 20px;border-bottom:1px solid var(--line)}
     .searchresults b{font-size:16px}
     .searchresults small{display:block;font-size:14px;color:var(--muted);margin-top:4px}
@@ -118,7 +302,6 @@
 </head>
 <body>
   
-  <!-- CABECERA NAVEGACIÓN CONSISTENTE -->
   <header class="top">
     <div class="wrap">
       <nav>
@@ -134,7 +317,6 @@
 
   <main class="wrap">
     
-    <!-- HERO PRINCIPAL -->
     <section class="hero">
       <div>
         <div class="eyebrow">Decisiones basadas en datos técnicos</div>
@@ -167,13 +349,12 @@
         </div>
       </div>
       
-      <!-- BUSCADOR TÉCNICO -->
       <aside class="hero-panel">
         <h2>Buscador técnico</h2>
         <p>Encuentra de inmediato soluciones a atascos, parámetros de laminación o guías de materiales avanzados.</p>
         <div class="searchbox">
           <input id="q" placeholder="Ej: atasco, warping, resina SLA...">
-          <button class="btn green" style="box-shadow:none; padding:16px 22px" onclick="goSearch()">Buscar</button>
+          <button class="btn green" style="box-shadow:none; padding:16px 24px" onclick="goSearch()">Buscar</button>
         </div>
         <div id="results" class="searchresults"></div>
       </aside>
@@ -189,10 +370,11 @@
       </article>
     </section>
 
-    <!-- BLOQUE 1: DIAGNÓSTICO Y SOLUCIÓN DE FALLOS -->
+    <!-- BLOQUE 1 -->
     <section id="guias" class="section">
       <div class="sectionhead">
-        <h2>1. Diagnóstico y Resolución de Fallos</h2>
+        <div class="eyebrow" style="margin-bottom:12px">01 / DIAGNÓSTICO</div>
+        <h2>Diagnóstico y Resolución de Fallos</h2>
         <p>Identificación técnica de errores de extrusión, problemas de adhesión y mantenimiento preventivo de hardware.</p>
       </div>
 
@@ -229,10 +411,11 @@
 
     <hr class="section-divider">
 
-    <!-- BLOQUE 2: CONFIGURACIÓN DE SOFTWARE Y LAMINADO -->
+    <!-- BLOQUE 2 -->
     <section class="section">
       <div class="sectionhead">
-        <h2>2. Configuración de Software y Laminado</h2>
+        <div class="eyebrow" style="margin-bottom:12px">02 / LAMINADO</div>
+        <h2>Configuración de Software y Laminado</h2>
         <p>Configuraciones de laminación (Slicing) estructurales para mejorar la robustez de las piezas mecánicas.</p>
       </div>
 
@@ -269,10 +452,11 @@
 
     <hr class="section-divider">
 
-    <!-- BLOQUE 3: MATERIALES Y GESTIÓN TÉCNICA -->
+    <!-- BLOQUE 3 -->
     <section class="section">
       <div class="sectionhead">
-        <h2>3. Materiales y Gestión Técnica</h2>
+        <div class="eyebrow" style="margin-bottom:12px">03 / GESTIÓN</div>
+        <h2>Materiales y Gestión Técnica</h2>
         <p>Análisis en profundidad de polímeros industriales, tecnologías de resina y amortización económica.</p>
       </div>
 
@@ -309,7 +493,6 @@
 
   </main>
 
-  <!-- FOOTER UNIVERSAL -->
   <footer class="footer">
     <div class="wrap footergrid">
       <div>
@@ -334,7 +517,6 @@
     </div>
   </footer>
 
-  <!-- SCRIPT DEL ASISTENTE Y BUSCADOR -->
   <script>
     const ASSISTANT_DATA = {
       'visual': {
