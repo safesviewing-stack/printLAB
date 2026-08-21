@@ -82,27 +82,27 @@
     }
     .input-group input:focus{background:#fff; border-color:var(--ink)}
 
-    /* panel de resultados simétrico en ancho y espaciados de esquinas */
+    /* panel de resultados compacto y proporcionado */
     .result-panel{
       background:var(--dark);
       color:#fff;
       border-radius:24px;
-      padding:40px;
+      padding:32px;
       position:sticky;
       top:130px;
       border: 1px solid #2a332f;
       width: 100%;
     }
-    .result-panel h3{font-size:22px; font-weight:800; margin:0 0 24px; color:#b8c0bb}
+    .result-panel h3{font-size:18px; font-weight:800; margin:0 0 18px; color:#b8c0bb}
     
-    .result-row{display:flex; justify-content:space-between; align-items:center; border-bottom:1px dashed #2a332f; padding-bottom:12px; margin-bottom:20px; font-size:16px}
+    .result-row{display:flex; justify-content:space-between; align-items:center; border-bottom:1px dashed #2a332f; padding-bottom:8px; margin-bottom:12px; font-size:15px}
     
     /* Bloqueo de salto de línea para evitar que baje el símbolo de € */
-    .result-row span:last-child{font-weight:800; font-size:18px; white-space: nowrap;}
+    .result-row span:last-child{font-weight:800; font-size:16px; white-space: nowrap;}
     
-    .total-box{background:var(--accent); color:var(--ink); border-radius:20px; padding:28px; margin-top:35px; text-align:center;}
-    .total-box span{display:block; font-size:14px; font-weight:800; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px}
-    .total-box strong{display:block; font-size:46px; line-height:1; letter-spacing:-2px; font-family:monospace}
+    .total-box{background:var(--accent); color:var(--ink); border-radius:18px; padding:22px; margin-top:24px; text-align:center;}
+    .total-box span{display:block; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px}
+    .total-box strong{display:block; font-size:36px; line-height:1; letter-spacing:-1px; font-family:monospace}
 
     /* MODALES DE TRANSPARENCIA */
     .modal{
@@ -266,11 +266,11 @@
             <span>Amortización máquina</span>
             <span id="res_wear">0.00 €</span>
           </div>
-          <div class="result-row" style="color: #ffa294; border-bottom: 1.5px solid #3b443f; margin-top: 30px;">
+          <div class="result-row" style="color: #ffa294; border-bottom: 1.5px solid #3b443f; margin-top: 16px;">
             <span>Sobrecoste por fallos</span>
             <span id="res_fail">0.00 €</span>
           </div>
-          <div class="result-row" style="border:none; margin-top: 15px;">
+          <div class="result-row" style="border:none; margin-top: 10px;">
             <span>Coste base (Fabricación)</span>
             <span id="res_base">0.00 €</span>
           </div>
