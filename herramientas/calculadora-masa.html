@@ -47,41 +47,63 @@
     .nav a:hover{color:var(--ink);background:rgba(0,0,0,0.03)}
     .nav a.active{color:var(--ink);background:var(--card);border:1px solid var(--line)}
     
-    .tool-header{padding:80px 0 40px; border-bottom:1px solid var(--line); margin-bottom: 50px;}
+    .tool-header{padding:60px 0 30px; border-bottom:1px solid var(--line); margin-bottom: 40px;}
     .tool-header h1{font-size:clamp(42px, 6vw, 68px); letter-spacing:-2.5px; line-height:1; margin:0 0 16px; font-weight:800}
-    .tool-header p{font-size:20px; color:var(--muted); max-width:900px; margin:0; line-height:1.5}
+    .tool-header p{font-size:18px; color:var(--muted); max-width:900px; margin:0; line-height:1.5}
     
-    /* Cuadrícula simétrica alineada para igualar alturas */
+    /* Cuadrícula principal */
     .calc-layout{
       display:grid; 
       grid-template-columns: 1fr 1fr; 
-      gap: 40px; 
+      gap: 30px; 
       align-items: stretch;
       width: 100%;
       max-width: 100%;
     }
-    
-    /* Contenedor de la columna derecha para estirar la caja negra */
-    .calc-layout aside {
+
+    /* Asignación de posiciones en la cuadrícula para alinear alturas */
+    .panel-volumen {
+      grid-column: 1;
+      grid-row: 1;
+      margin-bottom: 0 !important;
+    }
+    .panel-resultado {
+      grid-column: 2;
+      grid-row: 1;
       display: flex;
       flex-direction: column;
       height: 100%;
     }
+    .panel-laminacion {
+      grid-column: 1 / span 2;
+      grid-row: 2;
+      margin-bottom: 0 !important;
+    }
     
-    /* Paneles de entrada con padding simétrico */
-    .input-panel{background:var(--card); border:1.5px solid var(--line); border-radius:26px; padding:40px; margin-bottom: 30px; width:100%}
-    .input-panel h2{font-size:26px; letter-spacing:-1px; margin:0 0 24px; border-bottom: 1.5px solid var(--line); padding-bottom:12px; font-weight:800}
+    /* Paneles de entrada optimizados */
+    .input-panel{background:var(--card); border:1.5px solid var(--line); border-radius:22px; padding:32px; width:100%}
+    .input-panel h2{font-size:24px; letter-spacing:-0.5px; margin:0 0 20px; border-bottom: 1.5px solid var(--line); padding-bottom:10px; font-weight:800}
     
-    /* Ajuste a 1 columna para separar visualmente los campos en líneas individuales */
-    .input-grid{display:grid; grid-template-columns: 1fr; gap:28px}
+    /* Configuración interna de los campos */
+    .panel-volumen .input-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+    .panel-laminacion .input-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
     .input-group{display:flex; flex-direction:column;}
-    .input-group label{font-size:14px; font-weight:800; margin-bottom:8px; display:flex; justify-content:space-between; color:var(--muted)}
+    .input-group label{font-size:13px; font-weight:800; margin-bottom:6px; display:flex; justify-content:space-between; color:var(--muted)}
     .input-group label span{color:var(--ink); font-weight:800}
     .input-group input, .input-group select{
-      padding:16px;
+      padding:14px;
       border:1.5px solid var(--line);
-      border-radius:14px;
-      font-size:18px;
+      border-radius:12px;
+      font-size:16px;
       font-weight:700;
       background:var(--bg);
       color:var(--ink);
@@ -91,12 +113,12 @@
     }
     .input-group input:focus, .input-group select:focus{background:#fff; border-color:var(--ink)}
 
-    /* Caja de resultados negra que se estira de manera uniforme */
+    /* Panel de resultados con altura adaptada */
     .result-panel{
       background:var(--dark);
       color:#fff;
-      border-radius:24px;
-      padding:40px;
+      border-radius:22px;
+      padding:32px;
       border: 1px solid #2a332f;
       width: 100%;
       flex-grow: 1;
@@ -104,26 +126,26 @@
       flex-direction: column;
       justify-content: space-between;
     }
-    .result-panel h3{font-size:22px; font-weight:800; margin:0 0 24px; color:#b8c0bb}
+    .result-panel h3{font-size:20px; font-weight:800; margin:0 0 16px; color:#b8c0bb}
     
     .mass-box{
       background:#1a221f;
       border:1px dashed #2a332f;
-      padding:24px;
-      border-radius:16px;
-      margin-bottom:20px;
+      padding:18px;
+      border-radius:14px;
+      margin-bottom:14px;
       text-align:center;
     }
-    .mass-box span{display:block; font-size:14px; color:#bcc5c0; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px}
-    .mass-box strong{font-size:46px; color:var(--accent); font-family:monospace; line-height:1; white-space: nowrap;}
+    .mass-box span{display:block; font-size:12px; color:#bcc5c0; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px}
+    .mass-box strong{font-size:38px; color:var(--accent); font-family:monospace; line-height:1; white-space: nowrap;}
 
     .warning-box{
       background:rgba(255, 255, 255, 0.04);
-      padding:20px;
+      padding:16px;
       border-radius:12px;
-      font-size:14px;
+      font-size:13px;
       color:#bcc5c0;
-      line-height:1.5;
+      line-height:1.4;
     }
     .warning-box strong{color:#fff; display:block; margin-bottom:4px}
 
@@ -174,9 +196,12 @@
       .wrap{padding:0 40px}
     }
     @media(max-width:992px){
-      .calc-layout{display:grid; grid-template-columns:1fr; gap:40px}
-      .calc-layout aside {height: auto;}
-      .result-panel{flex-grow: 0; margin-top:20px}
+      .calc-layout{display:grid; grid-template-columns:1fr; gap:24px}
+      .panel-volumen { grid-column: 1; grid-row: 1; }
+      .panel-resultado { grid-column: 1; grid-row: 2; }
+      .panel-laminacion { grid-column: 1; grid-row: 3; }
+      .panel-laminacion .input-grid { grid-template-columns: 1fr; gap: 20px; }
+      .result-panel{flex-grow: 0; margin-top:0}
     }
     @media(max-width:650px){
       .wrap{padding:0 24px}
@@ -210,57 +235,38 @@
     </div>
 
     <div class="calc-layout">
-      <div>
-        <div class="input-panel">
-          <h2>1. Volumen y Material</h2>
-          <div class="input-grid">
-            <div class="input-group">
-              <label>Volumen Sólido CAD <span>(cm³)</span></label>
-              <input type="number" id="cad_vol" value="100" step="any" oninput="calculateMass()">
-            </div>
-            <div class="input-group">
-              <label>Material Utilizado</label>
-              <select id="mat_select" onchange="updateDensity(); calculateMass();">
-                <option value="1.24">PLA (1.24 g/cm³)</option>
-                <option value="1.27">PETG (1.27 g/cm³)</option>
-                <option value="1.04">ABS (1.04 g/cm³)</option>
-                <option value="1.07">ASA (1.07 g/cm³)</option>
-                <option value="1.20">TPU (1.20 g/cm³)</option>
-                <option value="1.14">Nylon (1.14 g/cm³)</option>
-                <option value="1.20">PC (1.20 g/cm³)</option>
-                <option value="1.12">Resina Estándar (1.12 g/cm³)</option>
-                <option value="custom">Otro (Personalizado)</option>
-              </select>
-            </div>
-            <div class="input-group">
-              <label>Densidad del Polímero <span>(g/cm³)</span></label>
-              <input type="number" id="mat_density" value="1.24" step="0.01" oninput="calculateMass()">
-            </div>
+      
+      <!-- 1. Volumen y Material (Primera caja blanca) -->
+      <div class="input-panel panel-volumen">
+        <h2>1. Volumen y Material</h2>
+        <div class="input-grid">
+          <div class="input-group">
+            <label>Volumen Sólido CAD <span>(cm³)</span></label>
+            <input type="number" id="cad_vol" value="100" step="any" oninput="calculateMass()">
           </div>
-        </div>
-
-        <div class="input-panel" style="margin-bottom: 0;">
-          <h2>2. Estimación de Laminación</h2>
-          <div class="input-grid">
-            <div class="input-group">
-              <label>Densidad de Relleno <span>(Infill %)</span></label>
-              <input type="number" id="infill_percent" value="20" min="0" max="100" step="5" oninput="calculateMass()">
-            </div>
-            <div class="input-group">
-              <label>Perímetros de Pared <span>(Grosor de piel)</span></label>
-              <select id="wall_factor" onchange="calculateMass()">
-                <option value="0.25">Ligero (2 perímetros - ~25% masa sólida en piel)</option>
-                <option value="0.40" selected>Equilibrado (3-4 perímetros - ~40% masa sólida en piel)</option>
-                <option value="0.60">Estructural (5+ perímetros - ~60% masa sólida en piel)</option>
-                <option value="1.00">Sólido 100% (Masa total de la pieza)</option>
-              </select>
-            </div>
+          <div class="input-group">
+            <label>Material Utilizado</label>
+            <select id="mat_select" onchange="updateDensity(); calculateMass();">
+              <option value="1.24">PLA (1.24 g/cm³)</option>
+              <option value="1.27">PETG (1.27 g/cm³)</option>
+              <option value="1.04">ABS (1.04 g/cm³)</option>
+              <option value="1.07">ASA (1.07 g/cm³)</option>
+              <option value="1.20">TPU (1.20 g/cm³)</option>
+              <option value="1.14">Nylon (1.14 g/cm³)</option>
+              <option value="1.20">PC (1.20 g/cm³)</option>
+              <option value="1.12">Resina Estándar (1.12 g/cm³)</option>
+              <option value="custom">Otro (Personalizado)</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>Densidad del Polímero <span>(g/cm³)</span></label>
+            <input type="number" id="mat_density" value="1.24" step="0.01" oninput="calculateMass()">
           </div>
         </div>
       </div>
 
-      <!-- PANEL DE RESULTADOS (ALINEADO) -->
-      <aside>
+      <!-- PANEL DE RESULTADOS (Caja negra alineada con la primera caja blanca) -->
+      <aside class="panel-resultado">
         <div class="result-panel">
           <div>
             <h3>Masa Estimada en Impresión</h3>
@@ -270,20 +276,41 @@
               <strong id="res_mass">52.00 g</strong>
             </div>
 
-            <div class="mass-box" style="background:transparent; border-color:#3b443f;">
+            <div class="mass-box" style="background:transparent; border-color:#3b443f; margin-bottom: 0;">
               <span style="color:#b8c0bb">Masa 100% Sólida (Referencia)</span>
               <strong id="res_solid_mass" style="font-size:28px; color:#fff; white-space: nowrap;">124.00 g</strong>
             </div>
           </div>
 
-          <div class="warning-box" style="margin-top: 24px;">
+          <div class="warning-box">
             <strong>Fórmula de Estimación Aplicada:</strong>
-            <div style="margin-top: 10px; font-family: monospace; font-size: 13px; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); overflow-x: auto; color: var(--accent); font-weight: bold;">
-              Masa ≈ Volumen × Densidad × [FactorPared + (1 - FactorPared) × (Infill% / 100)]
+            <div style="margin-top: 8px; font-family: monospace; font-size: 12px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); overflow-x: auto; color: var(--accent); font-weight: bold;">
+              Masa ≈ Vol × Dens × [FactorPared + (1 - FactorPared) × (Infill% / 100)]
             </div>
           </div>
         </div>
       </aside>
+
+      <!-- 2. Estimación de Laminación (Segunda caja blanca abajo a doble columna) -->
+      <div class="input-panel panel-laminacion">
+        <h2>2. Estimación de Laminación</h2>
+        <div class="input-grid">
+          <div class="input-group">
+            <label>Densidad de Relleno <span>(Infill %)</span></label>
+            <input type="number" id="infill_percent" value="20" min="0" max="100" step="5" oninput="calculateMass()">
+          </div>
+          <div class="input-group">
+            <label>Perímetros de Pared <span>(Grosor de piel)</span></label>
+            <select id="wall_factor" onchange="calculateMass()">
+              <option value="0.25">Ligero (2 perímetros - ~25% masa sólida en piel)</option>
+              <option value="0.40" selected>Equilibrado (3-4 perímetros - ~40% masa sólida en piel)</option>
+              <option value="0.60">Estructural (5+ perímetros - ~60% masa sólida en piel)</option>
+              <option value="1.00">Sólido 100% (Masa total de la pieza)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
     </div>
   </main>
 
