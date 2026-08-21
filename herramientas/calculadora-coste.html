@@ -162,12 +162,84 @@
     }
     .modal-close:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
     
-    /* FOOTER */
-    .footer{padding:80px 0 110px;margin-top:100px;border-top:1px solid var(--line);color:var(--muted);font-size:15px}
-    .footergrid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:45px}
-    .footer strong{display:block;font-size:16px;color:var(--ink);margin-bottom:12px}
-    .footer a{display:inline-block;margin-bottom:8px;transition:0.15s;cursor:pointer;}
-    .footer a:hover{color:var(--ink);text-decoration:underline}
+    /* NUEVO ESTILO FOOTER MINIMALISTA (PRINTLAB) */
+    .footer {
+      background: var(--bg);
+      border-top: 1px solid var(--line);
+      padding: 80px 0 60px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .footergrid {
+      display: grid;
+      grid-template-columns: 1.3fr 0.85fr 0.85fr;
+      gap: 60px;
+      margin-bottom: 48px;
+    }
+    .footer-col h3 {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--ink);
+      margin: 0 0 20px;
+      letter-spacing: -0.3px;
+    }
+    .footer-col p {
+      margin: 0 0 16px;
+      color: var(--muted);
+    }
+    .footer-secondary-text {
+      font-size: 12.5px;
+      line-height: 1.5;
+      color: #7d8782;
+      margin-top: 12px;
+    }
+    .footer-links {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .footer-links a {
+      color: var(--muted);
+      transition: color 0.15s ease, transform 0.15s ease;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+    }
+    .footer-links a:hover {
+      color: var(--ink);
+      transform: translateX(2px);
+    }
+    .footer-links a span.arrow {
+      transition: color 0.15s ease;
+    }
+    .footer-links a:hover span.arrow {
+      color: var(--accent); /* Pequeño acento verde lima únicamente en hover */
+    }
+    .footer-bottom {
+      border-top: 1px solid var(--line);
+      padding-top: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      font-size: 13px;
+      color: #7d8782;
+    }
+    .footer-bottom-right {
+      display: flex;
+      gap: 16px;
+    }
+    .footer-bottom-right a {
+      transition: color 0.15s ease;
+      text-decoration: none;
+    }
+    .footer-bottom-right a:hover {
+      color: var(--ink);
+    }
     
     @media(max-width:992px){
       .calc-layout{grid-template-columns:1fr; gap:24px}
@@ -183,6 +255,16 @@
       .tool-header h1{font-size:42px}
       nav{flex-direction:column; padding:20px 0; gap:16px}
       .brand{margin-right:0}
+    }
+    @media(max-width: 768px) {
+      .footergrid {
+        grid-template-columns: 1fr;
+        gap: 36px;
+      }
+      .footer-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+      }
     }
   </style>
 </head>
@@ -356,28 +438,53 @@
     </div>
   </div>
 
-  <!-- FOOTER -->
+  <!-- FOOTER HERRAMIENTAS -->
   <footer class="footer">
-    <div class="wrap footergrid">
-      <div>
-        <strong>PrintLab — Ingeniería 3D</strong>
-        <p>Toda la información técnica publicada se basa en fichas técnicas de materiales (TDS), protocolos de fabricantes (Prusa, UltiMaker, Formlabs) y normativas estandarizadas de la industria (ISO, ASTM).</p>
+    <div class="wrap">
+      <div class="footergrid">
+        <!-- COLUMNA 1 — IDENTIDAD -->
+        <div class="footer-col">
+          <h3>PrintLab — Ingeniería 3D</h3>
+          <p>Información técnica y herramientas para tomar mejores decisiones en fabricación aditiva.</p>
+          <p class="footer-secondary-text">La información técnica se contrasta con fichas técnicas de fabricantes, documentación especializada, normas ISO/ASTM y literatura técnica.</p>
+        </div>
+        
+        <!-- COLUMNA 2 — RECURSOS -->
+        <div class="footer-col">
+          <h3>Recursos</h3>
+          <div class="footer-links">
+            <a href="../index.html#portada"><span class="arrow">→</span> Materiales</a>
+            <a href="../index.html#guias"><span class="arrow">→</span> Guías técnicas</a>
+            <a href="../index.html#herramientas"><span class="arrow">→</span> Calculadoras</a>
+            <a href="../index.html#simulador"><span class="arrow">→</span> Simulador</a>
+            <a href="../guias/diagnostico-fallos.html"><span class="arrow">→</span> Diagnóstico de problemas</a>
+            <a href="../index.html#portada"><span class="arrow">→</span> Buscador técnico</a>
+          </div>
+        </div>
+        
+        <!-- COLUMNA 3 — FUENTES Y METODOLOGÍA -->
+        <div class="footer-col">
+          <h3>Fuentes y metodología</h3>
+          <div class="footer-links">
+            <a onclick="openModal('modal-fuentes')"><span class="arrow">→</span> Fuentes técnicas</a>
+            <a onclick="openModal('modal-normativas')"><span class="arrow">→</span> Normativas y estándares</a>
+            <a onclick="openModal('modal-metodologia')"><span class="arrow">→</span> Metodología del simulador</a>
+            <a onclick="openModal('modal-limitaciones')"><span class="arrow">→</span> Limitaciones de las estimaciones</a>
+            <a onclick="openModal('modal-metodologia')"><span class="arrow">→</span> Actualización de datos</a>
+          </div>
+        </div>
       </div>
-      <div>
-        <strong>Centro de recursos</strong>
-        <p>
-          <a href="../index.html#guias">Guías y diagnóstico de problemas</a><br>
-          <a href="../materiales/index.html">Atlas de materiales</a>
-        </p>
-      </div>
-      <div>
-        <strong>Normativa y transparencia</strong>
-        <p>
-          <a onclick="openModal('modal-fuentes')">→ Fuentes técnicas</a><br>
-          <a onclick="openModal('modal-normativas')">→ Normativas y estándares</a><br>
-          <a onclick="openModal('modal-metodologia')">→ Metodología del simulador</a><br>
-          <a onclick="openModal('modal-limitaciones')">→ Limitaciones y seguridad</a>
-        </p>
+      
+      <!-- PARTE INFERIOR -->
+      <div class="footer-bottom">
+        <div class="footer-bottom-left">
+          © 2026 PrintLab
+        </div>
+        <div class="footer-bottom-right">
+          <a href="../legal/aviso-legal.html">Aviso legal</a> · 
+          <a href="../legal/privacidad.html">Privacidad</a> · 
+          <a href="../contacto.html">Contacto</a>
+        </div>
       </div>
     </div>
   </footer>
