@@ -51,31 +51,39 @@
     .tool-header h1{font-size:clamp(42px, 6vw, 68px); letter-spacing:-2.5px; line-height:1; margin:0 0 16px; font-weight:800}
     .tool-header p{font-size:20px; color:var(--muted); max-width:900px; margin:0; line-height:1.5}
     
-    /* Cuadrícula simétrica 50/50 y centrada con los márgenes de página */
+    /* Cuadrícula simétrica estructurada para alinear la base */
     .calc-layout{
       display:grid; 
       grid-template-columns: 1fr 1fr; 
-      gap: 40px; 
-      align-items: start;
+      gap: 30px; 
+      align-items: stretch;
       width: 100%;
       max-width: 100%;
     }
+
+    .left-col {
+      grid-column: 1;
+      grid-row: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+    }
     
-    /* Paneles de entrada con padding simétrico en las 4 direcciones */
-    .input-panel{background:var(--card); border:1.5px solid var(--line); border-radius:26px; padding:40px; margin-bottom: 30px;}
-    .input-panel h2{font-size:26px; letter-spacing:-1px; margin:0 0 24px; border-bottom: 1.5px solid var(--line); padding-bottom:12px; font-weight:800}
+    /* Paneles de entrada con padding simétrico */
+    .input-panel{background:var(--card); border:1.5px solid var(--line); border-radius:26px; padding:32px 40px; margin-bottom: 0; width: 100%;}
+    .input-panel h2{font-size:24px; letter-spacing:-0.5px; margin:0 0 20px; border-bottom: 1.5px solid var(--line); padding-bottom:12px; font-weight:800}
     
-    .input-grid{display:grid; grid-template-columns: 1fr; gap:24px}
+    .input-grid{display:grid; grid-template-columns: 1fr; gap:20px}
     @media(min-width: 768px) { .input-grid.half { grid-template-columns: 1fr 1fr; } }
     
     .input-group{display:flex; flex-direction:column;}
-    .input-group label{font-size:14px; font-weight:800; margin-bottom:8px; color:var(--muted)}
-    .input-group label span{font-weight:400; font-size:13px; margin-left:4px;}
+    .input-group label{font-size:13px; font-weight:800; margin-bottom:6px; color:var(--muted)}
+    .input-group label span{font-weight:400; font-size:12px; margin-left:4px;}
     .input-group input, .input-group select{
-      padding:16px;
+      padding:14px;
       border:1.5px solid var(--line);
-      border-radius:14px;
-      font-size:17px;
+      border-radius:12px;
+      font-size:16px;
       font-weight:700;
       background:var(--bg);
       color:var(--ink);
@@ -84,32 +92,53 @@
       font-family: inherit;
     }
     .input-group input:focus, .input-group select:focus{background:#fff; border-color:var(--ink)}
+
+    /* Contenedor de la columna derecha para estirar la caja negra */
+    .panel-resultado {
+      grid-column: 2;
+      grid-row: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
     
-    /* Panel de resultados simétrico en ancho y espaciados de esquinas */
+    /* Caja de resultados estilizada y compacta */
     .result-panel{
       background:var(--dark);
       color:#fff;
-      border-radius:24px;
-      padding:40px;
-      position:sticky;
-      top:130px;
+      border-radius:26px;
+      padding:32px;
       border: 1px solid #2a332f;
       width: 100%;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
-    .result-panel h3{font-size:22px; font-weight:800; margin:0 0 24px; color:#b8c0bb}
+    .result-panel h3{font-size:18px; font-weight:800; margin:0 0 18px; color:#b8c0bb}
     
-    .blueprint-box{background:#1a221f; border:1px solid #2a332f; border-radius:16px; padding:24px; margin-bottom:20px;}
-    .blueprint-box h4{margin:0 0 12px; font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#8f9892; font-weight:800}
-    .bp-data{display:flex; justify-content:space-between; align-items:center;}
-    .bp-data span{font-size:16px; color:#d1d6d3}
-    /* Bloqueo de salto de línea para evitar desalineación de unidades */
-    .bp-data strong{font-size:26px; font-family:monospace; color:var(--accent); white-space: nowrap;}
+    /* Tarjetas internas de planos reducidas para mayor compresión */
+    .blueprint-box{background:#1a221f; border:1px solid #2a332f; border-radius:14px; padding:18px 20px; margin-bottom:12px;}
+    .blueprint-box h4{margin:0 0 6px; font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:#8f9892; font-weight:800}
+    .bp-data{display:flex; justify-content:space-between; align-items:baseline;}
+    .bp-data span{font-size:14px; color:#d1d6d3}
+    /* Diámetro recomendado más proporcionado */
+    .bp-data strong{font-size:20px; font-family:monospace; color:var(--accent); white-space: nowrap;}
     .bp-data strong.hole{color:#76d6ff}
     
-    .technical-note{background:rgba(255, 255, 255, 0.04); padding:20px; border-radius:14px; font-size:14px; color:#a4aca7; margin-top:20px; line-height:1.5}
+    .technical-note{background:rgba(255, 255, 255, 0.04); padding:14px 16px; border-radius:12px; font-size:13px; color:#a4aca7; margin-top:16px; line-height:1.5}
     .technical-note strong{color:#fff}
 
-    .warning-note{background:#f0f7f1; border:1.5px solid #c2dfc5; padding:40px; border-radius:26px; margin-bottom:30px}
+    /* Nota de advertencia verde reposicionada abajo a doble columna */
+    .warning-note{
+      grid-column: 1 / span 2;
+      grid-row: 2;
+      background:#f0f7f1; 
+      border:1.5px solid #c2dfc5; 
+      padding:32px 40px; 
+      border-radius:26px; 
+      margin-top: 10px;
+    }
     .warning-note h3{margin:0 0 10px; font-size:18px; color:#1e694b; font-weight:800}
     .warning-note p{margin:0; font-size:15px; color:var(--ink); line-height:1.6}
 
@@ -159,7 +188,13 @@
     @media(max-width:1250px){
       .wrap{padding:0 40px}
     }
-    @media(max-width:1100px){.calc-layout{grid-template-columns:1fr}}
+    @media(max-width:1100px){
+      .calc-layout{grid-template-columns:1fr; gap: 24px;}
+      .left-col { grid-column: 1; grid-row: 1; gap: 24px;}
+      .panel-resultado { grid-column: 1; grid-row: 2; height: auto;}
+      .warning-note { grid-column: 1; grid-row: 3;}
+      .result-panel { flex-grow: 0; }
+    }
     @media(max-width:650px){
       .wrap{padding:0 24px}
       .tool-header h1{font-size:42px}
@@ -193,8 +228,9 @@
     </div>
 
     <div class="calc-layout">
-      <!-- PANEL DE ENTRADA -->
-      <div>
+      
+      <!-- PANEL DE ENTRADA (COLUMNA IZQUIERDA AGRUPADA) -->
+      <div class="left-col">
         <div class="input-panel">
           <h2>1. Parámetros del Diseño</h2>
           <div class="input-grid half">
@@ -235,44 +271,50 @@
             </div>
           </div>
         </div>
-        
-        <div class="warning-note">
-          <h3>¿Por qué los agujeros en FDM siempre encogen?</h3>
-          <p>Durante la laminación FDM, los contornos circulares se discretizan como polígonos inscritos que ejercen tracción hacia el centro geométrico. Adicionalmente, los polímeros experimentan contracción por cambio de fase térmica al enfriarse. Por este motivo, siempre se debe contemplar una compensación positiva en los agujeros para permitir el paso de un eje de dimensión nominal idéntica.</p>
-        </div>
       </div>
 
-      <!-- PANEL DE RESULTADOS (STICKY) -->
-      <aside style="width: 100%;">
+      <!-- PANEL DE RESULTADOS (COLUMNA DERECHA ALINEADA PERFECTAMENTE) -->
+      <aside class="panel-resultado">
         <div class="result-panel">
-          <h3>Dimensiones Finales (CAD)</h3>
-          
-          <div class="blueprint-box">
-            <h4>Pieza 1: Eje (Shaft)</h4>
-            <div class="bp-data">
-              <span>Ø Recomendado</span>
-              <strong id="res_shaft">10.00 mm</strong>
+          <div>
+            <h3>Dimensiones Finales (CAD)</h3>
+            
+            <div class="blueprint-box">
+              <h4>Pieza 1: Eje (Shaft)</h4>
+              <div class="bp-data">
+                <span>Ø Recomendado</span>
+                <strong id="res_shaft">10.00 mm</strong>
+              </div>
+            </div>
+
+            <div class="blueprint-box">
+              <h4>Pieza 2: Agujero (Hole)</h4>
+              <div class="bp-data">
+                <span>Ø Recomendado</span>
+                <strong id="res_hole" class="hole">10.12 mm</strong>
+              </div>
             </div>
           </div>
-
-          <div class="blueprint-box">
-            <h4>Pieza 2: Agujero (Hole)</h4>
-            <div class="bp-data">
-              <span>Ø Recomendado</span>
-              <strong id="res_hole" class="hole">10.12 mm</strong>
-            </div>
-          </div>
           
-          <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px dashed #3b443f; padding-top:20px; margin-top:10px">
-            <span style="font-size:15px; color:#b8c0bb">Holgura de diseño aplicada</span>
-            <strong id="res_clearance" style="font-size:22px; color:var(--accent); white-space: nowrap;">+0.12 mm</strong>
-          </div>
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px dashed #3b443f; padding-top:14px; margin-top:8px">
+              <span style="font-size:14px; color:#b8c0bb">Holgura de diseño aplicada</span>
+              <strong id="res_clearance" style="font-size:18px; color:var(--accent); white-space: nowrap;">+0.12 mm</strong>
+            </div>
 
-          <div class="technical-note">
-            <strong>Comportamiento del ajuste:</strong> <span id="res_note">-</span>
+            <div class="technical-note">
+              <strong>Comportamiento del ajuste:</strong> <span id="res_note">-</span>
+            </div>
           </div>
         </div>
       </aside>
+      
+      <!-- NOTA DE ADVERTENCIA VERDE (COLOCADA DEBAJO A LO ANCHO) -->
+      <div class="warning-note">
+        <h3>¿Por qué los agujeros en FDM siempre encogen?</h3>
+        <p>Durante la laminación FDM, los contornos circulares se discretizan como polígonos inscritos que ejercen tracción hacia el centro geométrico. Adicionalmente, los polímeros experimentan contracción por cambio de fase térmica al enfriarse. Por este motivo, siempre se debe contemplar una compensación positiva en los agujeros para permitir el paso de un eje de dimensión nominal idéntica.</p>
+      </div>
+      
     </div>
 
   </main>
