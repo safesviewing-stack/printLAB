@@ -410,12 +410,84 @@
     .modal-link{color:var(--ink);font-weight:800;text-decoration:underline}
     .modal-link:hover{color:var(--muted)}
 
-    /* FOOTER */
-    .footer{padding:80px 0 110px;margin-top:100px;border-top:1px solid var(--line);color:var(--muted);font-size:15px}
-    .footergrid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:45px}
-    .footer strong{display:block;font-size:16px;color:var(--ink);margin-bottom:12px}
-    .footer a{display:inline-block;margin-bottom:8px;transition:0.15s;cursor:pointer;}
-    .footer a:hover{color:var(--ink);text-decoration:underline}
+    /* NUEVO ESTILO FOOTER MINIMALISTA (PRINTLAB) */
+    .footer {
+      background: var(--bg);
+      border-top: 1px solid var(--line);
+      padding: 80px 0 60px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .footergrid {
+      display: grid;
+      grid-template-columns: 1.3fr 0.85fr 0.85fr;
+      gap: 60px;
+      margin-bottom: 48px;
+    }
+    .footer-col h3 {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--ink);
+      margin: 0 0 20px;
+      letter-spacing: -0.3px;
+    }
+    .footer-col p {
+      margin: 0 0 16px;
+      color: var(--muted);
+    }
+    .footer-secondary-text {
+      font-size: 12.5px;
+      line-height: 1.5;
+      color: #7d8782;
+      margin-top: 12px;
+    }
+    .footer-links {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .footer-links a {
+      color: var(--muted);
+      transition: color 0.15s ease, transform 0.15s ease;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+    }
+    .footer-links a:hover {
+      color: var(--ink);
+      transform: translateX(2px);
+    }
+    .footer-links a span.arrow {
+      transition: color 0.15s ease;
+    }
+    .footer-links a:hover span.arrow {
+      color: var(--accent); /* Pequeño acento verde lima únicamente en hover */
+    }
+    .footer-bottom {
+      border-top: 1px solid var(--line);
+      padding-top: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      font-size: 13px;
+      color: #7d8782;
+    }
+    .footer-bottom-right {
+      display: flex;
+      gap: 16px;
+    }
+    .footer-bottom-right a {
+      transition: color 0.15s ease;
+      text-decoration: none;
+    }
+    .footer-bottom-right a:hover {
+      color: var(--ink);
+    }
     
     .searchresults{margin-top:18px;display:none;background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden}
     .searchresults a{display:block;padding:16px 20px;border-bottom:1px solid var(--line);transition:background 0.1s}
@@ -428,16 +500,31 @@
       .wrap{padding:0 40px} /* Cambiado para unificar márgenes a 40px */
       .hero{grid-template-columns:1fr; gap:40px}
       .sim-container{grid-template-columns:1fr; gap:36px}
-      .footergrid{grid-template-columns:1fr 1fr}
+    }
+    @media(max-width:992px) {
+      .footergrid {
+        grid-template-columns: 1.2fr 1fr;
+        gap: 40px;
+      }
     }
     @media(max-width:750px){
       .wrap{padding:0 24px}
-      .grid, .footergrid{grid-template-columns:1fr}
+      .grid{grid-template-columns:1fr}
       .hero h1{font-size:38px}
       .searchbox{display:block}
       .searchbox input, .searchbox button{width:100%;margin-top:12px}
       nav{flex-direction:column; padding:20px 0; gap:16px}
       .brand{margin-right:0}
+    }
+    @media(max-width: 768px) {
+      .footergrid {
+        grid-template-columns: 1fr;
+        gap: 36px;
+      }
+      .footer-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+      }
     }
   </style>
 </head>
@@ -917,29 +1004,53 @@
     </div>
   </div>
 
-  <!-- FOOTER UNIVERSAL -->
+  <!-- NUEVO FOOTER MINIMALISTA -->
   <footer class="footer">
-    <div class="wrap footergrid">
-      <div>
-        <strong>PrintLab — Ingeniería 3D</strong>
-        <p>Toda la información técnica publicada se basa en fichas técnicas de materiales (TDS), protocolos de fabricantes (Prusa, UltiMaker, Formlabs) y normativas estandarizadas de la industria (ISO, ASTM).</p>
+    <div class="wrap">
+      <div class="footergrid">
+        <!-- COLUMNA 1 — IDENTIDAD -->
+        <div class="footer-col">
+          <h3>PrintLab — Ingeniería 3D</h3>
+          <p>Información técnica y herramientas para tomar mejores decisiones en fabricación aditiva.</p>
+          <p class="footer-secondary-text">La información técnica se contrasta con fichas técnicas de fabricantes, documentación especializada, normas ISO/ASTM y literatura técnica.</p>
+        </div>
+        
+        <!-- COLUMNA 2 — RECURSOS -->
+        <div class="footer-col">
+          <h3>Recursos</h3>
+          <div class="footer-links">
+            <a href="#portada"><span class="arrow">→</span> Materiales</a>
+            <a href="#guias"><span class="arrow">→</span> Guías técnicas</a>
+            <a href="#herramientas"><span class="arrow">→</span> Calculadoras</a>
+            <a href="#simulador"><span class="arrow">→</span> Simulador</a>
+            <a href="guias/diagnostico-fallos.html"><span class="arrow">→</span> Diagnóstico de problemas</a>
+            <a href="#portada"><span class="arrow">→</span> Buscador técnico</a>
+          </div>
+        </div>
+        
+        <!-- COLUMNA 3 — FUENTES Y METODOLOGÍA -->
+        <div class="footer-col">
+          <h3>Fuentes y metodología</h3>
+          <div class="footer-links">
+            <a onclick="openModal('modal-fuentes')"><span class="arrow">→</span> Fuentes técnicas</a>
+            <a onclick="openModal('modal-normativas')"><span class="arrow">→</span> Normativas y estándares</a>
+            <a onclick="openModal('modal-metodologia')"><span class="arrow">→</span> Metodología del simulador</a>
+            <a onclick="openModal('modal-limitaciones')"><span class="arrow">→</span> Limitaciones de las estimaciones</a>
+            <a onclick="openModal('modal-metodologia')"><span class="arrow">→</span> Actualización de datos</a>
+          </div>
+        </div>
       </div>
-      <div>
-        <strong>Centro de recursos</strong>
-        <p>
-          <a href="#guias">Guías y diagnóstico de problemas</a><br>
-          <a href="materiales/index.html">Atlas de materiales</a><br>
-          <a href="herramientas/index.html">Calculadoras de ingeniería</a>
-        </p>
-      </div>
-      <div>
-        <strong>Normativa y transparencia</strong>
-        <p>
-          <a onclick="openModal('modal-fuentes')">→ Fuentes técnicas</a><br>
-          <a onclick="openModal('modal-normativas')">→ Normativas y estándares</a><br>
-          <a onclick="openModal('modal-metodologia')">→ Metodología del simulador</a><br>
-          <a onclick="openModal('modal-limitaciones')">→ Limitaciones y seguridad</a>
-        </p>
+      
+      <!-- PARTE INFERIOR -->
+      <div class="footer-bottom">
+        <div class="footer-bottom-left">
+          © 2026 PrintLab
+        </div>
+        <div class="footer-bottom-right">
+          <a href="legal/aviso-legal.html">Aviso legal</a> · 
+          <a href="legal/privacidad.html">Privacidad</a> · 
+          <a href="contacto.html">Contacto</a>
+        </div>
       </div>
     </div>
   </footer>
@@ -1127,6 +1238,7 @@
       document.getElementById('res-desc').innerText = data.desc;
       document.getElementById('res-warn').innerText = "⚠️ Nota Técnica: " + data.warn;
       document.getElementById('res-link').href = data.url;
+      document.body.style.overflow = 'auto';
       document.getElementById('as-result').style.display = 'block';
     }
 
@@ -1219,7 +1331,7 @@
         minOptTemp = 240; maxOptTemp = 265; minOptBed = 90; maxOptBed = 110; maxOptSpeed = 120;
         if (temp < minOptTemp) textWarnTemp = `⚠️ Temperatura baja para ABS: el material no fundirá correctamente.`;
         if (bed < minOptBed) textWarnBed = `⚠️ Cama fría para ABS: delaminación severa y warping térmico.`;
-        if (speed > maxOptSpeed) textWarnSpeed = `⚠️ Velocidad alta para ABS: enfriamiento de capa demasiado rápido.`;
+        if (speed > maxOptSpeed) textWarnSpeed = `⚠️ Velocidad alta para ABS: el enfriamiento rápido debilita la fusión.`;
       } else if (material === 'TPU') {
         minOptTemp = 215; maxOptTemp = 235; minOptBed = 30; maxOptBed = 60; maxOptSpeed = 50;
         if (temp < minOptTemp) textWarnTemp = `⚠️ Temperatura baja para TPU: riesgo alto de atasco en extrusor.`;
