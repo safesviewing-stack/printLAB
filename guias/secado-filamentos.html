@@ -34,7 +34,7 @@
     }
     a{color:inherit;text-decoration:none}
     
-    .wrap{max-width:var(--max);margin:auto;padding:0 80px}
+    .wrap{max-width:var(--max);margin:auto;padding:0 40px} /* Unificado márgenes a 40px */
     
     /* CABECERA FLUIDA */
     .top{position:sticky;top:0;z-index:100;background:rgba(246,247,244,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
@@ -106,6 +106,74 @@
     .alert.warn{border-left-color:#d9432f; background:#fcf1f0}
     .alert strong{display:block; font-size:14px; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; font-weight:800}
 
+    /* NUEVO ESTILO FOOTER MINIMALISTA (PRINTLAB) */
+    .footer {
+      background: var(--bg);
+      border-top: 1px solid var(--line);
+      padding: 80px 0 40px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .footergrid {
+      display: grid;
+      grid-template-columns: 1.3fr 0.85fr 0.85fr;
+      gap: 60px;
+      margin-bottom: 48px;
+    }
+    .footer-col h3 {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--ink);
+      margin: 0 0 20px;
+      letter-spacing: -0.3px;
+    }
+    .footer-col p {
+      margin: 0 0 16px;
+      color: var(--muted);
+    }
+    .footer-secondary-text {
+      font-size: 12.5px;
+      line-height: 1.5;
+      color: #7d8782;
+      margin-top: 12px;
+    }
+    .footer-links {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .footer-links a {
+      color: var(--muted);
+      transition: color 0.15s ease, transform 0.15s ease;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+    }
+    .footer-links a:hover {
+      color: var(--ink);
+      transform: translateX(2px);
+    }
+    .footer-links a span.arrow {
+      transition: color 0.15s ease;
+    }
+    .footer-links a:hover span.arrow {
+      color: var(--accent);
+    }
+    .footer-bottom {
+      border-top: 1px solid var(--line);
+      padding-top: 24px;
+      text-align: center;
+      font-size: 13px;
+      color: #7d8782;
+    }
+    .footer-bottom-text {
+      margin: 0 auto;
+      font-weight: 400;
+    }
+
     /* MODALES DE TRANSPARENCIA */
     .modal{
       display:none;
@@ -141,21 +209,30 @@
       cursor:pointer;font-weight:800;transition:.15s;
     }
     .modal-close:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
-
-    /* FOOTER */
-    .footer{padding:80px 0 110px;margin-top:100px;border-top:1px solid var(--line);color:var(--muted);font-size:15px}
-    .footergrid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:45px}
-    .footer strong{display:block;font-size:16px;color:var(--ink);margin-bottom:12px}
-    .footer a{display:inline-block;margin-bottom:8px;transition:0.15s;cursor:pointer;}
-    .footer a:hover{color:var(--ink);text-decoration:underline}
     
     @media(max-width:1250px){
-      .wrap{padding:0 48px}
+      .wrap{padding:0 40px}
+    }
+    @media(max-width: 992px) {
+      .footergrid {
+        grid-template-columns: 1.2fr 1fr;
+        gap: 40px;
+      }
     }
     @media(max-width:750px){
       .wrap{padding:0 24px}
       nav{flex-direction:column; padding:20px 0; gap:16px}
       .brand{margin-right:0}
+    }
+    @media(max-width: 768px) {
+      .footergrid {
+        grid-template-columns: 1fr;
+        gap: 36px;
+      }
+      .footer-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+      }
     }
   </style>
 </head>
@@ -167,7 +244,7 @@
       <nav>
         <a class="brand" href="../index.html" title="Volver al inicio">PRINT<span>LAB</span></a>
         <div class="nav">
-          <a href="../index.html#portada">Materiales</a>
+          <a href="../index.html">Inicio</a>
           <a href="../index.html#simulador">Simulador</a>
           <a href="../index.html#guias" class="active">Guías</a>
           <a href="../index.html#herramientas">Herramientas</a>
@@ -253,13 +330,143 @@
     </div>
   </div>
 
+  <!-- MODAL: NORMATIVAS Y ESTÁNDARES -->
   <div id="modal-normativas" class="modal">
-    <div class="modal-content">
+    <div class="modal-content" style="max-width: 850px;">
       <span class="modal-close" onclick="closeModal('modal-normativas')">✕</span>
-      <h3>Normativas y estándares</h3>
-      <div class="modal-section">
-        <h4>ISO/ASTM 52900:2021</h4>
-        <p>Acondicionamiento y almacenamiento de materias primas plásticas.</p>
+      <h3 style="border-bottom: 2px solid var(--ink); padding-bottom: 12px; margin-bottom: 24px;">Normativas, Estándares y Referencias Internacionales</h3>
+      
+      <div style="max-height: 550px; overflow-y: auto; padding-right: 16px; font-size: 14px; line-height: 1.6;">
+        
+        <!-- SECCIÓN 1: ISO/ASTM -->
+        <div style="margin-bottom: 30px;">
+          <h4 style="font-size: 16px; font-weight: 800; color: var(--ink); margin-bottom: 12px; border-bottom: 1px solid var(--line); padding-bottom: 6px;">1. Estándares Conjuntos ISO / ASTM (Fabricación Aditiva)</h4>
+          <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 16px;">
+            <li>
+              <strong>ISO/ASTM 52900 (Additive manufacturing — General principles — Fundamentals and vocabulary):</strong>
+              <p style="margin: 4px 0 0 12px; color: var(--muted);">Establece la terminología unificada y los principios fundamentales que clasifican las tecnologías de fabricación aditiva (como MEX/FDM o VPP/SLA). Es la base conceptual para evitar discrepancias técnicas a nivel global.</p>
+            </li>
+            <li>
+              <strong>ISO/ASTM 52901 (General requirements for purchased AM parts):</strong>
+              <p style="margin: 4px 0 0 12px; color: var(--muted);">Define las directrices de aceptación, planes de control de calidad, requisitos de pedido y métodos de ensayo requeridos para la adquisición de componentes fabricados mediante aditiva.</p>
+            </li>
+            <li>
+              <strong>ISO/ASTM 52902 (Test artifacts):</strong>
+              <p style="margin: 4px 0 0 12px; color: var(--muted);">Describe la geometría y el propósito de probetas y artefactos patrón de ensayo diseñados para evaluar la precisión dimensional y la resolución geométrica de las máquinas de impresión 3D.</p>
+            </li>
+            <li>
+              <strong>ISO/ASTM 52903 (Material extrusion-based additive manufacturing):</strong>
+              <p style="margin: 4px 0 0 12px; color: var(--muted);">Norma específica de caracterización sistemática de materiales termoplásticos y parámetros de corte para extrusión de material (MEX/FDM), asegurando la repetibilidad mecánica.</p>
+            </li>
+            <li>
+              <strong>ISO/ASTM 52904 (Process characteristics and performance):</strong>
+              <p style="margin: 4px 0 0 12px; color: var(--muted);">Establece directrices para la validación de procesos, monitorización en tiempo real y rendimiento operativo de sistemas de fusión en lecho de polvo.</p>
+            </li>
+            <li>
+              <strong>ISO/ASTM 52910 (Design requirements):</strong>
+              <p style="margin: 4px 0 0 12px; color: var(--muted);">Guía estandarizada sobre requisitos de diseño para fabricación aditiva (DfAM). Ofrece pautas para optimizar la geometría, eliminar soportes innecesarios y aprovechar la libertad de diseño.</p>
+            </li>
+            <li>
+              <strong>ISO/ASTM 52911 (Metal powder bed fusion):</strong>
+              <p style="margin: 4px 0 0 12px; color: var(--muted);">Directrices de diseño específicas aplicadas a la fusión de lecho de polvo metálico (PBF) para diseño industrial y estructural.</p>
+            </li>
+            <li>
+              <strong>ISO/ASTM 52915 (Additive manufacturing file format):</strong>
+              <p style="margin: 4px 0 0 12px; color: var(--muted);">Especifica las características del formato de archivo AMF (Additive Manufacturing File Format), una alternativa avanzada al formato STL que admite color, materiales graduales y metadatos.</p>
+            </li>
+            <li>
+              <strong>ISO/ASTM 52921 (Coordinate systems and orientations):</strong>
+              <p style="margin: 4px 0 0 12px; color: var(--muted);">Estandariza los sistemas de coordenadas y la nomenclatura de orientación de las piezas en el volumen de construcción, fundamental para documentar la anisotropía (eje Z).</p>
+            </li>
+            <li>
+              <strong>ISO/ASTM 52931 (Environmental, health and safety considerations):</strong>
+              <p style="margin: 4px 0 0 12px; color: var(--muted);">Define las recomendaciones de seguridad, gestión de riesgos químicos e higiénicos y control ambiental en instalaciones industriales de impresión 3D.</p>
+            </li>
+            <li>
+              <strong>ISO 286 (Tolerancias y ajustes):</strong>
+              <p style="margin: 4px 0 0 12px; color: var(--muted);">Establece el sistema internacional de tolerancias (grados de precisión IT) para el diseño mecánico de acoplamientos entre agujero y eje, base de cálculo para encajes móviles o fijos.</p>
+            </li>
+            <li>
+              <strong>ISO 2768 (Tolerancias generales):</strong>
+              <p style="margin: 4px 0 0 12px; color: var(--muted);">Define las tolerancias geométricas y lineales simplificadas aplicables a piezas mecanizadas o impresas sin indicaciones específicas en plano.</p>
+            </li>
+          </ul>
+        </div>
+
+        <!-- SECCIÓN 2: ASTM F42 -->
+        <div style="margin-bottom: 30px;">
+          <h4 style="font-size: 16px; font-weight: 800; color: var(--ink); margin-bottom: 12px; border-bottom: 1px solid var(--line); padding-bottom: 6px;">2. Comité ASTM F42 sobre Fabricación Aditiva</h4>
+          <p style="color: var(--muted); margin-bottom: 12px;">Fundado en 2009, el comité F42 de ASTM International desarrolla los estándares que definen la fabricación aditiva a nivel global. Trabaja de forma conjunta con el comité técnico ISO TC 261 para armonizar la normativa global de impresión 3D. Sus principales áreas de trabajo son:</p>
+          <ul style="padding-left: 20px; color: var(--muted); margin-bottom: 12px;">
+            <li><strong>Terminología:</strong> Normalización de definiciones básicas (convergente en ISO/ASTM 52900).</li>
+            <li><strong>Diseño:</strong> Métodos y directrices de optimización topológica y estructuras reticulares.</li>
+            <li><strong>Procesos:</strong> Certificación de parámetros de extrusión, fotopolimerización y sinterizado de metales.</li>
+            <li><strong>Materiales:</strong> Especificaciones técnicas de polvos metálicos, resinas fotosensibles y termoplásticos.</li>
+            <li><strong>Propiedades y rendimiento:</strong> Ensayos físicos para medir anisotropía mecánica y fatiga bajo cargas cíclicas.</li>
+            <li><strong>Seguridad:</strong> Mitigación del riesgo de exposición a polvos y emisiones de COVs.</li>
+            <li><strong>Sistemas de fabricación:</strong> Criterios de validación y repetibilidad operativa de máquinas de impresión.</li>
+          </ul>
+          <a href="https://www.astm.org/committee-f42" target="_blank" rel="noopener" style="color: var(--accent); font-weight: 800; text-decoration: underline;">Acceder al sitio oficial de ASTM F42 →</a>
+        </div>
+
+        <!-- SECCIÓN 3: IEC -->
+        <div style="margin-bottom: 30px;">
+          <h4 style="font-size: 16px; font-weight: 800; color: var(--ink); margin-bottom: 12px; border-bottom: 1px solid var(--line); padding-bottom: 6px;">3. Estándares Internacionales IEC</h4>
+          <p style="color: var(--muted); margin-bottom: 12px;">La International Electrotechnical Commission (IEC) estandariza los componentes eléctricos y electrónicos de las impresoras 3D:</p>
+          <ul style="padding-left: 20px; color: var(--muted);">
+            <li><strong>IEC 60204-1 (Seguridad eléctrica):</strong> Aplica a los equipos eléctricos de las máquinas de impresión 3D para prevenir riesgos de choque y descargas de alta tensión en el taller.</li>
+            <li><strong>IEC 61000 (Compatibilidad electromagnética - EMC):</strong> Asegura que las fuentes conmutadas y placas controladoras de la impresora 3D no generen interferencias electromagnéticas dañinas en el entorno operativo.</li>
+            <li><strong>IEC 62368-1 (Seguridad en equipos de tecnología y audio/video):</strong> Norma de seguridad basada en el riesgo que rige los circuitos lógicos de alimentación y calentamiento de hotends de consumo.</li>
+          </ul>
+        </div>
+
+        <!-- SECCIÓN 4: ISO 9001 e ISO 14001 -->
+        <div style="margin-bottom: 30px;">
+          <h4 style="font-size: 16px; font-weight: 800; color: var(--ink); margin-bottom: 12px; border-bottom: 1px solid var(--line); padding-bottom: 6px;">4. Sistemas de Gestión Industrial (Calidad y Sostenibilidad)</h4>
+          <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px;">
+            <li>
+              <strong>ISO 9001 — Gestión de Calidad:</strong>
+              <p style="margin: 4px 0 0 12px; color: var(--muted);">Establece las bases para los procesos de trazabilidad de lotes de filamentos/resinas, mantenimiento predictivo del hardware y control sistemático de desviaciones geométricas en el taller de impresión.</p>
+            </li>
+            <li>
+              <strong>ISO 14001 — Gestión Ambiental:</strong>
+              <p style="margin: 4px 0 0 12px; color: var(--muted);">Aplica a la minimización de residuos plásticos, reciclaje seguro de mermas de soporte, gestión adecuada de resinas líquidas desechadas y eficiencia de consumo energético de los bloques fusores.</p>
+            </li>
+          </ul>
+        </div>
+
+        <!-- SECCIÓN 5: Seguridad y Químicos -->
+        <div style="margin-bottom: 30px;">
+          <h4 style="font-size: 16px; font-weight: 800; color: var(--ink); margin-bottom: 12px; border-bottom: 1px solid var(--line); padding-bottom: 6px;">5. Seguridad Química y Control de Materiales</h4>
+          <p style="color: var(--muted); margin-bottom: 12px;">El manejo de resinas de fotocurado (SLA), compuestos de lavado como el alcohol isopropílico (IPA) y polímeros que emiten estireno exige cumplir marcos regulatorios estrictos:</p>
+          <ul style="padding-left: 20px; color: var(--muted);">
+            <li><strong>SDS / Safety Data Sheets (Fichas de Datos de Seguridad):</strong> Documento obligatorio para cada material que expone su nivel de toxicidad, medidas de barrera (EPIs), riesgos térmicos y directrices de primeros auxilios.</li>
+            <li><strong>GHS (Sistema Globalmente Armonizado):</strong> Define los pictogramas de peligro impresos en las botellas de resinas (como irritación cutánea o peligro acuático).</li>
+            <li><strong>Reglamento CLP (Unión Europea):</strong> Rige la clasificación, etiquetado y envasado de mezclas químicas y polímeros reactivos.</li>
+            <li><strong>REACH (Unión Europea):</strong> Regula el registro y restricción de sustancias químicas nocivas para proteger la salud humana y el medio ambiente de forma activa.</li>
+            <li><strong>OSHA / HCS (Estados Unidos):</strong> El estándar de comunicación de peligros (HCS) garantiza que los riesgos químicos de los filamentos que liberan estireno (ABS/ASA) sean transmitidos de forma clara al operario.</li>
+          </ul>
+        </div>
+
+        <!-- SECCIÓN 6: Organismos internacionales -->
+        <div>
+          <h4 style="font-size: 16px; font-weight: 800; color: var(--ink); margin-bottom: 12px; border-bottom: 1px solid var(--line); padding-bottom: 6px;">6. Organismos de Normalización y Referencia Técnica</h4>
+          <p style="color: var(--muted); margin-bottom: 12px;">Nuestra base de datos técnica interactiva se sincroniza y alinea con los criterios establecidos por las instituciones líderes en metrología y ciencia de materiales:</p>
+          <ul style="padding-left: 20px; color: var(--muted); line-height: 1.8;">
+            <li><strong>ISO:</strong> International Organization for Standardization</li>
+            <li><strong>ASTM:</strong> American Society for Testing and Materials</li>
+            <li><strong>IEC:</strong> International Electrotechnical Commission</li>
+            <li><strong>NIST:</strong> National Institute of Standards and Technology (USA)</li>
+            <li><strong>BIPM:</strong> Oficina Internacional de Pesas y Medidas</li>
+            <li><strong>CEN / CENELEC:</strong> Comité Europeo de Normalización Electrotécnica</li>
+            <li><strong>UNE:</strong> Asociación Española de Normalización (Normas UNE)</li>
+            <li><strong>DIN:</strong> Deutsches Institut für Normung (Alemania)</li>
+            <li><strong>ANSI:</strong> American National Standards Institute</li>
+            <li><strong>OSHA:</strong> Occupational Safety and Health Administration (USA)</li>
+            <li><strong>ECHA:</strong> European Chemicals Agency</li>
+          </ul>
+        </div>
+        
       </div>
     </div>
   </div>
@@ -284,28 +491,47 @@
     </div>
   </div>
 
-  <!-- FOOTER -->
+  <!-- NUEVO FOOTER MINIMALISTA (PRINTLAB) -->
   <footer class="footer">
-    <div class="wrap footergrid">
-      <div>
-        <strong>PrintLab — Ingeniería 3D</strong>
-        <p>Toda la información técnica publicada se basa en fichas técnicas de materiales (TDS), protocolos de fabricantes (Prusa, UltiMaker, Formlabs) y normativas estandarizadas de la industria (ISO, ASTM).</p>
+    <div class="wrap">
+      <div class="footergrid">
+        <!-- COLUMNA 1 — IDENTIDAD -->
+        <div class="footer-col">
+          <h3>PrintLab — Ingeniería 3D</h3>
+          <p>Información técnica y herramientas para tomar mejores decisiones en fabricación aditiva.</p>
+          <p class="footer-secondary-text">La información técnica se contrasta con fichas técnicas de fabricantes, documentación especializada, normas ISO/ASTM y literatura técnica.</p>
+        </div>
+        
+        <!-- COLUMNA 2 — RECURSOS -->
+        <div class="footer-col">
+          <h3>Recursos</h3>
+          <div class="footer-links">
+            <a href="../index.html"><span class="arrow">→</span> Materiales</a>
+            <a href="../index.html#guias"><span class="arrow">→</span> Guías técnicas</a>
+            <a href="../index.html#herramientas"><span class="arrow">→</span> Calculadoras</a>
+            <a href="../index.html#simulador"><span class="arrow">→</span> Simulador</a>
+            <a href="../index.html#portada"><span class="arrow">→</span> Buscador técnico</a>
+          </div>
+        </div>
+        
+        <!-- COLUMNA 3 — FUENTES Y METODOLOGÍA -->
+        <div class="footer-col">
+          <h3>Fuentes y metodología</h3>
+          <div class="footer-links">
+            <a onclick="openModal('modal-fuentes')"><span class="arrow">→</span> Fuentes técnicas</a>
+            <a onclick="openModal('modal-normativas')"><span class="arrow">→</span> Normativas y estándares</a>
+            <a onclick="openModal('modal-metodologia')"><span class="arrow">→</span> Metodología del simulador</a>
+            <a onclick="openModal('modal-limitaciones')"><span class="arrow">→</span> Limitaciones de las estimaciones</a>
+            <a onclick="openModal('modal-metodologia')"><span class="arrow">→</span> Actualización de datos</a>
+          </div>
+        </div>
       </div>
-      <div>
-        <strong>Centro de recursos</strong>
-        <p>
-          <a href="../index.html#guias">Guías y diagnóstico de problemas</a><br>
-          <a href="../materiales/index.html">Atlas de materiales</a>
-        </p>
-      </div>
-      <div>
-        <strong>Normativa y transparencia</strong>
-        <p>
-          <a onclick="openModal('modal-fuentes')">→ Fuentes técnicas</a><br>
-          <a onclick="openModal('modal-normativas')">→ Normativas y estándares</a><br>
-          <a onclick="openModal('modal-metodologia')">→ Metodología del simulador</a><br>
-          <a onclick="openModal('modal-limitaciones')">→ Limitaciones y seguridad</a>
-        </p>
+      
+      <!-- PARTE INFERIOR -->
+      <div class="footer-bottom">
+        <div class="footer-bottom-text">
+          © 2026 PrintLab
+        </div>
       </div>
     </div>
   </footer>
