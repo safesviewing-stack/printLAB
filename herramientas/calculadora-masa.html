@@ -51,21 +51,29 @@
     .tool-header h1{font-size:clamp(42px, 6vw, 68px); letter-spacing:-2.5px; line-height:1; margin:0 0 16px; font-weight:800}
     .tool-header p{font-size:20px; color:var(--muted); max-width:900px; margin:0; line-height:1.5}
     
-    /* Cuadrícula simétrica 50/50 y centrada con los márgenes de página */
+    /* Cuadrícula simétrica alineada para igualar alturas */
     .calc-layout{
       display:grid; 
       grid-template-columns: 1fr 1fr; 
       gap: 40px; 
-      align-items: start;
+      align-items: stretch;
       width: 100%;
       max-width: 100%;
     }
     
-    /* Paneles de entrada con padding simétrico en las 4 direcciones */
+    /* Contenedor de la columna derecha para estirar la caja negra */
+    .calc-layout aside {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+    
+    /* Paneles de entrada con padding simétrico */
     .input-panel{background:var(--card); border:1.5px solid var(--line); border-radius:26px; padding:40px; margin-bottom: 30px; width:100%}
     .input-panel h2{font-size:26px; letter-spacing:-1px; margin:0 0 24px; border-bottom: 1.5px solid var(--line); padding-bottom:12px; font-weight:800}
     
-    .input-grid{display:grid; grid-template-columns: 1fr 1fr; gap:24px}
+    /* Ajuste a 1 columna para separar visualmente los campos en líneas individuales */
+    .input-grid{display:grid; grid-template-columns: 1fr; gap:28px}
     .input-group{display:flex; flex-direction:column;}
     .input-group label{font-size:14px; font-weight:800; margin-bottom:8px; display:flex; justify-content:space-between; color:var(--muted)}
     .input-group label span{color:var(--ink); font-weight:800}
@@ -83,16 +91,18 @@
     }
     .input-group input:focus, .input-group select:focus{background:#fff; border-color:var(--ink)}
 
-    /* panel de resultados simétrico en ancho y espaciados de esquinas */
+    /* Caja de resultados negra que se estira de manera uniforme */
     .result-panel{
       background:var(--dark);
       color:#fff;
       border-radius:24px;
       padding:40px;
-      position:sticky;
-      top:130px;
       border: 1px solid #2a332f;
       width: 100%;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
     .result-panel h3{font-size:22px; font-weight:800; margin:0 0 24px; color:#b8c0bb}
     
@@ -105,7 +115,6 @@
       text-align:center;
     }
     .mass-box span{display:block; font-size:14px; color:#bcc5c0; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:6px}
-    /* Añadido bloqueo de salto de línea para evitar que baje el símbolo de unidad */
     .mass-box strong{font-size:46px; color:var(--accent); font-family:monospace; line-height:1; white-space: nowrap;}
 
     .warning-box{
@@ -166,11 +175,11 @@
     }
     @media(max-width:992px){
       .calc-layout{display:grid; grid-template-columns:1fr; gap:40px}
-      .result-panel{position:static; margin-top:20px}
+      .calc-layout aside {height: auto;}
+      .result-panel{flex-grow: 0; margin-top:20px}
     }
     @media(max-width:650px){
       .wrap{padding:0 24px}
-      .input-grid{grid-template-columns:1fr} 
       .tool-header h1{font-size:42px}
       nav{flex-direction:column; padding:20px 0; gap:16px}
       .brand{margin-right:0}
@@ -230,7 +239,7 @@
           </div>
         </div>
 
-        <div class="input-panel">
+        <div class="input-panel" style="margin-bottom: 0;">
           <h2>2. Estimación de Laminación</h2>
           <div class="input-grid">
             <div class="input-group">
@@ -250,24 +259,28 @@
         </div>
       </div>
 
-      <!-- PANEL DE RESULTADOS (STICKY) -->
-      <aside style="width: 100%;">
+      <!-- PANEL DE RESULTADOS (ALINEADO) -->
+      <aside>
         <div class="result-panel">
-          <h3>Masa Estimada en Impresión</h3>
-          
-          <div class="mass-box">
-            <span>Peso Total de la Pieza</span>
-            <strong id="res_mass">52.00 g</strong>
+          <div>
+            <h3>Masa Estimada en Impresión</h3>
+            
+            <div class="mass-box">
+              <span>Peso Total de la Pieza</span>
+              <strong id="res_mass">52.00 g</strong>
+            </div>
+
+            <div class="mass-box" style="background:transparent; border-color:#3b443f;">
+              <span style="color:#b8c0bb">Masa 100% Sólida (Referencia)</span>
+              <strong id="res_solid_mass" style="font-size:28px; color:#fff; white-space: nowrap;">124.00 g</strong>
+            </div>
           </div>
 
-          <div class="mass-box" style="background:transparent; border-color:#3b443f;">
-            <span style="color:#b8c0bb">Masa 100% Sólida (Referencia)</span>
-            <strong id="res_solid_mass" style="font-size:28px; color:#fff; white-space: nowrap;">124.00 g</strong>
-          </div>
-
-          <div class="warning-box">
+          <div class="warning-box" style="margin-top: 24px;">
             <strong>Fórmula de Estimación Aplicada:</strong>
-            Masa ≈ $Volumen \times Densidad \times [FactorPared + (1 - FactorPared) \times \frac{Infill\%}{100}]$
+            <div style="margin-top: 10px; font-family: monospace; font-size: 13px; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); overflow-x: auto; color: var(--accent); font-weight: bold;">
+              Masa ≈ Volumen × Densidad × [FactorPared + (1 - FactorPared) × (Infill% / 100)]
+            </div>
           </div>
         </div>
       </aside>
