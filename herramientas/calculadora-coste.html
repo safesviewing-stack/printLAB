@@ -51,29 +51,49 @@
     .tool-header h1{font-size:clamp(42px, 6vw, 68px); letter-spacing:-2.5px; line-height:1; margin:0 0 16px; font-weight:800}
     .tool-header p{font-size:20px; color:var(--muted); max-width:900px; margin:0; line-height:1.5}
     
-    /* Cuadrícula simétrica 50/50 y centrada con los márgenes de página */
+    /* Cuadrícula de 2x2 para eliminar espacios vacíos */
     .calc-layout{
       display:grid; 
       grid-template-columns: 1fr 1fr; 
-      gap: 40px; 
-      align-items: start;
+      gap: 30px; 
+      align-items: stretch;
       width: 100%;
       max-width: 100%;
     }
+
+    .panel-filamento {
+      grid-column: 1;
+      grid-row: 1;
+    }
+    .panel-resultado {
+      grid-column: 2;
+      grid-row: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+    .panel-maquina {
+      grid-column: 1;
+      grid-row: 2;
+    }
+    .panel-riesgos {
+      grid-column: 2;
+      grid-row: 2;
+    }
     
-    /* Paneles de entrada con padding simétrico en las 4 direcciones */
-    .input-panel{background:var(--card); border:1.5px solid var(--line); border-radius:26px; padding:40px; margin-bottom: 30px;}
-    .input-panel h2{font-size:26px; letter-spacing:-1px; margin:0 0 24px; border-bottom: 1.5px solid var(--line); padding-bottom:12px; font-weight:800}
+    /* Paneles de entrada compactos sin margen inferior redundante */
+    .input-panel{background:var(--card); border:1.5px solid var(--line); border-radius:26px; padding:32px 40px; margin-bottom: 0;}
+    .input-panel h2{font-size:24px; letter-spacing:-0.5px; margin:0 0 20px; border-bottom: 1.5px solid var(--line); padding-bottom:12px; font-weight:800}
     
-    .input-grid{display:grid; grid-template-columns: 1fr 1fr; gap:24px}
+    .input-grid{display:grid; grid-template-columns: 1fr 1fr; gap:20px}
     .input-group{display:flex; flex-direction:column;}
-    .input-group label{font-size:14px; font-weight:800; margin-bottom:8px; color:var(--muted)}
+    .input-group label{font-size:13px; font-weight:800; margin-bottom:6px; color:var(--muted)}
     .input-group label span{color:var(--ink); font-weight:800}
     .input-group input{
-      padding:16px;
+      padding:14px;
       border:1.5px solid var(--line);
-      border-radius:14px;
-      font-size:18px;
+      border-radius:12px;
+      font-size:16px;
       font-weight:700;
       background:var(--bg);
       color:var(--ink);
@@ -82,22 +102,22 @@
     }
     .input-group input:focus{background:#fff; border-color:var(--ink)}
 
-    /* panel de resultados compacto y proporcionado */
+    /* Panel de resultados compacto */
     .result-panel{
       background:var(--dark);
       color:#fff;
       border-radius:24px;
       padding:32px;
-      position:sticky;
-      top:130px;
       border: 1px solid #2a332f;
       width: 100%;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
     .result-panel h3{font-size:18px; font-weight:800; margin:0 0 18px; color:#b8c0bb}
     
     .result-row{display:flex; justify-content:space-between; align-items:center; border-bottom:1px dashed #2a332f; padding-bottom:8px; margin-bottom:12px; font-size:15px}
-    
-    /* Bloqueo de salto de línea para evitar que baje el símbolo de € */
     .result-row span:last-child{font-weight:800; font-size:16px; white-space: nowrap;}
     
     .total-box{background:var(--accent); color:var(--ink); border-radius:18px; padding:22px; margin-top:24px; text-align:center;}
@@ -151,8 +171,12 @@
       .wrap{padding:0 40px}
     }
     @media(max-width:992px){
-      .calc-layout{grid-template-columns:1fr; gap:40px}
-      .result-panel{position:static; margin-top:20px}
+      .calc-layout{grid-template-columns:1fr; gap:24px}
+      .panel-filamento { grid-column: 1; grid-row: 1; }
+      .panel-resultado { grid-column: 1; grid-row: 2; height: auto; }
+      .panel-maquina { grid-column: 1; grid-row: 3; }
+      .panel-riesgos { grid-column: 1; grid-row: 4; }
+      .result-panel{flex-grow: 0; margin-top:0}
     }
     @media(max-width:650px){
       .wrap{padding:0 24px}
@@ -188,91 +212,52 @@
     </div>
 
     <div class="calc-layout">
-      <!-- PANEL DE ENTRADA -->
-      <div>
-        <div class="input-panel">
-          <h2>1. Filamento y Pieza</h2>
-          <div class="input-grid">
-            <div class="input-group">
-              <label>Peso de la pieza <span>(gramos)</span></label>
-              <input type="number" id="p_weight" value="150" oninput="calculate()">
-            </div>
-            <div class="input-group">
-              <label>Peso de la bobina <span>(gramos)</span></label>
-              <input type="number" id="s_weight" value="1000" oninput="calculate()">
-            </div>
-            <div class="input-group" style="grid-column: span 2">
-              <label>Precio de la bobina <span>(€)</span></label>
-              <input type="number" id="s_price" value="22" step="0.5" oninput="calculate()">
-            </div>
+      
+      <!-- 1. Filamento y Pieza (Fila 1, Columna 1) -->
+      <div class="input-panel panel-filamento">
+        <h2>1. Filamento y Pieza</h2>
+        <div class="input-grid">
+          <div class="input-group">
+            <label>Peso de la pieza <span>(gramos)</span></label>
+            <input type="number" id="p_weight" value="150" oninput="calculate()">
           </div>
-        </div>
-
-        <div class="input-panel">
-          <h2>2. Máquina y Electricidad</h2>
-          <div class="input-grid">
-            <div class="input-group">
-              <label>Tiempo de impresión <span>(horas)</span></label>
-              <input type="number" id="time" value="4.5" step="0.1" oninput="calculate()">
-            </div>
-            <div class="input-group">
-              <label>Consumo impresora <span>(Vatios - W)</span></label>
-              <input type="number" id="power" value="150" oninput="calculate()">
-            </div>
-            <div class="input-group" style="grid-column: span 2">
-              <label>Precio de la electricidad <span>(€/kWh)</span></label>
-              <input type="number" id="kwh_price" value="0.18" step="0.01" oninput="calculate()">
-            </div>
-            <div class="input-group">
-              <label>Coste de la impresora <span>(€)</span></label>
-              <input type="number" id="machine_price" value="800" oninput="calculate()">
-            </div>
-            <div class="input-group">
-              <label>Vida útil esperada <span>(horas)</span></label>
-              <input type="number" id="machine_life" value="4000" oninput="calculate()">
-            </div>
+          <div class="input-group">
+            <label>Peso de la bobina <span>(gramos)</span></label>
+            <input type="number" id="s_weight" value="1000" oninput="calculate()">
           </div>
-        </div>
-
-        <div class="input-panel">
-          <h2>3. Riesgos y Beneficios</h2>
-          <div class="input-grid">
-            <div class="input-group">
-              <label>Tasa de fallos estimada <span>(%)</span></label>
-              <input type="number" id="fail_rate" value="10" oninput="calculate()">
-            </div>
-            <div class="input-group">
-              <label>Margen comercial <span>(%)</span></label>
-              <input type="number" id="margin" value="50" oninput="calculate()">
-            </div>
+          <div class="input-group" style="grid-column: span 2">
+            <label>Precio de la bobina <span>(€)</span></label>
+            <input type="number" id="s_price" value="22" step="0.5" oninput="calculate()">
           </div>
         </div>
       </div>
 
-      <!-- PANEL DE RESULTADOS (STICKY) -->
-      <aside style="width: 100%;">
+      <!-- PANEL DE RESULTADOS (Fila 1, Columna 2 - Alineado en altura) -->
+      <aside class="panel-resultado">
         <div class="result-panel">
-          <h3>Desglose Técnico</h3>
-          
-          <div class="result-row">
-            <span>Coste del material</span>
-            <span id="res_mat">0.00 €</span>
-          </div>
-          <div class="result-row">
-            <span>Consumo eléctrico</span>
-            <span id="res_elec">0.00 €</span>
-          </div>
-          <div class="result-row">
-            <span>Amortización máquina</span>
-            <span id="res_wear">0.00 €</span>
-          </div>
-          <div class="result-row" style="color: #ffa294; border-bottom: 1.5px solid #3b443f; margin-top: 16px;">
-            <span>Sobrecoste por fallos</span>
-            <span id="res_fail">0.00 €</span>
-          </div>
-          <div class="result-row" style="border:none; margin-top: 10px;">
-            <span>Coste base (Fabricación)</span>
-            <span id="res_base">0.00 €</span>
+          <div>
+            <h3>Desglose Técnico</h3>
+            
+            <div class="result-row">
+              <span>Coste del material</span>
+              <span id="res_mat">0.00 €</span>
+            </div>
+            <div class="result-row">
+              <span>Consumo eléctrico</span>
+              <span id="res_elec">0.00 €</span>
+            </div>
+            <div class="result-row">
+              <span>Amortización máquina</span>
+              <span id="res_wear">0.00 €</span>
+            </div>
+            <div class="result-row" style="color: #ffa294; border-bottom: 1.5px solid #3b443f; margin-top: 16px;">
+              <span>Sobrecoste por fallos</span>
+              <span id="res_fail">0.00 €</span>
+            </div>
+            <div class="result-row" style="border:none; margin-top: 10px;">
+              <span>Coste base (Fabricación)</span>
+              <span id="res_base">0.00 €</span>
+            </div>
           </div>
 
           <div class="total-box">
@@ -281,6 +266,49 @@
           </div>
         </div>
       </aside>
+
+      <!-- 2. Máquina y Electricidad (Fila 2, Columna 1) -->
+      <div class="input-panel panel-maquina">
+        <h2>2. Máquina y Electricidad</h2>
+        <div class="input-grid">
+          <div class="input-group">
+            <label>Tiempo de impresión <span>(horas)</span></label>
+            <input type="number" id="time" value="4.5" step="0.1" oninput="calculate()">
+          </div>
+          <div class="input-group">
+            <label>Consumo impresora <span>(Vatios - W)</span></label>
+            <input type="number" id="power" value="150" oninput="calculate()">
+          </div>
+          <div class="input-group" style="grid-column: span 2">
+            <label>Precio de la electricidad <span>(€/kWh)</span></label>
+            <input type="number" id="kwh_price" value="0.18" step="0.01" oninput="calculate()">
+          </div>
+          <div class="input-group">
+            <label>Coste de la impresora <span>(€)</span></label>
+            <input type="number" id="machine_price" value="800" oninput="calculate()">
+          </div>
+          <div class="input-group">
+            <label>Vida útil esperada <span>(horas)</span></label>
+            <input type="number" id="machine_life" value="4000" oninput="calculate()">
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Riesgos y Beneficios (Fila 2, Columna 2) -->
+      <div class="input-panel panel-riesgos">
+        <h2>3. Riesgos y Beneficios</h2>
+        <div class="input-grid">
+          <div class="input-group">
+            <label>Tasa de fallos estimada <span>(%)</span></label>
+            <input type="number" id="fail_rate" value="10" oninput="calculate()">
+          </div>
+          <div class="input-group">
+            <label>Margen comercial <span>(%)</span></label>
+            <input type="number" id="margin" value="50" oninput="calculate()">
+          </div>
+        </div>
+      </div>
+
     </div>
 
   </main>
