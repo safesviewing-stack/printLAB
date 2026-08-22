@@ -6,36 +6,17 @@
   <title>PrintLab — Guías, diagnóstico y resoluciones de impresión 3D</title>
   <meta name="description" content="Decisiones técnicas de impresión 3D basadas en datos de Prusa, UltiMaker, Formlabs, Bambu Lab, ISO, ASTM, NIOSH y CDC.">
   <meta name="robots" content="index,follow">
-  <!-- Importación de la tipografía Plus Jakarta Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
   <style>
-    /* VARIABLES DE DISEÑO (Estilo UDIA) */
-    :root{
-      --bg:#f6f7f4;
-      --card:#fff;
-      --ink:#0d1110;
-      --muted:#5e6661;
-      --line:#dfe4df;
-      --accent:#b8ff3d;
-      --dark:#111715;
-      --max:1200px;
-    }
-    
+    /* VARIABLES Y BASE GLOBAL */
+    :root{ --bg:#f6f7f4; --card:#fff; --ink:#0d1110; --muted:#5e6661; --line:#dfe4df; --accent:#b8ff3d; --dark:#111715; --max:1200px; }
     *{box-sizing:border-box}html{scroll-behavior:smooth}
-    body{
-      margin:0;
-      background:var(--bg);
-      color:var(--ink);
-      font-family:"Plus Jakarta Sans", "Inter", system-ui, -apple-system, sans-serif;
-      line-height:1.6;
-      -webkit-font-smoothing:antialiased;
-    }
+    body{margin:0; background:var(--bg); color:var(--ink); font-family:"Plus Jakarta Sans", sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased;}
     a{color:inherit;text-decoration:none}
-    
     .wrap{max-width:var(--max);margin:auto;padding:0 40px}
-    
+
     /* CABECERA Y NAVEGACIÓN HAMBURGUESA */
     .top{position:sticky;top:0;z-index:100;background:rgba(246,247,244,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
     nav{min-height:95px;display:flex;align-items:center;justify-content:space-between;}
@@ -44,7 +25,6 @@
     .brand{font-size:26px;font-weight:800;letter-spacing:-1px}
     .brand span{background:var(--accent);padding:5px 12px;border-radius:10px;margin-left:6px;color:var(--ink)}
     
-    /* Menú Desplegable */
     .menu-dropdown { position: relative; display: inline-block; }
     .hamburger { background: none; border: none; cursor: pointer; padding: 10px; display: flex; flex-direction: column; gap: 5px; outline:none; }
     .hamburger span { display: block; width: 26px; height: 3px; background: var(--ink); border-radius: 2px; transition: 0.3s; }
@@ -56,7 +36,6 @@
     .dropdown-content a:hover { color: var(--ink); background: rgba(0,0,0,0.03); }
     .dropdown-content a.active { color: var(--ink); background: #f0f4f0; border-left: 4px solid var(--accent); padding-left: 20px; }
 
-    /* Botones de Autenticación Premium */
     .auth-buttons { display:flex; gap:12px; align-items:center; }
     .btn-auth { display: inline-flex; align-items: center; justify-content: center; padding: 12px 24px; border-radius: 9999px; font-weight: 800; font-size: 14px; cursor: pointer; transition: .2s ease; text-decoration: none; border: 2px solid var(--ink); }
     .btn-auth.light { background: #fff; color: var(--ink); box-shadow: 0 3px 0px var(--ink); }
@@ -66,12 +45,8 @@
     .btn-auth.green:hover { transform: translateY(-1px); box-shadow: 0 4px 0px var(--ink); }
     .btn-auth.green:active { transform: translateY(2px); box-shadow: 0 1px 0px var(--ink); }
 
-    /* BOTONES CÁPSULA NORMALES */
-    .btn{
-      display:inline-flex; align-items:center; justify-content:center;
-      padding:14px 28px; border-radius:9999px; font-weight:800; font-size:15px;
-      cursor:pointer; transition:.2s ease; letter-spacing:-0.2px; text-decoration: none;
-    }
+    /* BOTONES CÁPSULA GENÉRICOS */
+    .btn{ display:inline-flex; align-items:center; justify-content:center; padding:14px 28px; border-radius:9999px; font-weight:800; font-size:15px; cursor:pointer; transition:.2s ease; letter-spacing:-0.2px; text-decoration: none; }
     .btn.green{background:var(--accent); color:var(--ink); border:2px solid var(--ink); box-shadow:0 4px 0px var(--ink);}
     .btn.green:hover{transform:translateY(-1px); box-shadow:0 6px 0px var(--ink);}
     .btn.green:active{transform:translateY(3px); box-shadow:0 1px 0px var(--ink);}
@@ -81,11 +56,7 @@
     
     /* PORTADA (HERO) */
     .hero{padding:100px 0 60px;display:grid;grid-template-columns:1.15fr 0.85fr;gap:64px;align-items:start}
-    .eyebrow{
-      display:inline-flex; align-items:center; padding:6px 14px; border-radius:9999px;
-      background:rgba(0,0,0,0.04); font-size:11px; text-transform:uppercase;
-      letter-spacing:1px; font-weight:800; color:var(--muted);
-    }
+    .eyebrow{display:inline-flex; align-items:center; padding:6px 14px; border-radius:9999px; background:rgba(0,0,0,0.04); font-size:11px; text-transform:uppercase; letter-spacing:1px; font-weight:800; color:var(--muted);}
     .hero h1{font-size:clamp(44px, 5.5vw, 72px); line-height:1.05; letter-spacing:-0.03em; font-weight:800; margin:24px 0; max-width:1050px;}
     .hero p{font-size:19px; color:var(--muted); max-width:900px; margin-bottom:32px; line-height:1.5;}
     
@@ -96,13 +67,18 @@
     .searchbox{display:flex;gap:12px}
     .searchbox input{min-width:0; flex:1; border:1px solid #3b443f; background:#1a201d; color:#fff; border-radius:9999px; padding:16px 24px; font-size:15px;}
     .searchbox input:focus{outline:2px solid var(--accent);border-color:var(--accent)}
+    .searchresults{margin-top:18px;display:none;background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden}
+    .searchresults a{display:block;padding:16px 20px;border-bottom:1px solid var(--line);transition:background 0.1s}
+    .searchresults a:hover{background:#fafbfa}
+    .searchresults b{font-size:16px; color:var(--ink);}
+    .searchresults small{display:block;font-size:14px;color:var(--muted);margin-top:4px}
     
     /* ASISTENTE INTERACTIVO */
     .assistant-wrapper{display:none; background:#fff; border:2px solid var(--ink); border-radius:24px; padding:36px; margin-top:30px; animation:slideDown .3s ease-out;}
     @keyframes slideDown{from{opacity:0;transform:translateY(-15px)}to{opacity:1;transform:translateY(0)}}
     .assistant-title{font-size:24px;font-weight:800;margin:0 0 20px;letter-spacing:-0.5px}
     .assistant-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
-    .as-btn{background:var(--bg); border:1px solid var(--line); border-radius:14px; padding:16px; font-size:14px; font-weight:700; text-align:left; cursor:pointer; transition:.15s;}
+    .as-btn{background:var(--bg); border:1px solid var(--line); border-radius:14px; padding:16px; font-size:14px; font-weight:700; text-align:left; cursor:pointer; transition:.15s; color:var(--ink);}
     .as-btn:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
     .result-box{display:none;background:#f0f4f0;border-left:5px solid var(--accent);padding:24px;border-radius:14px;margin-top:24px}
     .result-box h4{font-size:22px;margin:0 0 10px;letter-spacing:-0.5px}
@@ -115,14 +91,10 @@
     .sectionhead{margin-bottom:32px}
     .sectionhead h2{font-size:clamp(32px, 4vw, 42px); letter-spacing:-0.02em; margin:0 0 12px; font-weight:800; line-height:1.1;}
     .sectionhead p{margin:0;color:var(--muted);font-size:18px}
-    
     .sub-sectionhead{margin:36px 0 24px; border-left:4px solid var(--accent); padding-left:16px;}
     .sub-sectionhead h3{font-size:22px; font-weight:800; margin:0 0 4px; letter-spacing:-0.3px;}
     .sub-sectionhead p{margin:0; color:var(--muted); font-size:15px;}
-
-    /* CSS GRID DEL ANALIZADOR IA */
-    .analizador-grid {display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center;}
-
+    
     /* SIMULADOR INTERACTIVO */
     .sim-container{background:#101614; color:#fff; border-radius:24px; padding:42px; display:grid; grid-template-columns:1.1fr 0.9fr; gap:40px; box-shadow:0 20px 40px rgba(0,0,0,0.08);}
     .sim-controls{display:flex; flex-direction:column; gap:24px; max-height:850px; overflow-y:auto; padding-right:16px;}
@@ -169,7 +141,6 @@
     
     /* MODALES DE TRANSPARENCIA */
     .modal{display:none; position:fixed; top:0;left:0;width:100%;height:100%; background:rgba(13,17,16,0.85); backdrop-filter:blur(8px); z-index:200; overflow-y:auto; padding:40px 16px; animation:fadeIn .2s ease;}
-    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
     .modal-content{background:var(--card); border:2.5px solid var(--ink); max-width:700px; margin:40px auto; border-radius:24px; padding:40px; box-shadow:0 25px 60px rgba(0,0,0,0.18); position:relative;}
     .modal-close{position:absolute; top:24px;right:24px; background:var(--bg); border:1.5px solid var(--line); width:40px;height:40px; border-radius:50%; display:flex;align-items:center;justify-content:center; cursor:pointer;font-weight:800;transition:.15s;}
     .modal-close:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
@@ -181,7 +152,7 @@
     .modal-link{color:var(--ink);font-weight:800;text-decoration:underline}
     .modal-link:hover{color:var(--muted)}
 
-    /* FOOTER MEJORADO Y RELLENO */
+    /* FOOTER UNIVERSAL UNIFICADO */
     .footer { background: var(--bg); border-top: 1px solid var(--line); padding: 80px 0 40px; color: var(--muted); font-size: 14px; line-height: 1.6; }
     .footergrid { display: grid; grid-template-columns: 1.3fr 0.85fr 0.85fr; gap: 60px; margin-bottom: 48px; }
     .footer-col h3 { font-size: 16px; font-weight: 800; color: var(--ink); margin: 0 0 20px; letter-spacing: -0.3px; }
@@ -192,17 +163,7 @@
     .footer-links a:hover { color: var(--ink); transform: translateX(2px); }
     .footer-links a span.arrow { transition: color 0.15s ease; }
     .footer-links a:hover span.arrow { color: var(--accent); }
-    
-    .footer-bottom { border-top: 1px solid var(--line); padding-top: 24px; display:flex; justify-content:space-between; align-items:center; font-size: 13px; color: #7d8782; flex-wrap:wrap; gap:16px;}
-    .footer-legal-links { display:flex; gap:20px; flex-wrap:wrap;}
-    .footer-legal-links a { color:var(--muted); text-decoration:none; transition:.15s;}
-    .footer-legal-links a:hover { color:var(--ink); text-decoration:underline; }
-    
-    .searchresults{margin-top:18px;display:none;background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden}
-    .searchresults a{display:block;padding:16px 20px;border-bottom:1px solid var(--line);transition:background 0.1s}
-    .searchresults a:hover{background:#fafbfa}
-    .searchresults b{font-size:16px}
-    .searchresults small{display:block;font-size:14px;color:var(--muted);margin-top:4px}
+    .footer-bottom { border-top: 1px solid var(--line); padding-top: 24px; display:flex; justify-content:center; align-items:center; text-align:center; font-size: 13px; color: #7d8782;}
     
     /* RESPONSIVE */
     @media(max-width:1250px){
@@ -220,7 +181,7 @@
       .hero h1{font-size:38px}
       .searchbox{display:block}
       .searchbox input, .searchbox button{width:100%;margin-top:12px}
-      .auth-buttons { flex-direction:column; width:100%; display:none; } /* Ocultar botones arriba si no caben, o ajustar */
+      .auth-buttons { flex-direction:column; width:100%; display:none; }
     }
     @media(max-width: 768px) {
       .header-left { gap: 10px; }
@@ -233,12 +194,11 @@
 </head>
 <body>
   
-  <!-- CABECERA CON MENÚ HAMBURGUESA Y BOTONES DE AUTENTICACIÓN -->
+  <!-- CABECERA -->
   <header class="top">
     <div class="wrap">
       <nav>
         <div class="header-left">
-          <!-- Menú Hamburguesa -->
           <div class="menu-dropdown">
             <button class="hamburger" onclick="toggleMenu()" aria-label="Abrir menú">
               <span></span>
@@ -313,50 +273,52 @@
 
     <hr class="section-divider">
 
-    <!-- NUEVA SECCIÓN: ANALIZADOR IA -->
+    <!-- SECCIÓN: ANALIZADOR IA -->
     <section id="analizador" class="section">
       <div class="sectionhead">
         <div class="eyebrow" style="margin-bottom:12px; background:rgba(184, 255, 61, 0.2); color:#507a00;">Herramienta PRO (Requiere cuenta)</div>
         <h2>Analizador y Optimizador STL con IA</h2>
-        <p>No solo te decimos qué está mal. Te decimos cómo mejorarlo. Sube tu diseño y evita impresiones fallidas con nuestro motor de diagnóstico geométrico y la validación por IA.</p>
+        <p>Sube tu diseño y evita impresiones fallidas con nuestro motor de diagnóstico geométrico y validación por IA. No solo detectamos el error, te decimos exactamente cómo solucionarlo en tu laminador.</p>
       </div>
 
-      <div style="background:var(--card); border:1.5px solid var(--line); border-radius:24px; padding:48px; box-shadow:0 15px 35px rgba(0,0,0,0.03);">
+      <div class="pro-panel" style="background:var(--card); border:1.5px solid var(--line); border-radius:24px; padding:32px; box-shadow:0 10px 30px rgba(0,0,0,0.02);">
         
-        <div style="display:flex; align-items:center; justify-content:center; gap:16px; margin-bottom: 48px; flex-wrap:wrap;">
-          <div style="background:var(--bg); border:1px solid var(--line); padding:10px 20px; border-radius:99px; font-weight:800; font-size:13px;">1. Sube tu STL</div>
-          <div style="color:var(--muted); font-weight:800;">→</div>
-          <div style="background:var(--bg); border:1px solid var(--line); padding:10px 20px; border-radius:99px; font-weight:800; font-size:13px;">2. Descubre el error</div>
-          <div style="color:var(--muted); font-weight:800;">→</div>
-          <div style="background:var(--dark); color:var(--accent); border:1px solid var(--dark); padding:10px 20px; border-radius:99px; font-weight:800; font-size:13px;">3. Recibe la solución</div>
-          <div style="color:var(--muted); font-weight:800;">→</div>
-          <div style="background:var(--bg); border:1px solid var(--line); padding:10px 20px; border-radius:99px; font-weight:800; font-size:13px;">4. Optimiza</div>
+        <!-- Flujo Lógico Compacto -->
+        <div style="display:flex; align-items:center; justify-content:space-between; background:var(--bg); border-radius:16px; padding:16px 24px; margin-bottom:32px; font-size:13px; font-weight:800; border:1px solid var(--line); flex-wrap:wrap; gap:10px;">
+          <span>1. Sube tu STL</span>
+          <span style="color:var(--muted)">→</span>
+          <span>2. Descubre el error</span>
+          <span style="color:var(--muted)">→</span>
+          <span style="color:var(--accent); background:var(--dark); padding:4px 12px; border-radius:8px;">3. Recibe la solución</span>
+          <span style="color:var(--muted)">→</span>
+          <span>4. Optimiza</span>
         </div>
 
-        <div class="analizador-grid">
-            <div style="background:#fafbfa; border:2px dashed var(--line); border-radius:20px; padding:50px 30px; text-align:center; transition:.2s;">
-              <div style="font-size: 48px; margin-bottom: 20px;">🧠</div>
-              <h3 style="font-size: 22px; font-weight: 800; margin:0 0 10px; letter-spacing:-0.5px;">Auditoría Estructural 3D</h3>
-              <p style="color: var(--muted); margin:0 0 30px; font-size:15px;">Soporte nativo para FDM, SLA y SLS. Obtén tu Printability Score al instante.</p>
-              <a href="herramientas/analizador-stl.html" class="btn green" style="padding:16px 36px; font-size:16px; width: 100%;">Probar Analizador Inteligente</a>
-              
-              <div style="margin-top:24px; font-size:12.5px; color:var(--muted); font-weight:700;">
-                <span style="background:#eef2ee; padding:4px 8px; border-radius:6px; color:#1e694b; margin-right:6px;">🔒 Privacidad por Diseño</span> Archivos cifrados.
+        <div class="analizador-grid" style="display:grid; grid-template-columns:1fr 1.2fr; gap:32px; align-items:stretch;">
+            <!-- Llamada a la acción -->
+            <div style="background:#fafbfa; border:2px dashed var(--line); border-radius:20px; padding:40px 24px; text-align:center; display:flex; flex-direction:column; justify-content:center;">
+              <div style="font-size: 40px; margin-bottom: 16px;">🧠</div>
+              <h3 style="font-size: 20px; font-weight: 800; margin:0 0 8px; letter-spacing:-0.5px;">Auditoría Estructural 3D</h3>
+              <p style="color: var(--muted); margin:0 0 24px; font-size:14px; line-height:1.5;">Soporte nativo para FDM, SLA y SLS. Obtén tu Printability Score al instante.</p>
+              <a href="herramientas/analizador-stl.html" class="btn green" style="padding:14px 24px; font-size:15px; width:100%;">Probar Analizador IA</a>
+              <div style="margin-top:20px; font-size:12px; color:var(--muted); font-weight:700;">
+                <span style="background:#eef2ee; padding:4px 8px; border-radius:6px; color:#1e694b; margin-right:4px;">🔒 Privacidad</span> Archivos cifrados.
               </div>
             </div>
             
-            <div style="display: flex; flex-direction: column; gap: 20px;">
-                <div style="background: var(--bg); padding: 24px; border-radius: 16px; border: 1px solid var(--line);">
-                    <h4 style="margin: 0 0 8px; font-size: 16px; font-weight: 800;">📐 Cálculo Geométrico Real</h4>
-                    <p style="margin: 0; font-size: 14px; color: var(--muted);">No inventamos datos. Procesamos dimensiones, voladizos y muros finos mediante un motor C++ robusto.</p>
+            <!-- Beneficios -->
+            <div style="display:flex; flex-direction:column; justify-content:space-between; gap:16px;">
+                <div style="background:var(--card); padding:20px; border-radius:16px; border:1px solid var(--line); box-shadow:0 4px 10px rgba(0,0,0,0.01);">
+                    <h4 style="margin: 0 0 6px; font-size: 15px; font-weight: 800; display:flex; align-items:center; gap:8px;"><span>📐</span> Cálculo Geométrico Real</h4>
+                    <p style="margin: 0; font-size: 13.5px; color: var(--muted); line-height:1.5;">Procesamos dimensiones, voladizos y muros finos mediante un motor C++ robusto. Sin inventar datos.</p>
                 </div>
-                <div style="background: var(--bg); padding: 24px; border-radius: 16px; border: 1px solid var(--line);">
-                    <h4 style="margin: 0 0 8px; font-size: 16px; font-weight: 800;">🎯 Soluciones Accionables</h4>
-                    <p style="margin: 0; font-size: 14px; color: var(--muted);">En lugar de alertas genéricas, recibes instrucciones exactas: "Aumenta el espesor en 0.48mm para evitar fallos".</p>
+                <div style="background:var(--card); padding:20px; border-radius:16px; border:1px solid var(--line); box-shadow:0 4px 10px rgba(0,0,0,0.01);">
+                    <h4 style="margin: 0 0 6px; font-size: 15px; font-weight: 800; display:flex; align-items:center; gap:8px;"><span>🎯</span> Soluciones Accionables</h4>
+                    <p style="margin: 0; font-size: 13.5px; color: var(--muted); line-height:1.5;">Recibes instrucciones exactas para tu laminador: "Aumenta el espesor de pared en 0.48mm".</p>
                 </div>
-                <div style="background: var(--bg); padding: 24px; border-radius: 16px; border: 1px solid var(--line);">
-                    <h4 style="margin: 0 0 8px; font-size: 16px; font-weight: 800;">💶 Optimización de Costes</h4>
-                    <p style="margin: 0; font-size: 14px; color: var(--muted);">Previene impresiones fallidas y reduce el uso de material de soporte innecesario antes de ir al laminador.</p>
+                <div style="background:var(--card); padding:20px; border-radius:16px; border:1px solid var(--line); box-shadow:0 4px 10px rgba(0,0,0,0.01);">
+                    <h4 style="margin: 0 0 6px; font-size: 15px; font-weight: 800; display:flex; align-items:center; gap:8px;"><span>💶</span> Optimización de Costes</h4>
+                    <p style="margin: 0; font-size: 13.5px; color: var(--muted); line-height:1.5;">Previene impresiones fallidas y reduce el uso de material de soporte innecesario.</p>
                 </div>
             </div>
         </div>
@@ -580,7 +542,7 @@
 
     <hr class="section-divider">
 
-    <!-- GUÍAS (AHORA DEBAJO DE HERRAMIENTAS) -->
+    <!-- GUÍAS -->
     <section id="guias" class="section">
       <div class="sectionhead">
         <div class="eyebrow" style="margin-bottom:12px">02 / CONOCIMIENTO Y TEORÍA</div>
@@ -851,7 +813,7 @@
             <li><strong>BIPM:</strong> Oficina Internacional de Pesas y Medidas</li>
             <li><strong>CEN / CENELEC:</strong> Comité Europeo de Normalización Electrotécnica</li>
             <li><strong>UNE:</strong> Asociación Española de Normalización (Normas UNE)</li>
-            <li><strong>DIN:</strong> Deutsches Institut für Nurung (Alemania)</li>
+            <li><strong>DIN:</strong> Deutsches Institut für Normung (Alemania)</li>
             <li><strong>ANSI:</strong> American National Standards Institute</li>
             <li><strong>OSHA:</strong> Occupational Safety and Health Administration (USA)</li>
             <li><strong>ECHA:</strong> European Chemicals Agency</li>
@@ -862,6 +824,7 @@
     </div>
   </div>
 
+  <!-- MODALES EXTRAS DEL SIMULADOR -->
   <div id="modal-metodologia" class="modal">
     <div class="modal-content">
       <span class="modal-close" onclick="closeModal('modal-metodologia')">✕</span>
@@ -902,7 +865,6 @@
     </div>
   </div>
 
-  <!-- NUEVO FOOTER MINIMALISTA CON ENLACES LEGALES (INDEX PRINCIPAL) -->
   <footer class="footer">
     <div class="wrap">
       <div class="footergrid">
@@ -917,7 +879,7 @@
           <div class="footer-links">
             <a href="#analizador"><span class="arrow">→</span> Analizador STL IA</a>
             <a href="#simulador"><span class="arrow">→</span> Simulador de Extrusión</a>
-            <a href="#herramientas"><span class="arrow">→</span> Calculadoras de Coste y Masa</a>
+            <a href="herramientas/calculadora-coste.html"><span class="arrow">→</span> Calculadoras de Coste y Masa</a>
             <a href="#guias"><span class="arrow">→</span> Base de Conocimiento</a>
             <a href="materiales/index.html"><span class="arrow">→</span> Atlas de Materiales</a>
           </div>
@@ -1037,7 +999,7 @@
       }
       
       // Cierra el menú de hamburguesa si se clica fuera de él
-      if (!event.target.closest('.menu-dropdown')) {
+      if (!event.target.closest('.menu-dropdown') && !event.target.closest('.hamburger')) {
         var dropdowns = document.getElementsByClassName("dropdown-content");
         for (var i = 0; i < dropdowns.length; i++) {
           var openDropdown = dropdowns[i];
