@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Informe de Análisis STL — PrintLab PRO</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{ --bg:#f6f7f4; --card:#fff; --ink:#0d1110; --muted:#5e6661; --line:#dfe4df; --accent:#b8ff3d; --dark:#111715; --max:1200px; --error:#9e3223; --warning:#c47100;}
+    *{box-sizing:border-box} body{margin:0; background:var(--bg); color:var(--ink); font-family:"Plus Jakarta Sans", sans-serif; line-height:1.6;}
+    .wrap{max-width:var(--max);margin:auto;padding:0 40px}
+    
+    .header-app{background:var(--card); border-bottom:1px solid var(--line); padding:20px 0;}
+    .header-flex{display:flex; justify-content:space-between; align-items:center;}
+    .user-tag{font-size:14px; font-weight:700; color:var(--muted); background:var(--bg); padding:8px 16px; border-radius:99px;}
+
+    .report-grid{display:grid; grid-template-columns: 0.8fr 1.2fr; gap:40px; padding:40px 0;}
+    
+    /* 3D Viewer Placeholder */
+    .viewer-3d{background:var(--dark); border-radius:24px; height:500px; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#fff; position:relative; overflow:hidden;}
+    .viewer-overlay{position:absolute; top:20px; left:20px; display:flex; gap:10px;}
+    .v-btn{background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff; padding:6px 12px; border-radius:8px; font-size:12px; cursor:pointer;}
+    .v-btn:hover{background:rgba(255,255,255,0.2);}
+
+    /* Score Box */
+    .score-card{background:var(--card); border:1.5px solid var(--line); border-radius:20px; padding:30px; margin-bottom:24px;}
+    .score-title{font-size:14px; text-transform:uppercase; font-weight:800; color:var(--muted); margin:0 0 10px;}
+    .score-value{font-size:48px; font-weight:800; line-height:1; color:var(--ink); margin:0 0 10px;}
+    .score-value span{font-size:24px; color:var(--muted);}
+
+    /* Problem Cards (La Lógica Principal) */
+    .problem-list{display:flex; flex-direction:column; gap:20px;}
+    .prob-card{background:var(--card); border:1.5px solid var(--error); border-left:6px solid var(--error); border-radius:16px; padding:24px;}
+    .prob-card.warn{border-color:var(--warning); border-left-color:var(--warning);}
+    
+    .prob-header{display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;}
+    .prob-title{font-size:18px; font-weight:800; margin:0;}
+    .prob-badge{background:#fcebe8; color:var(--error); font-size:11px; font-weight:800; padding:4px 10px; border-radius:6px; text-transform:uppercase;}
+    
+    .prob-data{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; background:var(--bg); padding:16px; border-radius:12px;}
+    .data-item{display:flex; flex-direction:column;}
+    .data-item span{font-size:12px; color:var(--muted); font-weight:700; text-transform:uppercase;}
+    .data-item strong{font-size:15px; font-weight:800;}
+    
+    .solution-box{border-top:1px dashed var(--line); padding-top:16px;}
+    .solution-box strong{color:var(--accent); background:var(--dark); padding:2px 8px; border-radius:4px; font-size:12px; text-transform:uppercase;}
+    .solution-text{font-size:15px; margin:8px 0; font-weight:700;}
+    .benefit-text{font-size:14px; color:var(--muted); margin:0;}
+
+    /* Disclaimer */
+    .disclaimer{font-size:12px; color:var(--muted); background:var(--bg); padding:16px; border-radius:12px; margin-top:40px; border:1px solid var(--line);}
+  </style>
+</head>
+<body>
+
+  <div class="header-app">
+    <div class="wrap header-flex">
+      <a href="dashboard.html" style="font-weight:800; letter-spacing:-1px; font-size:20px;">PRINT<span style="background:var(--accent); color:var(--ink); padding:2px 8px; border-radius:6px; margin-left:4px;">LAB PRO</span></a>
+      <div class="user-tag">Créditos restantes: 14</div>
+    </div>
+  </div>
+
+  <main class="wrap">
+    <div class="report-grid">
+      
+      <!-- LADO IZQUIERDO: VISOR Y DATOS TÉCNICOS -->
+      <div>
+        <div class="viewer-3d">
+          <div class="viewer-overlay">
+            <button class="v-btn">Rotar</button>
+            <button class="v-btn">Wireframe</button>
+            <button class="v-btn">Resaltar Errores</button>
+          </div>
+          <p style="color:#b8c0bb; font-size:14px;">[Visor interactivo WebGL / Three.js]</p>
+          <img src="data:image/svg+xml;utf8,<svg fill='none' stroke='%233b443f' stroke-width='2' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'><path stroke-linecap='round' stroke-linejoin='round' d='M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4'></path></svg>" width="120" opacity="0.5" style="margin-top:20px;">
+        </div>
+
+        <div style="margin-top:24px; padding:20px; background:var(--card); border:1px solid var(--line); border-radius:16px; font-size:14px;">
+          <h4 style="margin:0 0 12px; font-weight:800;">Datos Estructurados (Motor Geométrico)</h4>
+          <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span>Volumen:</span> <strong>14.2 cm³</strong></div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span>Dimensiones:</span> <strong>45 x 60 x 32 mm</strong></div>
+          <div style="display:flex; justify-content:space-between;"><span>Tecnología evaluada:</span> <strong>FDM (PLA)</strong></div>
+        </div>
+      </div>
+
+      <!-- LADO DERECHO: LA LÓGICA DE VALOR (PROBLEMA -> SOLUCIÓN) -->
+      <div>
+        <div class="score-card">
+          <p class="score-title">Printability Score</p>
+          <p class="score-value">67<span>/100</span></p>
+          <p style="margin:0; color:var(--muted); font-size:15px;">El modelo presenta riesgos altos de fracaso durante la impresión FDM debido a fallos estructurales en la base.</p>
+        </div>
+
+        <div class="problem-list">
+          
+          <!-- PROBLEMA 1 -->
+          <div class="prob-card">
+            <div class="prob-header">
+              <h3 class="prob-title">Pared demasiado fina</h3>
+              <span class="prob-badge">Crítico</span>
+            </div>
+            <div class="prob-data">
+              <div class="data-item"><span>Medición Actual</span><strong>0.72 mm</strong></div>
+              <div class="data-item"><span>Mínimo Recomendado</span><strong>1.20 mm (3 Perímetros)</strong></div>
+            </div>
+            <div class="solution-box">
+              <strong>Solución</strong>
+              <p class="solution-text">Aumentar el espesor geométrico de la pared exterior de la carcasa en aproximadamente 0.48 mm.</p>
+              <p class="benefit-text">Beneficio esperado: Evitará agujeros de sub-extrusión y aportará resistencia mecánica real a la pieza final.</p>
+            </div>
+          </div>
+
+          <!-- PROBLEMA 2 -->
+          <div class="prob-card warn">
+            <div class="prob-header">
+              <h3 class="prob-title">Ángulo de voladizo extremo</h3>
+              <span class="prob-badge" style="background:#fef3e6; color:var(--warning);">Medio</span>
+            </div>
+            <div class="prob-data">
+              <div class="data-item"><span>Ángulo Detectado</span><strong>68º</strong></div>
+              <div class="data-item"><span>Límite Seguro (Sin soporte)</span><strong>45º - 50º</strong></div>
+            </div>
+            <div class="solution-box">
+              <strong>Solución</strong>
+              <p class="solution-text">Generar soportes orgánicos tipo árbol bajo la barbilla del modelo, o inclinar la pieza 15º en el eje Y.</p>
+              <p class="benefit-text">Beneficio esperado (Estimación): Mejor acabado superficial inferior y prevención de descolgamiento de plástico fundido.</p>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="disclaimer">
+          Los resultados mostrados son orientativos y se basan exclusivamente en el archivo STL proporcionado y las tolerancias paramétricas seleccionadas. Las recomendaciones generadas por la IA son una herramienta de asistencia técnica, pero no constituyen una certificación ni garantía de fabricación o seguridad estructural de la pieza en entornos reales.
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+</body>
+</html>
