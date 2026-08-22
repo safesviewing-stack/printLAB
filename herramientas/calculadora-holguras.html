@@ -84,12 +84,13 @@
     .warning-note h3{margin:0 0 10px; font-size:18px; color:#1e694b; font-weight:800}
     .warning-note p{margin:0; font-size:15px; color:var(--ink); line-height:1.6}
 
+    /* MODALES DE TRANSPARENCIA */
     .modal{display:none; position:fixed; top:0;left:0;width:100%;height:100%; background:rgba(13,17,16,0.85); backdrop-filter:blur(8px); z-index:200; overflow-y:auto; padding:40px 16px; animation:fadeIn .2s ease;}
     .modal-content{background:var(--card); border:2.5px solid var(--ink); max-width:700px; margin:40px auto; border-radius:24px; padding:40px; box-shadow:0 25px 60px rgba(0,0,0,0.18); position:relative; color:var(--ink);}
     .modal-close{position:absolute; top:24px;right:24px; background:var(--bg); border:1.5px solid var(--line); width:40px;height:40px; border-radius:50%; display:flex;align-items:center;justify-content:center; cursor:pointer;font-weight:800;transition:.15s;}
     .modal-close:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
 
-    /* FOOTER MEJORADO */
+    /* FOOTER MEJORADO Y CENTRADO */
     .footer { background: var(--bg); border-top: 1px solid var(--line); padding: 80px 0 40px; color: var(--muted); font-size: 14px; line-height: 1.6; }
     .footergrid { display: grid; grid-template-columns: 1.3fr 0.85fr 0.85fr; gap: 60px; margin-bottom: 48px; }
     .footer-col h3 { font-size: 16px; font-weight: 800; color: var(--ink); margin: 0 0 20px; letter-spacing: -0.3px; }
@@ -101,11 +102,8 @@
     .footer-links a span.arrow { transition: color 0.15s ease; }
     .footer-links a:hover span.arrow { color: var(--accent); }
     
-    .footer-bottom { border-top: 1px solid var(--line); padding-top: 24px; display:flex; justify-content:space-between; align-items:center; font-size: 13px; color: #7d8782; flex-wrap:wrap; gap:16px;}
-    .footer-legal-links { display:flex; gap:20px; flex-wrap:wrap;}
-    .footer-legal-links a { color:var(--muted); text-decoration:none; transition:.15s;}
-    .footer-legal-links a:hover { color:var(--ink); text-decoration:underline; }
-    
+    .footer-bottom { border-top: 1px solid var(--line); padding-top: 24px; display:flex; justify-content:center; align-items:center; text-align:center; font-size: 13px; color: #7d8782;}
+
     @media(max-width:1100px){
       .calc-layout{grid-template-columns:1fr; gap: 24px;}
       .left-col { grid-column: 1; grid-row: 1; gap: 24px;}
@@ -121,7 +119,6 @@
       .brand { font-size:22px; }
       .auth-buttons { display: none; }
       .footergrid { grid-template-columns: 1fr; gap: 36px; }
-      .footer-bottom { flex-direction: column; align-items: flex-start; gap:16px;}
     }
   </style>
 </head>
@@ -248,11 +245,6 @@
     </div>
   </main>
 
-  <!-- MODALES LEGALES Y METODOLOGÍA OMITIDOS EN ESTA VISUALIZACIÓN POR BREVEDAD, SE MANTIENEN IGUAL QUE ANTES -->
-  <div id="modal-metodologia" class="modal">
-    <div class="modal-content"><span class="modal-close" onclick="closeModal('modal-metodologia')">✕</span><h3>Metodología</h3><div class="modal-section"><p>Cálculo basado en coeficientes empíricos de contracción polimérica.</p></div></div>
-  </div>
-
   <footer class="footer">
     <div class="wrap">
       <div class="footergrid">
@@ -327,9 +319,6 @@
       document.getElementById('res_note').innerText = NOTES[fit_type];
     }
 
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; document.body.style.overflow = 'auto'; }
-    function openModal(id) { document.getElementById(id).style.display = 'block'; document.body.style.overflow = 'hidden'; }
-    
     window.onclick = function(event) {
       if (event.target.classList.contains('modal')) { event.target.style.display = 'none'; document.body.style.overflow = 'auto'; }
       if (!event.target.closest('.menu-dropdown')) {
