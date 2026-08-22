@@ -127,73 +127,19 @@
     }
     .modal-close:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
 
-    /* NUEVO ESTILO FOOTER MINIMALISTA (PRINTLAB) */
-    .footer {
-      background: var(--bg);
-      border-top: 1px solid var(--line);
-      padding: 80px 0 40px;
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.6;
-    }
-    .footergrid {
-      display: grid;
-      grid-template-columns: 1.3fr 0.85fr 0.85fr;
-      gap: 60px;
-      margin-bottom: 48px;
-    }
-    .footer-col h3 {
-      font-size: 16px;
-      font-weight: 800;
-      color: var(--ink);
-      margin: 0 0 20px;
-      letter-spacing: -0.3px;
-    }
-    .footer-col p {
-      margin: 0 0 16px;
-      color: var(--muted);
-    }
-    .footer-secondary-text {
-      font-size: 12.5px;
-      line-height: 1.5;
-      color: #7d8782;
-      margin-top: 12px;
-    }
-    .footer-links {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .footer-links a {
-      color: var(--muted);
-      transition: color 0.15s ease, transform 0.15s ease;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      text-decoration: none;
-    }
-    .footer-links a:hover {
-      color: var(--ink);
-      transform: translateX(2px);
-    }
-    .footer-links a span.arrow {
-      transition: color 0.15s ease;
-    }
-    .footer-links a:hover span.arrow {
-      color: var(--accent);
-    }
-    .footer-bottom {
-      border-top: 1px solid var(--line);
-      padding-top: 24px;
-      text-align: center;
-      font-size: 13px;
-      color: #7d8782;
-    }
-    .footer-bottom-text {
-      margin: 0 auto;
-      font-weight: 400;
-    }
+    /* FOOTER MEJORADO Y CENTRADO */
+    .footer { background: var(--bg); border-top: 1px solid var(--line); padding: 80px 0 40px; color: var(--muted); font-size: 14px; line-height: 1.6; }
+    .footergrid { display: grid; grid-template-columns: 1.3fr 0.85fr 0.85fr; gap: 60px; margin-bottom: 48px; }
+    .footer-col h3 { font-size: 16px; font-weight: 800; color: var(--ink); margin: 0 0 20px; letter-spacing: -0.3px; }
+    .footer-col p { margin: 0 0 16px; color: var(--muted); }
+    .footer-secondary-text { font-size: 12.5px; line-height: 1.5; color: #7d8782; margin-top: 12px; }
+    .footer-links { display: flex; flex-direction: column; gap: 10px; }
+    .footer-links a { color: var(--muted); transition: color 0.15s ease, transform 0.15s ease; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+    .footer-links a:hover { color: var(--ink); transform: translateX(2px); }
+    .footer-links a span.arrow { transition: color 0.15s ease; }
+    .footer-links a:hover span.arrow { color: var(--accent); }
+    
+    .footer-bottom { border-top: 1px solid var(--line); padding-top: 24px; display:flex; justify-content:center; align-items:center; text-align:center; font-size: 13px; color: #7d8782;}
     
     @media(max-width:1250px){
       .wrap{padding:0 40px}
@@ -412,7 +358,7 @@
         <!-- SECCIÓN 6: Organismos internacionales -->
         <div>
           <h4 style="font-size: 16px; font-weight: 800; color: var(--ink); margin-bottom: 12px; border-bottom: 1px solid var(--line); padding-bottom: 6px;">6. Organismos de Normalización y Referencia Técnica</h4>
-          <p style="color: var(--muted); margin-bottom: 12px;">Nuestra base de datos técnica interactiva se sincroniza y alinea con los criterios establecidos por las instituciones líderes en metrología y ciencia de materiales:</p>
+          <p style="color: var(--muted); margin-bottom: 12px;">Nuestra base de datos técnica interactiva se sincroniza y alinea con los criterios establecidos por las institutions líderes en metrología y ciencia de materiales:</p>
           <ul style="padding-left: 20px; color: var(--muted); line-height: 1.8;">
             <li><strong>ISO:</strong> International Organization for Standardization</li>
             <li><strong>ASTM:</strong> American Society for Testing and Materials</li>
@@ -452,47 +398,42 @@
     </div>
   </div>
 
-  <!-- NUEVO FOOTER MINIMALISTA (PRINTLAB) -->
   <footer class="footer">
     <div class="wrap">
       <div class="footergrid">
-        <!-- COLUMNA 1 — IDENTIDAD -->
         <div class="footer-col">
           <h3>PrintLab — Ingeniería 3D</h3>
-          <p>Información técnica y herramientas para tomar mejores decisiones en fabricación aditiva.</p>
-          <p class="footer-secondary-text">La información técnica se contrasta con fichas técnicas de fabricantes, documentación especializada, normas ISO/ASTM y literatura técnica.</p>
+          <p>Plataforma profesional de análisis y optimización STL mediante Inteligencia Artificial y simuladores paramétricos. Transformamos modelos 3D con problemas en geometrías perfectas listas para fabricar, ahorrando tiempo, material y costes en entornos industriales.</p>
+          <p class="footer-secondary-text">Desarrollado bajo principios de Privacy by Design. Los datos y archivos STL se procesan con estricta confidencialidad.</p>
         </div>
         
-        <!-- COLUMNA 2 — RECURSOS -->
         <div class="footer-col">
-          <h3>Recursos</h3>
+          <h3>Recursos y Herramientas</h3>
           <div class="footer-links">
-            <a href="../index.html"><span class="arrow">→</span> Materiales</a>
-            <a href="../index.html#guias"><span class="arrow">→</span> Guías técnicas</a>
-            <a href="../index.html#herramientas"><span class="arrow">→</span> Calculadoras</a>
-            <a href="../index.html#simulador"><span class="arrow">→</span> Simulador</a>
-            <a href="../index.html#portada"><span class="arrow">→</span> Buscador técnico</a>
+            <a href="../index.html#analizador"><span class="arrow">→</span> Analizador STL IA</a>
+            <a href="../index.html#simulador"><span class="arrow">→</span> Simulador de Extrusión</a>
+            <a href="../index.html#herramientas"><span class="arrow">→</span> Calculadoras de Coste y Masa</a>
+            <a href="../index.html#guias"><span class="arrow">→</span> Base de Conocimiento</a>
+            <a href="../materiales/index.html"><span class="arrow">→</span> Atlas de Materiales</a>
           </div>
         </div>
         
-        <!-- COLUMNA 3 — FUENTES Y METODOLOGÍA -->
         <div class="footer-col">
-          <h3>Fuentes y metodología</h3>
+          <h3>Soporte y Legal</h3>
           <div class="footer-links">
-            <a onclick="openModal('modal-fuentes')"><span class="arrow">→</span> Fuentes técnicas</a>
-            <a onclick="openModal('modal-normativas')"><span class="arrow">→</span> Normativas y estándares</a>
-            <a onclick="openModal('modal-metodologia')"><span class="arrow">→</span> Metodología del simulador</a>
-            <a onclick="openModal('modal-limitaciones')"><span class="arrow">→</span> Limitaciones de las estimaciones</a>
-            <a onclick="openModal('modal-metodologia')"><span class="arrow">→</span> Actualización de datos</a>
+            <a href="../herramientas/precios.html"><span class="arrow">→</span> Precios y Suscripciones</a>
+            <a href="../herramientas/contacto.html"><span class="arrow">→</span> Contacto y Soporte</a>
+            <a href="../herramientas/condiciones-compra.html"><span class="arrow">→</span> Condiciones de Compra</a>
+            <a href="../herramientas/terminos.html"><span class="arrow">→</span> Términos y Condiciones</a>
+            <a href="../herramientas/privacidad.html"><span class="arrow">→</span> Política de Privacidad</a>
+            <a href="../herramientas/cookies.html"><span class="arrow">→</span> Política de Cookies</a>
+            <a href="../herramientas/aviso-legal.html"><span class="arrow">→</span> Aviso Legal</a>
           </div>
         </div>
       </div>
       
-      <!-- PARTE INFERIOR -->
       <div class="footer-bottom">
-        <div class="footer-bottom-text">
-          © 2026 PrintLab
-        </div>
+        <div class="footer-bottom-text">© 2026 PrintLab</div>
       </div>
     </div>
   </footer>
