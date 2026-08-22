@@ -166,7 +166,6 @@
     }
     @media(max-width:992px) {
       .footergrid { grid-template-columns: 1.2fr 1fr; gap: 40px; }
-      .analizador-grid { grid-template-columns: 1fr; }
     }
     @media(max-width:750px){
       .wrap{padding:0 24px}
@@ -266,7 +265,7 @@
 
     <hr class="section-divider">
 
-    <!-- SECCIÓN: ANALIZADOR IA -->
+    <!-- SECCIÓN: ANALIZADOR IA (NUEVO DISEÑO SAAS) -->
     <section id="analizador" class="section">
       <div class="sectionhead">
         <div class="eyebrow" style="margin-bottom:12px; background:rgba(184, 255, 61, 0.2); color:#507a00;">Herramienta PRO (Requiere cuenta)</div>
@@ -274,46 +273,49 @@
         <p>Sube tu diseño y evita impresiones fallidas con nuestro motor de diagnóstico geométrico y validación por IA. No solo detectamos el error, te decimos exactamente cómo solucionarlo en tu laminador.</p>
       </div>
 
-      <div class="pro-panel" style="background:var(--card); border:1.5px solid var(--line); border-radius:24px; padding:32px; box-shadow:0 10px 30px rgba(0,0,0,0.02);">
+      <div class="pro-panel" style="background:var(--card); border:1.5px solid var(--line); border-radius:24px; padding:40px; box-shadow:0 10px 30px rgba(0,0,0,0.02);">
         
-        <!-- Flujo Lógico Compacto -->
-        <div style="display:flex; align-items:center; justify-content:space-between; background:var(--bg); border-radius:16px; padding:16px 24px; margin-bottom:32px; font-size:13px; font-weight:800; border:1px solid var(--line); flex-wrap:wrap; gap:10px;">
-          <span>1. Sube tu STL</span>
-          <span style="color:var(--muted)">→</span>
-          <span>2. Descubre el error</span>
-          <span style="color:var(--muted)">→</span>
-          <span style="color:var(--accent); background:var(--dark); padding:4px 12px; border-radius:8px;">3. Recibe la solución</span>
-          <span style="color:var(--muted)">→</span>
-          <span>4. Optimiza</span>
+        <!-- Beneficios en 3 columnas horizontales -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:32px; margin-bottom:40px;">
+          
+          <div>
+            <div style="width:48px; height:48px; background:#f0f4f0; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:24px; margin-bottom:16px; border:1px solid var(--line);">📐</div>
+            <h4 style="font-size:17px; font-weight:800; margin:0 0 8px; letter-spacing:-0.2px;">Cálculo Geométrico Real</h4>
+            <p style="font-size:14.5px; color:var(--muted); margin:0; line-height:1.5;">Procesamos dimensiones, voladizos y muros finos mediante un motor C++ robusto. Sin inventar datos estadísticos.</p>
+          </div>
+          
+          <div>
+            <div style="width:48px; height:48px; background:#f0f4f0; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:24px; margin-bottom:16px; border:1px solid var(--line);">🎯</div>
+            <h4 style="font-size:17px; font-weight:800; margin:0 0 8px; letter-spacing:-0.2px;">Soluciones Accionables</h4>
+            <p style="font-size:14.5px; color:var(--muted); margin:0; line-height:1.5;">Recibes instrucciones exactas para tu laminador, como: <em>"Aumenta el espesor de pared de tu diseño a 0.48mm"</em>.</p>
+          </div>
+          
+          <div>
+            <div style="width:48px; height:48px; background:#f0f4f0; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:24px; margin-bottom:16px; border:1px solid var(--line);">💶</div>
+            <h4 style="font-size:17px; font-weight:800; margin:0 0 8px; letter-spacing:-0.2px;">Optimización de Costes</h4>
+            <p style="font-size:14.5px; color:var(--muted); margin:0; line-height:1.5;">Previene impresiones fallidas (espaguetis) y reduce significativamente el uso de material de soporte innecesario.</p>
+          </div>
+
         </div>
 
-        <div class="analizador-grid" style="display:grid; grid-template-columns:1fr 1.2fr; gap:32px; align-items:stretch;">
-            <!-- Llamada a la acción -->
-            <div style="background:#fafbfa; border:2px dashed var(--line); border-radius:20px; padding:40px 24px; text-align:center; display:flex; flex-direction:column; justify-content:center;">
-              <div style="font-size: 40px; margin-bottom: 16px;">🧠</div>
-              <h3 style="font-size: 20px; font-weight: 800; margin:0 0 8px; letter-spacing:-0.5px;">Auditoría Estructural 3D</h3>
-              <p style="color: var(--muted); margin:0 0 24px; font-size:14px; line-height:1.5;">Soporte nativo para FDM, SLA y SLS. Obtén tu Printability Score al instante.</p>
-              <a href="herramientas/analizador-stl.html" class="btn green" style="padding:14px 24px; font-size:15px; width:100%;">Probar Analizador IA</a>
-              <div style="margin-top:20px; font-size:12px; color:var(--muted); font-weight:700;">
-                <span style="background:#eef2ee; padding:4px 8px; border-radius:6px; color:#1e694b; margin-right:4px;">🔒 Privacidad</span> Archivos cifrados.
-              </div>
+        <!-- Banner Oscuro Call To Action -->
+        <div style="background:var(--dark); border-radius:20px; padding:36px 40px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:32px; border:1px solid #2a332f; box-shadow:0 15px 35px rgba(0,0,0,0.1);">
+          
+          <div style="flex:1; min-width:300px;">
+            <div style="display:inline-flex; align-items:center; gap:8px; margin-bottom:12px; font-size:12px; font-weight:800; color:var(--accent); text-transform:uppercase; letter-spacing:1px;">
+              <span>Auditoría Estructural 3D</span>
             </div>
-            
-            <!-- Beneficios -->
-            <div style="display:flex; flex-direction:column; justify-content:space-between; gap:16px;">
-                <div style="background:var(--card); padding:20px; border-radius:16px; border:1px solid var(--line); box-shadow:0 4px 10px rgba(0,0,0,0.01);">
-                    <h4 style="margin: 0 0 6px; font-size: 15px; font-weight: 800; display:flex; align-items:center; gap:8px;"><span>📐</span> Cálculo Geométrico Real</h4>
-                    <p style="margin: 0; font-size: 13.5px; color: var(--muted); line-height:1.5;">Procesamos dimensiones, voladizos y muros finos mediante un motor C++ robusto. Sin inventar datos.</p>
-                </div>
-                <div style="background:var(--card); padding:20px; border-radius:16px; border:1px solid var(--line); box-shadow:0 4px 10px rgba(0,0,0,0.01);">
-                    <h4 style="margin: 0 0 6px; font-size: 15px; font-weight: 800; display:flex; align-items:center; gap:8px;"><span>🎯</span> Soluciones Accionables</h4>
-                    <p style="margin: 0; font-size: 13.5px; color: var(--muted); line-height:1.5;">Recibes instrucciones exactas para tu laminador: "Aumenta el espesor de pared en 0.48mm".</p>
-                </div>
-                <div style="background:var(--card); padding:20px; border-radius:16px; border:1px solid var(--line); box-shadow:0 4px 10px rgba(0,0,0,0.01);">
-                    <h4 style="margin: 0 0 6px; font-size: 15px; font-weight: 800; display:flex; align-items:center; gap:8px;"><span>💶</span> Optimización de Costes</h4>
-                    <p style="margin: 0; font-size: 13.5px; color: var(--muted); line-height:1.5;">Previene impresiones fallidas y reduce el uso de material de soporte innecesario.</p>
-                </div>
+            <h3 style="color:#fff; font-size:28px; font-weight:800; margin:0 0 10px; letter-spacing:-0.5px;">Obtén tu Printability Score</h3>
+            <p style="color:#bcc5c0; font-size:15px; margin:0; line-height:1.5; max-width:550px;">Descubre errores de voladizos o muros frágiles en tu archivo antes de encender la impresora. Soporte nativo para <strong>FDM, SLA y SLS</strong>.</p>
+          </div>
+          
+          <div style="display:flex; flex-direction:column; align-items:center; gap:12px; min-width:240px;">
+            <a href="herramientas/analizador-stl.html" class="btn green" style="width:100%; padding:16px 24px; font-size:15.5px;">Subir STL y Analizar</a>
+            <div style="font-size:12px; color:#7d8782; font-weight:700; display:flex; align-items:center; gap:6px;">
+              <span style="color:var(--accent);">🔒</span> Archivos cifrados de extremo a extremo
             </div>
+          </div>
+
         </div>
 
       </div>
@@ -1232,7 +1234,7 @@
       const fWall = Math.min(1.0, 0.4 + (walls - 1) * 0.15);
       const fInfill = 0.3 + (infill / 100) * 0.7;
       
-      // NUEVO: Algoritmo de influencia por geometría de relleno
+      // Algoritmo de influencia por geometría de relleno
       let fPattern = 0.85; 
       if (['giroide', 'panal_3d', 'cubico'].includes(pattern)) fPattern = 1.05;
       else if (['cubico_adaptativo', 'cubico_soporte', 'panal', 'triangulos', 'estrellas'].includes(pattern)) fPattern = 1.0;
