@@ -186,7 +186,7 @@
     .result-warning{color:#9e3223;font-weight:700;font-size:14px;background:#fcebe8;padding:12px;border-radius:10px}
     
     /* SECCIONES Y CABECERAS */
-    .section{padding:80px 0 30px; scroll-margin-top: 100px;}
+    .section{padding:80px 0 30px; scroll-margin-top: 100px; transition: background-color 0.8s ease-in-out;}
     .section-divider{border:0; height:1px; background:var(--line); margin:40px 0}
     .sectionhead{margin-bottom:32px}
     .sectionhead h2{
@@ -544,7 +544,7 @@
   <main class="wrap">
     
     <!-- PORTADA -->
-    <section id="portada" class="hero" style="scroll-margin-top: 150px;">
+    <section id="portada" class="hero section" style="scroll-margin-top: 150px;">
       <div>
         <div class="eyebrow">Decisiones basadas en datos técnicos</div>
         <h1>La guía práctica para entender la impresión 3D.</h1>
@@ -834,7 +834,7 @@
         <a class="card" href="guias/faq-preguntas-frecuentes.html">
           <span class="tag">Básicos</span>
           <h3>Preguntas Frecuentes y Fundamentos</h3>
-          <p>Resolución rápida a las dudas de iniciación: correcta nivelación de la cama, offset del eje Z, uso de adhesivos (laca/dimafix) y calibración básica.</p>
+          <p>Resolución rápida a las dudas de iniciación: correcta nivelación de la cama, offset del eje Z, uso de adhesivos (laca/dimafix) and calibración básica.</p>
           <span class="btn-action">Ver FAQ</span>
         </a>
       </div>
@@ -1012,7 +1012,7 @@
           <p style="color: var(--muted); margin-bottom: 12px;">Fundado en 2009, el comité F42 de ASTM International desarrolla los estándares que definen la fabricación aditiva a nivel global. Trabaja de forma conjunta con el comité técnico ISO TC 261 para armonizar la normativa global de impresión 3D. Sus principales áreas de trabajo son:</p>
           <ul style="padding-left: 20px; color: var(--muted); margin-bottom: 12px;">
             <li><strong>Terminología:</strong> Normalización de definiciones básicas (convergente en ISO/ASTM 52900).</li>
-            <li><strong>Design:</strong> Métodos y directrices de optimización topológica y estructuras reticulares.</li>
+            <li><strong>Diseño:</strong> Métodos y directrices de optimización topológica y estructuras reticulares.</li>
             <li><strong>Procesos:</strong> Certificación de parámetros de extrusión, fotopolimerización y sinterizado de metales.</li>
             <li><strong>Materiales:</strong> Especificaciones técnicas de polvos metálicos, resinas fotosensibles y termoplásticos.</li>
             <li><strong>Propiedades y rendimiento:</strong> Ensayos físicos para medir anisotropía mecánica y fatiga bajo cargas cíclicas.</li>
@@ -1073,7 +1073,7 @@
             <li><strong>BIPM:</strong> Oficina Internacional de Pesas y Medidas</li>
             <li><strong>CEN / CENELEC:</strong> Comité Europeo de Normalización Electrotécnica</li>
             <li><strong>UNE:</strong> Asociación Española de Normalización (Normas UNE)</li>
-            <li><strong>DIN:</strong> Deutsches Institut für Normung (Alemania)</li>
+            <li><strong>DIN:</strong> Deutsches Institut für Nurung (Alemania)</li>
             <li><strong>ANSI:</strong> American National Standards Institute</li>
             <li><strong>OSHA:</strong> Occupational Safety and Health Administration (USA)</li>
             <li><strong>ECHA:</strong> European Chemicals Agency</li>
@@ -1084,95 +1084,71 @@
     </div>
   </div>
 
-  <div id="modal-metodologia" class="modal">
-    <div class="modal-content">
-      <span class="modal-close" onclick="closeModal('modal-metodologia')">✕</span>
-      <h3>Metodología del simulador</h3>
-      <div class="modal-section">
-        <p>El simulador es un modelo matemático de optimización conceptual que no se comporta de forma lineal. Está programado para interpretar la interacción física de las 10 variables de entrada basándose en dos tipos de datos:</p>
-        <p><strong>1. Datos Experimentales de Origen (Fabricantes):</strong> Las temperaturas recomendadas, HDT de los polímeros, elasticidad de los filamentos e higroscopia se mapean directamente de las fichas técnicas (TDS) de Prusa y Bambu Lab.</p>
-        <p><strong>2. Reducciones Algorítmicas Propias:</strong> La influencia de los parámetros de corte (Slicing) se rige por estimaciones de ingeniería de la plataforma:</p>
-        <ul>
-          <li>La resistencia mecánica disminuye de forma no lineal si la temperatura excede o cae del umbral del polímero debido a la cristalización ineficiente o degradación térmica.</li>
-          <li>La resistencia disminuye un 40% en orientación vertical debido al comportamiento anisotrópico del eje Z (conforme al estándar ASTM D638).</li>
-          <li>El tiempo de impresión estimado es un cálculo relativo de volumen/extrusión sobre una geometría de control mediana (100 cm³), no un tiempo físico de máquina.</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: LIMITACIONES Y SEGURIDAD -->
-  <div id="modal-limitaciones" class="modal">
-    <div class="modal-content">
-      <span class="modal-close" onclick="closeModal('modal-limitaciones')">✕</span>
-      <h3>Limitaciones y seguridad</h3>
-      <div class="modal-section">
-        <h4>Limitaciones del Simulador</h4>
-        <p>Las estimaciones provienen de un entorno controlado ideal. Los resultados en el taller real variarán sustancialmente de acuerdo a:</p>
-        <ul>
-          <li>La calibración exacta de la extrusión y pasos de motor de la impresora (E-steps).</li>
-          <li>La marca, lote, humedad absorbida y aditivos colorantes del filamento utilizado.</li>
-          <li>Condiciones ambientales de la habitación (corrientes de aire frío o humedad ambiental elevada).</li>
-        </ul>
-      </div>
-      <div class="modal-section">
-        <h4>Seguridad y Gestión de Riesgos</h4>
-        <p><strong>Emisiones nocivas (COVs y UFPs):</strong> Termoplásticos como el ABS, ASA o PC liberan estireno y partículas ultra finas nocivas durante el proceso de fusión. Es imprescindible imprimir estos materiales con sistemas de filtrado por carbón activo/HEPA o en habitaciones con ventilación forzada controlada hacia el exterior.</p>
-        <p><strong>Riesgos Térmicos:</strong> Las temperaturas de hotend (>220ºC) y cama pueden producir quemaduras graves. Corta siempre el flujo de alimentación antes de intervenir el extrusor.</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- NUEVO FOOTER MINIMALISTA UNIFICADO (PRINTLAB) -->
-  <footer class="footer">
-    <div class="wrap">
-      <div class="footergrid">
-        <!-- COLUMNA 1 — IDENTIDAD -->
-        <div class="footer-col">
-          <h3>PrintLab — Ingeniería 3D</h3>
-          <p>Información técnica y herramientas para tomar mejores decisiones en fabricación aditiva.</p>
-          <p class="footer-secondary-text">La información técnica se contrasta con fichas técnicas de fabricantes, documentación especializada, normas ISO/ASTM y literatura técnica.</p>
-        </div>
-        
-        <!-- COLUMNA 2 — RECURSOS -->
-        <div class="footer-col">
-          <h3>Recursos</h3>
-          <div class="footer-links">
-            <a href="materiales/index.html"><span class="arrow">→</span> Materiales</a>
-            <a href="#guias"><span class="arrow">→</span> Guías técnicas</a>
-            <a href="#herramientas"><span class="arrow">→</span> Calculadoras</a>
-            <a href="#simulador"><span class="arrow">→</span> Simulador</a>
-            <a href="#portada"><span class="arrow">→</span> Buscador técnico</a>
-          </div>
-        </div>
-        
-        <!-- COLUMNA 3 — FUENTES Y METODOLOGÍA -->
-        <div class="footer-col">
-          <h3>Fuentes y metodología</h3>
-          <div class="footer-links">
-            <a onclick="openModal('modal-fuentes')"><span class="arrow">→</span> Fuentes técnicas</a>
-            <a onclick="openModal('modal-normativas')"><span class="arrow">→</span> Normativas y estándares</a>
-            <a onclick="openModal('modal-metodologia')"><span class="arrow">→</span> Metodología del simulador</a>
-            <a onclick="openModal('modal-limitaciones')"><span class="arrow">→</span> Limitaciones de las estimaciones</a>
-            <a onclick="openModal('modal-metodologia')"><span class="arrow">→</span> Actualización de datos</a>
-          </div>
-        </div>
-      </div>
-      
-      <!-- PARTE INFERIOR -->
-      <div class="footer-bottom">
-        <div class="footer-bottom-text">
-          © 2026 PrintLab
-        </div>
-      </div>
-    </div>
-  </footer>
-
   <script>
-    /* COMPORTAMIENTO NAVEGACIÓN HEADER DINÁMICO */
+    /* COMPORTAMIENTO NAVEGACIÓN HEADER DINÁMICO & EFECTO BURBUJA */
     const navLinks = document.querySelectorAll('.nav a');
     const sections = document.querySelectorAll('main > section[id]');
+    let isClickScrolling = false; // Bloquea temporalmente el IntersectionObserver al hacer clic
+    let currentActiveSectionId = "";
 
+    function triggerBubbleTransition(targetSection) {
+      if (!targetSection) return;
+      
+      // Evitar animaciones paralelas en la misma sección
+      if (targetSection.classList.contains('bubble-animating')) return;
+      
+      targetSection.classList.add('bubble-animating');
+      targetSection.style.transition = 'background-color 0.8s ease-in-out';
+      const originalBg = targetSection.style.backgroundColor || '';
+      
+      // Aplicar color translúcido de burbuja característico (verde lima con opacidad)
+      targetSection.style.backgroundColor = 'rgba(184, 255, 61, 0.18)';
+      
+      setTimeout(() => {
+        targetSection.style.backgroundColor = originalBg;
+        setTimeout(() => {
+          targetSection.classList.remove('bubble-animating');
+        }, 800);
+      }, 1500);
+    }
+
+    /* OBSERVER DE INTERSECCIÓN PARA TRANSICIONES MEDIANTE SCROLL */
+    const observerOptions = {
+      root: null,
+      rootMargin: '-50% 0px -50% 0px', // Activa la detección justo en el centro de la pantalla
+      threshold: 0
+    };
+
+    const sectionObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const sectionId = entry.target.getAttribute('id');
+          
+          if (sectionId !== currentActiveSectionId) {
+            currentActiveSectionId = sectionId;
+            
+            // Actualizar la clase activa del header
+            navLinks.forEach(link => {
+              link.classList.remove('active');
+              if (link.getAttribute('href') === `#${sectionId}` || (sectionId === 'portada' && link.getAttribute('href') === 'index.html')) {
+                link.classList.add('active');
+              }
+            });
+
+            // Disparar la transición de burbuja si el movimiento es por scroll manual
+            if (!isClickScrolling) {
+              triggerBubbleTransition(entry.target);
+            }
+          }
+        }
+      });
+    }, observerOptions);
+
+    sections.forEach(section => {
+      sectionObserver.observe(section);
+    });
+
+    /* NAVEGACIÓN EN EL HEADER CON DISPARO DE TRANSICIÓN DE BURBUJA */
     navLinks.forEach(link => {
       link.addEventListener('click', e => {
         const targetId = link.getAttribute('href');
@@ -1180,29 +1156,25 @@
           e.preventDefault();
           const targetSection = document.querySelector(targetId);
           if (targetSection) {
+            isClickScrolling = true;
+            
+            navLinks.forEach(l => l.classList.remove('active'));
+            link.classList.add('active');
+
+            // Disparar la animación inmediatamente en el clic
+            triggerBubbleTransition(targetSection);
+
+            // Scroll fluido compensado
             window.scrollTo({
               top: targetSection.offsetTop - 110,
               behavior: 'smooth'
             });
+
+            setTimeout(() => {
+              isClickScrolling = false;
+              currentActiveSectionId = targetId.substring(1);
+            }, 850);
           }
-        }
-      });
-    });
-
-    window.addEventListener('scroll', () => {
-      let current = "";
-      const scrollPosition = window.scrollY + 160;
-
-      sections.forEach(section => {
-        if (scrollPosition >= section.offsetTop) {
-          current = section.getAttribute('id');
-        }
-      });
-
-      navLinks.forEach(link => {
-        link.classList.remove('active');
-        if (current && link.getAttribute('href') === `#${current}`) {
-          link.classList.add('active');
         }
       });
     });
@@ -1285,18 +1257,15 @@
             e.preventDefault();
             const target = document.getElementById(item.id);
             if (target) {
+              isClickScrolling = true;
+              triggerBubbleTransition(target);
               window.scrollTo({
                 top: target.offsetTop - 120,
                 behavior: 'smooth'
               });
-              
-              target.style.transition = 'background-color 0.5s ease';
-              const originalBg = target.style.backgroundColor;
-              target.style.backgroundColor = 'rgba(184, 255, 61, 0.25)';
-              
               setTimeout(() => {
-                target.style.backgroundColor = originalBg;
-              }, 2200);
+                isClickScrolling = false;
+              }, 850);
             }
           });
           r.appendChild(itemLink);
@@ -1592,12 +1561,17 @@
         const target = document.querySelector(window.location.hash);
         if (target) {
           setTimeout(() => {
+            isClickScrolling = true;
+            triggerBubbleTransition(target);
             const yOffset = -110;
             const y = target.getBoundingClientRect().top + window.pageYOffset + yOffset;
             window.scrollTo({
               top: y,
               behavior: 'smooth'
             });
+            setTimeout(() => {
+              isClickScrolling = false;
+            }, 850);
           }, 150); // Un pequeño retardo para asegurar la carga completa de dimensiones
         }
       }
