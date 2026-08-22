@@ -1608,12 +1608,23 @@
     }
 
     /* Soporte para scroll con compensación (offset) cuando se entra a la página desde un enlace externo con anclaje hash (#) */
+    /* Soporte para scroll con compensación (offset) cuando se entra a la página desde un enlace externo con anclaje hash (#) */
     window.addEventListener('load', () => {
       autoAdjustTemps();
       updateSimulation();
 
       if (window.location.hash) {
-        const target = document.querySelector(window.location.hash);
+        const targetId = window.location.hash;
+        const target = document.querySelector(targetId);
+        
+        // --- AQUÍ ESTÁ LA CORRECCIÓN DE LA BURBUJA ---
+        // Elimina la clase activa de todos y se la pone al que coincide con el ancla de la URL
+        navLinks.forEach(l => l.classList.remove('active'));
+        const activeLink = document.querySelector(`.nav a[href="${targetId}"]`);
+        if (activeLink) {
+          activeLink.classList.add('active');
+        }
+
         if (target) {
           setTimeout(() => {
             isClickScrolling = true;
