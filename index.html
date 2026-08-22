@@ -79,17 +79,17 @@
     .btn.light{
       background:#fff;
       color:var(--ink);
-      border:2px solid var(--ink); /* Twin border */
-      box-shadow:0 4px 0px var(--ink); /* Twin shadow */
+      border:2px solid var(--ink);
+      box-shadow:0 4px 0px var(--ink);
     }
     .btn.light:hover{
-      transform:translateY(-1px); /* Twin hover displacement */
-      box-shadow:0 6px 0px var(--ink); /* Twin hover shadow */
+      transform:translateY(-1px);
+      box-shadow:0 6px 0px var(--ink);
       background:#fff;
     }
     .btn.light:active{
-      transform:translateY(3px); /* Twin active depression */
-      box-shadow:0 1px 0px var(--ink); /* Twin active shadow */
+      transform:translateY(3px);
+      box-shadow:0 1px 0px var(--ink);
     }
     
     /* PORTADA (HERO) */
@@ -493,7 +493,7 @@
     
     /* RESPONSIVE */
     @media(max-width:1250px){
-      .wrap{padding:0 40px} /* Unificado márgenes a 40px */
+      .wrap{padding:0 40px} 
       .hero{grid-template-columns:1fr; gap:40px}
       .sim-container{grid-template-columns:1fr; gap:36px}
     }
@@ -526,11 +526,10 @@
 </head>
 <body>
   
-  <!-- HEADER CON CAMBIO DE MATERIALES -> INICIO -->
   <header class="top">
     <div class="wrap">
       <nav>
-        <a class="brand" href="index.html" title="Volver al inicio">PRINT<span>LAB</span></a>
+        <a class="brand" href="#portada" title="Volver al inicio">PRINT<span>LAB</span></a>
         <div class="nav">
           <a href="#portada" class="active">Inicio</a>
           <a href="#simulador">Simulador</a>
@@ -931,7 +930,7 @@
       <div class="modal-section">
         <h4>UltiMaker — Materials Technical Guide</h4>
         <p><strong>Información obtenida:</strong> Coeficientes de dilatación, velocidad de enfriamiento molecular, y directrices de disipación de temperatura residual.</p>
-        <p><strong>Uso de datos:</strong> Algoritmo de influencia de velocidad y factores geométricos sobre el acabado estético.</p>
+        <p><strong>Uso de datos:</strong> Algoritmo de influence de velocidad y factores geométricos sobre el acabado estético.</p>
         <p><a href="https://ultimaker.com/materials/" target="_blank" rel="noopener" class="modal-link">Ver guías de materiales de UltiMaker</a></p>
       </div>
       <div class="modal-section">
@@ -989,7 +988,7 @@
             </li>
             <li>
               <strong>ISO/ASTM 52921 (Coordinate systems and orientations):</strong>
-              <p style="margin: 4px 0 0 12px; color: var(--muted);">Estandariza los sistemas de coordenadas y la nomenclatura de orientación de las piezas en el volumen de construcción, fundamental para documentar la anisotropía (eje Z).</p>
+              <p style="margin: 4px 0 0 12px; color: var(--muted);">Estandariza los sistemas de coordenadas y la nomenclatura de orientation de las piezas en el volumen de construcción, fundamental para documentar la anisotropía (eje Z).</p>
             </li>
             <li>
               <strong>ISO/ASTM 52931 (Environmental, health and safety considerations):</strong>
@@ -1607,8 +1606,7 @@
       document.getElementById('res-recommendation').innerText = recText;
     }
 
-    /* Soporte para scroll con compensación (offset) cuando se entra a la página desde un enlace externo con anclaje hash (#) */
-    /* Soporte para scroll con compensación (offset) cuando se entra a la página desde un enlace externo con anclaje hash (#) */
+    /* --- CORRECCIÓN: Soporte y bloqueo del Observer para scroll con anclajes hash (#) --- */
     window.addEventListener('load', () => {
       autoAdjustTemps();
       updateSimulation();
@@ -1617,25 +1615,30 @@
         const targetId = window.location.hash;
         const target = document.querySelector(targetId);
         
-        // --- AQUÍ ESTÁ LA CORRECCIÓN DE LA BURBUJA ---
-        // Elimina la clase activa de todos y se la pone al que coincide con el ancla de la URL
-        navLinks.forEach(l => l.classList.remove('active'));
-        const activeLink = document.querySelector(`.nav a[href="${targetId}"]`);
-        if (activeLink) {
-          activeLink.classList.add('active');
-        }
-
         if (target) {
+          // Bloquear el observador de sección para que no sobreescriba "Inicio"
+          isClickScrolling = true;
+
+          // Asignar inmediatamente la burbuja (clase active) al botón que hemos pulsado
+          navLinks.forEach(l => l.classList.remove('active'));
+          const activeLink = document.querySelector(`.nav a[href="${targetId}"]`);
+          if (activeLink) {
+            activeLink.classList.add('active');
+          }
+
+          // Ejecutar el scroll hacia la sección correspondiente
           setTimeout(() => {
-            isClickScrolling = true;
             const yOffset = -110;
             const y = target.getBoundingClientRect().top + window.pageYOffset + yOffset;
             window.scrollTo({
               top: y,
               behavior: 'smooth'
             });
+            
+            // Cuando acabe el scroll, desbloquear el observer
             setTimeout(() => {
               isClickScrolling = false;
+              currentActiveSectionId = targetId.substring(1);
             }, 850);
           }, 150); 
         }
