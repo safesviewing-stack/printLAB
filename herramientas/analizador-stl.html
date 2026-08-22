@@ -49,6 +49,31 @@
     .feat-card{background:var(--card); padding:30px; border-radius:20px; border:1px solid var(--line);}
     .feat-card h4{font-size:18px; font-weight:800; margin:0 0 10px;}
     .feat-card p{font-size:14.5px; color:var(--muted); margin:0;}
+
+    /* FOOTER MEJORADO Y CENTRADO */
+    .footer { background: var(--bg); border-top: 1px solid var(--line); padding: 80px 0 40px; color: var(--muted); font-size: 14px; line-height: 1.6; }
+    .footergrid { display: grid; grid-template-columns: 1.3fr 0.85fr 0.85fr; gap: 60px; margin-bottom: 48px; }
+    .footer-col h3 { font-size: 16px; font-weight: 800; color: var(--ink); margin: 0 0 20px; letter-spacing: -0.3px; }
+    .footer-col p { margin: 0 0 16px; color: var(--muted); }
+    .footer-secondary-text { font-size: 12.5px; line-height: 1.5; color: #7d8782; margin-top: 12px; }
+    .footer-links { display: flex; flex-direction: column; gap: 10px; }
+    .footer-links a { color: var(--muted); transition: color 0.15s ease, transform 0.15s ease; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+    .footer-links a:hover { color: var(--ink); transform: translateX(2px); }
+    .footer-links a span.arrow { transition: color 0.15s ease; }
+    .footer-links a:hover span.arrow { color: var(--accent); }
+    
+    .footer-bottom { border-top: 1px solid var(--line); padding-top: 24px; display:flex; justify-content:center; align-items:center; text-align:center; font-size: 13px; color: #7d8782;}
+
+    @media(max-width: 992px) {
+      .footergrid { grid-template-columns: 1.2fr 1fr; gap: 40px; }
+      .features{grid-template-columns:1fr; gap:20px;}
+    }
+    @media(max-width: 768px) {
+      .wrap{padding:0 24px}
+      .hero h1{font-size:38px}
+      nav{flex-direction:column; padding:20px 0; gap:16px}
+      .footergrid { grid-template-columns: 1fr; gap: 36px; }
+    }
   </style>
 </head>
 <body>
@@ -111,5 +136,46 @@
       </div>
     </section>
   </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <div class="footergrid">
+        <div class="footer-col">
+          <h3>PrintLab — Ingeniería 3D</h3>
+          <p>Plataforma profesional de análisis y optimización STL mediante Inteligencia Artificial y simuladores paramétricos. Transformamos modelos 3D con problemas en geometrías perfectas listas para fabricar, ahorrando tiempo, material y costes en entornos industriales.</p>
+          <p class="footer-secondary-text">Desarrollado bajo principios de Privacy by Design. Los datos y archivos STL se procesan con estricta confidencialidad.</p>
+        </div>
+        
+        <div class="footer-col">
+          <h3>Recursos y Herramientas</h3>
+          <div class="footer-links">
+            <a href="../index.html#analizador"><span class="arrow">→</span> Analizador STL IA</a>
+            <a href="../index.html#simulador"><span class="arrow">→</span> Simulador de Extrusión</a>
+            <a href="../index.html#herramientas"><span class="arrow">→</span> Calculadoras de Coste y Masa</a>
+            <a href="../index.html#guias"><span class="arrow">→</span> Base de Conocimiento</a>
+            <a href="../materiales/index.html"><span class="arrow">→</span> Atlas de Materiales</a>
+          </div>
+        </div>
+        
+        <div class="footer-col">
+          <h3>Soporte y Legal</h3>
+          <div class="footer-links">
+            <a href="../herramientas/precios.html"><span class="arrow">→</span> Precios y Suscripciones</a>
+            <a href="../herramientas/contacto.html"><span class="arrow">→</span> Contacto y Soporte</a>
+            <a href="../herramientas/condiciones-compra.html"><span class="arrow">→</span> Condiciones de Compra</a>
+            <a href="../herramientas/terminos.html"><span class="arrow">→</span> Términos y Condiciones</a>
+            <a href="../herramientas/privacidad.html"><span class="arrow">→</span> Política de Privacidad</a>
+            <a href="../herramientas/cookies.html"><span class="arrow">→</span> Política de Cookies</a>
+            <a href="../herramientas/aviso-legal.html"><span class="arrow">→</span> Aviso Legal</a>
+          </div>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <div class="footer-bottom-text">© 2026 PrintLab</div>
+      </div>
+    </div>
+  </footer>
+
 </body>
 </html>
