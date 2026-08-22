@@ -385,13 +385,34 @@
           </div>
 
           <div class="sim-control-group">
-            <label>Patrón de Relleno</label>
+            <label>Patrón de Relleno (Infill)</label>
             <select id="param-pattern" class="sim-select-dark" onchange="updateSimulation()">
-              <option value="giroide" selected>Giroide (Gyroid)</option>
-              <option value="rejilla">Rejilla (Grid)</option>
-              <option value="cubico">Cúbico (Cubic)</option>
-              <option value="rectilineo">Rectilíneo (Rectilinear)</option>
-              <option value="rayo">Rayo (Lightning)</option>
+              <optgroup label="Estructural 3D (Alta Resistencia)">
+                <option value="giroide" selected>Giroide (Gyroid)</option>
+                <option value="cubico">Cúbico (Cubic)</option>
+                <option value="cubico_adaptativo">Cúbico Adaptativo (Adaptive Cubic)</option>
+                <option value="cubico_soporte">Cúbico de Soporte (Support Cubic)</option>
+                <option value="panal_3d">Panal 3D (3D Honeycomb)</option>
+              </optgroup>
+              <optgroup label="Estructural 2D (Estándar)">
+                <option value="rejilla">Rejilla (Grid)</option>
+                <option value="panal">Panal / Nido de abeja (Honeycomb)</option>
+                <option value="triangulos">Triángulos (Triangles)</option>
+                <option value="estrellas">Estrellas (Stars)</option>
+                <option value="cruz">Cruz / Cruz 3D (Cross)</option>
+              </optgroup>
+              <optgroup label="Rápido / Básico">
+                <option value="rectilineo">Rectilíneo (Rectilinear)</option>
+                <option value="rectilineo_alineado">Rectilíneo Alineado (Aligned Rectilinear)</option>
+                <option value="linea">Líneas (Lines)</option>
+              </optgroup>
+              <optgroup label="Flexible / Decorativo / Especial">
+                <option value="concentrico">Concéntrico (Concentric)</option>
+                <option value="arquimedes">Cuerdas de Arquímedes (Archimedean)</option>
+                <option value="octagrama">Espiral de Octagrama (Octagram)</option>
+                <option value="hilbert">Curva de Hilbert (Hilbert Curve)</option>
+                <option value="rayo">Rayo (Lightning)</option>
+              </optgroup>
             </select>
           </div>
 
@@ -763,7 +784,7 @@
             <li><strong>SDS / Safety Data Sheets (Fichas de Datos de Seguridad):</strong> Documento obligatorio para cada material que expone su nivel de toxicidad, medidas de barrera (EPIs), riesgos térmicos y directrices de primeros auxilios.</li>
             <li><strong>GHS (Sistema Globalmente Armonizado):</strong> Define los pictogramas de peligro impresos en las botellas de resinas (como irritación cutánea o peligro acuático).</li>
             <li><strong>Reglamento CLP (Unión Europea):</strong> Rige la clasificación, etiquetado y envasado de mezclas químicas y polímeros reactivos.</li>
-            <li><strong>REACH (Unión Europea):</strong> Regula el registro y restricción de sustancias químicas nocivas para proteger la salud humana y el medio ambiente de forma activa.</li>
+            <li><strong>REACH (Unión Europea):</strong> Regula el registro y restriction de sustancias químicas nocivas para proteger la salud humana y el medio ambiente de forma activa.</li>
             <li><strong>OSHA / HCS (Estados Unidos):</strong> El estándar de comunicación de peligros (HCS) garantiza que los riesgos químicos de los filamentos que liberan estireno (ABS/ASA) sean transmitidos de forma clara al operario.</li>
           </ul>
         </div>
@@ -1211,10 +1232,13 @@
       const fWall = Math.min(1.0, 0.4 + (walls - 1) * 0.15);
       const fInfill = 0.3 + (infill / 100) * 0.7;
       
+      // NUEVO: Algoritmo de influencia por geometría de relleno
       let fPattern = 0.85; 
-      if (pattern === 'giroide') fPattern = 1.05;
-      else if (pattern === 'cubico') fPattern = 1.0; 
-      else if (pattern === 'rejilla') fPattern = 0.95; 
+      if (['giroide', 'panal_3d', 'cubico'].includes(pattern)) fPattern = 1.05;
+      else if (['cubico_adaptativo', 'cubico_soporte', 'panal', 'triangulos', 'estrellas'].includes(pattern)) fPattern = 1.0;
+      else if (['rejilla', 'cruz'].includes(pattern)) fPattern = 0.95;
+      else if (['rectilineo', 'rectilineo_alineado', 'linea'].includes(pattern)) fPattern = 0.85;
+      else if (['concentrico', 'arquimedes', 'octagrama', 'hilbert'].includes(pattern)) fPattern = 0.75;
       else if (pattern === 'rayo') fPattern = 0.50;
 
       const fSlicing = ((fWall * 0.6) + (fInfill * 0.4)) * fPattern;
@@ -1296,13 +1320,17 @@
       if (material === 'PLA') {
         recText = "PLA óptimo. El enfriamiento rápido de capa ayuda a sostener voladizos y puentes.";
       } else if (material === 'PETG') {
-        recText = "PETG funcional. Reduce la retracción si encuentras stringing con el patrón " + pattern.toUpperCase() + ".";
+        recText = "PETG funcional. El patrón de relleno que has seleccionado se adaptará a los perímetros estructurales.";
       } else if (material === 'ABS') {
         recText = "¡Atención! El ABS requiere cama caliente (>95ºC) y se recomienda imprimir sin ventilador de capa en un habitáculo cerrado.";
       } else if (material === 'TPU') {
         recText = "TPU flexible. Imprescindible extrusor de tracción directa. Desactiva retracciones para evitar atascos en la garganta.";
       } else if (material === 'PC') {
         recText = "PC de alta ingeniería. Aplica laca adhesiva estructural sobre la cama y asegura temperaturas de extrusión elevadas (>275ºC).";
+      }
+      
+      if (pattern === 'rayo' && infill > 15) {
+        recText = "⚠️ Nota: El patrón Rayo (Lightning) solo se usa para dar soporte al techo superior (top layers). No aportará fuerza estructural interna aunque subas la densidad.";
       }
 
       document.getElementById('res-strength').innerText = `${strength}%`;
