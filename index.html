@@ -79,17 +79,17 @@
     .btn.light{
       background:#fff;
       color:var(--ink);
-      border:2px solid var(--ink);
-      box-shadow:0 4px 0px var(--ink);
+      border:2px solid var(--ink); /* Twin border */
+      box-shadow:0 4px 0px var(--ink); /* Twin shadow */
     }
     .btn.light:hover{
-      transform:translateY(-1px);
-      box-shadow:0 6px 0px var(--ink);
+      transform:translateY(-1px); /* Twin hover displacement */
+      box-shadow:0 6px 0px var(--ink); /* Twin hover shadow */
       background:#fff;
     }
     .btn.light:active{
-      transform:translateY(3px);
-      box-shadow:0 1px 0px var(--ink);
+      transform:translateY(3px); /* Twin active depression */
+      box-shadow:0 1px 0px var(--ink); /* Twin active shadow */
     }
     
     /* PORTADA (HERO) */
@@ -1012,7 +1012,7 @@
           <p style="color: var(--muted); margin-bottom: 12px;">Fundado en 2009, el comité F42 de ASTM International desarrolla los estándares que definen la fabricación aditiva a nivel global. Trabaja de forma conjunta con el comité técnico ISO TC 261 para armonizar la normativa global de impresión 3D. Sus principales áreas de trabajo son:</p>
           <ul style="padding-left: 20px; color: var(--muted); margin-bottom: 12px;">
             <li><strong>Terminología:</strong> Normalización de definiciones básicas (convergente en ISO/ASTM 52900).</li>
-            <li><strong>Diseño:</strong> Métodos y directrices de optimización topológica y estructuras reticulares.</li>
+            <li><strong>Design:</strong> Métodos y directrices de optimización topológica y estructuras reticulares.</li>
             <li><strong>Procesos:</strong> Certificación de parámetros de extrusión, fotopolimerización y sinterizado de metales.</li>
             <li><strong>Materiales:</strong> Especificaciones técnicas de polvos metálicos, resinas fotosensibles y termoplásticos.</li>
             <li><strong>Propiedades y rendimiento:</strong> Ensayos físicos para medir anisotropía mecánica y fatiga bajo cargas cíclicas.</li>
@@ -1083,6 +1083,91 @@
       </div>
     </div>
   </div>
+
+  <div id="modal-metodologia" class="modal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeModal('modal-metodologia')">✕</span>
+      <h3>Metodología del simulador</h3>
+      <div class="modal-section">
+        <h4>¿Cómo calcula el simulador los resultados?</h4>
+        <p>El simulador es un modelo matemático de optimización conceptual que no se comporta de forma lineal. Está programado para interpretar la interacción física de las 10 variables de entrada basándose en dos tipos de datos:</p>
+        <p><strong>1. Datos Experimentales de Origen (Fabricantes):</strong> Las temperaturas recomendadas, HDT de los polímeros, elasticidad de los filamentos e higroscopia se mapean directamente de las fichas técnicas (TDS) de Prusa y Bambu Lab.</p>
+        <p><strong>2. Reducciones Algorítmicas Propias:</strong> La influencia de los parámetros de corte (Slicing) se rige por estimaciones de ingeniería de la plataforma:</p>
+        <ul>
+          <li>La resistencia mecánica disminuye de forma no lineal si la temperatura excede o cae del umbral del polímero debido a la cristalización ineficiente o degradación térmica.</li>
+          <li>La resistencia disminuye un 40% en orientación vertical debido al comportamiento anisotrópico del eje Z (conforme al estándar ASTM D638).</li>
+          <li>El tiempo de impresión estimado es un cálculo relativo de volumen/extrusión sobre una geometría de control mediana (100 cm³), no un tiempo físico de máquina.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: LIMITACIONES Y SEGURIDAD -->
+  <div id="modal-limitaciones" class="modal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeModal('modal-limitaciones')">✕</span>
+      <h3>Limitaciones y seguridad</h3>
+      <div class="modal-section">
+        <h4>Limitaciones del Simulador</h4>
+        <p>Las estimaciones provienen de un entorno controlado ideal. Los resultados en el taller real variarán sustancialmente de acuerdo a:</p>
+        <ul>
+          <li>La calibración exacta de la extrusión y pasos de motor de la impresora (E-steps).</li>
+          <li>La marca, lote, humedad absorbida y aditivos colorantes del filamento utilizado.</li>
+          <li>Condiciones ambientales de la habitación (corrientes de aire frío o humedad ambiental elevada).</li>
+        </ul>
+      </div>
+      <div class="modal-section">
+        <h4>Seguridad y Gestión de Riesgos</h4>
+        <p><strong>Emisiones nocivas (COVs y UFPs):</strong> Termoplásticos como el ABS, ASA o PC liberan estireno y partículas ultra finas nocivas durante el proceso de fusión. Es imprescindible imprimir estos materiales con sistemas de filtrado por carbón activo/HEPA o en habitaciones con ventilación forzada controlada hacia el exterior.</p>
+        <p><strong>Riesgos Térmicos:</strong> Las temperaturas de hotend (>220ºC) y cama pueden producir quemaduras graves. Corta siempre el flujo de alimentación antes de intervenir el extrusor.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- NUEVO FOOTER MINIMALISTA (PRINTLAB) -->
+  <footer class="footer">
+    <div class="wrap">
+      <div class="footergrid">
+        <!-- COLUMNA 1 — IDENTIDAD -->
+        <div class="footer-col">
+          <h3>PrintLab — Ingeniería 3D</h3>
+          <p>Información técnica y herramientas para tomar mejores decisiones en fabricación aditiva.</p>
+          <p class="footer-secondary-text">La información técnica se contrasta con fichas técnicas de fabricantes, documentación especializada, normas ISO/ASTM y literatura técnica.</p>
+        </div>
+        
+        <!-- COLUMNA 2 — RECURSOS -->
+        <div class="footer-col">
+          <h3>Recursos</h3>
+          <div class="footer-links">
+            <a href="materiales/index.html"><span class="arrow">→</span> Materiales</a>
+            <a href="#guias"><span class="arrow">→</span> Guías técnicas</a>
+            <a href="#herramientas"><span class="arrow">→</span> Calculadoras</a>
+            <a href="#simulador"><span class="arrow">→</span> Simulador</a>
+            <a href="#portada"><span class="arrow">→</span> Buscador técnico</a>
+          </div>
+        </div>
+        
+        <!-- COLUMNA 3 — FUENTES Y METODOLOGÍA -->
+        <div class="footer-col">
+          <h3>Fuentes y metodología</h3>
+          <div class="footer-links">
+            <a onclick="openModal('modal-fuentes')"><span class="arrow">→</span> Fuentes técnicas</a>
+            <a onclick="openModal('modal-normativas')"><span class="arrow">→</span> Normativas y estándares</a>
+            <a onclick="openModal('modal-metodologia')"><span class="arrow">→</span> Metodología del simulador</a>
+            <a onclick="openModal('modal-limitaciones')"><span class="arrow">→</span> Limitaciones de las estimaciones</a>
+            <a onclick="openModal('modal-metodologia')"><span class="arrow">→</span> Actualización de datos</a>
+          </div>
+        </div>
+      </div>
+      
+      <!-- PARTE INFERIOR -->
+      <div class="footer-bottom">
+        <div class="footer-bottom-text">
+          © 2026 PrintLab
+        </div>
+      </div>
+    </div>
+  </footer>
 
   <script>
     /* COMPORTAMIENTO NAVEGACIÓN HEADER DINÁMICO & EFECTO BURBUJA */
