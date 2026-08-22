@@ -186,7 +186,7 @@
     .result-warning{color:#9e3223;font-weight:700;font-size:14px;background:#fcebe8;padding:12px;border-radius:10px}
     
     /* SECCIONES Y CABECERAS */
-    .section{padding:80px 0 30px; scroll-margin-top: 100px; transition: background-color 0.8s ease-in-out;}
+    .section{padding:80px 0 30px; scroll-margin-top: 100px;}
     .section-divider{border:0; height:1px; background:var(--line); margin:40px 0}
     .sectionhead{margin-bottom:32px}
     .sectionhead h2{
@@ -532,7 +532,7 @@
       <nav>
         <a class="brand" href="index.html" title="Volver al inicio">PRINT<span>LAB</span></a>
         <div class="nav">
-          <a href="index.html" class="active">Inicio</a>
+          <a href="#portada" class="active">Inicio</a>
           <a href="#simulador">Simulador</a>
           <a href="#guias">Guías</a>
           <a href="#herramientas">Herramientas</a>
@@ -544,7 +544,7 @@
   <main class="wrap">
     
     <!-- PORTADA -->
-    <section id="portada" class="hero section" style="scroll-margin-top: 150px;">
+    <section id="portada" class="hero section">
       <div>
         <div class="eyebrow">Decisiones basadas en datos técnicos</div>
         <h1>La guía práctica para entender la impresión 3D.</h1>
@@ -1170,37 +1170,15 @@
   </footer>
 
   <script>
-    /* COMPORTAMIENTO NAVEGACIÓN HEADER DINÁMICO & EFECTO BURBUJA */
     const navLinks = document.querySelectorAll('.nav a');
     const sections = document.querySelectorAll('main > section[id]');
-    let isClickScrolling = false; // Bloquea temporalmente el IntersectionObserver al hacer clic
+    let isClickScrolling = false; 
     let currentActiveSectionId = "";
-
-    function triggerBubbleTransition(targetSection) {
-      if (!targetSection) return;
-      
-      // Evitar animaciones paralelas en la misma sección
-      if (targetSection.classList.contains('bubble-animating')) return;
-      
-      targetSection.classList.add('bubble-animating');
-      targetSection.style.transition = 'background-color 0.8s ease-in-out';
-      const originalBg = targetSection.style.backgroundColor || '';
-      
-      // Aplicar color translúcido de burbuja característico (verde lima con opacidad)
-      targetSection.style.backgroundColor = 'rgba(184, 255, 61, 0.18)';
-      
-      setTimeout(() => {
-        targetSection.style.backgroundColor = originalBg;
-        setTimeout(() => {
-          targetSection.classList.remove('bubble-animating');
-        }, 800);
-      }, 1500);
-    }
 
     /* OBSERVER DE INTERSECCIÓN PARA TRANSICIONES MEDIANTE SCROLL */
     const observerOptions = {
       root: null,
-      rootMargin: '-50% 0px -50% 0px', // Activa la detección justo en el centro de la pantalla
+      rootMargin: '-50% 0px -50% 0px', 
       threshold: 0
     };
 
@@ -1212,17 +1190,13 @@
           if (sectionId !== currentActiveSectionId) {
             currentActiveSectionId = sectionId;
             
-            // Actualizar la clase activa del header
-            navLinks.forEach(link => {
-              link.classList.remove('active');
-              if (link.getAttribute('href') === `#${sectionId}` || (sectionId === 'portada' && link.getAttribute('href') === 'index.html')) {
-                link.classList.add('active');
-              }
-            });
-
-            // Disparar la transición de burbuja si el movimiento es por scroll manual
             if (!isClickScrolling) {
-              triggerBubbleTransition(entry.target);
+              navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${sectionId}`) {
+                  link.classList.add('active');
+                }
+              });
             }
           }
         }
@@ -1233,7 +1207,7 @@
       sectionObserver.observe(section);
     });
 
-    /* NAVEGACIÓN EN EL HEADER CON DISPARO DE TRANSICIÓN DE BURBUJA */
+    /* NAVEGACIÓN EN EL HEADER */
     navLinks.forEach(link => {
       link.addEventListener('click', e => {
         const targetId = link.getAttribute('href');
@@ -1245,9 +1219,6 @@
             
             navLinks.forEach(l => l.classList.remove('active'));
             link.classList.add('active');
-
-            // Disparar la animación inmediatamente en el clic
-            triggerBubbleTransition(targetSection);
 
             // Scroll fluido compensado
             window.scrollTo({
@@ -1343,7 +1314,6 @@
             const target = document.getElementById(item.id);
             if (target) {
               isClickScrolling = true;
-              triggerBubbleTransition(target);
               window.scrollTo({
                 top: target.offsetTop - 120,
                 behavior: 'smooth'
@@ -1647,7 +1617,6 @@
         if (target) {
           setTimeout(() => {
             isClickScrolling = true;
-            triggerBubbleTransition(target);
             const yOffset = -110;
             const y = target.getBoundingClientRect().top + window.pageYOffset + yOffset;
             window.scrollTo({
@@ -1657,7 +1626,7 @@
             setTimeout(() => {
               isClickScrolling = false;
             }, 850);
-          }, 150); // Un pequeño retardo para asegurar la carga completa de dimensiones
+          }, 150); 
         }
       }
     });
