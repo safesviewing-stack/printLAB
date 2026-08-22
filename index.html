@@ -79,17 +79,17 @@
     .btn.light{
       background:#fff;
       color:var(--ink);
-      border:2px solid var(--ink);
-      box-shadow:0 4px 0px var(--ink);
+      border:2px solid var(--ink); /* Twin border */
+      box-shadow:0 4px 0px var(--ink); /* Twin shadow */
     }
     .btn.light:hover{
-      transform:translateY(-1px);
-      box-shadow:0 6px 0px var(--ink);
+      transform:translateY(-1px); /* Twin hover displacement */
+      box-shadow:0 6px 0px var(--ink); /* Twin hover shadow */
       background:#fff;
     }
     .btn.light:active{
-      transform:translateY(3px);
-      box-shadow:0 1px 0px var(--ink);
+      transform:translateY(3px); /* Twin active depression */
+      box-shadow:0 1px 0px var(--ink); /* Twin active shadow */
     }
     
     /* PORTADA (HERO) */
@@ -214,6 +214,14 @@
       margin:0;
       color:var(--muted);
       font-size:15px;
+    }
+
+    /* CSS GRID DEL ANALIZADOR IA */
+    .analizador-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: center;
     }
 
     /* SIMULADOR INTERACTIVO (10 INPUTS - 7 OUTPUTS) */
@@ -473,17 +481,10 @@
     .footer-links a:hover span.arrow {
       color: var(--accent);
     }
-    .footer-bottom {
-      border-top: 1px solid var(--line);
-      padding-top: 24px;
-      text-align: center;
-      font-size: 13px;
-      color: #7d8782;
-    }
-    .footer-bottom-text {
-      margin: 0 auto;
-      font-weight: 400;
-    }
+    
+    .footer-bottom { border-top: 1px solid var(--line); padding-top: 24px; display:flex; justify-content:space-between; font-size: 13px; color: #7d8782; }
+    .footer-legal-links { display:flex; gap:20px; }
+    .footer-legal-links a:hover { color:var(--ink); text-decoration:underline; }
     
     .searchresults{margin-top:18px;display:none;background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden}
     .searchresults a{display:block;padding:16px 20px;border-bottom:1px solid var(--line);transition:background 0.1s}
@@ -498,10 +499,8 @@
       .sim-container{grid-template-columns:1fr; gap:36px}
     }
     @media(max-width:992px) {
-      .footergrid {
-        grid-template-columns: 1.2fr 1fr;
-        gap: 40px;
-      }
+      .footergrid { grid-template-columns: 1.2fr 1fr; gap: 40px; }
+      .analizador-grid { grid-template-columns: 1fr; }
     }
     @media(max-width:750px){
       .wrap{padding:0 24px}
@@ -511,30 +510,24 @@
       .searchbox input, .searchbox button{width:100%;margin-top:12px}
       nav{flex-direction:column; padding:20px 0; gap:16px}
       .brand{margin-right:0}
-    }
-    @media(max-width: 768px) {
-      .footergrid {
-        grid-template-columns: 1fr;
-        gap: 36px;
-      }
-      .footer-bottom {
-        flex-direction: column;
-        align-items: flex-start;
-      }
+      .footergrid { grid-template-columns: 1fr; gap: 36px; }
+      .footer-bottom { flex-direction: column; align-items: flex-start; gap: 16px;}
     }
   </style>
 </head>
 <body>
   
+  <!-- HEADER ORDENADO -->
   <header class="top">
     <div class="wrap">
       <nav>
         <a class="brand" href="#portada" title="Volver al inicio">PRINT<span>LAB</span></a>
         <div class="nav">
           <a href="#portada" class="active">Inicio</a>
+          <a href="#analizador">Analizador IA</a>
           <a href="#simulador">Simulador</a>
-          <a href="#guias">Guías</a>
           <a href="#herramientas">Herramientas</a>
+          <a href="#guias">Guías</a>
         </div>
       </nav>
     </div>
@@ -586,6 +579,61 @@
         <div id="results" class="searchresults"></div>
       </aside>
     </section>
+
+    <hr class="section-divider">
+
+    <!-- NUEVA SECCIÓN: ANALIZADOR IA -->
+    <section id="analizador" class="section">
+      <div class="sectionhead">
+        <div class="eyebrow" style="margin-bottom:12px; background:rgba(184, 255, 61, 0.2); color:#507a00;">Herramienta PRO (Requiere cuenta)</div>
+        <h2>Analizador y Optimizador STL con IA</h2>
+        <p>No solo te decimos qué está mal. Te decimos cómo mejorarlo. Sube tu diseño y evita impresiones fallidas con nuestro motor de diagnóstico geométrico y la validación por IA.</p>
+      </div>
+
+      <div style="background:var(--card); border:1.5px solid var(--line); border-radius:24px; padding:48px; box-shadow:0 15px 35px rgba(0,0,0,0.03);">
+        
+        <div style="display:flex; align-items:center; justify-content:center; gap:16px; margin-bottom: 48px; flex-wrap:wrap;">
+          <div style="background:var(--bg); border:1px solid var(--line); padding:10px 20px; border-radius:99px; font-weight:800; font-size:13px;">1. Sube tu STL</div>
+          <div style="color:var(--muted); font-weight:800;">→</div>
+          <div style="background:var(--bg); border:1px solid var(--line); padding:10px 20px; border-radius:99px; font-weight:800; font-size:13px;">2. Descubre el error</div>
+          <div style="color:var(--muted); font-weight:800;">→</div>
+          <div style="background:var(--dark); color:var(--accent); border:1px solid var(--dark); padding:10px 20px; border-radius:99px; font-weight:800; font-size:13px;">3. Recibe la solución</div>
+          <div style="color:var(--muted); font-weight:800;">→</div>
+          <div style="background:var(--bg); border:1px solid var(--line); padding:10px 20px; border-radius:99px; font-weight:800; font-size:13px;">4. Optimiza</div>
+        </div>
+
+        <div class="analizador-grid">
+            <div style="background:#fafbfa; border:2px dashed var(--line); border-radius:20px; padding:50px 30px; text-align:center; transition:.2s;">
+              <div style="font-size: 48px; margin-bottom: 20px;">🧠</div>
+              <h3 style="font-size: 22px; font-weight: 800; margin:0 0 10px; letter-spacing:-0.5px;">Auditoría Estructural 3D</h3>
+              <p style="color: var(--muted); margin:0 0 30px; font-size:15px;">Soporte nativo para FDM, SLA y SLS. Obtén tu Printability Score al instante.</p>
+              <a href="herramientas/analizador-stl.html" class="btn green" style="padding:16px 36px; font-size:16px; width: 100%;">Probar Analizador Inteligente</a>
+              
+              <div style="margin-top:24px; font-size:12.5px; color:var(--muted); font-weight:700;">
+                <span style="background:#eef2ee; padding:4px 8px; border-radius:6px; color:#1e694b; margin-right:6px;">🔒 Privacidad por Diseño</span> Archivos cifrados.
+              </div>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+                <div style="background: var(--bg); padding: 24px; border-radius: 16px; border: 1px solid var(--line);">
+                    <h4 style="margin: 0 0 8px; font-size: 16px; font-weight: 800;">📐 Cálculo Geométrico Real</h4>
+                    <p style="margin: 0; font-size: 14px; color: var(--muted);">No inventamos datos. Procesamos dimensiones, voladizos y muros finos mediante un motor C++ robusto.</p>
+                </div>
+                <div style="background: var(--bg); padding: 24px; border-radius: 16px; border: 1px solid var(--line);">
+                    <h4 style="margin: 0 0 8px; font-size: 16px; font-weight: 800;">🎯 Soluciones Accionables</h4>
+                    <p style="margin: 0; font-size: 14px; color: var(--muted);">En lugar de alertas genéricas, recibes instrucciones exactas: "Aumenta el espesor en 0.48mm para evitar fallos".</p>
+                </div>
+                <div style="background: var(--bg); padding: 24px; border-radius: 16px; border: 1px solid var(--line);">
+                    <h4 style="margin: 0 0 8px; font-size: 16px; font-weight: 800;">💶 Optimización de Costes</h4>
+                    <p style="margin: 0; font-size: 14px; color: var(--muted);">Previene impresiones fallidas y reduce el uso de material de soporte innecesario antes de ir al laminador.</p>
+                </div>
+            </div>
+        </div>
+
+      </div>
+    </section>
+
+    <hr class="section-divider">
 
     <!-- SECCIÓN SIMULADOR INTERACTIVO CIENTÍFICO (10 INPUTS - 7 OUTPUTS) -->
     <section id="simulador" class="section">
@@ -760,10 +808,51 @@
 
     <hr class="section-divider">
 
-    <!-- GUÍAS -->
+    <!-- SECCIÓN HERRAMIENTAS (SUBIDA POR ENCIMA DE GUÍAS) -->
+    <section id="herramientas" class="section">
+      <div class="sectionhead">
+        <div class="eyebrow" style="margin-bottom:12px">01 / INTERACTIVIDAD Y UTILIDAD</div>
+        <h2>Calculadoras de Utilidad</h2>
+        <p>Calculadoras de ingeniería para optimizar costos de fabricación y predecir encajes mecánicos precisos.</p>
+      </div>
+
+      <div class="grid">
+        <a class="card" href="herramientas/calculadora-coste.html">
+          <div style="font-size: 28px; margin-bottom: 16px;">💶</div>
+          <h3>Calculadora de coste</h3>
+          <p>Determina el coste exacto de fabricación. Evita presupuestar a ciegas incluyendo la amortización de tu hardware, luz y fallos de lote.</p>
+          <span class="btn-action">Calcular coste</span>
+        </a>
+
+        <a class="card" href="herramientas/calculadora-holguras.html">
+          <div style="font-size: 28px; margin-bottom: 16px;">⚙️</div>
+          <h3>Tolerancias y Encajes</h3>
+          <p>Determina las dimensiones exactas para el diseño CAD (agujero y eje) según el tipo de encaje mecánico deseado.</p>
+          <span class="btn-action">Calcular holguras</span>
+        </a>
+
+        <a class="card" href="herramientas/conversor-unidades.html">
+          <div style="font-size: 28px; margin-bottom: 16px;">📏</div>
+          <h3>Conversor dimensional</h3>
+          <p>Traduce dimensiones de archivos STL imperiales (pulgadas) al sistema métrico (milímetros) estándar de los laminadores.</p>
+          <span class="btn-action">Convertir unidades</span>
+        </a>
+
+        <a class="card" href="herramientas/calculadora-masa.html">
+          <div style="font-size: 28px; margin-bottom: 16px;">⚖️</div>
+          <h3>Calculadora de masa</h3>
+          <p>Pasa del volumen (dado por tu software CAD) al peso físico en gramos según la densidad del termoplástico o resina.</p>
+          <span class="btn-action">Calcular masa</span>
+        </a>
+      </div>
+    </section>
+
+    <hr class="section-divider">
+
+    <!-- GUÍAS (AHORA DEBAJO DE HERRAMIENTAS) -->
     <section id="guias" class="section">
       <div class="sectionhead">
-        <div class="eyebrow" style="margin-bottom:12px">01 / CONOCIMIENTO Y TEORÍA</div>
+        <div class="eyebrow" style="margin-bottom:12px">02 / CONOCIMIENTO Y TEORÍA</div>
         <h2>Base de Conocimiento</h2>
         <p>Documentación técnica unificada y estructurada por especialidades de ingeniería.</p>
       </div>
@@ -867,47 +956,6 @@
       </div>
     </section>
 
-    <hr class="section-divider">
-
-    <!-- SECCIÓN HERRAMIENTAS -->
-    <section id="herramientas" class="section">
-      <div class="sectionhead">
-        <div class="eyebrow" style="margin-bottom:12px">02 / INTERACTIVIDAD Y UTILIDAD</div>
-        <h2>Herramientas Interactivas</h2>
-        <p>Calculadoras de ingeniería para optimizar costos de fabricación y predecir encajes mecánicos precisos.</p>
-      </div>
-
-      <div class="grid">
-        <a class="card" href="herramientas/calculadora-coste.html">
-          <div style="font-size: 28px; margin-bottom: 16px;">💶</div>
-          <h3>Calculadora de coste</h3>
-          <p>Determina el coste exacto de fabricación. Evita presupuestar a ciegas incluyendo la amortización de tu hardware, luz y fallos de lote.</p>
-          <span class="btn-action">Calcular coste</span>
-        </a>
-
-        <a class="card" href="herramientas/calculadora-holguras.html">
-          <div style="font-size: 28px; margin-bottom: 16px;">⚙️</div>
-          <h3>Tolerancias y Encajes</h3>
-          <p>Determina las dimensiones exactas para el diseño CAD (agujero y eje) según el tipo de encaje mecánico deseado.</p>
-          <span class="btn-action">Calcular holguras</span>
-        </a>
-
-        <a class="card" href="herramientas/conversor-unidades.html">
-          <div style="font-size: 28px; margin-bottom: 16px;">📏</div>
-          <h3>Conversor dimensional</h3>
-          <p>Traduce dimensiones de archivos STL imperiales (pulgadas) al sistema métrico (milímetros) estándar de los laminadores.</p>
-          <span class="btn-action">Convertir unidades</span>
-        </a>
-
-        <a class="card" href="herramientas/calculadora-masa.html">
-          <div style="font-size: 28px; margin-bottom: 16px;">⚖️</div>
-          <h3>Calculadora de masa</h3>
-          <p>Pasa del volumen (dado por tu software CAD) al peso físico en gramos según la densidad del termoplástico o resina.</p>
-          <span class="btn-action">Calcular masa</span>
-        </a>
-      </div>
-    </section>
-
   </main>
 
   <!-- MODAL: FUENTES TÉCNICAS -->
@@ -930,7 +978,7 @@
       <div class="modal-section">
         <h4>UltiMaker — Materials Technical Guide</h4>
         <p><strong>Información obtenida:</strong> Coeficientes de dilatación, velocidad de enfriamiento molecular, y directrices de disipación de temperatura residual.</p>
-        <p><strong>Uso de datos:</strong> Algoritmo de influence de velocidad y factores geométricos sobre el acabado estético.</p>
+        <p><strong>Uso de datos:</strong> Algoritmo de influencia de velocidad y factores geométricos sobre el acabado estético.</p>
         <p><a href="https://ultimaker.com/materials/" target="_blank" rel="noopener" class="modal-link">Ver guías de materiales de UltiMaker</a></p>
       </div>
       <div class="modal-section">
@@ -988,7 +1036,7 @@
             </li>
             <li>
               <strong>ISO/ASTM 52921 (Coordinate systems and orientations):</strong>
-              <p style="margin: 4px 0 0 12px; color: var(--muted);">Estandariza los sistemas de coordenadas y la nomenclatura de orientation de las piezas en el volumen de construcción, fundamental para documentar la anisotropía (eje Z).</p>
+              <p style="margin: 4px 0 0 12px; color: var(--muted);">Estandariza los sistemas de coordenadas y la nomenclatura de orientación de las piezas en el volumen de construcción, fundamental para documentar la anisotropía (eje Z).</p>
             </li>
             <li>
               <strong>ISO/ASTM 52931 (Environmental, health and safety considerations):</strong>
@@ -1123,30 +1171,27 @@
     </div>
   </div>
 
-  <!-- NUEVO FOOTER MINIMALISTA (PRINTLAB) -->
+  <!-- NUEVO FOOTER MINIMALISTA CON ENLACES LEGALES (INDEX PRINCIPAL) -->
   <footer class="footer">
     <div class="wrap">
       <div class="footergrid">
-        <!-- COLUMNA 1 — IDENTIDAD -->
         <div class="footer-col">
           <h3>PrintLab — Ingeniería 3D</h3>
           <p>Información técnica y herramientas para tomar mejores decisiones en fabricación aditiva.</p>
-          <p class="footer-secondary-text">La información técnica se contrasta con fichas técnicas de fabricantes, documentación especializada, normas ISO/ASTM y literatura técnica.</p>
+          <p class="footer-secondary-text">La información técnica se contrasta con fichas técnicas de fabricantes, normas ISO/ASTM y herramientas diseñadas bajo Privacy by Design.</p>
         </div>
         
-        <!-- COLUMNA 2 — RECURSOS -->
         <div class="footer-col">
           <h3>Recursos</h3>
           <div class="footer-links">
-            <a href="materiales/index.html"><span class="arrow">→</span> Materiales</a>
-            <a href="#guias"><span class="arrow">→</span> Guías técnicas</a>
-            <a href="#herramientas"><span class="arrow">→</span> Calculadoras</a>
+            <a href="#analizador"><span class="arrow">→</span> Analizador STL IA</a>
             <a href="#simulador"><span class="arrow">→</span> Simulador</a>
-            <a href="#portada"><span class="arrow">→</span> Buscador técnico</a>
+            <a href="#herramientas"><span class="arrow">→</span> Calculadoras</a>
+            <a href="#guias"><span class="arrow">→</span> Guías técnicas</a>
+            <a href="materiales/index.html"><span class="arrow">→</span> Materiales</a>
           </div>
         </div>
         
-        <!-- COLUMNA 3 — FUENTES Y METODOLOGÍA -->
         <div class="footer-col">
           <h3>Fuentes y metodología</h3>
           <div class="footer-links">
@@ -1154,15 +1199,17 @@
             <a onclick="openModal('modal-normativas')"><span class="arrow">→</span> Normativas y estándares</a>
             <a onclick="openModal('modal-metodologia')"><span class="arrow">→</span> Metodología del simulador</a>
             <a onclick="openModal('modal-limitaciones')"><span class="arrow">→</span> Limitaciones de las estimaciones</a>
-            <a onclick="openModal('modal-metodologia')"><span class="arrow">→</span> Actualización de datos</a>
           </div>
         </div>
       </div>
       
-      <!-- PARTE INFERIOR -->
       <div class="footer-bottom">
-        <div class="footer-bottom-text">
-          © 2026 PrintLab
+        <div class="footer-bottom-text">© 2026 PrintLab. Reservados todos los derechos.</div>
+        <div class="footer-legal-links">
+          <a href="herramientas/aviso-legal.html">Aviso Legal</a>
+          <a href="herramientas/privacidad.html">Política de Privacidad</a>
+          <a href="herramientas/terminos.html">Términos y Condiciones</a>
+          <a href="herramientas/cookies.html">Política de Cookies</a>
         </div>
       </div>
     </div>
@@ -1266,7 +1313,7 @@
         let title = text;
         let type = "Sección";
         
-        if (el.id === 'simulador' || el.tagName === 'H2') {
+        if (el.id === 'simulador' || el.id === 'analizador' || el.tagName === 'H2') {
           type = "Categoría Principal";
           title = text;
         } else if (el.tagName === 'H3') {
@@ -1606,7 +1653,7 @@
       document.getElementById('res-recommendation').innerText = recText;
     }
 
-    /* --- CORRECCIÓN: Soporte y bloqueo del Observer para scroll con anclajes hash (#) --- */
+    /* Soporte y bloqueo del Observer para scroll con anclajes hash (#) */
     window.addEventListener('load', () => {
       autoAdjustTemps();
       updateSimulation();
@@ -1616,17 +1663,14 @@
         const target = document.querySelector(targetId);
         
         if (target) {
-          // Bloquear el observador de sección para que no sobreescriba "Inicio"
           isClickScrolling = true;
 
-          // Asignar inmediatamente la burbuja (clase active) al botón que hemos pulsado
           navLinks.forEach(l => l.classList.remove('active'));
           const activeLink = document.querySelector(`.nav a[href="${targetId}"]`);
           if (activeLink) {
             activeLink.classList.add('active');
           }
 
-          // Ejecutar el scroll hacia la sección correspondiente
           setTimeout(() => {
             const yOffset = -110;
             const y = target.getBoundingClientRect().top + window.pageYOffset + yOffset;
@@ -1635,7 +1679,6 @@
               behavior: 'smooth'
             });
             
-            // Cuando acabe el scroll, desbloquear el observer
             setTimeout(() => {
               isClickScrolling = false;
               currentActiveSectionId = targetId.substring(1);
