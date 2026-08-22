@@ -92,15 +92,10 @@
     .sectionhead h2{font-size:clamp(32px, 4vw, 42px); letter-spacing:-0.02em; margin:0 0 12px; font-weight:800; line-height:1.1;}
     .sectionhead p{margin:0;color:var(--muted);font-size:18px}
     
-    /* ANALIZADOR TIPO DROPZONE / APP */
-    .analizador-container { background:var(--card); border:2px solid var(--ink); border-radius:24px; overflow:hidden; display:grid; grid-template-columns:1.2fr 0.8fr; box-shadow: 0 20px 40px rgba(0,0,0,0.05); }
-    .analizador-info { padding:48px; }
-    .analizador-step { display:flex; gap:16px; align-items:flex-start; margin-bottom:20px; }
-    .analizador-step:last-child { margin-bottom:0; }
-    .step-number { background:var(--accent); color:var(--ink); width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:14px; flex-shrink:0; border:1px solid var(--ink); }
-    .analizador-dropzone { background:var(--bg); padding:48px; border-left:2px solid var(--ink); display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
-    .dropzone-box { width:100%; height:100%; min-height:300px; border:2.5px dashed #b8c0bb; border-radius:16px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 24px; background:rgba(255,255,255,0.6); transition:0.2s ease; }
-    .dropzone-box:hover { border-color:var(--accent); background:#fff; }
+    /* ANALIZADOR WIDGET COMPACTO */
+    .ai-wrapper { display:grid; grid-template-columns:1fr 340px; gap:40px; background:var(--card); border:1.5px solid var(--line); border-radius:28px; padding:40px; box-shadow:0 15px 35px rgba(0,0,0,0.03); align-items:center; margin-top:20px; }
+    .ai-dropzone { background:#fafbfa; border:2px dashed #cfd6d2; border-radius:20px; padding:32px 24px; text-align:center; transition:0.2s ease; }
+    .ai-dropzone:hover { border-color:var(--accent); background:#fff; transform:translateY(-2px); box-shadow:0 10px 20px rgba(0,0,0,0.04); }
 
     /* SIMULADOR INTERACTIVO */
     .sim-container{background:#101614; color:#fff; border-radius:24px; padding:42px; display:grid; grid-template-columns:1.1fr 0.9fr; gap:40px; box-shadow:0 20px 40px rgba(0,0,0,0.08);}
@@ -176,8 +171,7 @@
     }
     @media(max-width:992px) {
       .footergrid { grid-template-columns: 1.2fr 1fr; gap: 40px; }
-      .analizador-container { grid-template-columns: 1fr; }
-      .analizador-dropzone { border-left: none; border-top: 2px solid var(--ink); padding:40px 24px; }
+      .ai-wrapper { grid-template-columns: 1fr; gap: 32px; padding: 32px 24px; }
     }
     @media(max-width:750px){
       .wrap{padding:0 24px}
@@ -186,7 +180,6 @@
       .searchbox{display:block}
       .searchbox input, .searchbox button{width:100%;margin-top:12px}
       .auth-buttons { flex-direction:column; width:100%; display:none; }
-      .analizador-info { padding: 32px 24px; }
     }
     @media(max-width: 768px) {
       .header-left { gap: 10px; }
@@ -278,59 +271,30 @@
 
     <hr class="section-divider">
 
-    <!-- SECCIÓN: ANALIZADOR IA (ESTILO DROPZONE/APP) -->
-    <section id="analizador" class="section">
-      <div class="sectionhead">
-        <div class="eyebrow" style="margin-bottom:12px; background:rgba(184, 255, 61, 0.2); color:#507a00;">Herramienta PRO (Requiere cuenta)</div>
-        <h2>Analizador y Optimizador STL con IA</h2>
-        <p>Previene impresiones fallidas con nuestro motor de diagnóstico geométrico y validación estructural de mallas.</p>
-      </div>
-
-      <div class="analizador-container">
+    <!-- SECCIÓN: ANALIZADOR IA (WIDGET COMPACTO) -->
+    <section id="analizador" class="section" style="padding-top:40px;">
+      <div class="ai-wrapper">
         
-        <!-- Izquierda: Proceso y Beneficios -->
-        <div class="analizador-info">
-          <h3 style="font-size:28px; font-weight:800; margin:0 0 16px; letter-spacing:-0.5px;">Optimización geométrica exacta.</h3>
-          <p style="font-size:16px; color:var(--muted); margin:0 0 32px; line-height:1.6;">No dependas de aproximaciones. Nuestro motor procesa voladizos, paredes finas y soportes, devolviéndote parámetros precisos listos para introducir en tu laminador.</p>
+        <div class="ai-content">
+          <div class="eyebrow" style="margin-bottom:16px; background:rgba(184, 255, 61, 0.2); color:#507a00;">🚀 Herramienta PRO</div>
+          <h2 style="font-size:clamp(28px, 4vw, 36px); font-weight:800; line-height:1.1; margin:0 0 12px; letter-spacing:-1px;">Auditoría STL con Inteligencia Artificial.</h2>
+          <p style="font-size:16px; color:var(--muted); margin:0 0 24px; max-width:480px;">Detecta paredes frágiles, voladizos críticos y recibe los parámetros exactos para tu laminador. Cero espaguetis. Cero soportes inútiles.</p>
           
-          <div style="display:flex; flex-direction:column; gap:24px;">
-            <div class="analizador-step">
-              <div class="step-number">1</div>
-              <div>
-                <h4 style="margin:0 0 4px; font-size:16px; font-weight:800;">Análisis de Malla</h4>
-                <p style="margin:0; font-size:14.5px; color:var(--muted); line-height:1.5;">Procesamiento nativo C++ para detectar irregularidades y debilidades mecánicas en FDM, SLA y SLS.</p>
-              </div>
-            </div>
-            <div class="analizador-step">
-              <div class="step-number">2</div>
-              <div>
-                <h4 style="margin:0 0 4px; font-size:16px; font-weight:800;">Diagnóstico Técnico</h4>
-                <p style="margin:0; font-size:14.5px; color:var(--muted); line-height:1.5;">Reporte inmediato de problemas con ángulos críticos, voladizos excesivos e intersecciones frágiles.</p>
-              </div>
-            </div>
-            <div class="analizador-step">
-              <div class="step-number">3</div>
-              <div>
-                <h4 style="margin:0 0 4px; font-size:16px; font-weight:800;">Acción Directa en Laminador</h4>
-                <p style="margin:0; font-size:14.5px; color:var(--muted); line-height:1.5;">Recibe instrucciones precisas como: <em>"Aumenta el espesor de pared a 0.48mm"</em> para evitar fallos.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Derecha: Área Interactiva Simulada -->
-        <div class="analizador-dropzone">
-          <div class="dropzone-box">
-            <div style="font-size:52px; margin-bottom:16px; opacity:0.9;">🧊</div>
-            <h4 style="font-size:18px; font-weight:800; margin:0 0 8px;">Área de Análisis</h4>
-            <p style="font-size:14px; color:var(--muted); margin:0 0 24px; max-width:250px; line-height:1.5;">Simulación interactiva de diagnóstico 3D estructural.</p>
-            <a href="herramientas/analizador-stl.html" class="btn green" style="padding:14px 28px; width:100%; max-width:240px; font-size:15px; box-shadow:none;">Subir archivo STL o OBJ</a>
-            <div style="margin-top:20px; font-size:12.5px; color:#7d8782; font-weight:700; display:flex; align-items:center; justify-content:center; gap:6px;">
-              <span style="color:#1e694b;">🔒</span> Archivos cifrados localmente
-            </div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <span style="font-size:13px; font-weight:700; background:var(--bg); border:1px solid var(--line); padding:6px 12px; border-radius:99px;">⚙️ Motor C++ Nativo</span>
+            <span style="font-size:13px; font-weight:700; background:var(--bg); border:1px solid var(--line); padding:6px 12px; border-radius:99px;">🎯 Diagnóstico Exacto</span>
+            <span style="font-size:13px; font-weight:700; background:var(--bg); border:1px solid var(--line); padding:6px 12px; border-radius:99px;">💶 Ahorro de Material</span>
           </div>
         </div>
         
+        <div class="ai-dropzone">
+          <div style="font-size:36px; margin-bottom:12px;">📤</div>
+          <h3 style="font-size:18px; font-weight:800; margin:0 0 4px;">Sube tu diseño 3D</h3>
+          <p style="font-size:13px; color:var(--muted); margin:0 0 20px;">Formatos: .STL, .OBJ (Max 50MB)</p>
+          <a href="herramientas/analizador-stl.html" class="btn green" style="width:100%; padding:14px; font-size:15px; box-shadow:none;">Analizar modelo</a>
+          <span style="display:block; margin-top:12px; font-size:12px; color:var(--muted); font-weight:700;">🔒 Cifrado local extremo a extremo</span>
+        </div>
+
       </div>
     </section>
 
