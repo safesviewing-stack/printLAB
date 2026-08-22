@@ -91,23 +91,20 @@
     .sectionhead{margin-bottom:32px}
     .sectionhead h2{font-size:clamp(32px, 4vw, 42px); letter-spacing:-0.02em; margin:0 0 12px; font-weight:800; line-height:1.1;}
     .sectionhead p{margin:0;color:var(--muted);font-size:18px}
-    .sub-sectionhead{margin:36px 0 24px; border-left:4px solid var(--accent); padding-left:16px;}
-    .sub-sectionhead h3{font-size:22px; font-weight:800; margin:0 0 4px; letter-spacing:-0.3px;}
-    .sub-sectionhead p{margin:0; color:var(--muted); font-size:15px;}
     
-    /* SIMULADOR INTERACTIVO */
-    .sim-container{background:#101614; color:#fff; border-radius:24px; padding:42px; display:grid; grid-template-columns:1.1fr 0.9fr; gap:40px; box-shadow:0 20px 40px rgba(0,0,0,0.08);}
-    .sim-controls{display:flex; flex-direction:column; gap:24px; max-height:850px; overflow-y:auto; padding-right:16px;}
+    /* SIMULADOR INTERACTIVO (COMPACTADO) */
+    .sim-container{background:#101614; color:#fff; border-radius:24px; padding:28px; display:grid; grid-template-columns:1.1fr 0.9fr; gap:28px; box-shadow:0 20px 40px rgba(0,0,0,0.08);}
+    .sim-controls{display:flex; flex-direction:column; gap:14px; max-height:600px; overflow-y:auto; padding-right:12px;}
     .sim-controls::-webkit-scrollbar { width: 6px; }
     .sim-controls::-webkit-scrollbar-track { background: #1a221f; border-radius: 10px; }
     .sim-controls::-webkit-scrollbar-thumb { background: #3b443f; border-radius: 10px; }
 
-    .sim-control-group{display:flex;flex-direction:column;gap:8px}
+    .sim-control-group{display:flex;flex-direction:column;gap:4px}
     .sim-control-group label{font-size:13.5px;font-weight:700;color:#bcc5c0;display:flex;justify-content:space-between}
     .sim-control-group label span{color:var(--accent)}
     .sim-control-group input[type="range"]{width:100%; accent-color:var(--accent); cursor:pointer;}
     .sim-select-dark {
-      width: 100%; border: 1.5px solid #2a332f; background: #1a221f; color: #fff; border-radius: 9999px; padding: 10px 18px; font-size: 14px; font-weight: 700; font-family: inherit; appearance: none;
+      width: 100%; border: 1.5px solid #2a332f; background: #1a221f; color: #fff; border-radius: 9999px; padding: 8px 16px; font-size: 13.5px; font-weight: 700; font-family: inherit; appearance: none;
       background-image: url("data:image/svg+xml;utf8,<svg fill='%23ffffff' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
       background-repeat: no-repeat; background-position-x: calc(100% - 16px); background-position-y: 50%; cursor: pointer; outline: none;
     }
@@ -115,15 +112,15 @@
 
     .param-warning{font-size:11.5px; color:#ffa294; font-weight:700; line-height:1.4; margin-top:2px; background:rgba(158,50,35,0.2); padding:6px 12px; border-radius:8px; border-left:3px solid #9e3223;}
     
-    .sim-results{background:#1a221f; border-radius:20px; padding:32px; display:flex; flex-direction:column; justify-content:flex-start; border:1px solid #2a332f; gap:20px;}
+    .sim-results{background:#1a221f; border-radius:20px; padding:24px; display:flex; flex-direction:column; justify-content:flex-start; border:1px solid #2a332f; gap:14px;}
     .sim-metric{width:100%}
-    .sim-metric-header{display:flex;justify-content:space-between;font-size:13.5px;font-weight:700;margin-bottom:6px}
+    .sim-metric-header{display:flex;justify-content:space-between;font-size:13.5px;font-weight:700;margin-bottom:4px}
     .sim-metric-val{color:var(--accent)}
     .sim-progress{height:8px;background:#2e3a35;border-radius:4px;overflow:hidden}
     .sim-progress-bar{height:100%;background:var(--accent);width:50%;transition:width 0.15s ease}
 
-    .sim-rec-box{background:rgba(255,255,255,0.03); border:1px dashed #2a332f; padding:18px; border-radius:12px; font-size:14px; line-height:1.5;}
-    .sim-rec-box h4{margin:0 0 6px;color:var(--accent);font-weight:800}
+    .sim-rec-box{background:rgba(255,255,255,0.03); border:1px dashed #2a332f; padding:14px; border-radius:12px; font-size:13.5px; line-height:1.5;}
+    .sim-rec-box h4{margin:0 0 6px;color:var(--accent);font-weight:800;font-size:14px;}
     .sim-rec-box p{margin:0;color:#eef2ee}
     .sim-alert-box{background:#fcebe8; border-left:4px solid #9e3223; border-radius:12px; padding:14px; color:#50140c; font-size:13px; line-height:1.4;}
 
@@ -392,7 +389,7 @@
           </div>
 
           <div class="sim-control-group">
-            <label>Patrón de Relleno (Bambu/Prusa/Orca)</label>
+            <label>Patrón de Relleno</label>
             <select id="param-pattern" class="sim-select-dark" onchange="updateSimulation()">
               <option value="giroide" selected>Giroide (Gyroid)</option>
               <option value="rejilla">Rejilla (Grid)</option>
@@ -550,11 +547,6 @@
         <p>Documentación técnica unificada y estructurada por especialidades de ingeniería.</p>
       </div>
 
-      <!-- subgrupo a: MANTENIMIENTO Y RESOLUCIÓN -->
-      <div class="sub-sectionhead">
-        <h3>Calibración, Errores y Diagnóstico</h3>
-        <p>Ajustes de hardware y corrección de fallas críticas en el proceso físico de extrusión.</p>
-      </div>
       <div class="grid">
         <a class="card" href="guias/diagnostico-fallos.html">
           <span class="tag">Solución de errores</span>
@@ -570,27 +562,13 @@
           <span class="btn-action">Guía de desatascos</span>
         </a>
 
-        <a class="card" href="guias/calibracion-flujo.html">
-          <span class="tag">Calibración</span>
-          <h3>Calibración de Flujo (Extrusion Multiplier)</h3>
-          <p>Cómo evitar la sobre-extrusión o sub-extrusión. Pruebas de pared simple (vase mode) para medir con calibre y calcular la fórmula matemática exacta.</p>
-          <span class="btn-action">Calibrar extrusión</span>
-        </a>
-
         <a class="card" href="guias/secado-filamentos.html">
           <span class="tag">Mantenimiento</span>
           <h3>Humedad y secado de filamentos</h3>
           <p>Por qué el PETG, TPU y Nylon burbujean. Tablas de temperatura y tiempos de horneado/secado recomendados por los principales fabricantes.</p>
           <span class="btn-action">Guía de secado</span>
         </a>
-      </div>
 
-      <!-- subgrupo b: SOFTWARE Y PARÁMETROS -->
-      <div class="sub-sectionhead">
-        <h3>Laminación y Parámetros Estructurales</h3>
-        <p>Configuración óptima de perímetros, soportes, velocidades y flujos de trabajo en el slicer.</p>
-      </div>
-      <div class="grid">
         <a class="card" href="guias/configuracion-basica.html">
           <span class="tag">Laminado</span>
           <h3>Altura de capa, perímetros e infill</h3>
@@ -618,14 +596,7 @@
           <p>Resolución rápida a las dudas de iniciación: correcta nivelación de la cama, offset del eje Z, uso de adhesivos (laca/dimafix) and calibración básica.</p>
           <span class="btn-action">Ver FAQ</span>
         </a>
-      </div>
 
-      <!-- subgrupo c: MATERIALES Y TECNOLOGÍAS -->
-      <div class="sub-sectionhead">
-        <h3>Materiales Avanzados y Tecnologías Industriales</h3>
-        <p>Comparaciones físicas de filamentos de alto rendimiento y tecnologías alternativas de curado.</p>
-      </div>
-      <div class="grid">
         <a class="card" href="guias/pla-vs-petg.html">
           <span class="tag">Decisión de diseño</span>
           <h3>PLA vs PETG: La Comparativa</h3>
@@ -900,12 +871,7 @@
       </div>
       
       <div class="footer-bottom">
-        <div class="footer-bottom-text">© 2026 PrintLab. Reservados todos los derechos.</div>
-        <div class="footer-legal-links">
-          <a href="herramientas/privacidad.html">Privacidad</a>
-          <a href="herramientas/terminos.html">Términos</a>
-          <a href="herramientas/cookies.html">Cookies</a>
-        </div>
+        <div class="footer-bottom-text">© 2026 PrintLab.</div>
       </div>
     </div>
   </footer>
@@ -916,7 +882,7 @@
       document.getElementById('mainMenu').classList.toggle('show');
     }
 
-    /* OBSERVER DE NAVEGACIÓN (Actualizado para las anclas del menú desplegable) */
+    /* OBSERVER DE NAVEGACIÓN */
     const navLinks = document.querySelectorAll('.dropdown-content a');
     const sections = document.querySelectorAll('main > section[id]');
     let isClickScrolling = false; 
