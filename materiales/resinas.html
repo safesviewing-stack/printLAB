@@ -107,7 +107,7 @@
 
     @media(max-width:1250px){ .wrap{padding:0 40px} }
     @media(max-width:992px){ .content-layout{grid-template-columns:1fr; gap:40px} .tech-panel{position:static; margin-top:20px} .footergrid { grid-template-columns: 1.2fr 1fr; gap: 40px; } }
-    @media(max-width:768px){
+    @media(max-width:750px){
       .wrap{padding:0 24px}
       .pros-cons{grid-template-columns:1fr}
       .header-left { gap: 10px; }
@@ -115,6 +115,7 @@
       .brand { font-size:22px; }
       .auth-buttons { display: none; }
       .footergrid { grid-template-columns: 1fr; gap: 36px; }
+      .footer-bottom { flex-direction: column; align-items: flex-start;}
     }
   </style>
 </head>
@@ -135,7 +136,7 @@
               <a href="../index.html#analizador">Analizador IA</a>
               <a href="../index.html#simulador">Simulador</a>
               <a href="../index.html#herramientas">Herramientas</a>
-              <a href="../index.html#guias">Guías</a>
+              <a href="../index.html#guias" class="active">Guías</a>
             </div>
           </div>
           <a class="brand" href="../index.html#portada" title="Volver al inicio">PRINT<span>LAB</span></a>
@@ -292,7 +293,6 @@
             <a href="../terminos.html"><span class="arrow">→</span> Términos y Condiciones</a>
             <a href="../privacidad.html"><span class="arrow">→</span> Política de Privacidad</a>
             <a href="../cookies.html"><span class="arrow">→</span> Política de Cookies</a>
-            <a href="../aviso-legal.html"><span class="arrow">→</span> Aviso Legal</a>
           </div>
         </div>
       </div>
