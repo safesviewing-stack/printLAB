@@ -60,7 +60,9 @@
       padding:0 40px;
     }
 
-    /* HEADER */
+    /* =================================================
+       HEADER
+    ================================================= */
 
     .top{
       position:sticky;
@@ -200,7 +202,9 @@
       }
     }
 
-    /* AUTH */
+    /* =================================================
+       REGISTRO
+    ================================================= */
 
     .auth-container{
       max-width:480px;
@@ -252,6 +256,7 @@
       outline:none;
       transition:.2s;
       background:var(--bg);
+      font-family:inherit;
     }
 
     .form-group input:focus{
@@ -283,7 +288,9 @@
       text-decoration:underline;
     }
 
-    /* MENSAJES */
+    /* =================================================
+       MENSAJES
+    ================================================= */
 
     .form-message{
       display:none;
@@ -329,6 +336,7 @@
       transition:.2s;
       margin-top:10px;
       border:2px solid var(--ink);
+      font-family:inherit;
     }
 
     .btn-submit:hover{
@@ -357,7 +365,9 @@
       text-decoration:underline;
     }
 
-    /* FOOTER */
+    /* =================================================
+       FOOTER
+    ================================================= */
 
     .footer{
       background:var(--bg);
@@ -419,11 +429,17 @@
       color:#7d8782;
     }
 
+    /* =================================================
+       RESPONSIVE
+    ================================================= */
+
     @media(max-width:992px){
+
       .footergrid{
         grid-template-columns:1.2fr 1fr;
         gap:40px;
       }
+
     }
 
     @media(max-width:768px){
@@ -461,12 +477,11 @@
   <!-- SUPABASE -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- TU CONFIGURACIÓN DE SUPABASE -->
-  <script src="../assets/js/auth-helper.js"></script>
-
 </head>
 
+
 <body>
+
 
 <header class="top">
 
@@ -489,17 +504,35 @@
             <span></span>
           </button>
 
-          <div class="dropdown-content" id="mainMenu">
+          <div
+            class="dropdown-content"
+            id="mainMenu"
+          >
 
-            <a href="../index.html#portada">Inicio</a>
-            <a href="../index.html#analizador">Analizador IA</a>
-            <a href="../index.html#simulador">Simulador</a>
-            <a href="../index.html#herramientas">Herramientas</a>
-            <a href="../index.html#guias">Guías</a>
+            <a href="../index.html#portada">
+              Inicio
+            </a>
+
+            <a href="../index.html#analizador">
+              Analizador IA
+            </a>
+
+            <a href="../index.html#simulador">
+              Simulador
+            </a>
+
+            <a href="../index.html#herramientas">
+              Herramientas
+            </a>
+
+            <a href="../index.html#guias">
+              Guías
+            </a>
 
           </div>
 
         </div>
+
 
         <a
           class="brand"
@@ -509,6 +542,7 @@
         </a>
 
       </div>
+
 
       <div class="auth-buttons">
 
@@ -535,6 +569,7 @@
 </header>
 
 
+
 <main
   class="wrap"
   style="
@@ -545,11 +580,15 @@
   "
 >
 
+
   <div class="auth-container">
+
 
     <div class="auth-header">
 
-      <h1>Crear cuenta profesional</h1>
+      <h1>
+        Crear cuenta profesional
+      </h1>
 
       <p>
         Accede al motor de análisis geométrico IA.
@@ -558,10 +597,12 @@
     </div>
 
 
+
     <form
       id="register-form"
       novalidate
     >
+
 
       <div class="form-group">
 
@@ -580,6 +621,7 @@
       </div>
 
 
+
       <div class="form-group">
 
         <label for="register-email">
@@ -595,6 +637,7 @@
         >
 
       </div>
+
 
 
       <div class="form-group">
@@ -615,6 +658,7 @@
       </div>
 
 
+
       <div
         style="
           height:1px;
@@ -622,6 +666,7 @@
           margin:24px 0;
         "
       ></div>
+
 
 
       <div class="checkbox-group">
@@ -648,6 +693,7 @@
       </div>
 
 
+
       <div class="checkbox-group">
 
         <input
@@ -672,6 +718,7 @@
       </div>
 
 
+
       <div class="checkbox-group">
 
         <input
@@ -689,13 +736,13 @@
       </div>
 
 
-      <!-- MENSAJE DE ERROR -->
 
       <div
         id="register-message"
         class="form-message"
         role="alert"
       ></div>
+
 
 
       <button
@@ -706,7 +753,9 @@
         Registrarme de forma segura
       </button>
 
+
     </form>
+
 
 
     <div class="switch-auth">
@@ -719,7 +768,9 @@
 
     </div>
 
+
   </div>
+
 
 
   <div
@@ -730,11 +781,16 @@
       color:var(--muted);
     "
   >
-    🔒 Protegido contra fuerza bruta. Las contraseñas se almacenan
-    mediante hashing seguro unidireccional.
+
+    🔒 Protegido contra fuerza bruta.
+    Las contraseñas se almacenan mediante hashing seguro
+    unidireccional.
+
   </div>
 
+
 </main>
+
 
 
 <footer class="footer">
@@ -742,6 +798,7 @@
   <div class="wrap">
 
     <div class="footergrid">
+
 
       <div class="footer-col">
 
@@ -762,6 +819,7 @@
         </p>
 
       </div>
+
 
 
       <div class="footer-col">
@@ -800,6 +858,7 @@
         </div>
 
       </div>
+
 
 
       <div class="footer-col">
@@ -844,6 +903,7 @@
 
       </div>
 
+
     </div>
 
 
@@ -858,75 +918,203 @@
 </footer>
 
 
+
 <script>
+
+/* =====================================================
+   SUPABASE
+===================================================== */
+
+const SUPABASE_URL =
+  "https://jmwprzgfdkphbxryjbnr.supabase.co";
+
+const SUPABASE_ANON_KEY =
+  "sb_publishable_kelRYJ3Fa56DXY3GhxWLHQ_YiLJzStR";
+
+const supabaseClient =
+  supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+  );
+
 
 /* =====================================================
    MENÚ
 ===================================================== */
 
 const menuButton =
-  document.getElementById("menu-button");
+  document.getElementById(
+    "menu-button"
+  );
 
 const mainMenu =
-  document.getElementById("mainMenu");
-
-menuButton.addEventListener("click", function(e){
-
-  e.stopPropagation();
-
-  mainMenu.classList.toggle("show");
-
-});
+  document.getElementById(
+    "mainMenu"
+  );
 
 
-document.addEventListener("click", function(e){
+menuButton.addEventListener(
+  "click",
+  function(e){
 
-  if(!e.target.closest(".menu-dropdown")){
+    e.stopPropagation();
 
-    mainMenu.classList.remove("show");
+    mainMenu.classList.toggle(
+      "show"
+    );
 
   }
+);
 
-});
+
+document.addEventListener(
+  "click",
+  function(e){
+
+    if(
+      !e.target.closest(
+        ".menu-dropdown"
+      )
+    ){
+
+      mainMenu.classList.remove(
+        "show"
+      );
+
+    }
+
+  }
+);
 
 
 /* =====================================================
-   REGISTRO
+   DESTINO ORIGINAL
+===================================================== */
+
+/*
+ * Si el usuario llegó aquí desde el analizador:
+ *
+ * registro.html?redirect=analizador-stl.html
+ *
+ * guardamos ese destino.
+ *
+ * Si llegó desde Registrarse del inicio:
+ *
+ * registro.html
+ *
+ * el destino será index.html.
+ */
+
+const params =
+  new URLSearchParams(
+    window.location.search
+  );
+
+
+let redirectTarget =
+  params.get("redirect");
+
+
+if(!redirectTarget){
+
+  redirectTarget =
+    "../index.html";
+
+}
+
+
+/*
+ * Seguridad:
+ * impedir que alguien pueda utilizar una URL
+ * externa como destino.
+ */
+
+if(
+  redirectTarget.startsWith(
+    "http://"
+  ) ||
+  redirectTarget.startsWith(
+    "https://"
+  ) ||
+  redirectTarget.startsWith(
+    "//"
+  )
+){
+
+  redirectTarget =
+    "../index.html";
+
+}
+
+
+/*
+ * Guardamos el destino en sessionStorage.
+ *
+ * Esto permite conservarlo incluso cuando
+ * pasemos a verificar-correo.html.
+ */
+
+sessionStorage.setItem(
+  "printlab_redirect_after_auth",
+  redirectTarget
+);
+
+
+/* =====================================================
+   FORMULARIO
 ===================================================== */
 
 const registerForm =
-  document.getElementById("register-form");
+  document.getElementById(
+    "register-form"
+  );
 
 const registerButton =
-  document.getElementById("register-button");
+  document.getElementById(
+    "register-button"
+  );
 
 const registerMessage =
-  document.getElementById("register-message");
+  document.getElementById(
+    "register-message"
+  );
 
 
-function showMessage(message, type = "error"){
+function showMessage(
+  message,
+  type = "error"
+){
 
-  registerMessage.textContent = message;
+  registerMessage.textContent =
+    message;
 
   registerMessage.className =
-    "form-message " + type;
+    "form-message " +
+    type;
 
-  registerMessage.style.display = "block";
+  registerMessage.style.display =
+    "block";
 
 }
 
 
 function clearMessage(){
 
-  registerMessage.textContent = "";
+  registerMessage.textContent =
+    "";
 
   registerMessage.className =
     "form-message";
 
-  registerMessage.style.display = "none";
+  registerMessage.style.display =
+    "none";
 
 }
 
+
+/* =====================================================
+   REGISTRO
+===================================================== */
 
 registerForm.addEventListener(
   "submit",
@@ -937,47 +1125,60 @@ registerForm.addEventListener(
     clearMessage();
 
 
-    /* ================================================
-       DATOS
-    ================================================ */
-
     const name =
       document
-        .getElementById("register-name")
+        .getElementById(
+          "register-name"
+        )
         .value
         .trim();
 
+
     const email =
       document
-        .getElementById("register-email")
+        .getElementById(
+          "register-email"
+        )
         .value
         .trim()
         .toLowerCase();
 
+
     const password =
       document
-        .getElementById("register-password")
+        .getElementById(
+          "register-password"
+        )
         .value;
+
 
     const acceptPrivacy =
       document
-        .getElementById("legal_privacidad")
+        .getElementById(
+          "legal_privacidad"
+        )
         .checked;
+
 
     const acceptTerms =
       document
-        .getElementById("legal_terminos")
+        .getElementById(
+          "legal_terminos"
+        )
         .checked;
+
 
     const marketing =
       document
-        .getElementById("legal_marketing")
+        .getElementById(
+          "legal_marketing"
+        )
         .checked;
 
 
-    /* ================================================
+    /* =================================================
        VALIDACIONES
-    ================================================ */
+    ================================================= */
 
     if(!name){
 
@@ -986,6 +1187,7 @@ registerForm.addEventListener(
       );
 
       return;
+
     }
 
 
@@ -996,6 +1198,7 @@ registerForm.addEventListener(
       );
 
       return;
+
     }
 
 
@@ -1006,6 +1209,7 @@ registerForm.addEventListener(
       );
 
       return;
+
     }
 
 
@@ -1016,6 +1220,7 @@ registerForm.addEventListener(
       );
 
       return;
+
     }
 
 
@@ -1026,14 +1231,16 @@ registerForm.addEventListener(
       );
 
       return;
+
     }
 
 
-    /* ================================================
-       BOTÓN
-    ================================================ */
+    /* =================================================
+       BLOQUEAR BOTÓN
+    ================================================= */
 
-    registerButton.disabled = true;
+    registerButton.disabled =
+      true;
 
     registerButton.textContent =
       "Creando cuenta...";
@@ -1041,62 +1248,59 @@ registerForm.addEventListener(
 
     try{
 
-      /* ================================================
-         COMPROBAR QUE SUPABASE ESTÁ CARGADO
-      ================================================ */
 
-      if(
-        typeof supabaseClient === "undefined" ||
-        !supabaseClient
-      ){
+      /* =================================================
+         REGISTRO SUPABASE
+      ================================================= */
 
-        throw new Error(
-          "No se ha podido conectar con el sistema de autenticación."
-        );
-
-      }
-
-
-      /* ================================================
-         REGISTRO
-      ================================================ */
-
-      const result =
+      const {
+        data,
+        error
+      } =
         await supabaseClient.auth.signUp({
 
-          email: email,
+          email:
+            email,
 
-          password: password,
+          password:
+            password,
 
-          options: {
+          options:{
+
+            data:{
+
+              full_name:
+                name,
+
+              marketing_consent:
+                marketing
+
+            },
+
+            /*
+             * IMPORTANTE:
+             *
+             * El correo NO vuelve directamente al login.
+             *
+             * Primero vuelve a verificar-correo.html.
+             *
+             * Esa página recuperará el destino original
+             * y decidirá si debe llevar al inicio o al
+             * analizador.
+             */
 
             emailRedirectTo:
               window.location.origin +
-              "/printLAB/herramientas/login.html",
-
-            data: {
-
-              full_name: name,
-
-              marketing_consent: marketing
-
-            }
+              "/printLAB/herramientas/verificar-correo.html"
 
           }
 
         });
 
 
-      const data =
-        result.data;
-
-      const error =
-        result.error;
-
-
-      /* ================================================
-         ERROR DE SUPABASE
-      ================================================ */
+      /* =================================================
+         ERROR
+      ================================================= */
 
       if(error){
 
@@ -1106,29 +1310,57 @@ registerForm.addEventListener(
         );
 
 
-        const errorMessage =
-          (error.message || "").toLowerCase();
+        const message =
+          (
+            error.message ||
+            ""
+          ).toLowerCase();
 
 
-        /* CORREO YA REGISTRADO */
+        /* -----------------------------------------------
+           CUENTA YA EXISTENTE
+        ----------------------------------------------- */
 
         if(
-          errorMessage.includes("already registered") ||
-          errorMessage.includes("user already exists") ||
-          errorMessage.includes("already been registered") ||
-          errorMessage.includes("duplicate")
+          message.includes(
+            "already registered"
+          ) ||
+          message.includes(
+            "user already exists"
+          ) ||
+          message.includes(
+            "already been registered"
+          ) ||
+          message.includes(
+            "duplicate"
+          )
         ){
 
           showMessage(
-            "Ya tienes una cuenta registrada con este correo. Inicia sesión aquí o utiliza otro correo."
+
+            "Ya tienes una cuenta con este correo. Inicia sesión para continuar."
+
           );
+
+          registerButton.disabled =
+            false;
+
+          registerButton.textContent =
+            "Registrarme de forma segura";
+
+          return;
 
         }
 
-        /* ERROR DE EMAIL */
 
-        else if(
-          errorMessage.includes("invalid email")
+        /* -----------------------------------------------
+           EMAIL INVÁLIDO
+        ----------------------------------------------- */
+
+        if(
+          message.includes(
+            "invalid email"
+          )
         ){
 
           showMessage(
@@ -1137,10 +1369,14 @@ registerForm.addEventListener(
 
         }
 
-        /* ERROR DE CONTRASEÑA */
+        /* -----------------------------------------------
+           CONTRASEÑA
+        ----------------------------------------------- */
 
         else if(
-          errorMessage.includes("password")
+          message.includes(
+            "password"
+          )
         ){
 
           showMessage(
@@ -1149,32 +1385,45 @@ registerForm.addEventListener(
 
         }
 
-        /* ERROR SMTP */
+        /* -----------------------------------------------
+           ERROR DE ENVÍO DE EMAIL
+        ----------------------------------------------- */
 
         else if(
-          errorMessage.includes("sending confirmation") ||
-          errorMessage.includes("email")
+          message.includes(
+            "sending confirmation"
+          ) ||
+          message.includes(
+            "email"
+          )
         ){
 
           showMessage(
-            "La cuenta no ha podido terminar de registrarse porque no se ha podido enviar el correo de confirmación. Revisa la configuración de correo de Supabase."
+
+            "La cuenta no ha podido terminar de registrarse porque no se ha podido enviar el correo de confirmación."
+
           );
 
         }
 
-        /* RESTO DE ERRORES */
+        /* -----------------------------------------------
+           ERROR GENERAL
+        ----------------------------------------------- */
 
         else{
 
           showMessage(
+
             "No se ha podido crear la cuenta: " +
             error.message
+
           );
 
         }
 
 
-        registerButton.disabled = false;
+        registerButton.disabled =
+          false;
 
         registerButton.textContent =
           "Registrarme de forma segura";
@@ -1184,23 +1433,28 @@ registerForm.addEventListener(
       }
 
 
-      /* ================================================
-         SUPABASE PUEDE DEVOLVER USUARIO SIN IDENTIDAD
-         CUANDO EL CORREO YA EXISTE
-      ================================================ */
+      /* =================================================
+         DETECTAR CUENTA EXISTENTE
+      ================================================= */
 
       if(
         data &&
         data.user &&
-        Array.isArray(data.user.identities) &&
+        Array.isArray(
+          data.user.identities
+        ) &&
         data.user.identities.length === 0
       ){
 
         showMessage(
-          "Ya tienes una cuenta registrada con este correo. Inicia sesión aquí o utiliza otro correo."
+
+          "Ya tienes una cuenta con este correo. Inicia sesión para continuar."
+
         );
 
-        registerButton.disabled = false;
+
+        registerButton.disabled =
+          false;
 
         registerButton.textContent =
           "Registrarme de forma segura";
@@ -1210,21 +1464,24 @@ registerForm.addEventListener(
       }
 
 
-      /* ================================================
+      /* =================================================
          REGISTRO CORRECTO
-      ================================================ */
+      ================================================= */
 
-      if(data && data.user){
+      if(
+        data &&
+        data.user
+      ){
 
         /*
-         * Guardamos temporalmente el nombre para poder
-         * recuperarlo después de verificar el correo.
+         * Guardar información temporal.
          */
 
         sessionStorage.setItem(
           "printlab_pending_name",
           name
         );
+
 
         sessionStorage.setItem(
           "printlab_pending_email",
@@ -1233,26 +1490,56 @@ registerForm.addEventListener(
 
 
         /*
-         * Vamos a la pantalla de verificación.
+         * Guardar también el destino.
          */
 
-        window.location.href =
-          "verificar-correo.html";
+        sessionStorage.setItem(
+          "printlab_redirect_after_auth",
+          redirectTarget
+        );
+
+
+        /*
+         * Espera de 2 segundos.
+         */
+
+        registerButton.textContent =
+          "Cuenta creada ✓";
+
+
+        showMessage(
+          "Cuenta creada. Revisa tu correo para verificarla.",
+          "success"
+        );
+
+
+        setTimeout(
+          function(){
+
+            window.location.href =
+              "verificar-correo.html";
+
+          },
+          2000
+        );
+
 
         return;
 
       }
 
 
-      /* ================================================
-         CASO EXTRAÑO
-      ================================================ */
+      /* =================================================
+         RESPUESTA INESPERADA
+      ================================================= */
 
       showMessage(
-        "La cuenta no se ha podido crear. No se recibió una respuesta válida del servidor."
+        "No se ha podido completar el registro. Inténtalo de nuevo."
       );
 
-      registerButton.disabled = false;
+
+      registerButton.disabled =
+        false;
 
       registerButton.textContent =
         "Registrarme de forma segura";
@@ -1261,27 +1548,24 @@ registerForm.addEventListener(
     }catch(error){
 
       console.error(
-        "ERROR COMPLETO DE REGISTRO:",
+        "ERROR COMPLETO:",
         error
       );
 
 
-      /*
-       * Ahora NO ocultamos el error real.
-       * Esto nos permitirá saber exactamente
-       * qué está fallando.
-       */
-
       showMessage(
+
         "Error al crear la cuenta: " +
         (
           error?.message ||
           "Error desconocido."
         )
+
       );
 
 
-      registerButton.disabled = false;
+      registerButton.disabled =
+        false;
 
       registerButton.textContent =
         "Registrarme de forma segura";
