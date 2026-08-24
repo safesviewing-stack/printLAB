@@ -549,15 +549,6 @@
       ></div>
 
 
-      <button
-        id="resend-button"
-        class="secondary-button"
-        type="button"
-      >
-        Reenviar correo
-      </button>
-
-
       <div class="small-text">
 
         Cuando hayas pulsado el enlace de verificación,
@@ -880,11 +871,15 @@ async function checkVerification(){
       "Tu cuenta de PrintLab ya está activa. Te estamos llevando al siguiente paso.";
 
 
-    mailButton.style.display =
-      "none";
+    if (mailButton) {
+      mailButton.style.display =
+        "none";
+    }
 
-    resendButton.style.display =
-      "none";
+    if (resendButton) {
+      resendButton.style.display =
+        "none";
+    }
 
 
     showStatus(
@@ -906,7 +901,7 @@ async function checkVerification(){
     );
 
 
-    // Redirección ágil de 500 ms (igual al inicio de sesión)
+    // Redirección ágil de 1000 ms tras éxito
     setTimeout(
       function(){
 
@@ -966,11 +961,15 @@ supabaseClient.auth.onAuthStateChange(
         pageDescription.textContent =
           "Tu cuenta de PrintLab ya está activa. Te estamos llevando al siguiente paso.";
 
-        mailButton.style.display =
-          "none";
+        if (mailButton) {
+          mailButton.style.display =
+            "none";
+        }
 
-        resendButton.style.display =
-          "none";
+        if (resendButton) {
+          resendButton.style.display =
+            "none";
+        }
 
 
         showStatus(
@@ -1019,92 +1018,69 @@ supabaseClient.auth.onAuthStateChange(
 
 
 /* =====================================================
-   REENVIAR CORREO
+   REENVIAR CORREO (Salvaguarda por remoción del botón)
 ===================================================== */
 
-resendButton.addEventListener(
-  "click",
-  async function(){
+if (resendButton) {
+  resendButton.addEventListener(
+    "click",
+    async function(){
 
-    if(!pendingEmail){
+      if(!pendingEmail){
 
-      showStatus(
-        "No se ha encontrado el correo de registro.",
-        "error"
-      );
+        showStatus(
+          "No se ha encontrado el correo de registro.",
+          "error"
+        );
 
-      return;
+        return;
 
-    }
-
-
-    resendButton.disabled =
-      true;
-
-    resendButton.textContent =
-      "Enviando...";
-
-
-    const {
-      error
-    } =
-      await supabaseClient
-        .auth
-        .resend({
-
-          type:
-            "signup",
-
-          email:
-            pendingEmail,
-
-          options:{
-
-            emailRedirectTo:
-              window.location.origin +
-              "/printLAB/herramientas/verificar-correo.html"
-
-          }
-
-        });
-
-
-    if(error){
-
-      console.error(
-        error
-      );
-
-
-      showStatus(
-        "No se ha podido reenviar el correo. Inténtalo de nuevo.",
-        "error"
-      );
+      }
 
 
       resendButton.disabled =
-        false;
+        true;
 
       resendButton.textContent =
-        "Reenviar correo";
-
-      return;
-
-    }
+        "Enviando...";
 
 
-    showStatus(
-      "Correo reenviado correctamente. Revisa tu bandeja de entrada.",
-      "success"
-    );
+      const {
+        error
+      } =
+        await supabaseClient
+          .auth
+          .resend({
+
+            type:
+              "signup",
+
+            email:
+              pendingEmail,
+
+            options:{
+
+              emailRedirectTo:
+                window.location.origin +
+                "/printLAB/herramientas/verificar-correo.html"
+
+            }
+
+          });
 
 
-    resendButton.textContent =
-      "Correo reenviado ✓";
+      if(error){
+
+        console.error(
+          error
+        );
 
 
-    setTimeout(
-      function(){
+        showStatus(
+          "No se ha podido reenviar el correo. Inténtalo de nuevo.",
+          "error"
+        );
+
 
         resendButton.disabled =
           false;
@@ -1112,12 +1088,37 @@ resendButton.addEventListener(
         resendButton.textContent =
           "Reenviar correo";
 
-      },
-      30000
-    );
+        return;
 
-  }
-);
+      }
+
+
+      showStatus(
+        "Correo reenviado correctamente. Revisa tu bandeja de entrada.",
+        "success"
+      );
+
+
+      resendButton.textContent =
+        "Correo reenviado ✓";
+
+
+      setTimeout(
+        function(){
+
+          resendButton.disabled =
+            false;
+
+          resendButton.textContent =
+            "Reenviar correo";
+
+        },
+        30000
+      );
+
+    }
+  );
+}
 
 </script>
 
