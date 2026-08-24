@@ -222,5 +222,31 @@
       }
     }
   </script>
+  <script>
+  const form = document.querySelector('form');
+  form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const name = form.querySelector('input[type="text"]').value;
+  const email = form.querySelector('input[type="email"]').value;
+  const password = form.querySelector('input[type="password"]').value;
+
+  const { data, error } = await supabaseClient.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        full_name: name
+      }
+    }
+  });
+
+  if (error) {
+    alert('Error al registrar usuario: ' + error.message);
+  } else {
+    alert('Cuenta creada de forma segura. Por favor, confirma tu dirección de email mediante el mensaje que te hemos enviado.');
+    window.location.href = 'login.html';
+  }
+});
+</script>
 </body>
 </html>
