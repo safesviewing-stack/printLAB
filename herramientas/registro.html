@@ -4,11 +4,7 @@
 <head>
 
   <meta charset="utf-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  >
+  <meta name="viewport" content="width=device-width,initial-scale=1">
 
   <title>Registro — PrintLab PRO</title>
 
@@ -18,12 +14,7 @@
   >
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
-
-  <link
-    rel="preconnect"
-    href="https://fonts.gstatic.com"
-    crossorigin
-  >
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
   <link
     href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap"
@@ -302,6 +293,28 @@
       background:#fff;
     }
 
+    .form-group input.input-error{
+      border-color:#c84b4b;
+    }
+
+    /* MENSAJES */
+
+    .field-message{
+      display:none;
+      margin-top:8px;
+      font-size:13px;
+      font-weight:700;
+      line-height:1.45;
+    }
+
+    .field-message.error{
+      color:#b13b3b;
+    }
+
+    .field-message.success{
+      color:#4d7d13;
+    }
+
     .checkbox-group{
       display:flex;
       align-items:flex-start;
@@ -347,31 +360,10 @@
     }
 
     .btn-submit:disabled{
-      opacity:.85;
+      opacity:.7;
       cursor:not-allowed;
       transform:none;
       box-shadow:none;
-    }
-
-    /* ESTADO DEL REGISTRO */
-
-    .register-status{
-      display:none;
-      margin-top:14px;
-      text-align:center;
-      font-size:13px;
-      font-weight:700;
-      line-height:1.5;
-    }
-
-    .register-status.error{
-      display:block;
-      color:#b42318;
-    }
-
-    .register-status.success{
-      display:block;
-      color:#3f7d00;
     }
 
     .switch-auth{
@@ -522,12 +514,16 @@
   </style>
 
   <!-- SUPABASE -->
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <script src="../assets/js/auth-helper.js"></script>
 
 </head>
 
+
 <body>
+
 
   <!-- CABECERA -->
 
@@ -546,10 +542,13 @@
               onclick="document.getElementById('mainMenu').classList.toggle('show');"
               aria-label="Abrir menú"
             >
+
               <span></span>
               <span></span>
               <span></span>
+
             </button>
+
 
             <div
               class="dropdown-content"
@@ -565,30 +564,36 @@
               </a>
 
               <a href="../index.html#simulador">
-                Simulador
-              </a>
-
-              <a href="../index.html#herramientas">
-                Herramientas
+                Simuladores
               </a>
 
               <a href="../index.html#guias">
                 Guías
               </a>
 
+              <a href="../materiales/index.html">
+                Materiales
+              </a>
+
+              <a href="../herramientas/contacto.html">
+                Contacto
+              </a>
+
             </div>
 
           </div>
 
+
           <a
+            href="../index.html"
             class="brand"
-            href="../index.html#portada"
-            title="Volver al inicio"
           >
-            PRINT<span>LAB</span>
+            PRINT
+            <span>LAB</span>
           </a>
 
         </div>
+
 
         <div class="auth-buttons">
 
@@ -615,14 +620,20 @@
   </header>
 
 
-  <!-- CONTENIDO PRINCIPAL -->
+  <!-- CONTENIDO -->
 
   <main
     class="wrap"
-    style="min-height:75vh; display:flex; flex-direction:column; justify-content:center;"
+    style="
+      min-height:75vh;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+    "
   >
 
     <div class="auth-container">
+
 
       <div class="auth-header">
 
@@ -643,7 +654,9 @@
         id="register-form"
         action="#"
         method="POST"
+        novalidate
       >
+
 
         <div class="form-group">
 
@@ -655,6 +668,7 @@
             id="register-name"
             type="text"
             placeholder="Ej: Estudio de Ingeniería S.L."
+            autocomplete="name"
             required
           >
 
@@ -671,8 +685,14 @@
             id="register-email"
             type="email"
             placeholder="tu@empresa.com"
+            autocomplete="email"
             required
           >
+
+          <div
+            id="email-message"
+            class="field-message error"
+          ></div>
 
         </div>
 
@@ -688,14 +708,24 @@
             type="password"
             placeholder="Mínimo 8 caracteres"
             minlength="8"
+            autocomplete="new-password"
             required
           >
+
+          <div
+            id="password-message"
+            class="field-message error"
+          ></div>
 
         </div>
 
 
         <div
-          style="height:1px; background:var(--line); margin:24px 0;"
+          style="
+            height:1px;
+            background:var(--line);
+            margin:24px 0;
+          "
         ></div>
 
 
@@ -770,6 +800,19 @@
         </div>
 
 
+        <!-- MENSAJE GENERAL -->
+
+        <div
+          id="register-message"
+          class="field-message"
+          style="
+            margin-top:18px;
+            margin-bottom:4px;
+            text-align:center;
+          "
+        ></div>
+
+
         <!-- BOTÓN -->
 
         <button
@@ -780,14 +823,6 @@
           Registrarme de forma segura
         </button>
 
-
-        <!-- MENSAJE SIN ALERT -->
-
-        <div
-          id="register-status"
-          class="register-status"
-          aria-live="polite"
-        ></div>
 
       </form>
 
@@ -802,15 +837,22 @@
 
       </div>
 
+
     </div>
 
 
     <div
-      style="text-align:center; padding-bottom:40px; font-size:13px; color:var(--muted);"
+      style="
+        text-align:center;
+        padding-bottom:40px;
+        font-size:13px;
+        color:var(--muted);
+      "
     >
       🔒 Protegido contra fuerza bruta. Las contraseñas se almacenan
       mediante hashing seguro unidireccional.
     </div>
+
 
   </main>
 
@@ -927,6 +969,7 @@
 
         </div>
 
+
       </div>
 
 
@@ -951,22 +994,18 @@
 
       if (!event.target.closest('.menu-dropdown')) {
 
-        var dropdowns =
-          document.getElementsByClassName("dropdown-content");
+        const dropdowns =
+          document.getElementsByClassName(
+            "dropdown-content"
+          );
 
         for (
-          var i = 0;
+          let i = 0;
           i < dropdowns.length;
           i++
         ) {
 
-          if (
-            dropdowns[i].classList.contains('show')
-          ) {
-
-            dropdowns[i].classList.remove('show');
-
-          }
+          dropdowns[i].classList.remove('show');
 
         }
 
@@ -987,40 +1026,100 @@
     const registerButton =
       document.getElementById('register-button');
 
-    const registerStatus =
-      document.getElementById('register-status');
+    const emailInput =
+      document.getElementById('register-email');
+
+    const passwordInput =
+      document.getElementById('register-password');
+
+    const emailMessage =
+      document.getElementById('email-message');
+
+    const passwordMessage =
+      document.getElementById('password-message');
+
+    const registerMessage =
+      document.getElementById('register-message');
 
 
-    function showRegisterError(message) {
+    /* =====================================================
+       LIMPIAR MENSAJES
+    ===================================================== */
 
-      registerStatus.textContent = message;
+    function clearMessages(){
 
-      registerStatus.className =
-        'register-status error';
+      emailMessage.style.display = 'none';
+      emailMessage.textContent = '';
+
+      passwordMessage.style.display = 'none';
+      passwordMessage.textContent = '';
+
+      registerMessage.style.display = 'none';
+      registerMessage.textContent = '';
+
+      emailInput.classList.remove('input-error');
+      passwordInput.classList.remove('input-error');
 
     }
 
 
-    function clearRegisterStatus() {
+    /* =====================================================
+       MOSTRAR ERROR DE EMAIL
+    ===================================================== */
 
-      registerStatus.textContent = '';
+    function showEmailError(message){
 
-      registerStatus.className =
-        'register-status';
+      emailMessage.textContent = message;
+      emailMessage.style.display = 'block';
+
+      emailInput.classList.add('input-error');
 
     }
 
+
+    /* =====================================================
+       MOSTRAR ERROR DE CONTRASEÑA
+    ===================================================== */
+
+    function showPasswordError(message){
+
+      passwordMessage.textContent = message;
+      passwordMessage.style.display = 'block';
+
+      passwordInput.classList.add('input-error');
+
+    }
+
+
+    /* =====================================================
+       MOSTRAR MENSAJE GENERAL
+    ===================================================== */
+
+    function showRegisterError(message){
+
+      registerMessage.textContent = message;
+      registerMessage.className =
+        'field-message error';
+
+      registerMessage.style.display = 'block';
+
+    }
+
+
+    /* =====================================================
+       SUBMIT
+    ===================================================== */
 
     registerForm.addEventListener(
       'submit',
-      async function(e) {
+      async function(e){
 
         e.preventDefault();
 
-        clearRegisterStatus();
+        clearMessages();
 
 
-        /* OBTENER DATOS */
+        /* DATOS */
 
         const name =
           document
@@ -1029,18 +1128,15 @@
             .trim();
 
         const email =
-          document
-            .getElementById('register-email')
-            .value
-            .trim();
+          emailInput.value
+            .trim()
+            .toLowerCase();
 
         const password =
-          document
-            .getElementById('register-password')
-            .value;
+          passwordInput.value;
 
 
-        /* COMPROBAR POLÍTICAS */
+        /* CASILLAS */
 
         const acceptPrivacy =
           document
@@ -1053,10 +1149,12 @@
             .checked;
 
 
-        if (!acceptPrivacy || !acceptTerms) {
+        /* VALIDACIÓN NOMBRE */
+
+        if(!name){
 
           showRegisterError(
-            'Debes aceptar la Política de Privacidad y los Términos y Condiciones.'
+            'Introduce tu nombre o razón social.'
           );
 
           return;
@@ -1064,12 +1162,55 @@
         }
 
 
-        /* COMPROBAR CONTRASEÑA */
+        /* VALIDACIÓN EMAIL */
 
-        if (password.length < 8) {
+        if(!email){
+
+          showEmailError(
+            'Introduce tu correo electrónico.'
+          );
+
+          emailInput.focus();
+
+          return;
+
+        }
+
+
+        if(!emailInput.checkValidity()){
+
+          showEmailError(
+            'Introduce un correo electrónico válido.'
+          );
+
+          emailInput.focus();
+
+          return;
+
+        }
+
+
+        /* VALIDACIÓN CONTRASEÑA */
+
+        if(password.length < 8){
+
+          showPasswordError(
+            'La contraseña debe tener al menos 8 caracteres.'
+          );
+
+          passwordInput.focus();
+
+          return;
+
+        }
+
+
+        /* VALIDACIÓN LEGAL */
+
+        if(!acceptPrivacy || !acceptTerms){
 
           showRegisterError(
-            'La contraseña debe tener al menos 8 caracteres.'
+            'Debes aceptar la Política de Privacidad y los Términos y Condiciones.'
           );
 
           return;
@@ -1085,10 +1226,12 @@
           'Creando cuenta...';
 
 
-        try {
+        try{
 
 
-          /* REGISTRO EN SUPABASE */
+          /* =================================================
+             REGISTRO EN SUPABASE
+          ================================================= */
 
           const {
             data,
@@ -1096,95 +1239,199 @@
           } =
             await supabaseClient.auth.signUp({
 
-              email: email,
+              email:email,
 
-              password: password,
+              password:password,
 
-              options: {
+              options:{
 
-                data: {
+                data:{
 
-                  full_name: name,
+                  full_name:name,
 
                   marketing_consent:
                     document
                       .getElementById('legal_marketing')
                       .checked
 
-                }
+                },
+
+                /*
+                 * IMPORTANTE:
+                 * Después de verificar el correo,
+                 * Supabase devolverá al usuario a esta página.
+                 *
+                 * AJUSTA ESTA URL SOLO SI TU RUTA ES DIFERENTE.
+                 */
+
+                emailRedirectTo:
+                  'https://safesviewing-stack.github.io/printLAB/herramientas/login.html'
 
               }
 
             });
 
 
-          /* ERROR */
+          /* =================================================
+             ERROR SUPABASE
+          ================================================= */
 
-          if (error) {
+          if(error){
 
             console.error(
               'Error Supabase:',
               error
             );
 
+
+            const errorText =
+              (
+                error.message ||
+                ''
+              ).toLowerCase();
+
+
+            /*
+             * CORREO YA REGISTRADO
+             */
+
+            if(
+              errorText.includes(
+                'already registered'
+              ) ||
+              errorText.includes(
+                'already exists'
+              ) ||
+              errorText.includes(
+                'user already'
+              ) ||
+              errorText.includes(
+                'duplicate'
+              )
+            ){
+
+              showEmailError(
+                'Ya tienes una cuenta con este correo. Inicia sesión aquí.'
+              );
+
+              registerButton.disabled = false;
+
+              registerButton.textContent =
+                'Registrarme de forma segura';
+
+              return;
+
+            }
+
+
+            /*
+             * CORREO INVÁLIDO
+             */
+
+            if(
+              errorText.includes('invalid email')
+            ){
+
+              showEmailError(
+                'El correo electrónico no es válido.'
+              );
+
+              registerButton.disabled = false;
+
+              registerButton.textContent =
+                'Registrarme de forma segura';
+
+              return;
+
+            }
+
+
+            /*
+             * CONTRASEÑA
+             */
+
+            if(
+              errorText.includes('password')
+            ){
+
+              showPasswordError(
+                'La contraseña no cumple los requisitos.'
+              );
+
+              registerButton.disabled = false;
+
+              registerButton.textContent =
+                'Registrarme de forma segura';
+
+              return;
+
+            }
+
+
+            /*
+             * OTROS ERRORES
+             */
+
+            showRegisterError(
+              'No se ha podido crear la cuenta. Inténtalo de nuevo.'
+            );
+
+
             registerButton.disabled = false;
 
             registerButton.textContent =
               'Registrarme de forma segura';
-
-            showRegisterError(
-              error.message
-            );
 
             return;
 
           }
 
 
-          /* REGISTRO CORRECTO */
+          /* =================================================
+             REGISTRO CORRECTO
+          ================================================= */
 
           registerButton.textContent =
             'Cuenta creada ✓';
 
+
           registerButton.style.background =
-            'var(--accent)';
+            '#111715';
 
-          registerButton.style.color =
-            'var(--ink)';
-
-          registerButton.disabled = true;
-
-
-          registerStatus.textContent =
-            'Cuenta creada correctamente.';
-
-          registerStatus.className =
-            'register-status success';
-
-
-          registerForm.reset();
+          registerButton.style.boxShadow =
+            '0 4px 0 var(--accent)';
 
 
           /*
-           * ESPERAMOS UN MOMENTO PARA QUE
-           * EL USUARIO VEA EL ✓ Y DESPUÉS
-           * VAMOS AL LOGIN.
+           * ESPERAR 2 SEGUNDOS
            */
 
-          setTimeout(function() {
+          setTimeout(
+            function(){
 
-            window.location.href =
-              'login.html';
+              /*
+               * Página de espera para verificar
+               * el correo.
+               */
 
-          }, 1200);
+              window.location.href =
+                'verificar-correo.html';
+
+            },
+            2000
+          );
 
 
-        } catch (error) {
-
+        }catch(error){
 
           console.error(
             'Error inesperado:',
             error
+          );
+
+
+          showRegisterError(
+            'No se ha podido completar el registro. Comprueba tu conexión e inténtalo de nuevo.'
           );
 
 
@@ -1193,15 +1440,45 @@
           registerButton.textContent =
             'Registrarme de forma segura';
 
-
-          showRegisterError(
-            'No se ha podido completar el registro. Comprueba tu conexión e inténtalo de nuevo.'
-          );
-
         }
 
       }
+    );
 
+
+    /* =====================================================
+       LIMPIAR ERROR AL ESCRIBIR
+    ===================================================== */
+
+    emailInput.addEventListener(
+      'input',
+      function(){
+
+        emailMessage.style.display = 'none';
+
+        emailMessage.textContent = '';
+
+        emailInput.classList.remove(
+          'input-error'
+        );
+
+      }
+    );
+
+
+    passwordInput.addEventListener(
+      'input',
+      function(){
+
+        passwordMessage.style.display = 'none';
+
+        passwordMessage.textContent = '';
+
+        passwordInput.classList.remove(
+          'input-error'
+        );
+
+      }
     );
 
   </script>
