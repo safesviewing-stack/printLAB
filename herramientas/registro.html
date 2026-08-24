@@ -1,8 +1,14 @@
 <!doctype html>
 <html lang="es">
+
 <head>
+
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  >
 
   <title>Registro — PrintLab PRO</title>
 
@@ -12,7 +18,12 @@
   >
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+  >
 
   <link
     href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap"
@@ -44,7 +55,7 @@
       margin:0;
       background:var(--bg);
       color:var(--ink);
-      font-family:"Plus Jakarta Sans", sans-serif;
+      font-family:"Plus Jakarta Sans",sans-serif;
       line-height:1.6;
       -webkit-font-smoothing:antialiased;
     }
@@ -60,7 +71,7 @@
       padding:0 40px;
     }
 
-    /* CABECERA Y NAVEGACIÓN */
+    /* CABECERA */
 
     .top{
       position:sticky;
@@ -336,10 +347,31 @@
     }
 
     .btn-submit:disabled{
-      opacity:.7;
+      opacity:.85;
       cursor:not-allowed;
       transform:none;
       box-shadow:none;
+    }
+
+    /* ESTADO DEL REGISTRO */
+
+    .register-status{
+      display:none;
+      margin-top:14px;
+      text-align:center;
+      font-size:13px;
+      font-weight:700;
+      line-height:1.5;
+    }
+
+    .register-status.error{
+      display:block;
+      color:#b42318;
+    }
+
+    .register-status.success{
+      display:block;
+      color:#3f7d00;
     }
 
     .switch-auth{
@@ -401,7 +433,7 @@
 
     .footer-links a{
       color:var(--muted);
-      transition:color .15s ease, transform .15s ease;
+      transition:color .15s ease,transform .15s ease;
       cursor:pointer;
       display:inline-flex;
       align-items:center;
@@ -436,9 +468,11 @@
     /* RESPONSIVE */
 
     @media(max-width:1250px){
+
       .wrap{
         padding:0 40px;
       }
+
     }
 
     @media(max-width:992px){
@@ -517,7 +551,10 @@
               <span></span>
             </button>
 
-            <div class="dropdown-content" id="mainMenu">
+            <div
+              class="dropdown-content"
+              id="mainMenu"
+            >
 
               <a href="../index.html#portada">
                 Inicio
@@ -743,6 +780,15 @@
           Registrarme de forma segura
         </button>
 
+
+        <!-- MENSAJE SIN ALERT -->
+
+        <div
+          id="register-status"
+          class="register-status"
+          aria-live="polite"
+        ></div>
+
       </form>
 
 
@@ -941,12 +987,37 @@
     const registerButton =
       document.getElementById('register-button');
 
+    const registerStatus =
+      document.getElementById('register-status');
+
+
+    function showRegisterError(message) {
+
+      registerStatus.textContent = message;
+
+      registerStatus.className =
+        'register-status error';
+
+    }
+
+
+    function clearRegisterStatus() {
+
+      registerStatus.textContent = '';
+
+      registerStatus.className =
+        'register-status';
+
+    }
+
 
     registerForm.addEventListener(
       'submit',
       async function(e) {
 
         e.preventDefault();
+
+        clearRegisterStatus();
 
 
         /* OBTENER DATOS */
@@ -984,7 +1055,7 @@
 
         if (!acceptPrivacy || !acceptTerms) {
 
-          alert(
+          showRegisterError(
             'Debes aceptar la Política de Privacidad y los Términos y Condiciones.'
           );
 
@@ -997,7 +1068,7 @@
 
         if (password.length < 8) {
 
-          alert(
+          showRegisterError(
             'La contraseña debe tener al menos 8 caracteres.'
           );
 
@@ -1056,15 +1127,14 @@
               error
             );
 
-            alert(
-              'Error al registrar usuario: ' +
-              error.message
-            );
-
             registerButton.disabled = false;
 
             registerButton.textContent =
               'Registrarme de forma segura';
+
+            showRegisterError(
+              error.message
+            );
 
             return;
 
@@ -1073,18 +1143,40 @@
 
           /* REGISTRO CORRECTO */
 
-          alert(
-            'Registro completado. Se ha enviado un correo electrónico de confirmación.'
-          );
+          registerButton.textContent =
+            'Cuenta creada ✓';
+
+          registerButton.style.background =
+            'var(--accent)';
+
+          registerButton.style.color =
+            'var(--ink)';
+
+          registerButton.disabled = true;
+
+
+          registerStatus.textContent =
+            'Cuenta creada correctamente.';
+
+          registerStatus.className =
+            'register-status success';
 
 
           registerForm.reset();
 
 
-          /* IR AL LOGIN */
+          /*
+           * ESPERAMOS UN MOMENTO PARA QUE
+           * EL USUARIO VEA EL ✓ Y DESPUÉS
+           * VAMOS AL LOGIN.
+           */
 
-          window.location.href =
-            'login.html';
+          setTimeout(function() {
+
+            window.location.href =
+              'login.html';
+
+          }, 1200);
 
 
         } catch (error) {
@@ -1096,23 +1188,25 @@
           );
 
 
-          alert(
-            'No se ha podido completar el registro. Comprueba tu conexión e inténtalo de nuevo.'
-          );
-
-
           registerButton.disabled = false;
 
           registerButton.textContent =
             'Registrarme de forma segura';
 
+
+          showRegisterError(
+            'No se ha podido completar el registro. Comprueba tu conexión e inténtalo de nuevo.'
+          );
+
         }
 
       }
+
     );
 
   </script>
 
 
 </body>
+
 </html>
