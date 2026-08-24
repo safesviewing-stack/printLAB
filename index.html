@@ -1403,5 +1403,31 @@
       }
     });
   </script>
+  <!-- INTEGRACIÓN CON SUPABASE -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/auth-helper.js"></script>
+  <script>
+    // Mostrar saludo personalizado en la sección Hero / Dashboard si existe
+    async function updateDashboardGreeting() {
+      const { data: { user } } = await supabaseClient.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabaseClient
+          .from('profiles')
+          .select('full_name, credits')
+          .eq('id', user.id)
+          .single();
+        
+        const welcomeDiv = document.querySelector('.eyebrow');
+        if (welcomeDiv && profile) {
+          welcomeDiv.innerHTML = `Hola, ${profile.full_name} | Dispones de ${profile.credits} créditos`;
+          welcomeDiv.style.background = "rgba(184, 255, 61, 0.2)";
+          welcomeDiv.style.color = "var(--ink)";
+        }
+      }
+    }
+    document.addEventListener('DOMContentLoaded', updateDashboardGreeting);
+  </script>
+</body>
+</html>
 </body>
 </html>
