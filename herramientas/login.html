@@ -4,15 +4,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
 
-  <title>Iniciar Sesión — PrintLab PRO</title>
+  <title>Iniciar sesión — PrintLab PRO</title>
 
   <meta
     name="description"
-    content="Accede a tu cuenta en PrintLab para utilizar el analizador STL inteligente y revisar tu historial de optimizaciones."
+    content="Inicia sesión en PrintLab para acceder a tus herramientas profesionales."
   >
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
   <link
     href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap"
     rel="stylesheet"
@@ -35,10 +36,6 @@
       box-sizing:border-box;
     }
 
-    html{
-      scroll-behavior:smooth;
-    }
-
     body{
       margin:0;
       background:var(--bg);
@@ -59,9 +56,9 @@
       padding:0 40px;
     }
 
-    /* =========================
-       CABECERA
-    ========================= */
+    /* =================================================
+       HEADER
+    ================================================= */
 
     .top{
       position:sticky;
@@ -96,10 +93,7 @@
       padding:5px 12px;
       border-radius:10px;
       margin-left:6px;
-      color:var(--ink);
     }
-
-    /* MENÚ */
 
     .menu-dropdown{
       position:relative;
@@ -114,7 +108,6 @@
       display:flex;
       flex-direction:column;
       gap:5px;
-      outline:none;
     }
 
     .hamburger span{
@@ -123,11 +116,6 @@
       height:3px;
       background:var(--ink);
       border-radius:2px;
-      transition:.3s;
-    }
-
-    .hamburger:hover span{
-      background:var(--muted);
     }
 
     .dropdown-content{
@@ -135,7 +123,7 @@
       position:absolute;
       top:110%;
       left:0;
-      background-color:var(--card);
+      background:var(--card);
       min-width:240px;
       box-shadow:0 20px 40px rgba(0,0,0,.1);
       border:1.5px solid var(--line);
@@ -155,27 +143,12 @@
       color:var(--muted);
       font-weight:700;
       font-size:15px;
-      transition:.15s;
     }
 
     .dropdown-content a:hover{
       color:var(--ink);
       background:rgba(0,0,0,.03);
     }
-
-    @keyframes slideDown{
-      from{
-        opacity:0;
-        transform:translateY(-10px);
-      }
-
-      to{
-        opacity:1;
-        transform:translateY(0);
-      }
-    }
-
-    /* BOTONES CABECERA */
 
     .auth-buttons{
       display:flex;
@@ -193,7 +166,6 @@
       font-size:14px;
       cursor:pointer;
       transition:.2s ease;
-      text-decoration:none;
       border:2px solid var(--ink);
     }
 
@@ -203,25 +175,27 @@
       box-shadow:0 3px 0 var(--ink);
     }
 
-    .btn-auth.light:hover{
-      transform:translateY(-1px);
-      box-shadow:0 4px 0 var(--ink);
-    }
-
     .btn-auth.green{
       background:var(--accent);
       color:var(--ink);
       box-shadow:0 3px 0 var(--ink);
     }
 
-    .btn-auth.green:hover{
-      transform:translateY(-1px);
-      box-shadow:0 4px 0 var(--ink);
+    @keyframes slideDown{
+      from{
+        opacity:0;
+        transform:translateY(-10px);
+      }
+
+      to{
+        opacity:1;
+        transform:translateY(0);
+      }
     }
 
-    /* =========================
-       AUTENTICACIÓN
-    ========================= */
+    /* =================================================
+       LOGIN
+    ================================================= */
 
     .auth-container{
       max-width:480px;
@@ -256,22 +230,13 @@
     }
 
     .form-group label{
-      display:flex;
-      justify-content:space-between;
+      display:block;
       font-size:13px;
       font-weight:800;
       margin-bottom:8px;
-      color:var(--ink);
     }
 
-    .form-group label a{
-      color:var(--muted);
-      font-weight:500;
-      text-decoration:underline;
-    }
-
-    .form-group input[type="email"],
-    .form-group input[type="password"]{
+    .form-group input{
       width:100%;
       padding:14px;
       border:1.5px solid var(--line);
@@ -280,6 +245,7 @@
       outline:none;
       transition:.2s;
       background:var(--bg);
+      font-family:inherit;
     }
 
     .form-group input:focus{
@@ -287,43 +253,55 @@
       background:#fff;
     }
 
-    /* =========================
-       MENSAJE DE ERROR
-    ========================= */
-
-    .login-message{
-      display:none;
+    .forgot{
+      display:block;
+      text-align:right;
+      margin-top:-8px;
       margin-bottom:20px;
-      padding:13px 16px;
+      font-size:13px;
+      font-weight:700;
+      color:var(--muted);
+    }
+
+    .forgot:hover{
+      color:var(--ink);
+      text-decoration:underline;
+    }
+
+    /* =================================================
+       MENSAJES
+    ================================================= */
+
+    .form-message{
+      display:none;
+      margin:18px 0 8px;
+      padding:14px 16px;
       border-radius:12px;
-      background:#fff1f1;
-      border:1px solid #e3caca;
-      color:#8b2929;
       font-size:14px;
       font-weight:700;
-      text-align:center;
+      line-height:1.5;
     }
 
-    .login-message.show{
+    .form-message.error{
       display:block;
-      animation:messageIn .25s ease;
+      color:#b42318;
+      background:#fff1f0;
+      border:1px solid #f1c4c0;
     }
 
-    @keyframes messageIn{
-      from{
-        opacity:0;
-        transform:translateY(-5px);
-      }
-
-      to{
-        opacity:1;
-        transform:translateY(0);
-      }
+    .form-message.success{
+      display:block;
+      color:#246b27;
+      background:#f0faee;
+      border:1px solid #c7e5c2;
     }
 
-    /* =========================
-       BOTÓN LOGIN
-    ========================= */
+    .form-message.info{
+      display:block;
+      color:#45504a;
+      background:#f2f4f2;
+      border:1px solid var(--line);
+    }
 
     .btn-submit{
       width:100%;
@@ -338,6 +316,7 @@
       transition:.2s;
       margin-top:10px;
       border:2px solid var(--ink);
+      font-family:inherit;
     }
 
     .btn-submit:hover{
@@ -366,9 +345,9 @@
       text-decoration:underline;
     }
 
-    /* =========================
+    /* =================================================
        FOOTER
-    ========================= */
+    ================================================= */
 
     .footer{
       background:var(--bg);
@@ -376,7 +355,6 @@
       padding:80px 0 40px;
       color:var(--muted);
       font-size:14px;
-      line-height:1.6;
     }
 
     .footergrid{
@@ -391,17 +369,14 @@
       font-weight:800;
       color:var(--ink);
       margin:0 0 20px;
-      letter-spacing:-.3px;
     }
 
     .footer-col p{
       margin:0 0 16px;
-      color:var(--muted);
     }
 
     .footer-secondary-text{
       font-size:12.5px;
-      line-height:1.5;
       color:#7d8782;
       margin-top:12px;
     }
@@ -414,25 +389,13 @@
 
     .footer-links a{
       color:var(--muted);
-      transition:color .15s ease,transform .15s ease;
-      cursor:pointer;
       display:inline-flex;
       align-items:center;
       gap:6px;
-      text-decoration:none;
     }
 
     .footer-links a:hover{
       color:var(--ink);
-      transform:translateX(2px);
-    }
-
-    .footer-links a span.arrow{
-      transition:color .15s ease;
-    }
-
-    .footer-links a:hover span.arrow{
-      color:var(--accent);
     }
 
     .footer-bottom{
@@ -440,46 +403,24 @@
       padding-top:24px;
       display:flex;
       justify-content:center;
-      align-items:center;
       text-align:center;
       font-size:13px;
       color:#7d8782;
     }
 
-    /* =========================
-       RESPONSIVE
-    ========================= */
-
-    @media(max-width:1250px){
+    @media(max-width:768px){
 
       .wrap{
-        padding:0 40px;
+        padding:0 20px;
       }
-
-    }
-
-    @media(max-width:992px){
-
-      .footergrid{
-        grid-template-columns:1.2fr 1fr;
-        gap:40px;
-      }
-
-    }
-
-    @media(max-width:768px){
 
       .auth-container{
         padding:30px 24px;
+        margin:30px auto;
       }
 
       .header-left{
         gap:10px;
-      }
-
-      .btn-auth{
-        padding:10px 16px;
-        font-size:13px;
       }
 
       .brand{
@@ -495,483 +436,877 @@
         gap:36px;
       }
 
-      .footer-bottom{
-        flex-direction:column;
-        align-items:flex-start;
-      }
-
     }
 
   </style>
 
-  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- Tu configuración de Supabase -->
-  <script src="../assets/js/auth-helper.js"></script>
 
 </head>
 
+
 <body>
 
-  <!-- =========================
-       CABECERA
-  ========================= -->
 
-  <header class="top">
+<header class="top">
 
-    <div class="wrap">
+  <div class="wrap">
 
-      <nav>
+    <nav>
 
-        <div class="header-left">
+      <div class="header-left">
 
-          <div class="menu-dropdown">
+        <div class="menu-dropdown">
 
-            <button
-              class="hamburger"
-              onclick="document.getElementById('mainMenu').classList.toggle('show');"
-              aria-label="Abrir menú"
-            >
-              <span></span>
-              <span></span>
-              <span></span>
-            </button>
+          <button
+            class="hamburger"
+            id="menu-button"
+            type="button"
+            aria-label="Abrir menú"
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
 
-            <div class="dropdown-content" id="mainMenu">
+          <div
+            class="dropdown-content"
+            id="mainMenu"
+          >
 
-              <a href="../index.html#portada">
-                Inicio
-              </a>
+            <a href="../index.html#portada">
+              Inicio
+            </a>
 
-              <a href="../index.html#analizador">
-                Analizador IA
-              </a>
+            <a href="../index.html#analizador">
+              Analizador IA
+            </a>
 
-              <a href="../index.html#simulador">
-                Simulador
-              </a>
+            <a href="../index.html#simulador">
+              Simulador
+            </a>
 
-              <a href="../index.html#herramientas">
-                Herramientas
-              </a>
+            <a href="../index.html#herramientas">
+              Herramientas
+            </a>
 
-              <a href="../index.html#guias">
-                Guías
-              </a>
-
-            </div>
+            <a href="../index.html#guias">
+              Guías
+            </a>
 
           </div>
 
-          <a
-            class="brand"
-            href="../index.html#portada"
-            title="Volver al inicio"
-          >
-            PRINT<span>LAB</span>
-          </a>
-
         </div>
 
-        <div class="auth-buttons">
 
-          <a
-            href="login.html"
-            class="btn-auth light"
-          >
-            Iniciar Sesión
-          </a>
+        <a
+          class="brand"
+          href="../index.html#portada"
+        >
+          PRINT<span>LAB</span>
+        </a>
 
-          <a
-            href="registro.html"
-            class="btn-auth green"
-          >
-            Registrarse
-          </a>
+      </div>
 
-        </div>
 
-      </nav>
+      <div class="auth-buttons">
+
+        <a
+          href="login.html"
+          class="btn-auth light"
+        >
+          Iniciar Sesión
+        </a>
+
+        <a
+          href="registro.html"
+          class="btn-auth green"
+        >
+          Registrarse
+        </a>
+
+      </div>
+
+    </nav>
+
+  </div>
+
+</header>
+
+
+
+<main
+  class="wrap"
+  style="
+    min-height:75vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+  "
+>
+
+
+  <div class="auth-container">
+
+
+    <div class="auth-header">
+
+      <h1>
+        Iniciar sesión
+      </h1>
+
+      <p>
+        Accede a tu cuenta profesional de PrintLab.
+      </p>
 
     </div>
 
-  </header>
 
 
-  <!-- =========================
-       CONTENIDO
-  ========================= -->
+    <form
+      id="login-form"
+      novalidate
+    >
 
-  <main
-    class="wrap"
-    style="
-      min-height:75vh;
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-    "
-  >
 
-    <div class="auth-container">
+      <div class="form-group">
 
-      <div class="auth-header">
+        <label for="login-email">
+          Email
+        </label>
 
-        <h1>
-          Bienvenido de nuevo
-        </h1>
+        <input
+          id="login-email"
+          type="email"
+          placeholder="tu@empresa.com"
+          autocomplete="email"
+          required
+        >
+
+      </div>
+
+
+
+      <div class="form-group">
+
+        <label for="login-password">
+          Contraseña
+        </label>
+
+        <input
+          id="login-password"
+          type="password"
+          placeholder="Tu contraseña"
+          autocomplete="current-password"
+          required
+        >
+
+      </div>
+
+
+
+      <a
+        href="recuperar-contrasena.html"
+        class="forgot"
+      >
+        ¿Has olvidado tu contraseña?
+      </a>
+
+
+
+      <div
+        id="login-message"
+        class="form-message"
+        role="alert"
+      ></div>
+
+
+
+      <button
+        type="submit"
+        class="btn-submit"
+        id="login-button"
+      >
+        Iniciar sesión
+      </button>
+
+
+    </form>
+
+
+
+    <div class="switch-auth">
+
+      ¿Todavía no tienes cuenta?
+
+      <a href="registro.html">
+        Crear una cuenta
+      </a>
+
+    </div>
+
+
+  </div>
+
+</main>
+
+
+
+<footer class="footer">
+
+  <div class="wrap">
+
+    <div class="footergrid">
+
+
+      <div class="footer-col">
+
+        <h3>
+          PrintLab — Ingeniería 3D
+        </h3>
 
         <p>
-          Inicia sesión para acceder a tu historial de análisis.
+          Plataforma profesional de análisis y optimización STL
+          mediante Inteligencia Artificial y simuladores
+          paramétricos.
+        </p>
+
+        <p class="footer-secondary-text">
+          Desarrollado bajo principios de Privacy by Design.
+          Los datos y archivos STL se procesan con estricta
+          confidencialidad.
         </p>
 
       </div>
 
 
-      <form id="login-form">
 
-        <div class="form-group">
+      <div class="footer-col">
 
-          <label>
-            Email profesional
-          </label>
+        <h3>
+          Recursos y Herramientas
+        </h3>
 
-          <input
-            type="email"
-            placeholder="tu@empresa.com"
-            autocomplete="email"
-            required
-          >
+        <div class="footer-links">
 
-        </div>
+          <a href="../index.html#analizador">
+            <span>→</span>
+            Analizador STL IA
+          </a>
 
+          <a href="../index.html#simulador">
+            <span>→</span>
+            Simulador de Extrusión
+          </a>
 
-        <div class="form-group">
+          <a href="../herramientas/calculadora-coste.html">
+            <span>→</span>
+            Calculadoras de Coste y Masa
+          </a>
 
-          <label>
+          <a href="../index.html#guias">
+            <span>→</span>
+            Base de Conocimiento
+          </a>
 
-            Contraseña
-
-            <a href="#">
-              ¿La has olvidado?
-            </a>
-
-          </label>
-
-          <input
-            type="password"
-            placeholder="Tu contraseña segura"
-            autocomplete="current-password"
-            required
-          >
+          <a href="../materiales/index.html">
+            <span>→</span>
+            Atlas de Materiales
+          </a>
 
         </div>
-
-
-        <!-- MENSAJE SIN ALERT -->
-
-        <div
-          id="login-message"
-          class="login-message"
-          aria-live="polite"
-        ></div>
-
-
-        <button
-          type="submit"
-          class="btn-submit"
-          id="login-button"
-        >
-          Entrar a mi cuenta
-        </button>
-
-      </form>
-
-
-      <div class="switch-auth">
-
-        ¿Aún no tienes cuenta?
-
-        <a href="registro.html">
-          Regístrate gratis
-        </a>
 
       </div>
+
+
+
+      <div class="footer-col">
+
+        <h3>
+          Soporte y Legal
+        </h3>
+
+        <div class="footer-links">
+
+          <a href="../herramientas/precios.html">
+            <span>→</span>
+            Precios y Suscripciones
+          </a>
+
+          <a href="../herramientas/contacto.html">
+            <span>→</span>
+            Contacto y Soporte
+          </a>
+
+          <a href="../condiciones-compra.html">
+            <span>→</span>
+            Condiciones de Compra
+          </a>
+
+          <a href="../terminos.html">
+            <span>→</span>
+            Términos y Condiciones
+          </a>
+
+          <a href="../privacidad.html">
+            <span>→</span>
+            Política de Privacidad
+          </a>
+
+          <a href="../cookies.html">
+            <span>→</span>
+            Política de Cookies
+          </a>
+
+        </div>
+
+      </div>
+
 
     </div>
 
-  </main>
 
+    <div class="footer-bottom">
 
-  <!-- =========================
-       FOOTER
-  ========================= -->
-
-  <footer class="footer">
-
-    <div class="wrap">
-
-      <div class="footergrid">
-
-        <div class="footer-col">
-
-          <h3>
-            PrintLab — Ingeniería 3D
-          </h3>
-
-          <p>
-            Plataforma profesional de análisis y optimización STL mediante Inteligencia Artificial y simuladores paramétricos. Transformamos modelos 3D con problemas en geometrías perfectas listas para fabricar, ahorrando tiempo, material y costes en entornos industriales.
-          </p>
-
-          <p class="footer-secondary-text">
-            Desarrollado bajo principios de Privacy by Design. Los datos y archivos STL se procesan con estricta confidencialidad.
-          </p>
-
-        </div>
-
-
-        <div class="footer-col">
-
-          <h3>
-            Recursos y Herramientas
-          </h3>
-
-          <div class="footer-links">
-
-            <a href="../index.html#analizador">
-              <span class="arrow">→</span>
-              Analizador STL IA
-            </a>
-
-            <a href="../index.html#simulador">
-              <span class="arrow">→</span>
-              Simulador de Extrusión
-            </a>
-
-            <a href="../herramientas/calculadora-coste.html">
-              <span class="arrow">→</span>
-              Calculadoras de Coste y Masa
-            </a>
-
-            <a href="../index.html#guias">
-              <span class="arrow">→</span>
-              Base de Conocimiento
-            </a>
-
-            <a href="../materiales/index.html">
-              <span class="arrow">→</span>
-              Atlas de Materiales
-            </a>
-
-          </div>
-
-        </div>
-
-
-        <div class="footer-col">
-
-          <h3>
-            Soporte y Legal
-          </h3>
-
-          <div class="footer-links">
-
-            <a href="../herramientas/precios.html">
-              <span class="arrow">→</span>
-              Precios y Suscripciones
-            </a>
-
-            <a href="../herramientas/contacto.html">
-              <span class="arrow">→</span>
-              Contacto y Soporte
-            </a>
-
-            <a href="../condiciones-compra.html">
-              <span class="arrow">→</span>
-              Condiciones de Compra
-            </a>
-
-            <a href="../terminos.html">
-              <span class="arrow">→</span>
-              Términos y Condiciones
-            </a>
-
-            <a href="../privacidad.html">
-              <span class="arrow">→</span>
-              Política de Privacidad
-            </a>
-
-            <a href="../cookies.html">
-              <span class="arrow">→</span>
-              Política de Cookies
-            </a>
-
-          </div>
-
-        </div>
-
-      </div>
-
-
-      <div class="footer-bottom">
-
-        <div class="footer-bottom-text">
-          © 2026 PrintLab.
-        </div>
-
-      </div>
+      © 2026 PrintLab.
 
     </div>
 
-  </footer>
+  </div>
+
+</footer>
 
 
-  <!-- =========================
-       JAVASCRIPT
-  ========================= -->
 
-  <script>
+<script>
 
-    /* Cerrar menú al pulsar fuera */
+/* =====================================================
+   SUPABASE
+===================================================== */
 
-    window.onclick = function(event){
+const SUPABASE_URL =
+  "https://jmwprzgfdkphbxryjbnr.supabase.co";
 
-      if(!event.target.closest('.menu-dropdown')){
+const SUPABASE_ANON_KEY =
+  "sb_publishable_kelRYJ3Fa56DXY3GhxWLHQ_YiLJzStR";
 
-        const dropdowns =
-          document.getElementsByClassName('dropdown-content');
-
-        for(let i = 0; i < dropdowns.length; i++){
-
-          if(
-            dropdowns[i].classList.contains('show')
-          ){
-
-            dropdowns[i].classList.remove('show');
-
-          }
-
-        }
-
-      }
-
-    };
+const supabaseClient =
+  supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+  );
 
 
-    /* =========================
-       LOGIN SUPABASE
-    ========================= */
+/* =====================================================
+   MENÚ
+===================================================== */
 
-    const loginForm =
-      document.getElementById('login-form');
+const menuButton =
+  document.getElementById(
+    "menu-button"
+  );
 
-    const loginButton =
-      document.getElementById('login-button');
-
-    const loginMessage =
-      document.getElementById('login-message');
-
-
-    loginForm.addEventListener('submit', async function(e){
-
-      e.preventDefault();
+const mainMenu =
+  document.getElementById(
+    "mainMenu"
+  );
 
 
-      /* Ocultar mensaje anterior */
+menuButton.addEventListener(
+  "click",
+  function(e){
 
-      loginMessage.classList.remove('show');
+    e.stopPropagation();
 
-      loginMessage.textContent = '';
+    mainMenu.classList.toggle(
+      "show"
+    );
 
-
-      /* Obtener datos */
-
-      const email =
-        loginForm
-          .querySelector('input[type="email"]')
-          .value
-          .trim();
-
-      const password =
-        loginForm
-          .querySelector('input[type="password"]')
-          .value;
+  }
+);
 
 
-      /* Estado de carga */
+document.addEventListener(
+  "click",
+  function(e){
 
-      loginButton.disabled = true;
+    if(
+      !e.target.closest(
+        ".menu-dropdown"
+      )
+    ){
 
-      loginButton.textContent = 'Iniciando sesión...';
+      mainMenu.classList.remove(
+        "show"
+      );
+
+    }
+
+  }
+);
 
 
-      try{
+/* =====================================================
+   DESTINO DESPUÉS DEL LOGIN
+===================================================== */
 
-        const { data, error } =
-          await supabaseClient.auth.signInWithPassword({
+/*
+ * Si hemos llegado desde el analizador:
+ *
+ * login.html?redirect=analizador-stl.html
+ *
+ * volvemos al analizador.
+ *
+ * Si hemos llegado directamente desde el inicio:
+ *
+ * login.html
+ *
+ * volvemos al inicio.
+ */
 
-            email: email,
+const params =
+  new URLSearchParams(
+    window.location.search
+  );
 
-            password: password
+
+let redirectTarget =
+  params.get("redirect");
+
+
+if(!redirectTarget){
+
+  redirectTarget =
+    "../index.html";
+
+}
+
+
+/*
+ * Seguridad:
+ * nunca permitimos redirecciones externas.
+ */
+
+if(
+  redirectTarget.startsWith(
+    "http://"
+  ) ||
+  redirectTarget.startsWith(
+    "https://"
+  ) ||
+  redirectTarget.startsWith(
+    "//"
+  )
+){
+
+  redirectTarget =
+    "../index.html";
+
+}
+
+
+/*
+ * Si no viene en la URL pero existe una ruta
+ * guardada previamente, la utilizamos.
+ */
+
+if(
+  !params.get("redirect")
+){
+
+  const storedRedirect =
+    sessionStorage.getItem(
+      "printlab_redirect_after_auth"
+    );
+
+
+  if(
+    storedRedirect &&
+    !storedRedirect.startsWith(
+      "http://"
+    ) &&
+    !storedRedirect.startsWith(
+      "https://"
+    ) &&
+    !storedRedirect.startsWith(
+      "//"
+    )
+  ){
+
+    redirectTarget =
+      storedRedirect;
+
+  }
+
+}
+
+
+/* =====================================================
+   FORMULARIO
+===================================================== */
+
+const loginForm =
+  document.getElementById(
+    "login-form"
+  );
+
+const loginButton =
+  document.getElementById(
+    "login-button"
+  );
+
+const loginMessage =
+  document.getElementById(
+    "login-message"
+  );
+
+
+function showMessage(
+  message,
+  type = "error"
+){
+
+  loginMessage.textContent =
+    message;
+
+  loginMessage.className =
+    "form-message " +
+    type;
+
+  loginMessage.style.display =
+    "block";
+
+}
+
+
+function clearMessage(){
+
+  loginMessage.textContent =
+    "";
+
+  loginMessage.className =
+    "form-message";
+
+  loginMessage.style.display =
+    "none";
+
+}
+
+
+/* =====================================================
+   COMPROBAR SESIÓN EXISTENTE
+===================================================== */
+
+async function checkExistingSession(){
+
+  const {
+    data:{
+      session
+    }
+  } =
+    await supabaseClient
+      .auth
+      .getSession();
+
+
+  if(!session){
+
+    return;
+
+  }
+
+
+  /*
+   * Si ya está autenticado y entra al login,
+   * no tiene sentido pedirle otra vez la contraseña.
+   */
+
+  window.location.replace(
+    redirectTarget
+  );
+
+}
+
+
+checkExistingSession();
+
+
+/* =====================================================
+   LOGIN
+===================================================== */
+
+loginForm.addEventListener(
+  "submit",
+  async function(e){
+
+    e.preventDefault();
+
+    clearMessage();
+
+
+    const email =
+      document
+        .getElementById(
+          "login-email"
+        )
+        .value
+        .trim()
+        .toLowerCase();
+
+
+    const password =
+      document
+        .getElementById(
+          "login-password"
+        )
+        .value;
+
+
+    /* =================================================
+       VALIDACIONES
+    ================================================= */
+
+    if(!email){
+
+      showMessage(
+        "Introduce tu correo electrónico."
+      );
+
+      return;
+
+    }
+
+
+    if(!password){
+
+      showMessage(
+        "Introduce tu contraseña."
+      );
+
+      return;
+
+    }
+
+
+    /* =================================================
+       BLOQUEAR BOTÓN
+    ================================================= */
+
+    loginButton.disabled =
+      true;
+
+    loginButton.textContent =
+      "Iniciando sesión...";
+
+
+    try{
+
+      /* =================================================
+         SUPABASE LOGIN
+      ================================================= */
+
+      const {
+        data,
+        error
+      } =
+        await supabaseClient
+          .auth
+          .signInWithPassword({
+
+            email:
+              email,
+
+            password:
+              password
 
           });
 
 
-        if(error){
+      /* =================================================
+         ERROR
+      ================================================= */
 
-          throw error;
-
-        }
-
-
-        /* Login correcto */
-
-        loginButton.textContent = 'Sesión iniciada ✓';
-
-
-        /*
-          Pequeña pausa para que el usuario
-          vea el estado correcto y después
-          entramos al inicio.
-        */
-
-        setTimeout(function(){
-
-          window.location.href =
-            '../index.html';
-
-        }, 500);
-
-
-      }catch(error){
+      if(error){
 
         console.error(
-          'Error al iniciar sesión:',
+          "ERROR LOGIN:",
           error
         );
 
 
-        /*
-          AQUÍ YA NO HAY alert().
-          El error aparece dentro de la página.
-        */
-
-        loginMessage.textContent =
-          'No se pudo iniciar sesión. Comprueba tu email y contraseña.';
-
-        loginMessage.classList.add('show');
+        const message =
+          (
+            error.message ||
+            ""
+          ).toLowerCase();
 
 
-        loginButton.disabled = false;
+        if(
+          message.includes(
+            "invalid login credentials"
+          ) ||
+          message.includes(
+            "invalid credentials"
+          )
+        ){
+
+          showMessage(
+            "El correo o la contraseña no son correctos."
+          );
+
+        }
+
+        else if(
+          message.includes(
+            "email not confirmed"
+          )
+        ){
+
+          showMessage(
+            "Debes verificar tu correo antes de iniciar sesión."
+          );
+
+        }
+
+        else{
+
+          showMessage(
+            "No se ha podido iniciar sesión. Inténtalo de nuevo."
+          );
+
+        }
+
+
+        loginButton.disabled =
+          false;
 
         loginButton.textContent =
-          'Entrar a mi cuenta';
+          "Iniciar sesión";
+
+        return;
 
       }
 
-    });
 
-  </script>
+      /* =================================================
+         LOGIN CORRECTO
+      ================================================= */
+
+      if(
+        data &&
+        data.session
+      ){
+
+        loginButton.textContent =
+          "Sesión iniciada ✓";
+
+
+        /*
+         * Limpiamos el destino guardado porque
+         * ya hemos utilizado el flujo.
+         */
+
+        sessionStorage.removeItem(
+          "printlab_redirect_after_auth"
+        );
+
+
+        /*
+         * Pequeña pausa para que el usuario vea
+         * el estado correcto del botón.
+         */
+
+        setTimeout(
+          function(){
+
+            window.location.replace(
+              redirectTarget
+            );
+
+          },
+          500
+        );
+
+
+        return;
+
+      }
+
+
+      /* =================================================
+         RESPUESTA INESPERADA
+      ================================================= */
+
+      showMessage(
+        "No se ha podido iniciar sesión."
+      );
+
+
+      loginButton.disabled =
+        false;
+
+      loginButton.textContent =
+        "Iniciar sesión";
+
+
+    }catch(error){
+
+      console.error(
+        "ERROR COMPLETO LOGIN:",
+        error
+      );
+
+
+      showMessage(
+        "Ha ocurrido un error al iniciar sesión."
+      );
+
+
+      loginButton.disabled =
+        false;
+
+      loginButton.textContent =
+        "Iniciar sesión";
+
+    }
+
+  }
+);
+
+
+/* =====================================================
+   RECUPERAR CONTRASEÑA
+===================================================== */
+
+const forgotLink =
+  document.querySelector(
+    ".forgot"
+  );
+
+
+if(forgotLink){
+
+  forgotLink.addEventListener(
+    "click",
+    function(){
+
+      /*
+       * Conservamos el destino para que,
+       * después de recuperar la contraseña,
+       * pueda continuar su flujo.
+       */
+
+      sessionStorage.setItem(
+        "printlab_redirect_after_auth",
+        redirectTarget
+      );
+
+    }
+  );
+
+}
+
+</script>
 
 </body>
 </html>
