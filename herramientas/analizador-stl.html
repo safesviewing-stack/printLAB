@@ -2,6 +2,7 @@
 <html lang="es">
 
 <head>
+
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
 
@@ -9,12 +10,14 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
   <link
     href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap"
     rel="stylesheet"
   >
 
   <style>
+
     :root{
       --bg:#f6f7f4;
       --card:#fff;
@@ -48,6 +51,7 @@
       margin:auto;
       padding:0 40px;
     }
+
 
     /* =========================
        CABECERA
@@ -88,6 +92,7 @@
       margin-left:6px;
       color:var(--ink);
     }
+
 
     /* =========================
        MENÚ HAMBURGUESA
@@ -143,6 +148,7 @@
     }
 
     @keyframes slideDown{
+
       from{
         opacity:0;
         transform:translateY(-15px);
@@ -152,6 +158,7 @@
         opacity:1;
         transform:translateY(0);
       }
+
     }
 
     .dropdown-content a{
@@ -173,6 +180,7 @@
       border-left:4px solid var(--accent);
       padding-left:20px;
     }
+
 
     /* =========================
        BOTONES AUTENTICACIÓN
@@ -230,6 +238,7 @@
       box-shadow:0 1px 0 var(--ink);
     }
 
+
     /* =========================
        HERO
     ========================= */
@@ -254,6 +263,7 @@
       max-width:800px;
       margin:0 auto 40px;
     }
+
 
     /* =========================
        FLUJO
@@ -289,6 +299,7 @@
       font-weight:800;
     }
 
+
     /* =========================
        ZONA DE SUBIDA
     ========================= */
@@ -307,6 +318,12 @@
     .upload-container:hover{
       border-color:var(--ink);
       background:#fafbfa;
+    }
+
+    .upload-container.drag-over{
+      border-color:var(--ink);
+      background:#f0f5ed;
+      transform:scale(1.01);
     }
 
     .upload-icon{
@@ -351,6 +368,49 @@
       box-shadow:0 1px 0 var(--ink);
     }
 
+
+    /* =========================
+       ARCHIVO SELECCIONADO
+    ========================= */
+
+    .selected-file{
+      display:none;
+      margin:24px auto 0;
+      max-width:600px;
+      padding:14px 18px;
+      background:#f0f4f0;
+      border:1px solid var(--line);
+      border-radius:12px;
+      text-align:left;
+    }
+
+    .selected-file.show{
+      display:block;
+    }
+
+    .selected-file-name{
+      font-weight:800;
+      word-break:break-word;
+    }
+
+    .selected-file-size{
+      color:var(--muted);
+      font-size:13px;
+      margin-top:3px;
+    }
+
+    .drag-help{
+      margin-top:18px;
+      color:var(--muted);
+      font-size:13px;
+      font-weight:600;
+    }
+
+
+    /* =========================
+       PRIVACIDAD
+    ========================= */
+
     .privacy-badge{
       display:inline-flex;
       align-items:center;
@@ -367,6 +427,7 @@
       border-radius:6px;
       color:#1e694b;
     }
+
 
     /* =========================
        FEATURES
@@ -397,6 +458,7 @@
       color:var(--muted);
       margin:0;
     }
+
 
     /* =========================
        FOOTER
@@ -478,6 +540,7 @@
       color:#7d8782;
     }
 
+
     /* =========================
        RESPONSIVE
     ========================= */
@@ -493,6 +556,7 @@
         grid-template-columns:1fr;
         gap:20px;
       }
+
     }
 
     @media(max-width:750px){
@@ -506,6 +570,7 @@
         width:100%;
         display:none;
       }
+
     }
 
     @media(max-width:768px){
@@ -536,18 +601,27 @@
         flex-direction:column;
         align-items:flex-start;
       }
+
+      .upload-container{
+        padding:45px 24px;
+      }
+
     }
+
   </style>
 
-  <!-- Supabase -->
+
+  <!-- SUPABASE -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- Tu helper de autenticación -->
+  <!-- HELPER DE AUTENTICACIÓN -->
   <script src="../assets/js/auth-helper.js"></script>
 
 </head>
 
+
 <body>
+
 
   <!-- =========================
        CABECERA
@@ -602,6 +676,7 @@
 
           </div>
 
+
           <a
             class="brand"
             href="../index.html#portada"
@@ -611,6 +686,7 @@
           </a>
 
         </div>
+
 
         <div class="auth-buttons">
 
@@ -658,6 +734,8 @@
       </p>
 
 
+      <!-- FLUJO -->
+
       <div class="logic-flow">
 
         <div class="flow-step">
@@ -692,10 +770,13 @@
 
 
       <!-- =========================
-           SUBIDA
+           ZONA DE SUBIDA
       ========================= -->
 
-      <div class="upload-container">
+      <div
+        class="upload-container"
+        id="uploadContainer"
+      >
 
         <div class="upload-icon">
           📁
@@ -712,27 +793,62 @@
 
 
         <!--
-          IMPORTANTE:
+          INPUT REAL DE ARCHIVO.
 
-          Este botón ya NO utiliza simplemente:
-          href="login.html"
+          Está oculto porque queremos que el usuario
+          utilice nuestro botón o arrastre el archivo.
+        -->
 
-          Ahora JavaScript comprueba si existe una sesión.
+        <input
+          type="file"
+          id="stlFile"
+          accept=".stl,model/stl,application/sla"
+          hidden
+        >
+
+
+        <!--
+          BOTÓN PRINCIPAL
 
           Si NO hay sesión:
           → login.html?redirect=analizador-stl.html
 
-          Si SÍ hay sesión:
-          → continúa directamente con el analizador.
+          Si HAY sesión:
+          → abre el selector de archivos.
         -->
 
-        <a
-          href="#"
+        <button
+          type="button"
           class="btn-green"
           id="analyzerAccessButton"
         >
           Inicia sesión para subir archivos
-        </a>
+        </button>
+
+
+        <!-- ARCHIVO SELECCIONADO -->
+
+        <div
+          class="selected-file"
+          id="selectedFile"
+        >
+
+          <div
+            class="selected-file-name"
+            id="selectedFileName"
+          ></div>
+
+          <div
+            class="selected-file-size"
+            id="selectedFileSize"
+          ></div>
+
+        </div>
+
+
+        <div class="drag-help">
+          También puedes arrastrar y soltar aquí tu archivo STL.
+        </div>
 
 
         <div style="display:block;">
@@ -821,6 +937,7 @@
     <div class="wrap">
 
       <div class="footergrid">
+
 
         <div class="footer-col">
 
@@ -948,13 +1065,15 @@
 
   <script>
 
+
     /* ==========================================
        MENÚ HAMBURGUESA
     ========================================== */
 
     function toggleMenu(){
 
-      const menu = document.getElementById("mainMenu");
+      const menu =
+        document.getElementById("mainMenu");
 
       if(menu){
         menu.classList.toggle("show");
@@ -967,256 +1086,582 @@
        CERRAR MENÚ AL HACER CLIC FUERA
     ========================================== */
 
-    window.addEventListener("click", function(event){
-
-      if(
-        !event.target.closest(".menu-dropdown") &&
-        !event.target.closest(".hamburger")
-      ){
-
-        const dropdowns =
-          document.getElementsByClassName("dropdown-content");
-
-        for(
-          let i = 0;
-          i < dropdowns.length;
-          i++
-        ){
-
-          dropdowns[i].classList.remove("show");
-
-        }
-
-      }
-
-    });
-
-
-    /* ==========================================
-       ACCESO AL ANALIZADOR
-    ========================================== */
-
-    document.addEventListener("DOMContentLoaded", async function(){
-
-      const accessButton =
-        document.getElementById("analyzerAccessButton");
-
-      if(!accessButton){
-        return;
-      }
-
-
-      /*
-        Intentamos utilizar la instancia de Supabase
-        creada por auth-helper.js.
-
-        Dependiendo de tu helper puede existir como:
-        window.supabaseClient
-        o como window.supabase
-      */
-
-      let client = null;
-
-
-      if(
-        typeof window.supabaseClient !== "undefined" &&
-        window.supabaseClient
-      ){
-
-        client = window.supabaseClient;
-
-      }
-
-
-      /*
-        Si tu auth-helper todavía no ha creado
-        window.supabaseClient, intentamos localizar
-        una instancia disponible.
-      */
-
-      if(
-        !client &&
-        window.supabase &&
-        typeof window.supabase.auth !== "undefined"
-      ){
-
-        /*
-          En caso de que auth-helper exponga directamente
-          la instancia.
-        */
-
-        client = window.supabase;
-
-      }
-
-
-      /*
-        Texto inicial.
-      */
-
-      accessButton.textContent =
-        "Inicia sesión para subir archivos";
-
-
-      /*
-        Comprobamos la sesión actual.
-
-        Si el usuario ya está registrado y logueado,
-        no necesita volver al login.
-      */
-
-      let session = null;
-
-
-      try{
+    window.addEventListener(
+      "click",
+      function(event){
 
         if(
-          client &&
-          client.auth &&
-          typeof client.auth.getSession === "function"
+          !event.target.closest(".menu-dropdown") &&
+          !event.target.closest(".hamburger")
         ){
 
-          const result =
-            await client.auth.getSession();
+          const dropdowns =
+            document.getElementsByClassName(
+              "dropdown-content"
+            );
 
-          if(
-            result &&
-            result.data &&
-            result.data.session
+          for(
+            let i = 0;
+            i < dropdowns.length;
+            i++
           ){
 
-            session =
-              result.data.session;
+            dropdowns[i].classList.remove("show");
 
           }
 
         }
 
-      }catch(error){
-
-        console.warn(
-          "No se pudo comprobar la sesión:",
-          error
-        );
-
       }
+    );
 
 
-      /*
-        Si existe sesión:
-        el usuario ya está dentro.
-      */
+    /* ==========================================
+       ACCESO Y SUBIDA STL
+    ========================================== */
 
-      if(session){
+    document.addEventListener(
+      "DOMContentLoaded",
+      async function(){
 
-        accessButton.textContent =
-          "Subir archivo e iniciar análisis";
+        const accessButton =
+          document.getElementById(
+            "analyzerAccessButton"
+          );
 
-        accessButton.dataset.loggedIn =
-          "true";
+        const fileInput =
+          document.getElementById(
+            "stlFile"
+          );
 
-      }
+        const uploadContainer =
+          document.getElementById(
+            "uploadContainer"
+          );
+
+        const selectedFile =
+          document.getElementById(
+            "selectedFile"
+          );
+
+        const selectedFileName =
+          document.getElementById(
+            "selectedFileName"
+          );
+
+        const selectedFileSize =
+          document.getElementById(
+            "selectedFileSize"
+          );
 
 
-      /*
-        CLICK DEL BOTÓN
-      */
+        if(
+          !accessButton ||
+          !fileInput ||
+          !uploadContainer
+        ){
 
-      accessButton.addEventListener(
-        "click",
-        function(event){
+          console.error(
+            "No se encontraron los elementos del analizador."
+          );
 
-          event.preventDefault();
+          return;
+
+        }
 
 
-          /*
-            CASO 1:
-            Usuario YA está autenticado.
-          */
+        /* ==========================================
+           OBTENER CLIENTE SUPABASE
+        ========================================== */
 
-          if(
-            accessButton.dataset.loggedIn === "true"
-          ){
+        let client = null;
 
-            /*
-              Aquí se deja preparado el acceso
-              al sistema real de subida.
 
-              Cuando conectemos el selector de STL,
-              esta misma acción puede abrir el input
-              de archivos.
+        if(
+          typeof window.supabaseClient !== "undefined" &&
+          window.supabaseClient
+        ){
 
-              Por ahora no redirigimos al login.
-            */
+          client =
+            window.supabaseClient;
 
-            const fileInput =
-              document.getElementById("stlFile");
+        }
 
-            if(fileInput){
 
-              fileInput.click();
+        if(
+          !client &&
+          window.supabase &&
+          typeof window.supabase.auth !== "undefined"
+        ){
 
-              return;
+          client =
+            window.supabase;
+
+        }
+
+
+        /* ==========================================
+           COMPROBAR SESIÓN
+        ========================================== */
+
+        async function getCurrentSession(){
+
+          try{
+
+            if(
+              client &&
+              client.auth &&
+              typeof client.auth.getSession === "function"
+            ){
+
+              const result =
+                await client.auth.getSession();
+
+              if(
+                result &&
+                result.data &&
+                result.data.session
+              ){
+
+                return result.data.session;
+
+              }
 
             }
 
-            /*
-              Si todavía no existe el input STL,
-              no hacemos una redirección innecesaria.
-            */
+          }catch(error){
+
+            console.warn(
+              "No se pudo comprobar la sesión:",
+              error
+            );
+
+          }
+
+          return null;
+
+        }
+
+
+        /* ==========================================
+           ACTUALIZAR ESTADO DEL BOTÓN
+        ========================================== */
+
+        async function updateAccessButton(){
+
+          const session =
+            await getCurrentSession();
+
+
+          if(session){
+
+            accessButton.textContent =
+              "Subir archivo e iniciar análisis";
+
+            accessButton.dataset.loggedIn =
+              "true";
+
+          }else{
+
+            accessButton.textContent =
+              "Inicia sesión para subir archivos";
+
+            accessButton.dataset.loggedIn =
+              "false";
+
+          }
+
+        }
+
+
+        await updateAccessButton();
+
+
+        /* ==========================================
+           ESCUCHAR CAMBIOS DE SESIÓN
+        ========================================== */
+
+        if(
+          client &&
+          client.auth &&
+          typeof client.auth.onAuthStateChange === "function"
+        ){
+
+          client.auth.onAuthStateChange(
+            function(){
+
+              updateAccessButton();
+
+            }
+          );
+
+        }
+
+
+        /* ==========================================
+           CREAR URL DE RETORNO
+        ========================================== */
+
+        function getCurrentReturnUrl(){
+
+          const pathname =
+            window.location.pathname;
+
+          const filename =
+            pathname.split("/").pop()
+            || "analizador-stl.html";
+
+          return (
+            filename +
+            window.location.search +
+            window.location.hash
+          );
+
+        }
+
+
+        /* ==========================================
+           IR AL LOGIN
+        ========================================== */
+
+        function redirectToLogin(){
+
+          const currentUrl =
+            getCurrentReturnUrl();
+
+          const redirect =
+            encodeURIComponent(
+              currentUrl
+            );
+
+          window.location.href =
+            "login.html?redirect=" +
+            redirect;
+
+        }
+
+
+        /* ==========================================
+           VALIDAR STL
+        ========================================== */
+
+        function isValidSTL(file){
+
+          if(!file){
+            return false;
+          }
+
+          const name =
+            file.name.toLowerCase();
+
+          return name.endsWith(".stl");
+
+        }
+
+
+        /* ==========================================
+           FORMATEAR TAMAÑO
+        ========================================== */
+
+        function formatFileSize(bytes){
+
+          if(bytes < 1024){
+
+            return bytes + " B";
+
+          }
+
+          if(bytes < 1024 * 1024){
+
+            return (
+              (bytes / 1024).toFixed(1) +
+              " KB"
+            );
+
+          }
+
+          return (
+            (bytes / (1024 * 1024)).toFixed(1) +
+            " MB"
+          );
+
+        }
+
+
+        /* ==========================================
+           MOSTRAR ARCHIVO
+        ========================================== */
+
+        function showSelectedFile(file){
+
+          if(!file){
+            return;
+          }
+
+
+          if(!isValidSTL(file)){
+
+            alert(
+              "Solo se permiten archivos STL."
+            );
 
             return;
 
           }
 
 
-          /*
-            CASO 2:
-            Usuario NO autenticado.
-
-            Guardamos la página exacta desde la que
-            está intentando entrar.
-          */
-
-          const currentPage =
-            window.location.pathname.split("/").pop()
-            || "analizador-stl.html";
+          const maxSize =
+            100 * 1024 * 1024;
 
 
-          /*
-            También conservamos los parámetros/hash
-            actuales por si fueran necesarios.
-          */
+          if(file.size > maxSize){
 
-          const currentUrl =
-            currentPage +
-            window.location.search +
-            window.location.hash;
+            alert(
+              "El archivo supera el límite de 100 MB."
+            );
+
+            return;
+
+          }
 
 
-          /*
-            Codificamos la página para pasarla
-            de forma segura al login.
-          */
+          selectedFileName.textContent =
+            "📄 " + file.name;
 
-          const redirect =
-            encodeURIComponent(currentUrl);
+          selectedFileSize.textContent =
+            formatFileSize(file.size);
+
+
+          selectedFile.classList.add(
+            "show"
+          );
 
 
           /*
-            Redirigimos al login indicando:
-            "después de iniciar sesión vuelve aquí".
+             Guardamos el archivo para que
+             el sistema de análisis pueda
+             utilizarlo posteriormente.
           */
 
-          window.location.href =
-            "login.html?redirect=" + redirect;
+          window.selectedSTLFile =
+            file;
+
+
+          /*
+             Por ahora mostramos que se ha
+             seleccionado correctamente.
+          */
+
+          accessButton.textContent =
+            "Cambiar archivo STL";
 
         }
-      );
 
-    });
+
+        /* ==========================================
+           CAMBIO DE ARCHIVO NORMAL
+        ========================================== */
+
+        fileInput.addEventListener(
+          "change",
+          function(){
+
+            if(
+              fileInput.files &&
+              fileInput.files.length > 0
+            ){
+
+              showSelectedFile(
+                fileInput.files[0]
+              );
+
+            }
+
+          }
+        );
+
+
+        /* ==========================================
+           CLICK DEL BOTÓN
+        ========================================== */
+
+        accessButton.addEventListener(
+          "click",
+          async function(event){
+
+            event.preventDefault();
+
+
+            const session =
+              await getCurrentSession();
+
+
+            /*
+              NO ESTÁ LOGUEADO
+
+              Primera pulsación:
+              → login
+            */
+
+            if(!session){
+
+              redirectToLogin();
+
+              return;
+
+            }
+
+
+            /*
+              ESTÁ LOGUEADO
+
+              Segunda pulsación:
+              → abrir carpeta
+            */
+
+            fileInput.click();
+
+          }
+        );
+
+
+        /* ==========================================
+           ARRASTRAR ARCHIVO
+        ========================================== */
+
+        uploadContainer.addEventListener(
+          "dragover",
+          async function(event){
+
+            event.preventDefault();
+
+            uploadContainer.classList.add(
+              "drag-over"
+            );
+
+          }
+        );
+
+
+        uploadContainer.addEventListener(
+          "dragleave",
+          function(event){
+
+            /*
+              Evitamos quitar el estado cuando
+              simplemente pasamos de un elemento
+              interior a otro.
+            */
+
+            if(
+              event.relatedTarget &&
+              uploadContainer.contains(
+                event.relatedTarget
+              )
+            ){
+
+              return;
+
+            }
+
+            uploadContainer.classList.remove(
+              "drag-over"
+            );
+
+          }
+        );
+
+
+        uploadContainer.addEventListener(
+          "drop",
+          async function(event){
+
+            event.preventDefault();
+
+            uploadContainer.classList.remove(
+              "drag-over"
+            );
+
+
+            const session =
+              await getCurrentSession();
+
+
+            /*
+              Si no está logueado y arrastra
+              un archivo:
+              → login
+            */
+
+            if(!session){
+
+              redirectToLogin();
+
+              return;
+
+            }
+
+
+            const files =
+              event.dataTransfer.files;
+
+
+            if(
+              !files ||
+              files.length === 0
+            ){
+
+              return;
+
+            }
+
+
+            showSelectedFile(
+              files[0]
+            );
+
+          }
+        );
+
+
+        /* ==========================================
+           EVITAR QUE EL NAVEGADOR ABRA EL STL
+           AL SOLTARLO FUERA DE LA ZONA
+        ========================================== */
+
+        window.addEventListener(
+          "dragover",
+          function(event){
+
+            event.preventDefault();
+
+          }
+        );
+
+
+        window.addEventListener(
+          "drop",
+          function(event){
+
+            if(
+              !uploadContainer.contains(
+                event.target
+              )
+            ){
+
+              event.preventDefault();
+
+            }
+
+          }
+        );
+
+
+      }
+    );
 
   </script>
+
 
 </body>
 
