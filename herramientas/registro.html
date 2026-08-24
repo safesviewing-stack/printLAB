@@ -248,5 +248,41 @@
   }
 });
 </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../assets/js/auth-helper.js"></script>
+  <script>
+    const form = document.querySelector('form');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = form.querySelector('input[placeholder="Nombre o Razón Social"]').value;
+      const email = form.querySelector('input[type="email"]').value;
+      const password = form.querySelector('input[type="password"]').value;
+
+      // Validar aceptación de políticas
+      const acceptPriv = document.getElementById('legal_privacidad').checked;
+      const acceptTerm = document.getElementById('legal_terminos').checked;
+      if (!acceptPriv || !acceptTerm) {
+        alert('Debes aceptar la política de privacidad y los términos de uso.');
+        return;
+      }
+
+      const { data, error } = await supabaseClient.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: name
+          }
+        }
+      });
+
+      if (error) {
+        alert('Error al crear la cuenta: ' + error.message);
+      } else {
+        alert('Registro completado. Se ha enviado un correo electrónico de confirmación.');
+        window.location.href = 'login.html';
+      }
+    });
+  </script>
 </body>
 </html>
