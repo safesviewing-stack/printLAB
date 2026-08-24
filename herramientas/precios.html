@@ -256,5 +256,51 @@
       }
     }
   </script>
+
+  <script>
+  async function processCheckout(planId) {
+  const { data: { user } } = await supabaseClient.auth.getUser();
+  if (!user) {
+    alert('Debes iniciar sesión para poder comprar créditos.');
+    window.location.href = 'login.html';
+    return;
+  }
+
+  // Llamar a nuestra Edge Function de Supabase de forma segura
+  const response = await fetch(`${SUPABASE_URL}/functions/v1/stripe-checkout`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+    },
+    body: JSON.stringify({
+      planId: planId,
+      userId: user.id,
+      successUrl: window.location.origin + '/index.html',
+      cancelUrl: window.location.href
+    })
+  });
+
+  const session = await response.json();
+  if (session.url) {
+    window.location.href = session.url; // Redirigir a pasarela cifrada de Stripe
+  } else {
+    alert('Error en pasarela: ' + session.error);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const planButtons = document.querySelectorAll('.plan-card a');
+  
+  // Asociar planes a la lógica real de pago
+  planButtons[0].removeAttribute('href');
+  planButtons[0].addEventListener('click', () => processCheckout('single'));
+
+  planButtons[1].removeAttribute('href');
+  planButtons[1].addEventListener('click', () => processCheckout('pro'));
+
+  planButtons[2].removeAttribute('href');
+  planButtons[2].addEventListener('click', () => processCheckout('industrial'));
+});</script>
 </body>
 </html>
