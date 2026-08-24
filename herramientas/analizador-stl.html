@@ -1,246 +1,1223 @@
 <!doctype html>
 <html lang="es">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+
   <title>Analizador y Optimizador STL con IA — PrintLab PRO</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap"
+    rel="stylesheet"
+  >
+
   <style>
-    :root{ --bg:#f6f7f4; --card:#fff; --ink:#0d1110; --muted:#5e6661; --line:#dfe4df; --accent:#b8ff3d; --dark:#111715; --max:1200px; }
-    *{box-sizing:border-box} body{margin:0; background:var(--bg); color:var(--ink); font-family:"Plus Jakarta Sans", sans-serif; line-height:1.6;}
-    a{color:inherit;text-decoration:none}
-    .wrap{max-width:var(--max);margin:auto;padding:0 40px}
-    
-    /* CABECERA Y NAVEGACIÓN HAMBURGUESA */
-    .top{position:sticky;top:0;z-index:100;background:rgba(246,247,244,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
-    nav{min-height:95px;display:flex;align-items:center;justify-content:space-between;}
-    
-    .header-left{display:flex; align-items:center; gap:24px;}
-    .brand{font-size:26px;font-weight:800;letter-spacing:-1px}
-    .brand span{background:var(--accent);padding:5px 12px;border-radius:10px;margin-left:6px;color:var(--ink)}
-    
-    .menu-dropdown { position: relative; display: inline-block; }
-    .hamburger { background: none; border: none; cursor: pointer; padding: 10px; display: flex; flex-direction: column; gap: 5px; outline:none; }
-    .hamburger span { display: block; width: 26px; height: 3px; background: var(--ink); border-radius: 2px; transition: 0.3s; }
-    .hamburger:hover span { background: var(--muted); }
-    
-    .dropdown-content { display: none; position: absolute; top: 110%; left: 0; background-color: var(--card); min-width: 240px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); border: 1.5px solid var(--line); border-radius: 16px; z-index: 200; flex-direction: column; padding: 12px 0; }
-    .dropdown-content.show { display: flex; animation: slideDown 0.2s ease; }
-    @keyframes slideDown{from{opacity:0;transform:translateY(-15px)}to{opacity:1;transform:translateY(0)}}
-    .dropdown-content a { padding: 14px 24px; color: var(--muted); font-weight: 700; font-size:15px; transition: 0.15s; }
-    .dropdown-content a:hover { color: var(--ink); background: rgba(0,0,0,0.03); }
-    .dropdown-content a.active { color: var(--ink); background: #f0f4f0; border-left: 4px solid var(--accent); padding-left: 20px; }
-
-    .auth-buttons { display:flex; gap:12px; align-items:center; }
-    .btn-auth { display: inline-flex; align-items: center; justify-content: center; padding: 12px 24px; border-radius: 9999px; font-weight: 800; font-size: 14px; cursor: pointer; transition: .2s ease; text-decoration: none; border: 2px solid var(--ink); }
-    .btn-auth.light { background: #fff; color: var(--ink); box-shadow: 0 3px 0px var(--ink); }
-    .btn-auth.light:hover { transform: translateY(-1px); box-shadow: 0 4px 0px var(--ink); }
-    .btn-auth.light:active { transform: translateY(2px); box-shadow: 0 1px 0px var(--ink); }
-    .btn-auth.green { background: var(--accent); color: var(--ink); box-shadow: 0 3px 0px var(--ink); }
-    .btn-auth.green:hover { transform: translateY(-1px); box-shadow: 0 4px 0px var(--ink); }
-    .btn-auth.green:active { transform: translateY(2px); box-shadow: 0 1px 0px var(--ink); }
-    
-    /* PORTADA */
-    .hero{padding:100px 0 60px; text-align:center;}
-    .hero h1{font-size:clamp(44px, 5vw, 68px); letter-spacing:-0.03em; line-height:1.1; margin:0 auto 24px; font-weight:800; max-width: 900px;}
-    .hero p{font-size:20px; color:var(--muted); max-width:800px; margin:0 auto 40px;}
-    
-    .logic-flow{display:flex; align-items:center; justify-content:center; gap:16px; margin-bottom: 60px; flex-wrap:wrap;}
-    .flow-step{background:var(--card); border:1.5px solid var(--line); padding:12px 20px; border-radius:99px; font-weight:800; font-size:14px; box-shadow:0 4px 10px rgba(0,0,0,0.02);}
-    .flow-step.highlight{background:var(--dark); color:var(--accent); border-color:var(--dark);}
-    .flow-arrow{color:var(--muted); font-weight:800;}
-
-    /* ZONA DE SUBIDA (Protegida) */
-    .upload-container{max-width: 800px; margin: 0 auto 80px; background:var(--card); border:2px dashed var(--line); border-radius:24px; padding:60px 40px; text-align:center; transition:.2s;}
-    .upload-container:hover{border-color:var(--ink); background:#fafbfa;}
-    .upload-icon{font-size: 48px; margin-bottom: 20px;}
-    .upload-title{font-size: 22px; font-weight: 800; margin:0 0 10px; letter-spacing:-0.5px;}
-    .upload-desc{color: var(--muted); margin:0 0 30px; font-size:15px;}
-    
-    .btn-green{display:inline-block; background:var(--accent); color:var(--ink); padding:18px 40px; border-radius:9999px; font-weight:800; font-size:16px; transition:.2s; border:2px solid var(--ink); box-shadow:0 4px 0 var(--ink); cursor:pointer;}
-    .btn-green:hover{transform:translateY(-1px); box-shadow:0 6px 0 var(--ink);}
-    .btn-green:active{transform:translateY(3px); box-shadow:0 1px 0 var(--ink);}
-
-    .privacy-badge{display:inline-flex; align-items:center; gap:8px; margin-top:24px; font-size:13px; color:var(--muted); font-weight:700;}
-    .privacy-badge span{background:#eef2ee; padding:4px 10px; border-radius:6px; color:#1e694b;}
-
-    /* FEATURES GRID */
-    .features{display:grid; grid-template-columns:repeat(3, 1fr); gap:30px; margin-bottom:100px;}
-    .feat-card{background:var(--card); padding:30px; border-radius:20px; border:1px solid var(--line);}
-    .feat-card h4{font-size:18px; font-weight:800; margin:0 0 10px;}
-    .feat-card p{font-size:14.5px; color:var(--muted); margin:0;}
-
-    /* FOOTER MEJORADO Y CENTRADO */
-    .footer { background: var(--bg); border-top: 1px solid var(--line); padding: 80px 0 40px; color: var(--muted); font-size: 14px; line-height: 1.6; }
-    .footergrid { display: grid; grid-template-columns: 1.3fr 0.85fr 0.85fr; gap: 60px; margin-bottom: 48px; }
-    .footer-col h3 { font-size: 16px; font-weight: 800; color: var(--ink); margin: 0 0 20px; letter-spacing: -0.3px; }
-    .footer-col p { margin: 0 0 16px; color: var(--muted); }
-    .footer-secondary-text { font-size: 12.5px; line-height: 1.5; color: #7d8782; margin-top: 12px; }
-    .footer-links { display: flex; flex-direction: column; gap: 10px; }
-    .footer-links a { color: var(--muted); transition: color 0.15s ease, transform 0.15s ease; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
-    .footer-links a:hover { color: var(--ink); transform: translateX(2px); }
-    .footer-links a span.arrow { transition: color 0.15s ease; }
-    .footer-links a:hover span.arrow { color: var(--accent); }
-    
-    .footer-bottom { border-top: 1px solid var(--line); padding-top: 24px; display:flex; justify-content:center; align-items:center; text-align:center; font-size: 13px; color: #7d8782;}
-
-    @media(max-width: 992px) {
-      .footergrid { grid-template-columns: 1.2fr 1fr; gap: 40px; }
-      .features{grid-template-columns:1fr; gap:20px;}
+    :root{
+      --bg:#f6f7f4;
+      --card:#fff;
+      --ink:#0d1110;
+      --muted:#5e6661;
+      --line:#dfe4df;
+      --accent:#b8ff3d;
+      --dark:#111715;
+      --max:1200px;
     }
+
+    *{
+      box-sizing:border-box;
+    }
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--ink);
+      font-family:"Plus Jakarta Sans",sans-serif;
+      line-height:1.6;
+    }
+
+    a{
+      color:inherit;
+      text-decoration:none;
+    }
+
+    .wrap{
+      max-width:var(--max);
+      margin:auto;
+      padding:0 40px;
+    }
+
+    /* =========================
+       CABECERA
+    ========================= */
+
+    .top{
+      position:sticky;
+      top:0;
+      z-index:100;
+      background:rgba(246,247,244,.9);
+      backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--line);
+    }
+
+    nav{
+      min-height:95px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+    }
+
+    .header-left{
+      display:flex;
+      align-items:center;
+      gap:24px;
+    }
+
+    .brand{
+      font-size:26px;
+      font-weight:800;
+      letter-spacing:-1px;
+    }
+
+    .brand span{
+      background:var(--accent);
+      padding:5px 12px;
+      border-radius:10px;
+      margin-left:6px;
+      color:var(--ink);
+    }
+
+    /* =========================
+       MENÚ HAMBURGUESA
+    ========================= */
+
+    .menu-dropdown{
+      position:relative;
+      display:inline-block;
+    }
+
+    .hamburger{
+      background:none;
+      border:none;
+      cursor:pointer;
+      padding:10px;
+      display:flex;
+      flex-direction:column;
+      gap:5px;
+      outline:none;
+    }
+
+    .hamburger span{
+      display:block;
+      width:26px;
+      height:3px;
+      background:var(--ink);
+      border-radius:2px;
+      transition:.3s;
+    }
+
+    .hamburger:hover span{
+      background:var(--muted);
+    }
+
+    .dropdown-content{
+      display:none;
+      position:absolute;
+      top:110%;
+      left:0;
+      background-color:var(--card);
+      min-width:240px;
+      box-shadow:0 20px 40px rgba(0,0,0,.1);
+      border:1.5px solid var(--line);
+      border-radius:16px;
+      z-index:200;
+      flex-direction:column;
+      padding:12px 0;
+    }
+
+    .dropdown-content.show{
+      display:flex;
+      animation:slideDown .2s ease;
+    }
+
+    @keyframes slideDown{
+      from{
+        opacity:0;
+        transform:translateY(-15px);
+      }
+
+      to{
+        opacity:1;
+        transform:translateY(0);
+      }
+    }
+
+    .dropdown-content a{
+      padding:14px 24px;
+      color:var(--muted);
+      font-weight:700;
+      font-size:15px;
+      transition:.15s;
+    }
+
+    .dropdown-content a:hover{
+      color:var(--ink);
+      background:rgba(0,0,0,.03);
+    }
+
+    .dropdown-content a.active{
+      color:var(--ink);
+      background:#f0f4f0;
+      border-left:4px solid var(--accent);
+      padding-left:20px;
+    }
+
+    /* =========================
+       BOTONES AUTENTICACIÓN
+    ========================= */
+
+    .auth-buttons{
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+
+    .btn-auth{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:12px 24px;
+      border-radius:9999px;
+      font-weight:800;
+      font-size:14px;
+      cursor:pointer;
+      transition:.2s ease;
+      text-decoration:none;
+      border:2px solid var(--ink);
+    }
+
+    .btn-auth.light{
+      background:#fff;
+      color:var(--ink);
+      box-shadow:0 3px 0 var(--ink);
+    }
+
+    .btn-auth.light:hover{
+      transform:translateY(-1px);
+      box-shadow:0 4px 0 var(--ink);
+    }
+
+    .btn-auth.light:active{
+      transform:translateY(2px);
+      box-shadow:0 1px 0 var(--ink);
+    }
+
+    .btn-auth.green{
+      background:var(--accent);
+      color:var(--ink);
+      box-shadow:0 3px 0 var(--ink);
+    }
+
+    .btn-auth.green:hover{
+      transform:translateY(-1px);
+      box-shadow:0 4px 0 var(--ink);
+    }
+
+    .btn-auth.green:active{
+      transform:translateY(2px);
+      box-shadow:0 1px 0 var(--ink);
+    }
+
+    /* =========================
+       HERO
+    ========================= */
+
+    .hero{
+      padding:100px 0 60px;
+      text-align:center;
+    }
+
+    .hero h1{
+      font-size:clamp(44px,5vw,68px);
+      letter-spacing:-.03em;
+      line-height:1.1;
+      margin:0 auto 24px;
+      font-weight:800;
+      max-width:900px;
+    }
+
+    .hero p{
+      font-size:20px;
+      color:var(--muted);
+      max-width:800px;
+      margin:0 auto 40px;
+    }
+
+    /* =========================
+       FLUJO
+    ========================= */
+
+    .logic-flow{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:16px;
+      margin-bottom:60px;
+      flex-wrap:wrap;
+    }
+
+    .flow-step{
+      background:var(--card);
+      border:1.5px solid var(--line);
+      padding:12px 20px;
+      border-radius:99px;
+      font-weight:800;
+      font-size:14px;
+      box-shadow:0 4px 10px rgba(0,0,0,.02);
+    }
+
+    .flow-step.highlight{
+      background:var(--dark);
+      color:var(--accent);
+      border-color:var(--dark);
+    }
+
+    .flow-arrow{
+      color:var(--muted);
+      font-weight:800;
+    }
+
+    /* =========================
+       ZONA DE SUBIDA
+    ========================= */
+
+    .upload-container{
+      max-width:800px;
+      margin:0 auto 80px;
+      background:var(--card);
+      border:2px dashed var(--line);
+      border-radius:24px;
+      padding:60px 40px;
+      text-align:center;
+      transition:.2s;
+    }
+
+    .upload-container:hover{
+      border-color:var(--ink);
+      background:#fafbfa;
+    }
+
+    .upload-icon{
+      font-size:48px;
+      margin-bottom:20px;
+    }
+
+    .upload-title{
+      font-size:22px;
+      font-weight:800;
+      margin:0 0 10px;
+      letter-spacing:-.5px;
+    }
+
+    .upload-desc{
+      color:var(--muted);
+      margin:0 0 30px;
+      font-size:15px;
+    }
+
+    .btn-green{
+      display:inline-block;
+      background:var(--accent);
+      color:var(--ink);
+      padding:18px 40px;
+      border-radius:9999px;
+      font-weight:800;
+      font-size:16px;
+      transition:.2s;
+      border:2px solid var(--ink);
+      box-shadow:0 4px 0 var(--ink);
+      cursor:pointer;
+    }
+
+    .btn-green:hover{
+      transform:translateY(-1px);
+      box-shadow:0 6px 0 var(--ink);
+    }
+
+    .btn-green:active{
+      transform:translateY(3px);
+      box-shadow:0 1px 0 var(--ink);
+    }
+
+    .privacy-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      margin-top:24px;
+      font-size:13px;
+      color:var(--muted);
+      font-weight:700;
+    }
+
+    .privacy-badge span{
+      background:#eef2ee;
+      padding:4px 10px;
+      border-radius:6px;
+      color:#1e694b;
+    }
+
+    /* =========================
+       FEATURES
+    ========================= */
+
+    .features{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:30px;
+      margin-bottom:100px;
+    }
+
+    .feat-card{
+      background:var(--card);
+      padding:30px;
+      border-radius:20px;
+      border:1px solid var(--line);
+    }
+
+    .feat-card h4{
+      font-size:18px;
+      font-weight:800;
+      margin:0 0 10px;
+    }
+
+    .feat-card p{
+      font-size:14.5px;
+      color:var(--muted);
+      margin:0;
+    }
+
+    /* =========================
+       FOOTER
+    ========================= */
+
+    .footer{
+      background:var(--bg);
+      border-top:1px solid var(--line);
+      padding:80px 0 40px;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.6;
+    }
+
+    .footergrid{
+      display:grid;
+      grid-template-columns:1.3fr .85fr .85fr;
+      gap:60px;
+      margin-bottom:48px;
+    }
+
+    .footer-col h3{
+      font-size:16px;
+      font-weight:800;
+      color:var(--ink);
+      margin:0 0 20px;
+      letter-spacing:-.3px;
+    }
+
+    .footer-col p{
+      margin:0 0 16px;
+      color:var(--muted);
+    }
+
+    .footer-secondary-text{
+      font-size:12.5px;
+      line-height:1.5;
+      color:#7d8782;
+      margin-top:12px;
+    }
+
+    .footer-links{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    .footer-links a{
+      color:var(--muted);
+      transition:color .15s ease,transform .15s ease;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      text-decoration:none;
+    }
+
+    .footer-links a:hover{
+      color:var(--ink);
+      transform:translateX(2px);
+    }
+
+    .footer-links a span.arrow{
+      transition:color .15s ease;
+    }
+
+    .footer-links a:hover span.arrow{
+      color:var(--accent);
+    }
+
+    .footer-bottom{
+      border-top:1px solid var(--line);
+      padding-top:24px;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      text-align:center;
+      font-size:13px;
+      color:#7d8782;
+    }
+
+    /* =========================
+       RESPONSIVE
+    ========================= */
+
+    @media(max-width:992px){
+
+      .footergrid{
+        grid-template-columns:1.2fr 1fr;
+        gap:40px;
+      }
+
+      .features{
+        grid-template-columns:1fr;
+        gap:20px;
+      }
+    }
+
     @media(max-width:750px){
-      .wrap{padding:0 24px}
-      .auth-buttons { flex-direction:column; width:100%; display:none; }
+
+      .wrap{
+        padding:0 24px;
+      }
+
+      .auth-buttons{
+        flex-direction:column;
+        width:100%;
+        display:none;
+      }
     }
-    @media(max-width: 768px) {
-      .hero h1{font-size:38px}
-      .header-left { gap: 10px; }
-      .btn-auth { padding: 10px 16px; font-size:13px; }
-      .brand { font-size:22px; }
-      .footergrid { grid-template-columns: 1fr; gap: 36px; }
-      .footer-bottom { flex-direction: column; align-items: flex-start;}
+
+    @media(max-width:768px){
+
+      .hero h1{
+        font-size:38px;
+      }
+
+      .header-left{
+        gap:10px;
+      }
+
+      .btn-auth{
+        padding:10px 16px;
+        font-size:13px;
+      }
+
+      .brand{
+        font-size:22px;
+      }
+
+      .footergrid{
+        grid-template-columns:1fr;
+        gap:36px;
+      }
+
+      .footer-bottom{
+        flex-direction:column;
+        align-items:flex-start;
+      }
     }
   </style>
+
+  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="../assets/js/auth-helper.js"></script>
+
+  <!-- Tu helper de autenticación -->
+  <script src="../assets/js/auth-helper.js"></script>
+
 </head>
+
 <body>
 
-  <!-- CABECERA -->
+  <!-- =========================
+       CABECERA
+  ========================= -->
+
   <header class="top">
+
     <div class="wrap">
+
       <nav>
+
         <div class="header-left">
+
           <div class="menu-dropdown">
-            <button class="hamburger" onclick="toggleMenu()" aria-label="Abrir menú">
+
+            <button
+              class="hamburger"
+              onclick="toggleMenu()"
+              aria-label="Abrir menú"
+            >
               <span></span>
               <span></span>
               <span></span>
             </button>
+
             <div class="dropdown-content" id="mainMenu">
-              <a href="../index.html#portada">Inicio</a>
-              <a href="../index.html#analizador" class="active">Analizador IA</a>
-              <a href="../index.html#simulador">Simulador</a>
-              <a href="../index.html#herramientas">Herramientas</a>
-              <a href="../index.html#guias">Guías</a>
+
+              <a href="../index.html#portada">
+                Inicio
+              </a>
+
+              <a
+                href="../index.html#analizador"
+                class="active"
+              >
+                Analizador IA
+              </a>
+
+              <a href="../index.html#simulador">
+                Simulador
+              </a>
+
+              <a href="../index.html#herramientas">
+                Herramientas
+              </a>
+
+              <a href="../index.html#guias">
+                Guías
+              </a>
+
             </div>
+
           </div>
-          <a class="brand" href="../index.html#portada" title="Volver al inicio">PRINT<span>LAB</span></a>
+
+          <a
+            class="brand"
+            href="../index.html#portada"
+            title="Volver al inicio"
+          >
+            PRINT<span>LAB</span>
+          </a>
+
         </div>
 
         <div class="auth-buttons">
-          <a href="login.html" class="btn-auth light">Iniciar Sesión</a>
-          <a href="registro.html" class="btn-auth green">Registrarse</a>
+
+          <a
+            href="login.html"
+            class="btn-auth light"
+            id="headerLogin"
+          >
+            Iniciar Sesión
+          </a>
+
+          <a
+            href="registro.html"
+            class="btn-auth green"
+            id="headerRegister"
+          >
+            Registrarse
+          </a>
+
         </div>
+
       </nav>
+
     </div>
+
   </header>
 
+
+  <!-- =========================
+       CONTENIDO PRINCIPAL
+  ========================= -->
+
   <main class="wrap">
+
     <section class="hero">
-      <h1>Detectamos los problemas y proponemos cómo resolverlos.</h1>
-      <p>El primer motor de diagnóstico geométrico asistido por IA para FDM y SLA. Sube tu diseño de ingeniería y evita impresiones fallidas antes de laminar.</p>
+
+      <h1>
+        Detectamos los problemas y proponemos cómo resolverlos.
+      </h1>
+
+      <p>
+        El primer motor de diagnóstico geométrico asistido por IA
+        para FDM y SLA. Sube tu diseño de ingeniería y evita
+        impresiones fallidas antes de laminar.
+      </p>
+
 
       <div class="logic-flow">
-        <div class="flow-step">1. Sube tu STL</div>
-        <div class="flow-arrow">→</div>
-        <div class="flow-step">2. Descubre qué está mal</div>
-        <div class="flow-arrow">→</div>
-        <div class="flow-step highlight">3. Recibe la solución exacta</div>
-        <div class="flow-arrow">→</div>
-        <div class="flow-step">4. Mejora tu modelo</div>
+
+        <div class="flow-step">
+          1. Sube tu STL
+        </div>
+
+        <div class="flow-arrow">
+          →
+        </div>
+
+        <div class="flow-step">
+          2. Descubre qué está mal
+        </div>
+
+        <div class="flow-arrow">
+          →
+        </div>
+
+        <div class="flow-step highlight">
+          3. Recibe la solución exacta
+        </div>
+
+        <div class="flow-arrow">
+          →
+        </div>
+
+        <div class="flow-step">
+          4. Mejora tu modelo
+        </div>
+
       </div>
+
+
+      <!-- =========================
+           SUBIDA
+      ========================= -->
 
       <div class="upload-container">
-        <div class="upload-icon">📁</div>
-        <h3 class="upload-title">Analizar nuevo modelo STL</h3>
-        <p class="upload-desc">Soporte para FDM, SLA/MSLA y SLS. Límite: 100MB por archivo.</p>
-        <!-- Lleva al login simulando que requiere cuenta para usarlo -->
-        <a href="login.html" class="btn-green">Inicia sesión para subir archivos</a>
-        
-        <div style="display:block;">
-          <div class="privacy-badge">
-            <span>🔒 Privacidad por Diseño</span> Archivos cifrados. No entrenamos IAs con tus prototipos.
-          </div>
+
+        <div class="upload-icon">
+          📁
         </div>
+
+        <h3 class="upload-title">
+          Analizar nuevo modelo STL
+        </h3>
+
+        <p class="upload-desc">
+          Soporte para FDM, SLA/MSLA y SLS.
+          Límite: 100MB por archivo.
+        </p>
+
+
+        <!--
+          IMPORTANTE:
+
+          Este botón ya NO utiliza simplemente:
+          href="login.html"
+
+          Ahora JavaScript comprueba si existe una sesión.
+
+          Si NO hay sesión:
+          → login.html?redirect=analizador-stl.html
+
+          Si SÍ hay sesión:
+          → continúa directamente con el analizador.
+        -->
+
+        <a
+          href="#"
+          class="btn-green"
+          id="analyzerAccessButton"
+        >
+          Inicia sesión para subir archivos
+        </a>
+
+
+        <div style="display:block;">
+
+          <div class="privacy-badge">
+
+            <span>
+              🔒 Privacidad por Diseño
+            </span>
+
+            Archivos cifrados.
+            No entrenamos IAs con tus prototipos.
+
+          </div>
+
+        </div>
+
       </div>
+
     </section>
+
+
+    <!-- =========================
+         CARACTERÍSTICAS
+    ========================= -->
 
     <section class="features">
+
       <div class="feat-card">
-        <h4>Cálculo Estructural Real</h4>
-        <p>No inventamos datos. Nuestro motor C++ calcula espesores, volúmenes y geometrías non-manifold. La IA solo interpreta e identifica la gravedad del problema.</p>
+
+        <h4>
+          Cálculo Estructural Real
+        </h4>
+
+        <p>
+          No inventamos datos. Nuestro motor C++ calcula
+          espesores, volúmenes y geometrías non-manifold.
+          La IA solo interpreta e identifica la gravedad
+          del problema.
+        </p>
+
       </div>
+
+
       <div class="feat-card">
-        <h4>Puntuación Printability</h4>
-        <p>Obtén un "Score" de 0 a 100 basado en criterios empíricos objetivos. Conoce exactamente tus riesgos de warping, colapso de puentes o fallos de succión en resina.</p>
+
+        <h4>
+          Puntuación Printability
+        </h4>
+
+        <p>
+          Obtén un "Score" de 0 a 100 basado en criterios
+          empíricos objetivos. Conoce exactamente tus riesgos
+          de warping, colapso de puentes o fallos de succión
+          en resina.
+        </p>
+
       </div>
+
+
       <div class="feat-card">
-        <h4>Control de Costes</h4>
-        <p>Cada análisis se guarda en tu historial seguro. Optimiza iteraciones reduciendo soportes innecesarios, ahorrando tiempo de máquina y filamento.</p>
+
+        <h4>
+          Control de Costes
+        </h4>
+
+        <p>
+          Cada análisis se guarda en tu historial seguro.
+          Optimiza iteraciones reduciendo soportes innecesarios,
+          ahorrando tiempo de máquina y filamento.
+        </p>
+
       </div>
+
     </section>
+
   </main>
 
+
+  <!-- =========================
+       FOOTER
+  ========================= -->
+
   <footer class="footer">
+
     <div class="wrap">
+
       <div class="footergrid">
+
         <div class="footer-col">
-          <h3>PrintLab — Ingeniería 3D</h3>
-          <p>Plataforma profesional de análisis y optimización STL mediante Inteligencia Artificial y simuladores paramétricos. Transformamos modelos 3D con problemas en geometrías perfectas listas para fabricar, ahorrando tiempo, material y costes en entornos industriales.</p>
-          <p class="footer-secondary-text">Desarrollado bajo principios de Privacy by Design. Los datos y archivos STL se procesan con estricta confidencialidad.</p>
+
+          <h3>
+            PrintLab — Ingeniería 3D
+          </h3>
+
+          <p>
+            Plataforma profesional de análisis y optimización
+            STL mediante Inteligencia Artificial y simuladores
+            paramétricos. Transformamos modelos 3D con problemas
+            en geometrías perfectas listas para fabricar,
+            ahorrando tiempo, material y costes en entornos
+            industriales.
+          </p>
+
+          <p class="footer-secondary-text">
+            Desarrollado bajo principios de Privacy by Design.
+            Los datos y archivos STL se procesan con estricta
+            confidencialidad.
+          </p>
+
         </div>
-        
+
+
         <div class="footer-col">
-          <h3>Recursos y Herramientas</h3>
+
+          <h3>
+            Recursos y Herramientas
+          </h3>
+
           <div class="footer-links">
-            <a href="../index.html#analizador"><span class="arrow">→</span> Analizador STL IA</a>
-            <a href="../index.html#simulador"><span class="arrow">→</span> Simulador de Extrusión</a>
-            <a href="../herramientas/calculadora-coste.html"><span class="arrow">→</span> Calculadoras de Coste y Masa</a>
-            <a href="../index.html#guias"><span class="arrow">→</span> Base de Conocimiento</a>
-            <a href="../materiales/index.html"><span class="arrow">→</span> Atlas de Materiales</a>
+
+            <a href="../index.html#analizador">
+              <span class="arrow">→</span>
+              Analizador STL IA
+            </a>
+
+            <a href="../index.html#simulador">
+              <span class="arrow">→</span>
+              Simulador de Extrusión
+            </a>
+
+            <a href="../herramientas/calculadora-coste.html">
+              <span class="arrow">→</span>
+              Calculadoras de Coste y Masa
+            </a>
+
+            <a href="../index.html#guias">
+              <span class="arrow">→</span>
+              Base de Conocimiento
+            </a>
+
+            <a href="../materiales/index.html">
+              <span class="arrow">→</span>
+              Atlas de Materiales
+            </a>
+
           </div>
+
         </div>
-        
+
+
         <div class="footer-col">
-          <h3>Soporte y Legal</h3>
+
+          <h3>
+            Soporte y Legal
+          </h3>
+
           <div class="footer-links">
-            <a href="../herramientas/precios.html"><span class="arrow">→</span> Precios y Suscripciones</a>
-            <a href="../herramientas/contacto.html"><span class="arrow">→</span> Contacto y Soporte</a>
-            <a href="../condiciones-compra.html"><span class="arrow">→</span> Condiciones de Compra</a>
-            <a href="../terminos.html"><span class="arrow">→</span> Términos y Condiciones</a>
-            <a href="../privacidad.html"><span class="arrow">→</span> Política de Privacidad</a>
-            <a href="../cookies.html"><span class="arrow">→</span> Política de Cookies</a>
+
+            <a href="../herramientas/precios.html">
+              <span class="arrow">→</span>
+              Precios y Suscripciones
+            </a>
+
+            <a href="../herramientas/contacto.html">
+              <span class="arrow">→</span>
+              Contacto y Soporte
+            </a>
+
+            <a href="../condiciones-compra.html">
+              <span class="arrow">→</span>
+              Condiciones de Compra
+            </a>
+
+            <a href="../terminos.html">
+              <span class="arrow">→</span>
+              Términos y Condiciones
+            </a>
+
+            <a href="../privacidad.html">
+              <span class="arrow">→</span>
+              Política de Privacidad
+            </a>
+
+            <a href="../cookies.html">
+              <span class="arrow">→</span>
+              Política de Cookies
+            </a>
+
           </div>
+
         </div>
+
       </div>
-      
+
+
       <div class="footer-bottom">
-        <div class="footer-bottom-text">© 2026 PrintLab.</div>
+
+        <div class="footer-bottom-text">
+          © 2026 PrintLab.
+        </div>
+
       </div>
+
     </div>
+
   </footer>
 
+
+  <!-- =========================
+       JAVASCRIPT
+  ========================= -->
+
   <script>
-    /* LÓGICA MENÚ HAMBURGUESA */
-    function toggleMenu() {
-      document.getElementById('mainMenu').classList.toggle('show');
+
+    /* ==========================================
+       MENÚ HAMBURGUESA
+    ========================================== */
+
+    function toggleMenu(){
+
+      const menu = document.getElementById("mainMenu");
+
+      if(menu){
+        menu.classList.toggle("show");
+      }
+
     }
 
-    /* CERRAR AL HACER CLIC FUERA */
-    window.onclick = function(event) {
-      if (!event.target.closest('.menu-dropdown') && !event.target.closest('.hamburger')) {
-        var dropdowns = document.getElementsByClassName("dropdown-content");
-        for (var i = 0; i < dropdowns.length; i++) {
-          var openDropdown = dropdowns[i];
-          if (openDropdown.classList.contains('show')) {
-            openDropdown.classList.remove('show');
-          }
+
+    /* ==========================================
+       CERRAR MENÚ AL HACER CLIC FUERA
+    ========================================== */
+
+    window.addEventListener("click", function(event){
+
+      if(
+        !event.target.closest(".menu-dropdown") &&
+        !event.target.closest(".hamburger")
+      ){
+
+        const dropdowns =
+          document.getElementsByClassName("dropdown-content");
+
+        for(
+          let i = 0;
+          i < dropdowns.length;
+          i++
+        ){
+
+          dropdowns[i].classList.remove("show");
+
         }
+
       }
-    }
+
+    });
+
+
+    /* ==========================================
+       ACCESO AL ANALIZADOR
+    ========================================== */
+
+    document.addEventListener("DOMContentLoaded", async function(){
+
+      const accessButton =
+        document.getElementById("analyzerAccessButton");
+
+      if(!accessButton){
+        return;
+      }
+
+
+      /*
+        Intentamos utilizar la instancia de Supabase
+        creada por auth-helper.js.
+
+        Dependiendo de tu helper puede existir como:
+        window.supabaseClient
+        o como window.supabase
+      */
+
+      let client = null;
+
+
+      if(
+        typeof window.supabaseClient !== "undefined" &&
+        window.supabaseClient
+      ){
+
+        client = window.supabaseClient;
+
+      }
+
+
+      /*
+        Si tu auth-helper todavía no ha creado
+        window.supabaseClient, intentamos localizar
+        una instancia disponible.
+      */
+
+      if(
+        !client &&
+        window.supabase &&
+        typeof window.supabase.auth !== "undefined"
+      ){
+
+        /*
+          En caso de que auth-helper exponga directamente
+          la instancia.
+        */
+
+        client = window.supabase;
+
+      }
+
+
+      /*
+        Texto inicial.
+      */
+
+      accessButton.textContent =
+        "Inicia sesión para subir archivos";
+
+
+      /*
+        Comprobamos la sesión actual.
+
+        Si el usuario ya está registrado y logueado,
+        no necesita volver al login.
+      */
+
+      let session = null;
+
+
+      try{
+
+        if(
+          client &&
+          client.auth &&
+          typeof client.auth.getSession === "function"
+        ){
+
+          const result =
+            await client.auth.getSession();
+
+          if(
+            result &&
+            result.data &&
+            result.data.session
+          ){
+
+            session =
+              result.data.session;
+
+          }
+
+        }
+
+      }catch(error){
+
+        console.warn(
+          "No se pudo comprobar la sesión:",
+          error
+        );
+
+      }
+
+
+      /*
+        Si existe sesión:
+        el usuario ya está dentro.
+      */
+
+      if(session){
+
+        accessButton.textContent =
+          "Subir archivo e iniciar análisis";
+
+        accessButton.dataset.loggedIn =
+          "true";
+
+      }
+
+
+      /*
+        CLICK DEL BOTÓN
+      */
+
+      accessButton.addEventListener(
+        "click",
+        function(event){
+
+          event.preventDefault();
+
+
+          /*
+            CASO 1:
+            Usuario YA está autenticado.
+          */
+
+          if(
+            accessButton.dataset.loggedIn === "true"
+          ){
+
+            /*
+              Aquí se deja preparado el acceso
+              al sistema real de subida.
+
+              Cuando conectemos el selector de STL,
+              esta misma acción puede abrir el input
+              de archivos.
+
+              Por ahora no redirigimos al login.
+            */
+
+            const fileInput =
+              document.getElementById("stlFile");
+
+            if(fileInput){
+
+              fileInput.click();
+
+              return;
+
+            }
+
+            /*
+              Si todavía no existe el input STL,
+              no hacemos una redirección innecesaria.
+            */
+
+            return;
+
+          }
+
+
+          /*
+            CASO 2:
+            Usuario NO autenticado.
+
+            Guardamos la página exacta desde la que
+            está intentando entrar.
+          */
+
+          const currentPage =
+            window.location.pathname.split("/").pop()
+            || "analizador-stl.html";
+
+
+          /*
+            También conservamos los parámetros/hash
+            actuales por si fueran necesarios.
+          */
+
+          const currentUrl =
+            currentPage +
+            window.location.search +
+            window.location.hash;
+
+
+          /*
+            Codificamos la página para pasarla
+            de forma segura al login.
+          */
+
+          const redirect =
+            encodeURIComponent(currentUrl);
+
+
+          /*
+            Redirigimos al login indicando:
+            "después de iniciar sesión vuelve aquí".
+          */
+
+          window.location.href =
+            "login.html?redirect=" + redirect;
+
+        }
+      );
+
+    });
+
   </script>
+
 </body>
+
 </html>
