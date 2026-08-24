@@ -4,7 +4,8 @@
 // CONFIGURACIÓN DE SUPABASE
 // =====================================================
 
-const SUPABASE_URL = "https://jmwprzgfdkphbxryjbnr.supabase.co";
+const SUPABASE_URL =
+  "https://jmwprzgfdkphbxryjbnr.supabase.co";
 
 const SUPABASE_ANON_KEY =
   "sb_publishable_kelRYJ3Fa56DXY3GhxWLHQ_YiLJzStR";
@@ -16,14 +17,15 @@ const supabaseClient = supabase.createClient(
 
 
 // =====================================================
-// INICIO
+// INICIALIZACIÓN
 // =====================================================
 
 document.addEventListener("DOMContentLoaded", () => {
 
-  // Transición suave al cargar la página
-  const prefersReduced =
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // Transición suave entre páginas
+  const prefersReduced = window
+    .matchMedia("(prefers-reduced-motion: reduce)")
+    .matches;
 
   if (!prefersReduced) {
     document.body.style.opacity = "0";
@@ -45,13 +47,8 @@ document.addEventListener("DOMContentLoaded", () => {
 async function initAuth() {
 
   const {
-    data: { user },
-    error: userError
+    data: { user }
   } = await supabaseClient.auth.getUser();
-
-  if (userError) {
-    console.error("Error obteniendo usuario:", userError);
-  }
 
   const authButtons =
     document.querySelector(".auth-buttons");
@@ -61,40 +58,33 @@ async function initAuth() {
 
 
   // ===================================================
-  // USUARIO LOGUEADO
+  // USUARIO CON SESIÓN INICIADA
   // ===================================================
 
   if (user) {
 
-    // Obtener perfil
-    const {
-      data: profile,
-      error: profileError
-    } = await supabaseClient
+    // -----------------------------------------------
+    // Recuperar perfil
+    // -----------------------------------------------
+
+    const { data: profile } = await supabaseClient
       .from("profiles")
       .select("full_name, credits, plan")
       .eq("id", user.id)
       .single();
 
-    if (profileError) {
-      console.error(
-        "Error obteniendo perfil:",
-        profileError
-      );
-    }
 
     const name =
       profile?.full_name ||
-      user.email?.split("@")[0] ||
-      "Usuario";
+      user.email.split("@")[0];
 
     const credits =
       profile?.credits ?? 0;
 
 
-    // ===============================================
-    // CAMBIAR BOTONES DEL HEADER
-    // ===============================================
+    // -----------------------------------------------
+    // Actualizar botones de autenticación
+    // -----------------------------------------------
 
     if (authButtons) {
 
@@ -140,7 +130,10 @@ async function initAuth() {
       `;
 
 
+      // ---------------------------------------------
       // Cerrar sesión
+      // ---------------------------------------------
+
       const logoutButton =
         document.getElementById("btn-logout");
 
@@ -150,49 +143,49 @@ async function initAuth() {
           "click",
           async () => {
 
-            const { error } =
-              await supabaseClient.auth.signOut();
+            await supabaseClient.auth.signOut();
 
-            if (error) {
-              console.error(
-                "Error cerrando sesión:",
-                error
-              );
-              return;
-            }
-
+            // Recargar la página sin mostrar ningún alert
             window.location.reload();
+
           }
         );
+
       }
+
     }
 
 
-    // ===============================================
+    // =================================================
     // SALUDO DEL DASHBOARD
-    // ===============================================
+    // =================================================
 
     if (greetingDashboard) {
 
-      greetingDashboard.innerHTML =
-        `Hola, ${name}<br>
-         Créditos disponibles:
-         <strong>${credits}</strong>`;
+      greetingDashboard.innerHTML = `
+        Hola, ${name}<br>
+        Créditos disponibles:
+        <strong>${credits}</strong>
+      `;
+
     }
 
 
-    // ===============================================
+    // =================================================
     // ANALIZADOR STL
-    // ===============================================
+    // =================================================
 
     const uploadContainer =
       document.querySelector(".upload-container");
+
 
     if (uploadContainer) {
 
       uploadContainer.innerHTML = `
 
-        <div class="upload-icon">📁</div>
+        <div class="upload-icon">
+          📁
+        </div>
 
         <h3 class="upload-title">
           Analizar nuevo modelo STL
@@ -218,14 +211,20 @@ async function initAuth() {
         </button>
 
         <div class="privacy-badge">
-          <span>🔒 Privacidad por Diseño</span>
+          <span>
+            🔒 Privacidad por Diseño
+          </span>
           Archivos cifrados.
           No entrenamos IAs con tus prototipos.
         </div>
+
       `;
 
 
-      // Seleccionar STL
+      // ---------------------------------------------
+      // Botón seleccionar archivo
+      // ---------------------------------------------
+
       const selectButton =
         document.getElementById("btn-select-file");
 
@@ -243,22 +242,26 @@ async function initAuth() {
         );
 
 
-        // ===========================================
-        // ARCHIVO SELECCIONADO
-        // ===========================================
+        // -------------------------------------------
+        // Cuando se selecciona un STL
+        // -------------------------------------------
 
         fileInput.addEventListener(
           "change",
           async (e) => {
 
-            const file = e.target.files[0];
+            const file =
+              e.target.files[0];
 
             if (!file) {
               return;
             }
 
 
+            // ---------------------------------------
             // Comprobar créditos
+            // ---------------------------------------
+
             if (credits < 1) {
 
               alert(
@@ -272,17 +275,16 @@ async function initAuth() {
             }
 
 
-            // =======================================
-            // DESCONTAR CRÉDITO
-            // =======================================
+            // ---------------------------------------
+            // Descontar crédito
+            // ---------------------------------------
 
             const {
               data: success,
               error: rpcError
-            } =
-              await supabaseClient.rpc(
-                "deduct_analysis_credit"
-              );
+            } = await supabaseClient.rpc(
+              "deduct_analysis_credit"
+            );
 
 
             if (rpcError || !success) {
@@ -299,9 +301,9 @@ async function initAuth() {
             }
 
 
-            // =======================================
-            // ANÁLISIS INICIADO
-            // =======================================
+            // ---------------------------------------
+            // Ir al informe
+            // ---------------------------------------
 
             alert(
               "Análisis iniciado con éxito. Redirigiendo a tu informe de análisis..."
@@ -309,24 +311,26 @@ async function initAuth() {
 
             window.location.href =
               "informe-stl.html";
+
           }
         );
+
       }
+
     }
 
-  }
-
 
   // =================================================
-  // USUARIO NO LOGUEADO
+  // USUARIO SIN SESIÓN
   // =================================================
 
-  else {
+  } else {
 
     const privatePages = [
       "analizador-stl.html",
       "informe-stl.html"
     ];
+
 
     const isPrivate =
       privatePages.some(
@@ -337,10 +341,11 @@ async function initAuth() {
 
     if (isPrivate) {
 
-      alert(
-        "Por favor, inicia sesión para acceder a esta herramienta de análisis."
-      );
-
+      // ---------------------------------------------
+      // IMPORTANTE:
+      // NO MOSTRAR ALERT.
+      // Redirigir directamente al login.
+      // ---------------------------------------------
 
       const prefix =
         window.location.pathname.includes(
@@ -352,6 +357,9 @@ async function initAuth() {
 
       window.location.href =
         `${prefix}login.html`;
+
     }
+
   }
+
 }
