@@ -309,14 +309,15 @@
       font-size:13px;
     }
 
-    /* FOOTER */
+    /* FOOTER INTEGRADO UNIFICADO */
 
     .footer{
       background:var(--bg);
       border-top:1px solid var(--line);
-      padding:60px 0 35px;
+      padding:80px 0 40px;
       color:var(--muted);
       font-size:14px;
+      line-height:1.6;
     }
 
     .footergrid{
@@ -331,10 +332,18 @@
       font-weight:800;
       color:var(--ink);
       margin:0 0 20px;
+      letter-spacing:-.3px;
     }
 
     .footer-col p{
       margin:0 0 16px;
+      color:var(--muted);
+    }
+
+    .footer-secondary-text{
+      font-size:12.5px;
+      color:#7d8782;
+      margin-top:12px;
     }
 
     .footer-links{
@@ -345,6 +354,9 @@
 
     .footer-links a{
       color:var(--muted);
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
     }
 
     .footer-links a:hover{
@@ -354,8 +366,20 @@
     .footer-bottom{
       border-top:1px solid var(--line);
       padding-top:24px;
+      display:flex;
+      justify-content:center;
       text-align:center;
       font-size:13px;
+      color:#7d8782;
+    }
+
+    @media(max-width:992px){
+
+      .footergrid{
+        grid-template-columns:1.2fr 1fr;
+        gap:40px;
+      }
+
     }
 
     @media(max-width:768px){
@@ -374,7 +398,7 @@
 
       .footergrid{
         grid-template-columns:1fr;
-        gap:35px;
+        gap:36px;
       }
 
     }
@@ -548,7 +572,7 @@
 </main>
 
 
-
+<!-- FOOTER COMPLETO UNIFICADO -->
 <footer class="footer">
 
   <div class="wrap">
@@ -567,27 +591,47 @@
           mediante Inteligencia Artificial y simuladores paramétricos.
         </p>
 
+        <p class="footer-secondary-text">
+          Desarrollado bajo principios de Privacy by Design.
+          Los datos y archivos STL se procesan con estricta
+          confidencialidad.
+        </p>
+
       </div>
+
 
 
       <div class="footer-col">
 
         <h3>
-          Recursos
+          Recursos y Herramientas
         </h3>
 
         <div class="footer-links">
 
           <a href="../index.html#analizador">
-            → Analizador STL IA
+            <span>→</span>
+            Analizador STL IA
           </a>
 
           <a href="../index.html#simulador">
-            → Simulador de Extrusión
+            <span>→</span>
+            Simulador de Extrusión
+          </a>
+
+          <a href="../herramientas/calculadora-coste.html">
+            <span>→</span>
+            Calculadoras de Coste y Masa
           </a>
 
           <a href="../index.html#guias">
-            → Guías
+            <span>→</span>
+            Base de Conocimiento
+          </a>
+
+          <a href="../materiales/index.html">
+            <span>→</span>
+            Atlas de Materiales
           </a>
 
         </div>
@@ -595,24 +639,43 @@
       </div>
 
 
+
       <div class="footer-col">
 
         <h3>
-          Legal
+          Soporte y Legal
         </h3>
 
         <div class="footer-links">
 
+          <a href="../herramientas/precios.html">
+            <span>→</span>
+            Precios y Suscripciones
+          </a>
+
+          <a href="../herramientas/contacto.html">
+            <span>→</span>
+            Contacto y Soporte
+          </a>
+
+          <a href="../condiciones-compra.html">
+            <span>→</span>
+            Condiciones de Compra
+          </a>
+
           <a href="../terminos.html">
-            → Términos y Condiciones
+            <span>→</span>
+            Términos y Condiciones
           </a>
 
           <a href="../privacidad.html">
-            → Política de Privacidad
+            <span>→</span>
+            Política de Privacidad
           </a>
 
           <a href="../cookies.html">
-            → Política de Cookies
+            <span>→</span>
+            Política de Cookies
           </a>
 
         </div>
@@ -701,11 +764,6 @@ let redirectTarget =
   );
 
 
-/*
- * Si por algún motivo no existe,
- * volvemos al inicio.
- */
-
 if(!redirectTarget){
 
   redirectTarget =
@@ -713,10 +771,6 @@ if(!redirectTarget){
 
 }
 
-
-/*
- * Evitar redirecciones externas.
- */
 
 if(
   redirectTarget.startsWith("http://") ||
@@ -814,12 +868,6 @@ async function checkVerification(){
     session.user;
 
 
-  /*
-   * Si Supabase nos ha devuelto una sesión
-   * significa que el enlace de verificación
-   * se ha procesado correctamente.
-   */
-
   if(
     user.email_confirmed_at ||
     user.confirmed_at
@@ -845,11 +893,6 @@ async function checkVerification(){
     );
 
 
-    /*
-     * Limpiar datos temporales
-     * antes de continuar.
-     */
-
     sessionStorage.removeItem(
       "printlab_pending_name"
     );
@@ -863,11 +906,7 @@ async function checkVerification(){
     );
 
 
-    /*
-     * Espera breve para que el usuario vea
-     * el mensaje de verificación.
-     */
-
+    // Redirección ágil de 500 ms (igual al inicio de sesión)
     setTimeout(
       function(){
 
@@ -876,7 +915,7 @@ async function checkVerification(){
         );
 
       },
-      1200
+      500
     );
 
 
@@ -899,9 +938,6 @@ checkVerification();
 
 /*
  * También escuchamos el cambio de sesión.
- *
- * Cuando Supabase procesa el enlace de
- * confirmación, dispara SIGNED_IN.
  */
 
 supabaseClient.auth.onAuthStateChange(
@@ -952,13 +988,6 @@ supabaseClient.auth.onAuthStateChange(
         );
 
 
-        /*
-         * MUY IMPORTANTE:
-         *
-         * Usamos el destino guardado ANTES
-         * de borrarlo.
-         */
-
         const destination =
           redirectTarget ||
           "../index.html";
@@ -969,6 +998,7 @@ supabaseClient.auth.onAuthStateChange(
         );
 
 
+        // Redirección ágil de 500 ms
         setTimeout(
           function(){
 
@@ -977,7 +1007,7 @@ supabaseClient.auth.onAuthStateChange(
             );
 
           },
-          1200
+          500
         );
 
       }
@@ -1072,10 +1102,6 @@ resendButton.addEventListener(
     resendButton.textContent =
       "Correo reenviado ✓";
 
-
-    /*
-     * Evitamos que pueda pulsarlo continuamente.
-     */
 
     setTimeout(
       function(){
