@@ -195,5 +195,25 @@
       }
     }
   </script>
+
+  <script>
+  const form = document.querySelector('form');
+  form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = form.querySelector('input[type="email"]').value;
+  const password = form.querySelector('input[type="password"]').value;
+
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if (error) {
+    alert('No se pudo iniciar sesión: ' + error.message);
+  } else {
+    window.location.href = '../index.html';
+  }
+});
+</script>
 </body>
 </html>
