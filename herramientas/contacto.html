@@ -297,8 +297,13 @@
       background:#fff;
     }
 
+    /* BOTÓN DE ENVÍO */
+
     .btn-submit{
-      display:block;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:9px;
       width:100%;
       background:var(--ink);
       color:#fff;
@@ -308,15 +313,67 @@
       font-weight:800;
       font-size:16px;
       cursor:pointer;
-      transition:.2s;
+      transition:.2s ease;
       margin-top:10px;
       border:2px solid var(--ink);
+      font-family:inherit;
     }
 
-    .btn-submit:hover{
+    .btn-submit:hover:not(:disabled){
       background:var(--dark);
       box-shadow:0 4px 0 var(--accent);
       transform:translateY(-2px);
+    }
+
+    .btn-submit:disabled{
+      cursor:default;
+      opacity:1;
+    }
+
+    /* ESTADO ENVIANDO */
+
+    .btn-submit.sending{
+      background:var(--dark);
+      cursor:wait;
+    }
+
+    /* ESTADO CORRECTO */
+
+    .btn-submit.success{
+      background:var(--accent);
+      color:var(--ink);
+      border-color:var(--ink);
+      box-shadow:0 4px 0 var(--ink);
+      cursor:default;
+    }
+
+    .success-check{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:22px;
+      height:22px;
+      border:2px solid var(--ink);
+      border-radius:50%;
+      font-size:14px;
+      line-height:1;
+      animation:successPop .25s ease-out;
+    }
+
+    @keyframes successPop{
+      0%{
+        opacity:0;
+        transform:scale(.5);
+      }
+
+      70%{
+        transform:scale(1.15);
+      }
+
+      100%{
+        opacity:1;
+        transform:scale(1);
+      }
     }
 
     .contact-info{
@@ -433,6 +490,8 @@
       color:#7d8782;
     }
 
+    /* RESPONSIVE */
+
     @media(max-width:1250px){
       .wrap{
         padding:0 40px;
@@ -487,10 +546,11 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../assets/js/auth-helper.js"></script>
-
 </head>
 
 <body>
+
+  <!-- CABECERA -->
 
   <header class="top">
     <div class="wrap">
@@ -531,14 +591,21 @@
         </div>
 
         <div class="auth-buttons">
-          <a href="login.html" class="btn-auth light">Iniciar Sesión</a>
-          <a href="registro.html" class="btn-auth green">Registrarse</a>
+          <a href="login.html" class="btn-auth light">
+            Iniciar Sesión
+          </a>
+
+          <a href="registro.html" class="btn-auth green">
+            Registrarse
+          </a>
         </div>
 
       </nav>
     </div>
   </header>
 
+
+  <!-- CONTENIDO PRINCIPAL -->
 
   <main class="wrap">
 
@@ -557,7 +624,7 @@
 
     <div class="contact-layout">
 
-      <!-- FORMULARIO DE CONTACTO -->
+      <!-- FORMULARIO -->
 
       <div class="input-panel">
 
@@ -610,10 +677,8 @@
               line-height:1.5;
             "
           >
-
             Al enviar este formulario confirmas que has leído y aceptas
             nuestra
-
             <a
               href="../privacidad.html"
               style="
@@ -624,13 +689,13 @@
             >
               Política de Privacidad
             </a>.
-
           </div>
 
 
           <button
             type="submit"
             class="btn-submit"
+            id="submit-button"
           >
             Enviar consulta
           </button>
@@ -649,8 +714,10 @@
           <h3>Atención Técnica Prioritaria</h3>
 
           <p>
-            Los usuarios con el <b>Pack Profesional</b> activo disponen
-            de SLA de respuesta inferior a 4 horas hábiles laborables.
+            Los usuarios con el
+            <b>Pack Profesional</b>
+            activo disponen de SLA de respuesta inferior a 4 horas
+            hábiles laborables.
           </p>
 
           <div class="info-detail">
@@ -690,8 +757,7 @@
           >
             Si tu archivo STL ha dado un error de lectura, asegúrate de
             que esté exportado en formato Binario (no ASCII) y que no
-            supere el límite máximo de 100 MB antes de contactar a
-            soporte.
+            supere el límite máximo de 100 MB antes de contactar a soporte.
           </p>
 
         </div>
@@ -702,6 +768,8 @@
 
   </main>
 
+
+  <!-- FOOTER -->
 
   <footer class="footer">
 
@@ -714,16 +782,16 @@
           <h3>PrintLab — Ingeniería 3D</h3>
 
           <p>
-            Plataforma profesional de análisis y optimización STL
-            mediante Inteligencia Artificial y simuladores paramétricos.
-            Transformamos modelos 3D con problemas en geometrías
-            perfectas listas para fabricar, ahorrando tiempo, material
-            y costes en entornos industriales.
+            Plataforma profesional de análisis y optimización STL mediante
+            Inteligencia Artificial y simuladores paramétricos.
+            Transformamos modelos 3D con problemas en geometrías perfectas
+            listas para fabricar, ahorrando tiempo, material y costes en
+            entornos industriales.
           </p>
 
           <p class="footer-secondary-text">
-            Desarrollado bajo principios de Privacy by Design. Los datos
-            y archivos STL se procesan con estricta confidencialidad.
+            Desarrollado bajo principios de Privacy by Design.
+            Los datos y archivos STL se procesan con estricta confidencialidad.
           </p>
 
         </div>
@@ -821,10 +889,9 @@
   </footer>
 
 
-  <!-- MENÚ -->
+  <!-- CERRAR MENÚ AL HACER CLIC FUERA -->
 
   <script>
-
     window.onclick = function(event) {
 
       if (!event.target.closest('.menu-dropdown')) {
@@ -834,7 +901,9 @@
 
         for (var i = 0; i < dropdowns.length; i++) {
 
-          if (dropdowns[i].classList.contains('show')) {
+          if (
+            dropdowns[i].classList.contains('show')
+          ) {
 
             dropdowns[i].classList.remove('show');
 
@@ -844,15 +913,13 @@
 
       }
 
-    }
-
+    };
   </script>
 
 
   <!-- EMAILJS -->
 
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-
 
   <script>
 
@@ -863,6 +930,9 @@
 
     const contactForm =
       document.getElementById('contact-form');
+
+    const submitButton =
+      document.getElementById('submit-button');
 
 
     if (contactForm) {
@@ -879,15 +949,15 @@
               'input[placeholder="Tu nombre o empresa"]'
             );
 
-
           const emailInput =
             contactForm.querySelector(
               'input[type="email"]'
             );
 
-
           const messageInput =
-            contactForm.querySelector('textarea');
+            contactForm.querySelector(
+              'textarea'
+            );
 
 
           const name =
@@ -895,12 +965,10 @@
               ? nameInput.value.trim()
               : '';
 
-
           const email =
             emailInput
               ? emailInput.value.trim()
               : '';
-
 
           const message =
             messageInput
@@ -909,12 +977,14 @@
 
 
           /*
-           * Los campos tienen "required", por lo que el navegador
-           * ya se encarga de comprobar que estén rellenados.
+           * Comprobación de campos.
+           * No mostramos ninguna ventana emergente.
            */
 
           if (!name || !email || !message) {
+
             return;
+
           }
 
 
@@ -928,15 +998,15 @@
             );
 
 
-          const submitButton =
-            contactForm.querySelector(
-              'button[type="submit"]'
-            );
-
+          /*
+           * Estado "Enviando..."
+           */
 
           if (submitButton) {
 
             submitButton.disabled = true;
+
+            submitButton.classList.add('sending');
 
             submitButton.textContent =
               'Enviando...';
@@ -946,37 +1016,68 @@
 
           try {
 
+            /*
+             * ENVÍO EMAILJS
+             */
+
             await emailjs.send(
-
               'service_gwq515d',
-
               'template_w3w3l6e',
-
               {
                 name:name,
                 email:email,
                 message:message,
                 time:time
               }
-
             );
 
 
             /*
-             * CORRECCIÓN:
-             * Ya NO aparece ningún alert.
-             * El correo se envía y el formulario se limpia.
+             * LIMPIAMOS EL FORMULARIO
              */
 
             contactForm.reset();
 
 
-          } catch (error) {
+            /*
+             * CAMBIAMOS EL PROPIO BOTÓN.
+             * NO APARECE NINGUNA ALERTA.
+             */
+
+            if (submitButton) {
+
+              submitButton.classList.remove('sending');
+
+              submitButton.classList.add('success');
+
+              submitButton.innerHTML =
+                '<span class="success-check">✓</span> Mensaje enviado';
+
+            }
+
 
             /*
-             * No mostramos ninguna ventana emergente.
-             * El error queda registrado en la consola.
+             * Después de 3 segundos,
+             * el botón vuelve a su estado normal.
              */
+
+            setTimeout(function(){
+
+              if (submitButton) {
+
+                submitButton.disabled = false;
+
+                submitButton.classList.remove('success');
+
+                submitButton.innerHTML =
+                  'Enviar consulta';
+
+              }
+
+            }, 3000);
+
+
+          } catch (error) {
 
             console.error(
               'Error EmailJS:',
@@ -984,13 +1085,18 @@
             );
 
 
-          } finally {
+            /*
+             * En caso de error,
+             * el botón vuelve a estar disponible.
+             */
 
             if (submitButton) {
 
               submitButton.disabled = false;
 
-              submitButton.textContent =
+              submitButton.classList.remove('sending');
+
+              submitButton.innerHTML =
                 'Enviar consulta';
 
             }
