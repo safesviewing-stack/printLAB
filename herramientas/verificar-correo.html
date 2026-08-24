@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+
+  <meta charset="utf-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  >
+
+  <title>Verificar correo — PrintLab</title>
+
+  <link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+  >
+
+  <link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+  >
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap"
+    rel="stylesheet"
+  >
+
+  <style>
+
+    :root {
+      --bg: #f6f7f4;
+      --card: #ffffff;
+      --ink: #0d1110;
+      --muted: #5e6661;
+      --line: #dfe4df;
+      --accent: #b8ff3d;
+      --dark: #111715;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Plus Jakarta Sans", sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .top {
+      background: rgba(246,247,244,.9);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    nav {
+      max-width: 1200px;
+      min-height: 95px;
+      margin: auto;
+      padding: 0 40px;
+      display: flex;
+      align-items: center;
+    }
+
+    .brand {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      text-decoration: none;
+      color: var(--ink);
+    }
+
+    .brand span {
+      background: var(--accent);
+      padding: 5px 12px;
+      border-radius: 10px;
+      margin-left: 6px;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 480px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 50px 40px;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0,0,0,.03);
+    }
+
+    .icon {
+      width: 70px;
+      height: 70px;
+      margin: 0 auto 25px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      font-weight: 800;
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-size: 28px;
+      letter-spacing: -.5px;
+    }
+
+    p {
+      margin: 0 0 28px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    .email {
+      display: block;
+      margin: -10px 0 28px;
+      color: var(--ink);
+      font-weight: 800;
+      word-break: break-word;
+    }
+
+    .btn {
+      display: inline-flex;
+      width: 100%;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      border-radius: 12px;
+      background: var(--ink);
+      color: white;
+      font-size: 16px;
+      font-weight: 800;
+      text-decoration: none;
+      border: 2px solid var(--ink);
+      transition: .2s ease;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background: var(--dark);
+      box-shadow: 0 4px 0 var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .secondary {
+      margin-top: 18px;
+      background: transparent;
+      color: var(--ink);
+      border-color: var(--line);
+      box-shadow: none;
+    }
+
+    .secondary:hover {
+      background: var(--bg);
+      box-shadow: none;
+      transform: none;
+    }
+
+    .success {
+      display: none;
+    }
+
+    .error {
+      display: none;
+      color: #c0392b;
+      font-size: 14px;
+      margin-top: 20px;
+    }
+
+    @media(max-width:600px) {
+
+      nav {
+        padding: 0 24px;
+      }
+
+      .brand {
+        font-size: 22px;
+      }
+
+      .card {
+        padding: 40px 24px;
+      }
+
+    }
+
+  </style>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script src="../assets/js/auth-helper.js"></script>
+
+</head>
+
+
+<body>
+
+
+<header class="top">
+
+  <nav>
+
+    <a
+      class="brand"
+      href="../index.html#portada"
+    >
+      PRINT<span>LAB</span>
+    </a>
+
+  </nav>
+
+</header>
+
+
+<main>
+
+  <div class="card" id="waiting-card">
+
+    <div class="icon">
+      @
+    </div>
+
+    <h1>
+      Verifica tu correo
+    </h1>
+
+    <p>
+      Hemos enviado un enlace de verificación a tu dirección de correo electrónico.
+    </p>
+
+    <span
+      class="email"
+      id="email-display"
+    ></span>
+
+    <a
+      class="btn"
+      href="https://mail.google.com/"
+      target="_blank"
+      rel="noopener"
+    >
+      Abrir correo
+    </a>
+
+    <a
+      class="btn secondary"
+      href="login.html"
+    >
+      Volver a iniciar sesión
+    </a>
+
+  </div>
+
+
+  <div class="card success" id="success-card">
+
+    <div class="icon">
+      ✓
+    </div>
+
+    <h1>
+      Correo verificado
+    </h1>
+
+    <p>
+      Tu cuenta de PrintLab ha sido verificada correctamente.
+    </p>
+
+    <a
+      class="btn"
+      href="login.html"
+    >
+      Iniciar sesión
+    </a>
+
+  </div>
+
+
+  <div
+    class="card error"
+    id="error-card"
+  >
+
+    No se ha podido verificar el correo.
+    El enlace puede haber caducado o ya haber sido utilizado.
+
+    <br><br>
+
+    <a href="registro.html">
+      Volver al registro
+    </a>
+
+  </div>
+
+</main>
+
+
+<script>
+
+(async function() {
+
+  /* Mostrar email utilizado durante el registro */
+
+  const params =
+    new URLSearchParams(window.location.search);
+
+  const email =
+    params.get('email');
+
+  if (email) {
+
+    document.getElementById('email-display')
+      .textContent = email;
+
+  }
+
+
+  /*
+    Comprobar si hemos llegado aquí
+    después de pulsar el enlace de confirmación.
+  */
+
+  const hash =
+    window.location.hash;
+
+
+  const hasAuthTokens =
+    hash.includes('access_token') ||
+    hash.includes('type=signup');
+
+
+  if (hasAuthTokens) {
+
+    /*
+      Supabase ya procesa automáticamente
+      el enlace de confirmación en el navegador.
+    */
+
+    const {
+      data,
+      error
+    } = await supabaseClient.auth.getSession();
+
+
+    if (!error && data.session) {
+
+      document.getElementById('waiting-card')
+        .style.display = 'none';
+
+      document.getElementById('success-card')
+        .style.display = 'block';
+
+      /*
+        Limpiar los tokens de la URL
+        para que no queden visibles.
+      */
+
+      window.history.replaceState(
+        {},
+        document.title,
+        window.location.pathname
+      );
+
+      return;
+
+    }
+
+  }
+
+})();
+
+</script>
+
+
+</body>
+
+</html>
