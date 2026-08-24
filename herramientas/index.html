@@ -81,9 +81,7 @@
     .footer-links { display: flex; flex-direction: column; gap: 10px; }
     .footer-links a { color: var(--muted); transition: color 0.15s ease, transform 0.15s ease; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
     .footer-links a:hover { color: var(--ink); transform: translateX(2px); }
-    .footer-bottom { border-top: 1px solid var(--line); padding-top: 24px; display:flex; justify-content:space-between; font-size: 13px; color: #7d8782; }
-    .footer-legal-links { display:flex; gap:20px; }
-    .footer-legal-links a:hover { color:var(--ink); text-decoration:underline; }
+    .footer-bottom { border-top: 1px solid var(--line); padding-top: 24px; display:flex; justify-content:center; align-items:center; text-align:center; font-size: 13px; color: #7d8782;}
 
     @media(max-width:1250px){ .wrap{padding:0 48px} }
     @media(max-width: 992px){ .footergrid { grid-template-columns: 1.2fr 1fr; gap: 40px; } }
@@ -94,7 +92,7 @@
       nav{flex-direction:column; padding:20px 0; gap:16px}
       .brand{margin-right:0}
       .footergrid { grid-template-columns: 1fr; gap: 36px; }
-      .footer-bottom { flex-direction: column; align-items: flex-start; gap: 16px;}
+      .footer-bottom { flex-direction: column; align-items: flex-start;}
     }
   </style>
 </head>
@@ -179,43 +177,41 @@
 
   </main>
 
-  <!-- NUEVO FOOTER CON ENLACES LEGALES (Actualizar en todas las páginas de ser necesario) -->
   <footer class="footer">
     <div class="wrap">
       <div class="footergrid">
         <div class="footer-col">
           <h3>PrintLab — Ingeniería 3D</h3>
-          <p>Información técnica y herramientas para tomar mejores decisiones en fabricación aditiva.</p>
-          <p class="footer-secondary-text">Herramientas desarrolladas bajo principios de Privacy by Design. Procesamos los datos estrictamente necesarios.</p>
+          <p>Plataforma profesional de análisis y optimización STL mediante Inteligencia Artificial y simuladores paramétricos. Transformamos modelos 3D con problemas en geometrías perfectas listas para fabricar, ahorrando tiempo, material y costes en entornos industriales.</p>
+          <p class="footer-secondary-text">Desarrollado bajo principios de Privacy by Design. Los datos y archivos STL se procesan con estricta confidencialidad.</p>
         </div>
+        
         <div class="footer-col">
-          <h3>Recursos</h3>
+          <h3>Recursos y Herramientas</h3>
           <div class="footer-links">
-            <a href="../index.html"><span class="arrow">→</span> Materiales</a>
-            <a href="../index.html#guias"><span class="arrow">→</span> Guías técnicas</a>
-            <a href="../index.html#herramientas"><span class="arrow">→</span> Calculadoras</a>
-            <a href="analizador-stl.html"><span class="arrow">→</span> Analizador STL IA</a>
+            <a href="../index.html#analizador"><span class="arrow">→</span> Analizador STL IA</a>
+            <a href="../index.html#simulador"><span class="arrow">→</span> Simulador de Extrusión</a>
+            <a href="../herramientas/calculadora-coste.html"><span class="arrow">→</span> Calculadoras de Coste y Masa</a>
+            <a href="../index.html#guias"><span class="arrow">→</span> Base de Conocimiento</a>
+            <a href="../materiales/index.html"><span class="arrow">→</span> Atlas de Materiales</a>
           </div>
         </div>
+        
         <div class="footer-col">
-          <h3>Cuenta y Soporte</h3>
+          <h3>Soporte y Legal</h3>
           <div class="footer-links">
-            <a href="login.html"><span class="arrow">→</span> Iniciar sesión</a>
-            <a href="registro.html"><span class="arrow">→</span> Crear cuenta</a>
-            <a href="precios.html"><span class="arrow">→</span> Precios y Créditos</a>
-            <a href="contacto.html"><span class="arrow">→</span> Contacto soporte</a>
+            <a href="../herramientas/precios.html"><span class="arrow">→</span> Precios y Suscripciones</a>
+            <a href="../herramientas/contacto.html"><span class="arrow">→</span> Contacto y Soporte</a>
+            <a href="../condiciones-compra.html"><span class="arrow">→</span> Condiciones de Compra</a>
+            <a href="../terminos.html"><span class="arrow">→</span> Términos y Condiciones</a>
+            <a href="../privacidad.html"><span class="arrow">→</span> Política de Privacidad</a>
+            <a href="../cookies.html"><span class="arrow">→</span> Política de Cookies</a>
           </div>
         </div>
       </div>
       
       <div class="footer-bottom">
-        <div class="footer-bottom-text">© 2026 PrintLab. Reservados todos los derechos.</div>
-        <div class="footer-legal-links">
-          <a href="aviso-legal.html">Aviso Legal</a>
-          <a href="privacidad.html">Política de Privacidad</a>
-          <a href="terminos.html">Términos y Condiciones</a>
-          <a href="cookies.html">Política de Cookies</a>
-        </div>
+        <div class="footer-bottom-text">© 2026 PrintLab.</div>
       </div>
     </div>
   </footer>
