@@ -1,346 +1,357 @@
-// ============================================================
-// PRINTLAB — AUTH HELPER
-// ============================================================
+// assets/js/auth-helper.js
 
+// =====================================================
 // CONFIGURACIÓN DE SUPABASE
+// =====================================================
 
-const SUPABASE_URL =
-    "https://jmwprzgfdkphbxryjbnr.supabase.co";
+const SUPABASE_URL = "https://jmwprzgfdkphbxryjbnr.supabase.co";
 
 const SUPABASE_ANON_KEY =
-    "PEGA_AQUI_TU_PUBLISHABLE_O_ANON_KEY";
-
-
-/* ============================================================
-   CLIENTE SUPABASE
-   ============================================================ */
+  "sb_publishable_kelRYJ3Fa56DXY3GhxWLHQ_YiLJzStR";
 
 const supabaseClient = supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_ANON_KEY
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
 );
 
 
-/* ============================================================
-   OBTENER USUARIO ACTUAL
-   ============================================================ */
+// =====================================================
+// INICIO
+// =====================================================
 
-async function getCurrentUser() {
+document.addEventListener("DOMContentLoaded", () => {
 
-    try {
+  // Transición suave al cargar la página
+  const prefersReduced =
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-        const {
-            data: {
-                user
-            },
-            error
-        } = await supabaseClient.auth.getUser();
+  if (!prefersReduced) {
+    document.body.style.opacity = "0";
+    document.body.style.transition = "opacity 0.2s ease-in-out";
 
+    setTimeout(() => {
+      document.body.style.opacity = "1";
+    }, 50);
+  }
 
-        if (error) {
-
-            console.error(
-                "Error obteniendo usuario:",
-                error
-            );
-
-            return null;
-        }
+  initAuth();
+});
 
 
-        return user || null;
+// =====================================================
+// GESTIÓN DE AUTENTICACIÓN
+// =====================================================
+
+async function initAuth() {
+
+  const {
+    data: { user },
+    error: userError
+  } = await supabaseClient.auth.getUser();
+
+  if (userError) {
+    console.error("Error obteniendo usuario:", userError);
+  }
+
+  const authButtons =
+    document.querySelector(".auth-buttons");
+
+  const greetingDashboard =
+    document.getElementById("dashboard-greeting");
 
 
-    } catch (error) {
+  // ===================================================
+  // USUARIO LOGUEADO
+  // ===================================================
 
-        console.error(
-            "Error de conexión con Supabase:",
-            error
-        );
+  if (user) {
 
-        return null;
-    }
-}
+    // Obtener perfil
+    const {
+      data: profile,
+      error: profileError
+    } = await supabaseClient
+      .from("profiles")
+      .select("full_name, credits, plan")
+      .eq("id", user.id)
+      .single();
 
-
-/* ============================================================
-   CERRAR SESIÓN
-   ============================================================ */
-
-async function signOutUser() {
-
-    try {
-
-        const {
-            error
-        } = await supabaseClient.auth.signOut();
-
-
-        if (error) {
-
-            console.error(
-                "Error cerrando sesión:",
-                error
-            );
-
-            return false;
-        }
-
-
-        window.location.href =
-            "../index.html";
-
-
-        return true;
-
-
-    } catch (error) {
-
-        console.error(
-            "Error inesperado cerrando sesión:",
-            error
-        );
-
-        return false;
-    }
-}
-
-
-/* ============================================================
-   COMPROBAR SI HAY SESIÓN
-   ============================================================ */
-
-async function isUserLoggedIn() {
-
-    const user =
-        await getCurrentUser();
-
-    return user !== null;
-}
-
-
-/* ============================================================
-   PROTEGER PÁGINAS
-   ============================================================ */
-
-async function requireAuth() {
-
-    const user =
-        await getCurrentUser();
-
-
-    if (!user) {
-
-        window.location.href =
-            "../herramientas/login.html";
-
-        return null;
+    if (profileError) {
+      console.error(
+        "Error obteniendo perfil:",
+        profileError
+      );
     }
 
-
-    return user;
-}
-
-
-/* ============================================================
-   OBTENER PERFIL DEL USUARIO
-   ============================================================ */
-
-async function getUserProfile() {
-
-    const user =
-        await getCurrentUser();
-
-
-    if (!user) {
-        return null;
-    }
-
-
-    try {
-
-        const {
-            data,
-            error
-        } = await supabaseClient
-            .from("profiles")
-            .select("*")
-            .eq("id", user.id)
-            .single();
-
-
-        if (error) {
-
-            console.error(
-                "Error obteniendo perfil:",
-                error
-            );
-
-            return null;
-        }
-
-
-        return data;
-
-
-    } catch (error) {
-
-        console.error(
-            "Error inesperado obteniendo perfil:",
-            error
-        );
-
-        return null;
-    }
-}
-
-
-/* ============================================================
-   OBTENER CRÉDITOS DEL USUARIO
-   ============================================================ */
-
-async function getUserCredits() {
-
-    const profile =
-        await getUserProfile();
-
-
-    if (!profile) {
-        return 0;
-    }
-
-
-    return profile.credits || 0;
-}
-
-
-/* ============================================================
-   ACTUALIZAR CRÉDITOS
-   ============================================================ */
-
-async function updateUserCredits(
-    amount
-) {
-
-    const user =
-        await getCurrentUser();
-
-
-    if (!user) {
-
-        console.error(
-            "No hay usuario autenticado."
-        );
-
-        return false;
-    }
-
-
-    try {
-
-        const {
-            data: profile,
-            error: profileError
-        } = await supabaseClient
-            .from("profiles")
-            .select("credits")
-            .eq("id", user.id)
-            .single();
-
-
-        if (profileError) {
-
-            console.error(
-                "Error obteniendo créditos:",
-                profileError
-            );
-
-            return false;
-        }
-
-
-        const currentCredits =
-            profile?.credits || 0;
-
-
-        const newCredits =
-            currentCredits + amount;
-
-
-        const {
-            error
-        } = await supabaseClient
-            .from("profiles")
-            .update({
-                credits: newCredits
-            })
-            .eq("id", user.id);
-
-
-        if (error) {
-
-            console.error(
-                "Error actualizando créditos:",
-                error
-            );
-
-            return false;
-        }
-
-
-        return true;
-
-
-    } catch (error) {
-
-        console.error(
-            "Error inesperado actualizando créditos:",
-            error
-        );
-
-        return false;
-    }
-}
-
-
-/* ============================================================
-   RESTAR UN CRÉDITO
-   ============================================================ */
-
-async function useCredit() {
+    const name =
+      profile?.full_name ||
+      user.email?.split("@")[0] ||
+      "Usuario";
 
     const credits =
-        await getUserCredits();
+      profile?.credits ?? 0;
 
 
-    if (credits <= 0) {
+    // ===============================================
+    // CAMBIAR BOTONES DEL HEADER
+    // ===============================================
 
-        console.warn(
-            "El usuario no tiene créditos suficientes."
+    if (authButtons) {
+
+      authButtons.innerHTML = `
+        <span
+          style="
+            font-weight:700;
+            font-size:14px;
+            margin-right:8px;
+          "
+        >
+          Hola, ${name}
+        </span>
+
+        <span
+          style="
+            background:var(--accent);
+            color:var(--ink);
+            padding:5px 12px;
+            border-radius:10px;
+            font-weight:800;
+            font-size:13px;
+            margin-right:16px;
+          "
+        >
+          Créditos: ${credits}
+        </span>
+
+        <button
+          id="btn-logout"
+          class="btn-auth light"
+          style="
+            background:#fff;
+            cursor:pointer;
+            padding:10px 20px;
+            border-radius:9999px;
+            font-weight:800;
+            border:2px solid var(--ink);
+          "
+        >
+          Cerrar Sesión
+        </button>
+      `;
+
+
+      // Cerrar sesión
+      const logoutButton =
+        document.getElementById("btn-logout");
+
+      if (logoutButton) {
+
+        logoutButton.addEventListener(
+          "click",
+          async () => {
+
+            const { error } =
+              await supabaseClient.auth.signOut();
+
+            if (error) {
+              console.error(
+                "Error cerrando sesión:",
+                error
+              );
+              return;
+            }
+
+            window.location.reload();
+          }
         );
-
-        return false;
+      }
     }
 
 
-    return await updateUserCredits(-1);
+    // ===============================================
+    // SALUDO DEL DASHBOARD
+    // ===============================================
+
+    if (greetingDashboard) {
+
+      greetingDashboard.innerHTML =
+        `Hola, ${name}<br>
+         Créditos disponibles:
+         <strong>${credits}</strong>`;
+    }
+
+
+    // ===============================================
+    // ANALIZADOR STL
+    // ===============================================
+
+    const uploadContainer =
+      document.querySelector(".upload-container");
+
+    if (uploadContainer) {
+
+      uploadContainer.innerHTML = `
+
+        <div class="upload-icon">📁</div>
+
+        <h3 class="upload-title">
+          Analizar nuevo modelo STL
+        </h3>
+
+        <p class="upload-desc">
+          Soporte para FDM, SLA/MSLA y SLS.
+          Límite: 100MB por archivo.
+        </p>
+
+        <input
+          type="file"
+          id="stl-file-input"
+          accept=".stl"
+          style="display:none;"
+        />
+
+        <button
+          id="btn-select-file"
+          class="btn-green"
+        >
+          Seleccionar archivo STL
+        </button>
+
+        <div class="privacy-badge">
+          <span>🔒 Privacidad por Diseño</span>
+          Archivos cifrados.
+          No entrenamos IAs con tus prototipos.
+        </div>
+      `;
+
+
+      // Seleccionar STL
+      const selectButton =
+        document.getElementById("btn-select-file");
+
+      const fileInput =
+        document.getElementById("stl-file-input");
+
+
+      if (selectButton && fileInput) {
+
+        selectButton.addEventListener(
+          "click",
+          () => {
+            fileInput.click();
+          }
+        );
+
+
+        // ===========================================
+        // ARCHIVO SELECCIONADO
+        // ===========================================
+
+        fileInput.addEventListener(
+          "change",
+          async (e) => {
+
+            const file = e.target.files[0];
+
+            if (!file) {
+              return;
+            }
+
+
+            // Comprobar créditos
+            if (credits < 1) {
+
+              alert(
+                "Créditos insuficientes para iniciar el análisis IA. Redirigiendo a planes..."
+              );
+
+              window.location.href =
+                "precios.html";
+
+              return;
+            }
+
+
+            // =======================================
+            // DESCONTAR CRÉDITO
+            // =======================================
+
+            const {
+              data: success,
+              error: rpcError
+            } =
+              await supabaseClient.rpc(
+                "deduct_analysis_credit"
+              );
+
+
+            if (rpcError || !success) {
+
+              alert(
+                "Error de validación al descontar créditos: " +
+                (
+                  rpcError?.message ||
+                  "Inténtelo de nuevo."
+                )
+              );
+
+              return;
+            }
+
+
+            // =======================================
+            // ANÁLISIS INICIADO
+            // =======================================
+
+            alert(
+              "Análisis iniciado con éxito. Redirigiendo a tu informe de análisis..."
+            );
+
+            window.location.href =
+              "informe-stl.html";
+          }
+        );
+      }
+    }
+
+  }
+
+
+  // =================================================
+  // USUARIO NO LOGUEADO
+  // =================================================
+
+  else {
+
+    const privatePages = [
+      "analizador-stl.html",
+      "informe-stl.html"
+    ];
+
+    const isPrivate =
+      privatePages.some(
+        page =>
+          window.location.pathname.includes(page)
+      );
+
+
+    if (isPrivate) {
+
+      alert(
+        "Por favor, inicia sesión para acceder a esta herramienta de análisis."
+      );
+
+
+      const prefix =
+        window.location.pathname.includes(
+          "/herramientas/"
+        )
+          ? ""
+          : "herramientas/";
+
+
+      window.location.href =
+        `${prefix}login.html`;
+    }
+  }
 }
-
-
-/* ============================================================
-   ESCUCHAR CAMBIOS DE AUTENTICACIÓN
-   ============================================================ */
-
-supabaseClient.auth.onAuthStateChange(
-    function (
-        event,
-        session
-    ) {
-
-        console.log(
-            "Estado de autenticación:",
-            event
-        );
-
-    }
-);
