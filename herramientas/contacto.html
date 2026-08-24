@@ -224,5 +224,73 @@
       }
     }
   </script>
+<!-- EMAILJS -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+<script>
+    emailjs.init({
+        publicKey: "BFZ-rc3o11RbCB7It"
+    });
+
+    const contactForm = document.querySelector('form');
+
+    if (contactForm) {
+        contactForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const nameInput = contactForm.querySelector('input[placeholder="Tu nombre o empresa"]');
+            const emailInput = contactForm.querySelector('input[type="email"]');
+            const messageInput = contactForm.querySelector('textarea');
+
+            const name = nameInput ? nameInput.value.trim() : '';
+            const email = emailInput ? emailInput.value.trim() : '';
+            const message = messageInput ? messageInput.value.trim() : '';
+
+            if (!name || !email || !message) {
+                alert('Por favor, rellena todos los campos.');
+                return;
+            }
+
+            const time = new Date().toLocaleString('es-ES', {
+                dateStyle: 'full',
+                timeStyle: 'short'
+            });
+
+            const submitButton = contactForm.querySelector('button[type="submit"]');
+
+            if (submitButton) {
+                submitButton.disabled = true;
+                submitButton.textContent = 'Enviando...';
+            }
+
+            try {
+                await emailjs.send(
+                    'service_gwq515d',
+                    'template_w3w3l6e',
+                    {
+                        name: name,
+                        email: email,
+                        message: message,
+                        time: time
+                    }
+                );
+
+                alert('Consulta enviada correctamente.');
+                contactForm.reset();
+
+            } catch (error) {
+                console.error('Error EmailJS:', error);
+                alert('No se ha podido enviar la consulta. Inténtalo de nuevo.');
+
+            } finally {
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Enviar consulta';
+                }
+            }
+        });
+    }
+</script>
+
 </body>
 </html>
