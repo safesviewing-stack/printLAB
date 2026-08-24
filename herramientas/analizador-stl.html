@@ -137,7 +137,7 @@
       box-shadow:0 20px 40px rgba(0,0,0,.1);
       border:1.5px solid var(--line);
       border-radius:16px;
-      z-index:200;
+ z-index:200;
       flex-direction:column;
       padding:12px 0;
     }
@@ -1190,12 +1190,12 @@
 
         if(
           !client &&
-          window.supabase &&
-          typeof window.supabase.auth !== "undefined"
+          typeof supabaseClient !== "undefined" &&
+          supabaseClient
         ){
 
           client =
-            window.supabase;
+            supabaseClient;
 
         }
 
