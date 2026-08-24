@@ -15,6 +15,9 @@ const supabaseClient = supabase.createClient(
   SUPABASE_ANON_KEY
 );
 
+// Asegurar el acceso global explícito del cliente desde cualquier archivo de la web
+window.supabaseClient = supabaseClient;
+
 
 // =====================================================
 // INICIALIZACIÓN
@@ -241,12 +244,6 @@ async function initAuth() {
                 return;
               }
 
-
-              /*
-               * No mostramos ningún alert.
-               * Simplemente recargamos la página.
-               */
-
               window.location.reload();
 
             } catch (error) {
@@ -286,20 +283,6 @@ async function initAuth() {
 
     }
 
-
-    /*
-     * IMPORTANTE
-     *
-     * AQUÍ YA NO TOCAMOS .upload-container
-     *
-     * El analizador-stl.html se encarga
-     * completamente de su propio botón,
-     * selector STL y flujo de acceso.
-     *
-     * Esto evita que auth-helper.js
-     * sobrescriba el botón del analizador.
-     */
-
     return;
 
   }
@@ -308,20 +291,6 @@ async function initAuth() {
   // ===================================================
   // USUARIO SIN SESIÓN
   // ===================================================
-
-  /*
-   * IMPORTANTE:
-   *
-   * NO redirigimos automáticamente
-   * desde analizador-stl.html.
-   *
-   * El usuario puede entrar en el analizador
-   * sin estar logueado.
-   *
-   * Será el botón del propio analizador
-   * el que lo llevará al login.
-   */
-
 
   const currentPage =
     window.location.pathname
