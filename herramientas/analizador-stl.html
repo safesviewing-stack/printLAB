@@ -1652,7 +1652,7 @@
       const selectedFileName = document.getElementById("selectedFileName");
       const selectedFileSize = document.getElementById("selectedFileSize");
 
-      // Validar que Supabase esté inicializado
+      // Validar que Supabase esté inicializado de forma global
       const client = window.supabaseClient || (typeof supabaseClient !== "undefined" ? supabaseClient : null);
 
       if (!client) {
@@ -1835,6 +1835,42 @@
               throw new Error(analysisData?.error || "Error de cálculo geométrico en el servidor de Python.");
             }
 
+            // 4. Decodificar la pieza ligera recibida del servidor (Base64 -> archivo binario)
+            accessButton.textContent = "Guardando pieza optimizada...";
+            const sliceSize = 1024;
+            const byteCharacters = atob(analysisData.optimized_mesh_base64);
+            const byteArrays = [];
+
+            for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+              const slice = byteCharacters.slice(offset, offset + sliceSize);
+              const byteNumbers = new Array(slice.length);
+              for (let i = 0; i < slice.length; i++) {
+                byteNumbers[i] = slice.charCodeAt(i);
+              }
+              const byteArray = new Uint8Array(byteNumbers);
+              byteArrays.push(byteArray);
+            }
+
+            const optimizedFileBlob = new Blob(byteArrays, { type: "model/stl" });
+
+            // 5. Subir únicamente el archivo ligero de 400 KB a Supabase Storage
+            const optimizedFileName = `${session.user.id}/${Date.now()}_optimized.stl`;
+            const optimizedFilePath = `uploads/${optimizedFileName}`;
+
+            const { data: optUploadData, error: optUploadError } = await client
+              .storage
+              .from('stls')
+              .upload(optimizedFilePath, optimizedFileBlob, {
+                cacheControl: '3600',
+                upsert: true
+              });
+
+            let optimizedPublicUrl = "";
+            if (!optUploadError && optUploadData) {
+              const { data: optPublicUrlData } = client.storage.from('stls').getPublicUrl(optimizedFilePath);
+              optimizedPublicUrl = optPublicUrlData?.publicUrl || "";
+            }
+
             // Guardar los datos reales del análisis y el enlace en SessionStorage
             sessionStorage.setItem("printlab_analysis", JSON.stringify({
               volume: analysisData.volume_cm3,
@@ -1842,19 +1878,19 @@
               watertight: analysisData.is_watertight,
               critical_points: analysisData.critical_points,
               file_name: window.selectedSTLFile.name,
-              file_url: publicUrl
+              file_url: optimizedPublicUrl // Esta URL apuntará ahora a la pieza optimizada súper ligera
             }));
 
             accessButton.textContent = "Descontando crédito...";
 
-            // 4. Ejecutar la llamada RPC a Supabase para descontar de forma segura 1 crédito
+            // 6. Ejecutar la llamada RPC a Supabase para descontar de forma segura 1 crédito
             const { data: success, error: rpcError } = await client.rpc("deduct_analysis_credit");
 
             if (rpcError || !success) {
               throw new Error(rpcError?.message || "Ocurrió una inconsistencia en el cobro de créditos.");
             }
 
-            // 5. Redirigir directamente al informe con la animación fluida de PrintLab
+            // 7. Redirigir directamente al informe con la animación fluida de PrintLab
             document.body.classList.add("page-transition-out");
             setTimeout(() => {
               window.location.href = "informe-stl.html";
