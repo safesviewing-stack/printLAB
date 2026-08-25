@@ -56,7 +56,7 @@
     
     /* PORTADA (HERO) */
     .hero{padding:100px 0 60px;display:grid;grid-template-columns:1.15fr 0.85fr;gap:64px;align-items:start}
-    .eyebrow{display:inline-flex; align-items:center; padding:6px 14px; border-radius:9999px; background:rgba(0,0,0,0.04); font-size:11px; text-transform:uppercase; letter-spacing:1px; font-weight:800; color:var(--muted);}
+    .eyebrow{display:inline-flex; align-items:center; padding:6px 14px; border-radius:9999px; background:rgba(0,0,0,0.04); font-size:11px; text-transform:uppercase; letter-spacing:1px; font-weight:800; color:var(--muted); white-space:nowrap !important;}
     .hero h1{font-size:clamp(44px, 5vw, 72px); line-height:1.05; letter-spacing:-0.03em; font-weight:800; margin:24px 0; max-width:1050px;}
     .hero p{font-size:19px; color:var(--muted); max-width:900px; margin-bottom:32px; line-height:1.5;}
     
@@ -235,10 +235,15 @@
       margin: auto 0 !important;
       white-space: nowrap !important;
     }
+
+    /* HIDE BR TAGS EN SALUDO */
+    #dashboard-greeting br {
+      display: none !important;
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- Parámetro cache-busting v=4 para forzar recarga del JS corregido -->
-  <script src="assets/js/auth-helper.js?v=4"></script>
+  <!-- Parámetro cache-busting v=5 para forzar recarga del JS corregido -->
+  <script src="assets/js/auth-helper.js?v=5"></script>
 </head>
 <body>
   
@@ -279,6 +284,43 @@
     <section id="portada" class="hero section">
       <div>
         <div class="eyebrow" id="dashboard-greeting">Decisiones basadas en datos técnicos</div>
+        
+        <!-- INTERCEPTOR DE RENDIMIENTO DE DOM INLINE (Previene flashes del diseño de 2 líneas) -->
+        <script>
+          (function() {
+            const el = document.getElementById("dashboard-greeting");
+            if (!el) return;
+            
+            // Guardar descriptor original de innerHTML
+            const originalSet = Object.getOwnPropertyDescriptor(Element.prototype, "innerHTML").set;
+            
+            // Interceptar cualquier escritura en innerHTML
+            Object.defineProperty(el, "innerHTML", {
+              set: function(value) {
+                let cleanValue = value;
+                
+                // Si el valor contiene formato de dos líneas o código antiguo, se reestructura al vuelo
+                if (value.includes("<br>") || value.includes("Créditos disponibles:") || value.includes("créditos disponibles")) {
+                  const nameMatch = value.match(/Hola,\s*([^<|]+)/i);
+                  const creditsMatch = value.match(/(?:Créditos disponibles:|Dispones de|créditos disponibles:)\s*(?:<strong>)?(\d+)/i);
+                  
+                  const name = nameMatch ? nameMatch[1].trim() : "Usuario";
+                  const credits = creditsMatch ? creditsMatch[1] : "0";
+                  
+                  cleanValue = `Hola, ${name} | Dispones de ${credits} créditos`;
+                  
+                  // Forzar estilos inline de fondo verde para sincronía absoluta
+                  this.style.setProperty("background", "rgba(184, 255, 61, 0.2)", "important");
+                  this.style.setProperty("color", "var(--ink)", "important");
+                }
+                
+                originalSet.call(this, cleanValue);
+              },
+              configurable: true
+            });
+          })();
+        </script>
+
         <h1>La guía práctica para entender la impresión 3D.</h1>
         <p>Soluciones de ingeniería respaldadas por normativas ISO, ASTM y documentación de fabricantes (Prusa, UltiMaker, Formlabs). Deja de adivinar parámetros.</p>
         
@@ -1300,27 +1342,6 @@
         }
       }
     });
-  </script>
-  <!-- INTEGRACIÓN CON SUPABASE -->
-  <script>
-    async function updateDashboardGreeting() {
-      const { data: { user } } = await supabaseClient.auth.getUser();
-      if (user) {
-        const { data: profile } = await supabaseClient
-          .from('profiles')
-          .select('full_name, credits')
-          .eq('id', user.id)
-          .single();
-        
-        const welcomeDiv = document.querySelector('.eyebrow');
-        if (welcomeDiv && profile) {
-          welcomeDiv.innerHTML = `Hola, ${profile.full_name} | Dispones de ${profile.credits} créditos`;
-          welcomeDiv.style.background = "rgba(184, 255, 61, 0.2)";
-          welcomeDiv.style.color = "var(--ink)";
-        }
-      }
-    }
-    document.addEventListener('DOMContentLoaded', updateDashboardGreeting);
   </script>
 </body>
 </html>
