@@ -35,9 +35,11 @@
     .search-input-group button{background:var(--ink); color:#fff; border:none; padding:12px 20px; border-radius:10px; font-weight:800; cursor:pointer;}
 
     /* SELECTOR DE PIEZAS */
-    .part-selector{display:grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap:12px; margin-bottom:30px;}
-    .selector-card{background:var(--bg); border:1.5px solid var(--line); border-radius:12px; padding:16px; text-align:center; font-weight:800; font-size:13px; cursor:pointer; transition:0.15s;}
+    .part-selector{display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; margin-bottom:30px;}
+    .selector-card{background:var(--bg); border:1.5px solid var(--line); border-radius:12px; padding:12px 6px; text-align:center; font-weight:800; font-size:11.5px; cursor:pointer; transition:0.15s; display:flex; flex-direction:column; gap:4px; justify-content:center; align-items:center;}
+    .selector-card:hover { border-color: var(--ink); background: #fff;}
     .selector-card.selected{background:var(--dark); color:var(--accent); border-color:var(--dark);}
+    .selector-card span.emoji{font-size:18px;}
 
     /* FORMULARIOS DINÁMICOS */
     .form-group{margin-bottom:18px; display:flex; flex-direction:column;}
@@ -47,7 +49,8 @@
     .btn-action{display:block; width:100%; text-align:center; background:var(--accent); color:var(--ink); border:2px solid var(--ink); box-shadow:0 4px 0 var(--ink); padding:16px; border-radius:12px; font-weight:800; font-size:15px; cursor:pointer; margin-top:24px;}
     .btn-action:hover{transform:translateY(-1px); box-shadow:0 6px 0 var(--ink);}
 
-    @media(max-width:992px){ .cad-container{grid-template-columns: 1fr;} .viewport-panel{position:relative; top:0;} }
+    @media(max-width:992px){ .cad-container{grid-template-columns: 1fr;} .viewport-panel{position:relative; top:0;} .part-selector { grid-template-columns: repeat(3, 1fr); } }
+    @media(max-width:600px){ .part-selector { grid-template-columns: repeat(2, 1fr); } }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/STLLoader.js"></script>
@@ -70,12 +73,13 @@
       <div>
         <div class="viewport-panel">
           <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-weight:800; font-size:13px; text-transform:uppercase; color:#b8c0bb;">Visor CAD interactivo</span>
+            <span style="font-weight:800; font-size:13px; text-transform:uppercase; color:#b8c0bb;">Visor CAD reactivo</span>
             <span style="color:var(--accent); font-weight:800; font-size:12px;" id="cadDimensions">0 x 0 x 0 mm</span>
           </div>
           <div class="canvas3d" id="viewportCanvas"></div>
-          <div style="font-size:13px; color:#b8c0bb;">
-            <span>Estrategia: Generación matemática libre por código (sin mallas propietarias).</span>
+          <div style="font-size:13px; color:#b8c0bb; display:flex; justify-content:space-between; align-items:center;">
+            <span>Estrategia: Generación paramétrica por código en tiempo real.</span>
+            <span style="color:#b8ff3d; font-weight:800;" id="buildStatus">✓ Sincronizado</span>
           </div>
         </div>
       </div>
@@ -97,10 +101,13 @@
           <h2 style="margin:0 0 24px; font-weight:800; font-size:22px; letter-spacing:-0.5px;">Configuración de Elemento</h2>
           
           <div class="part-selector">
-            <div class="selector-card selected" data-type="cylinder">Cilindro</div>
-            <div class="selector-card" data-type="tube">Casquillo / Tubo</div>
-            <div class="selector-card" data-type="plate_holes">Placa Taladrada</div>
-            <div class="selector-card" data-type="bracket_l">Escuadra L</div>
+            <div class="selector-card selected" data-type="cylinder"><span class="emoji">🔩</span>Cilindro / Eje</div>
+            <div class="selector-card" data-type="tube"><span class="emoji">🧪</span>Casquillo / Tubo</div>
+            <div class="selector-card" data-type="plate_holes"><span class="emoji">📐</span>Placa Taladrada</div>
+            <div class="selector-card" data-type="bracket_l"><span class="emoji">🏗️</span>Escuadra L</div>
+            <div class="selector-card" data-type="profile_rect"><span class="emoji">⬜</span>Perfil Rect.</div>
+            <div class="selector-card" data-type="profile_u"><span class="emoji">🪟</span>Perfil U</div>
+            <div class="selector-card" data-type="profile_t"><span class="emoji">🪜</span>Perfil T</div>
           </div>
 
           <form id="parametricForm">
@@ -119,8 +126,7 @@
               </select>
             </div>
 
-            <button type="button" class="btn-action" id="btnBuild">Visualizar y Estimar</button>
-            <button type="button" class="btn-action" style="background:var(--ink); color:#fff; margin-top:12px; display:none;" id="btnGoReport">Ver Informe y Descargar STL</button>
+            <button type="button" class="btn-action" style="background:var(--ink); color:#fff; display:none;" id="btnGoReport">Ver Informe y Descargar STL</button>
           </form>
         </div>
       </div>
@@ -136,49 +142,49 @@
     let activeMeshBase64 = "";
     let volumeCm3 = 0.1;
     let computedDimensions = "";
+    let debounceTimer;
 
-    // Esquemas de parámetros por pieza
     const fieldSchemes = {
       cylinder: `
         <div class="form-group">
           <label>Diámetro Exterior (mm)</label>
-          <input type="number" id="p_outer_diameter" value="25" min="1">
+          <input type="number" id="p_outer_diameter" value="25" min="1" step="0.5">
         </div>
         <div class="form-group">
           <label>Longitud / Altura (mm)</label>
-          <input type="number" id="p_length" value="40" min="1">
+          <input type="number" id="p_length" value="40" min="1" step="0.5">
         </div>
       `,
       tube: `
         <div class="form-group">
           <label>Diámetro Exterior (mm)</label>
-          <input type="number" id="p_outer_diameter" value="30" min="1">
+          <input type="number" id="p_outer_diameter" value="30" min="1" step="0.5">
         </div>
         <div class="form-group">
           <label>Diámetro Interior (mm)</label>
-          <input type="number" id="p_inner_diameter" value="15" min="1">
+          <input type="number" id="p_inner_diameter" value="15" min="1" step="0.5">
         </div>
         <div class="form-group">
           <label>Longitud (mm)</label>
-          <input type="number" id="p_length" value="20" min="1">
+          <input type="number" id="p_length" value="20" min="1" step="0.5">
         </div>
       `,
       plate_holes: `
         <div class="form-group">
           <label>Ancho de placa (mm)</label>
-          <input type="number" id="p_width" value="80" min="1">
+          <input type="number" id="p_width" value="80" min="1" step="0.5">
         </div>
         <div class="form-group">
           <label>Longitud de placa (mm)</label>
-          <input type="number" id="p_length" value="40" min="1">
+          <input type="number" id="p_length" value="40" min="1" step="0.5">
         </div>
         <div class="form-group">
           <label>Espesor de pared (mm)</label>
-          <input type="number" id="p_thickness" value="6" min="1">
+          <input type="number" id="p_thickness" value="6" min="1" step="0.5">
         </div>
         <div class="form-group">
           <label>Diámetro de taladros (mm)</label>
-          <input type="number" id="p_hole_diameter" value="6" min="1">
+          <input type="number" id="p_hole_diameter" value="6" min="1" step="0.5">
         </div>
         <div class="form-group">
           <label>Cantidad de taladros</label>
@@ -186,45 +192,119 @@
         </div>
         <div class="form-group">
           <label>Distancia entre centros (mm)</label>
-          <input type="number" id="p_hole_distance" value="40" min="1">
+          <input type="number" id="p_hole_distance" value="40" min="1" step="0.5">
         </div>
       `,
       bracket_l: `
         <div class="form-group">
           <label>Ancho del soporte (mm)</label>
-          <input type="number" id="p_width" value="30" min="1">
+          <input type="number" id="p_width" value="30" min="1" step="0.5">
         </div>
         <div class="form-group">
           <label>Largo de pierna horizontal (mm)</label>
-          <input type="number" id="p_length" value="35" min="1">
+          <input type="number" id="p_length" value="35" min="1" step="0.5">
         </div>
         <div class="form-group">
           <label>Alto de pierna vertical (mm)</label>
-          <input type="number" id="p_height" value="35" min="1">
+          <input type="number" id="p_height" value="35" min="1" step="0.5">
         </div>
         <div class="form-group">
           <label>Espesor del metal (mm)</label>
-          <input type="number" id="p_thickness" value="4" min="1">
+          <input type="number" id="p_thickness" value="4" min="1" step="0.5">
         </div>
         <div class="form-group">
           <label>Taladros de montaje (mm)</label>
-          <input type="number" id="p_hole_diameter" value="5" min="0">
+          <input type="number" id="p_hole_diameter" value="5" min="0" step="0.5">
+        </div>
+      `,
+      profile_rect: `
+        <div class="form-group">
+          <label>Ancho del perfil (mm)</label>
+          <input type="number" id="p_width" value="40" min="1" step="0.5">
+        </div>
+        <div class="form-group">
+          <label>Alto del perfil (mm)</label>
+          <input type="number" id="p_height" value="40" min="1" step="0.5">
+        </div>
+        <div class="form-group">
+          <label>Longitud del perfil (mm)</label>
+          <input type="number" id="p_length" value="60" min="1" step="0.5">
+        </div>
+        <div class="form-group">
+          <label>Espesor de pared (mm)</label>
+          <input type="number" id="p_thickness" value="3" min="1" step="0.5">
+        </div>
+      `,
+      profile_u: `
+        <div class="form-group">
+          <label>Ancho exterior de la U (mm)</label>
+          <input type="number" id="p_width" value="35" min="1" step="0.5">
+        </div>
+        <div class="form-group">
+          <label>Alto exterior de las alas (mm)</label>
+          <input type="number" id="p_height" value="35" min="1" step="0.5">
+        </div>
+        <div class="form-group">
+          <label>Longitud de perfil (mm)</label>
+          <input type="number" id="p_length" value="50" min="1" step="0.5">
+        </div>
+        <div class="form-group">
+          <label>Espesor de pared (mm)</label>
+          <input type="number" id="p_thickness" value="3" min="1" step="0.5">
+        </div>
+      `,
+      profile_t: `
+        <div class="form-group">
+          <label>Ancho exterior de la T (mm)</label>
+          <input type="number" id="p_width" value="40" min="1" step="0.5">
+        </div>
+        <div class="form-group">
+          <label>Alto exterior del alma (mm)</label>
+          <input type="number" id="p_height" value="40" min="1" step="0.5">
+        </div>
+        <div class="form-group">
+          <label>Longitud de perfil (mm)</label>
+          <input type="number" id="p_length" value="50" min="1" step="0.5">
+        </div>
+        <div class="form-group">
+          <label>Espesor del perfil (mm)</label>
+          <input type="number" id="p_thickness" value="3" min="1" step="0.5">
         </div>
       `
     };
 
     function renderFields() {
       document.getElementById("dynamicFieldsContainer").innerHTML = fieldSchemes[activeType];
+      bindReactiveInputs();
+      debouncedBuild(); // Render inicial automático al cambiar de tipo
     }
 
-    // Navegación de Cards de Selección
+    // Vincula automáticamente el evento de renderizado a todos los inputs
+    function bindReactiveInputs() {
+      const form = document.getElementById("parametricForm");
+      form.querySelectorAll("input, select").forEach(element => {
+        element.addEventListener("input", debouncedBuild);
+        element.addEventListener("change", debouncedBuild);
+      });
+    }
+
+    // Control de retraso (debouncing) para evitar peticiones masivas al escribir
+    function debouncedBuild() {
+      document.getElementById("buildStatus").textContent = "⚙️ Calculando...";
+      document.getElementById("buildStatus").style.color = "var(--muted)";
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        requestBuild();
+      }, 250);
+    }
+
+    // Selección del selector de piezas
     document.querySelectorAll(".part-selector .selector-card").forEach(card => {
       card.addEventListener("click", () => {
         document.querySelectorAll(".part-selector .selector-card").forEach(c => c.classList.remove("selected"));
         card.classList.add("selected");
         activeType = card.dataset.type;
         renderFields();
-        document.getElementById("btnGoReport").style.display = "none";
       });
     });
 
@@ -292,15 +372,14 @@
       controls.update();
     }
 
-    // --- CONSUMO DE LA API ---
+    // --- ENVIAR PETICIÓN DE RENDER AL SERVIDOR ---
     async function requestBuild() {
       const payload = { part_type: activeType };
       
-      // Mapear dinámicamente inputs existentes
       const ids = [
         "outer_diameter", "inner_diameter", "length", "width", 
         "height", "thickness", "hole_diameter", "hole_count", 
-        "hole_distance", "edge_distance", "chamfer"
+        "hole_distance"
       ];
       ids.forEach(id => {
         const el = document.getElementById("p_" + id);
@@ -322,15 +401,19 @@
           document.getElementById("cadDimensions").textContent = data.dimensions;
           loadStlInViewer(data.stl_base64);
           document.getElementById("btnGoReport").style.display = "block";
+          document.getElementById("buildStatus").textContent = "✓ Sincronizado";
+          document.getElementById("buildStatus").style.color = "#b8ff3d";
         } else {
-          alert("Error geométrico: " + data.error);
+          document.getElementById("buildStatus").textContent = "⚠️ Error de geometría";
+          document.getElementById("buildStatus").style.color = "#ffa294";
         }
       } catch (err) {
-        alert("Fallo de comunicación con el motor CAD: " + err.message);
+        document.getElementById("buildStatus").textContent = "⚠️ Sin conexión";
+        document.getElementById("buildStatus").style.color = "#ffa294";
       }
     }
 
-    // --- INTEGRACIÓN BUSCADOR ASISTIDO ---
+    // --- ASISTENTE DE IA DE SELECCIÓN ---
     document.getElementById("aiSearchBtn").addEventListener("click", async () => {
       const prompt = document.getElementById("aiInput").value.trim();
       if (!prompt) return;
@@ -343,7 +426,6 @@
         });
         const data = await response.json();
         
-        // Mapear selección sugerida
         activeType = data.recommended_type;
         document.querySelectorAll(".part-selector .selector-card").forEach(card => {
           if (card.dataset.type === activeType) card.classList.add("selected");
@@ -351,7 +433,6 @@
         });
         renderFields();
 
-        // Cargar los parámetros preestablecidos por el modelo heurístico
         Object.keys(data.defaults).forEach(key => {
           const el = document.getElementById("p_" + key);
           if (el) el.value = data.defaults[key];
@@ -361,17 +442,13 @@
         feedback.textContent = `★ Recomendación: ${data.name}. ${data.explanation}`;
         feedback.style.display = "block";
 
-        // Lanzar render automático
-        requestBuild();
+        debouncedBuild();
       } catch (e) {
         console.error("AI Error:", e);
       }
     });
 
-    document.getElementById("btnBuild").addEventListener("click", requestBuild);
-
     document.getElementById("btnGoReport").addEventListener("click", () => {
-      // Transferir estado al almacenamiento temporal para procesar el informe de descarga
       const payload = {
         part_type: activeType,
         outer_diameter: parseFloat(document.getElementById("p_outer_diameter")?.value || 0),
