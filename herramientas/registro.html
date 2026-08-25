@@ -47,6 +47,35 @@
       font-family:"Plus Jakarta Sans",sans-serif;
       line-height:1.6;
       -webkit-font-smoothing:antialiased;
+
+      /* TRANSICIÓN ENTRE PÁGINAS — PRINTLAB */
+      opacity:1;
+      transform:translateY(0);
+      transition:
+        opacity .38s cubic-bezier(.22,1,.36,1),
+        transform .38s cubic-bezier(.22,1,.36,1);
+    }
+
+    body.page-transition-in{
+      opacity:0;
+      transform:translateY(10px);
+    }
+
+    body.page-transition-out{
+      opacity:0;
+      transform:translateY(-10px);
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      body{
+        transition:none !important;
+      }
+
+      body.page-transition-in,
+      body.page-transition-out{
+        opacity:1;
+        transform:none;
+      }
     }
 
     a{
@@ -820,9 +849,7 @@
 
       </div>
 
-
-
-      <div class="footer-col">
+            <div class="footer-col">
 
         <h3>
           Recursos y Herramientas
@@ -1574,6 +1601,81 @@ registerForm.addEventListener(
 
   }
 );
+
+
+
+/* =====================================================
+   TRANSICIÓN ENTRE PÁGINAS — PRINTLAB
+   0,38 s ENTRADA / 0,38 s SALIDA
+===================================================== */
+
+(function(){
+
+  const reduceMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)"
+  ).matches;
+
+  if(reduceMotion) return;
+
+  /* Entrada */
+  document.body.classList.add("page-transition-in");
+
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){
+      document.body.classList.remove("page-transition-in");
+    });
+  });
+
+  /* Salida al navegar */
+  document.addEventListener("click", function(event){
+
+    const link = event.target.closest("a");
+    if(!link) return;
+
+    const href = link.getAttribute("href");
+    if(!href) return;
+
+    if(
+      href.startsWith("#") ||
+      href.startsWith("javascript:") ||
+      link.target === "_blank" ||
+      event.ctrlKey ||
+      event.metaKey ||
+      event.shiftKey ||
+      event.altKey
+    ){
+      return;
+    }
+
+    let url;
+
+    try{
+      url = new URL(href, window.location.href);
+    }catch{
+      return;
+    }
+
+    if(url.origin !== window.location.origin) return;
+
+    /* No interceptar enlaces a la misma página. */
+    if(
+      url.pathname === window.location.pathname &&
+      url.search === window.location.search
+    ){
+      return;
+    }
+
+    event.preventDefault();
+
+    document.body.classList.add("page-transition-out");
+
+    setTimeout(function(){
+      window.location.href = url.href;
+    }, 380);
+
+  }, true);
+
+})();
 
 </script>
 
