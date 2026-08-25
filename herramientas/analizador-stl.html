@@ -1,1121 +1,147 @@
 <!doctype html>
 <html lang="es">
-
 <head>
-
   <meta charset="utf-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width,initial-scale=1"
-  >
-
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Analizador y Optimizador STL con IA — PrintLab PRO</title>
-
-  <link
-    rel="preconnect"
-    href="https://fonts.googleapis.com"
-  >
-
-  <link
-    rel="preconnect"
-    href="https://fonts.gstatic.com"
-    crossorigin
-  >
-
-  <link
-    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap"
-    rel="stylesheet"
-  >
-
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
   <style>
-
-    :root{
-      --bg:#f6f7f4;
-      --card:#fff;
-      --ink:#0d1110;
-      --muted:#5e6661;
-      --line:#dfe4df;
-      --accent:#b8ff3d;
-      --dark:#111715;
-      --max:1200px;
-    }
-
-
-    *{
-      box-sizing:border-box;
-    }
-
-
-    body{
-      margin:0;
-      background:var(--bg);
-      color:var(--ink);
-      font-family:"Plus Jakarta Sans",sans-serif;
-      line-height:1.6;
-
-      -webkit-font-smoothing:antialiased;
-
-      /* =====================================================
-         TRANSICIÓN ENTRE PÁGINAS — PRINTLAB
-         0,38 s ENTRADA / 0,38 s SALIDA
-      ===================================================== */
-
-      opacity:1;
-
-      transform:translateY(0);
-
-      transition:
-        opacity .38s cubic-bezier(.22,1,.36,1),
-        transform .38s cubic-bezier(.22,1,.36,1);
-    }
-
-
-    body.page-transition-in{
-      opacity:0;
-      transform:translateY(10px);
-    }
-
-
-    body.page-transition-out{
-      opacity:0;
-      transform:translateY(-10px);
-    }
-
-
-    @media(prefers-reduced-motion:reduce){
-
-      body{
-        transition:none !important;
-      }
-
-      body.page-transition-in,
-      body.page-transition-out{
-        opacity:1;
-        transform:none;
-      }
-
-    }
-
-
-    a{
-      color:inherit;
-      text-decoration:none;
-    }
-
-
-    .wrap{
-      max-width:var(--max);
-      margin:auto;
-      padding:0 40px;
-    }
-
-
-    /* =====================================================
-       CABECERA Y NAVEGACIÓN
-    ===================================================== */
-
-    .top{
-      position:sticky;
-      top:0;
-      z-index:100;
-
-      background:rgba(246,247,244,.9);
-
-      backdrop-filter:blur(16px);
-
-      border-bottom:1px solid var(--line);
-    }
-
-
-    nav{
-      min-height:95px;
-
-      display:flex;
-
-      align-items:center;
-
-      justify-content:space-between;
-    }
-
-
-    .header-left{
-      display:flex;
-
-      align-items:center;
-
-      gap:24px;
-    }
-
-
-    .brand{
-      font-size:26px;
-
-      font-weight:800;
-
-      letter-spacing:-1px;
-    }
-
-
-    .brand span{
-      background:var(--accent);
-
-      padding:5px 12px;
-
-      border-radius:10px;
-
-      margin-left:6px;
-
-      color:var(--ink);
-    }
-
-
-    /* =====================================================
-       MENÚ HAMBURGUESA
-    ===================================================== */
-
-    .menu-dropdown{
-      position:relative;
-
-      display:inline-block;
-    }
-
-
-    .hamburger{
-      background:none;
-
-      border:none;
-
-      cursor:pointer;
-
-      padding:10px;
-
-      display:flex;
-
-      flex-direction:column;
-
-      gap:5px;
-
-      outline:none;
-    }
-
-
-    .hamburger span{
-      display:block;
-
-      width:26px;
-
-      height:3px;
-
-      background:var(--ink);
-
-      border-radius:2px;
-
-      transition:.3s;
-    }
-
-
-    .hamburger:hover span{
-      background:var(--muted);
-    }
-
-
-    .dropdown-content{
-      display:none;
-
-      position:absolute;
-
-      top:110%;
-
-      left:0;
-
-      background-color:var(--card);
-
-      min-width:240px;
-
-      box-shadow:0 20px 40px rgba(0,0,0,.1);
-
-      border:1.5px solid var(--line);
-
-      border-radius:16px;
-
-      z-index:200;
-
-      flex-direction:column;
-
-      padding:12px 0;
-    }
-
-
-    .dropdown-content.show{
-      display:flex;
-
-      animation:slideDown .2s ease;
-    }
-
-
-    @keyframes slideDown{
-
-      from{
-        opacity:0;
-        transform:translateY(-15px);
-      }
-
-      to{
-        opacity:1;
-        transform:translateY(0);
-      }
-
-    }
-
-
-    .dropdown-content a{
-      padding:14px 24px;
-
-      color:var(--muted);
-
-      font-weight:700;
-
-      font-size:15px;
-
-      transition:.15s;
-    }
-
-
-    .dropdown-content a:hover{
-      color:var(--ink);
-
-      background:rgba(0,0,0,.03);
-    }
-
-
-    .dropdown-content a.active{
-      color:var(--ink);
-
-      background:#f0f4f0;
-
-      border-left:4px solid var(--accent);
-
-      padding-left:20px;
-    }
-
-
-    /* =====================================================
-       BOTONES AUTENTICACIÓN
-    ===================================================== */
-
-    .auth-buttons{
-      display:flex;
-
-      gap:12px;
-
-      align-items:center;
-    }
-
-
-    .btn-auth{
-      display:inline-flex;
-
-      align-items:center;
-
-      justify-content:center;
-
-      padding:12px 24px;
-
-      border-radius:9999px;
-
-      font-weight:800;
-
-      font-size:14px;
-
-      cursor:pointer;
-
-      transition:.2s ease;
-
-      text-decoration:none;
-
-      border:2px solid var(--ink);
-    }
-
-
-    .btn-auth.light{
-      background:#fff;
-
-      color:var(--ink);
-
-      box-shadow:0 3px 0 var(--ink);
-    }
-
-
-    .btn-auth.light:hover{
-      transform:translateY(-1px);
-
-      box-shadow:0 4px 0 var(--ink);
-    }
-
-
-    .btn-auth.light:active{
-      transform:translateY(2px);
-
-      box-shadow:0 1px 0 var(--ink);
-    }
-
-
-    .btn-auth.green{
-      background:var(--accent);
-
-      color:var(--ink);
-
-      box-shadow:0 3px 0 var(--ink);
-    }
-
-
-    .btn-auth.green:hover{
-      transform:translateY(-1px);
-
-      box-shadow:0 4px 0 var(--ink);
-    }
-
-
-    .btn-auth.green:active{
-      transform:translateY(2px);
-
-      box-shadow:0 1px 0 var(--ink);
-    }
-
-
-    /* =====================================================
-       PORTADA
-    ===================================================== */
-
-    .hero{
-      padding:100px 0 60px;
-
-      text-align:center;
-    }
-
-
-    .hero h1{
-      font-size:clamp(44px,5vw,68px);
-
-      letter-spacing:-.03em;
-
-      line-height:1.1;
-
-      margin:0 auto 24px;
-
-      font-weight:800;
-
-      max-width:900px;
-    }
-
-
-    .hero p{
-      font-size:20px;
-
-      color:var(--muted);
-
-      max-width:800px;
-
-      margin:0 auto 40px;
-    }
-
-
-    /* =====================================================
-       FLUJO
-    ===================================================== */
-
-    .logic-flow{
-      display:flex;
-
-      align-items:center;
-
-      justify-content:center;
-
-      gap:16px;
-
-      margin-bottom:60px;
-
-      flex-wrap:wrap;
-    }
-
-
-    .flow-step{
-      background:var(--card);
-
-      border:1.5px solid var(--line);
-
-      padding:12px 20px;
-
-      border-radius:99px;
-
-      font-weight:800;
-
-      font-size:14px;
-
-      box-shadow:0 4px 10px rgba(0,0,0,.02);
-    }
-
-
-    .flow-step.highlight{
-      background:var(--dark);
-
-      color:var(--accent);
-
-      border-color:var(--dark);
-    }
-
-
-    .flow-arrow{
-      color:var(--muted);
-
-      font-weight:800;
-    }
-
-
-    /* =====================================================
-       ZONA DE SUBIDA
-    ===================================================== */
-
-    .upload-container{
-      max-width:800px;
-
-      margin:0 auto 80px;
-
-      background:var(--card);
-
-      border:2px dashed var(--line);
-
-      border-radius:24px;
-
-      padding:60px 40px;
-
-      text-align:center;
-
-      transition:.2s;
-    }
-
-
-    .upload-container:hover{
-      border-color:var(--ink);
-
-      background:#fafbfa;
-    }
-
-    .upload-container.drag-over{
-      border-color:var(--ink);
-      background:#f0f5ed;
-      transform:scale(1.01);
-    }
-
-
-    .upload-icon{
-      font-size:48px;
-
-      margin-bottom:20px;
-    }
-
-
-    .upload-title{
-      font-size:22px;
-
-      font-weight:800;
-
-      margin:0 0 10px;
-
-      letter-spacing:-.5px;
-    }
-
-
-    .upload-desc{
-      color:var(--muted);
-
-      margin:0 0 30px;
-
-      font-size:15px;
-    }
-
-
-    .btn-green{
-      display:inline-block;
-
-      background:var(--accent);
-
-      color:var(--ink);
-
-      padding:18px 40px;
-
-      border-radius:9999px;
-
-      font-weight:800;
-
-      font-size:16px;
-
-      transition:.2s;
-
-      border:2px solid var(--ink);
-
-      box-shadow:0 4px 0 var(--ink);
-
-      cursor:pointer;
-    }
-
-
-    .btn-green:hover{
-      transform:translateY(-1px);
-
-      box-shadow:0 6px 0 var(--ink);
-    }
-
-
-    .btn-green:active{
-      transform:translateY(3px);
-
-      box-shadow:0 1px 0 var(--ink);
-    }
-
-    /* Caja de visualización del archivo seleccionado */
-    .selected-file{
-      display:none;
-      margin:24px auto 0;
-      max-width:600px;
-      padding:16px 20px;
-      background:#f0f5ee;
-      border:1.5px solid rgba(184, 255, 61, 0.4);
-      border-radius:14px;
-      align-items:center;
-      justify-content:space-between;
-      text-align:left;
-    }
-
-    .selected-file.show{
-      display:flex;
-    }
-
-    .selected-file-name{
-      font-weight:800;
-      word-break:break-all;
-    }
-
-    .selected-file-size{
-      color:var(--muted);
-      font-size:13px;
-      margin-top:2px;
-    }
-
-    .btn-remove-file{
-      background:none;
-      border:none;
-      color:#d9432f;
-      font-size:22px;
-      font-weight:800;
-      cursor:pointer;
-      outline:none;
-      padding:8px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      transition:0.2s ease;
-    }
-
-    .btn-remove-file:hover{
-      color:#b42318;
-      transform:scale(1.15);
-    }
-
-    .drag-help{
-      margin-top:18px;
-      color:var(--muted);
-      font-size:13px;
-      font-weight:600;
-    }
-
-
-    .privacy-badge{
-      display:inline-flex;
-
-      align-items:center;
-
-      gap:8px;
-
-      margin-top:24px;
-
-      font-size:13px;
-
-      color:var(--muted);
-
-      font-weight:700;
-    }
-
-
-    .privacy-badge span{
-      background:#eef2ee;
-
-      padding:4px 10px;
-
-      border-radius:6px;
-
-      color:#1e694b;
-    }
-
-
-    /* =====================================================
-       FEATURES
-    ===================================================== */
-
-    .features{
-      display:grid;
-
-      grid-template-columns:repeat(3,1fr);
-
-      gap:30px;
-
-      margin-bottom:100px;
-    }
-
-
-    .feat-card{
-      background:var(--card);
-
-      padding:30px;
-
-      border-radius:20px;
-
-      border:1px solid var(--line);
-    }
-
-
-    .feat-card h4{
-      font-size:18px;
-
-      font-weight:800;
-
-      margin:0 0 10px;
-    }
-
-
-    .feat-card p{
-      font-size:14.5px;
-
-      color:var(--muted);
-
-      margin:0;
-    }
-
-
-    /* =====================================================
-       FOOTER
-    ===================================================== */
-
-    .footer{
-      background:var(--bg);
-
-      border-top:1px solid var(--line);
-
-      padding:80px 0 40px;
-
-      color:var(--muted);
-
-      font-size:14px;
-
-      line-height:1.6;
-    }
-
-
-    .footergrid{
-      display:grid;
-
-      grid-template-columns:1.3fr .85fr .85fr;
-
-      gap:60px;
-
-      margin-bottom:48px;
-    }
-
-
-    .footer-col h3{
-      font-size:16px;
-
-      font-weight:800;
-
-      color:var(--ink);
-
-      margin:0 0 20px;
-
-      letter-spacing:-.3px;
-    }
-
-
-    .footer-col p{
-      margin:0 0 16px;
-
-      color:var(--muted);
-    }
-
-
-    .footer-secondary-text{
-      font-size:12.5px;
-
-      line-height:1.5;
-
-      color:#7d8782;
-
-      margin-top:12px;
-    }
-
-
-    .footer-links{
-      display:flex;
-
-      flex-direction:column;
-
-      gap:10px;
-    }
-
-
-    .footer-links a{
-      color:var(--muted);
-
-      transition:
-        color .15s ease,
-        transform .15s ease;
-
-      cursor:pointer;
-
-      display:inline-flex;
-
-      align-items:center;
-
-      gap:6px;
-
-      text-decoration:none;
-    }
-
-
-    .footer-links a:hover{
-      color:var(--ink);
-
-      transform:translateX(2px);
-    }
-
-
-    .footer-links a span.arrow{
-      transition:color .15s ease;
-    }
-
-
-    .footer-links a:hover span.arrow{
-      color:var(--accent);
-    }
-
-
-    .footer-bottom{
-      border-top:1px solid var(--line);
-
-      padding-top:24px;
-
-      display:flex;
-
-      justify-content:center;
-
-      align-items:center;
-
-      text-align:center;
-
-      font-size:13px;
-
-      color:#7d8782;
-    }
-
-
-    /* =====================================================
-       RESPONSIVE
-    ===================================================== */
-
-    @media(max-width:992px){
-
-      .footergrid{
-        grid-template-columns:1.2fr 1fr;
-
-        gap:40px;
-      }
-
-
-      .features{
-        grid-template-columns:1fr;
-
-        gap:20px;
-      }
-
-    }
-
-
-    @media(max-width:750px){
-
-      .wrap{
-        padding:0 24px;
-      }
-
-
-      .auth-buttons{
-        flex-direction:column;
-
-        width:100%;
-
-        display:none;
-      }
-
-    }
-
-
-    @media(max-width:768px){
-
-      .hero h1{
-        font-size:38px;
-      }
-
-
-      .header-left{
-        gap:10px;
-      }
-
-
-      .btn-auth{
-        padding:10px 16px;
-
-        font-size:13px;
-      }
-
-
-      .brand{
-        font-size:22px;
-      }
-
-
-      .footergrid{
-        grid-template-columns:1fr;
-
-        gap:36px;
-      }
-
-
-      .footer-bottom{
-        flex-direction:column;
-
-        align-items:flex-start;
-      }
-
-    }
-
+    :root{ --bg:#f6f7f4; --card:#fff; --ink:#0d1110; --muted:#5e6661; --line:#dfe4df; --accent:#b8ff3d; --dark:#111715; --max:1200px; }
+    *{box-sizing:border-box}
+    body{margin:0; background:var(--bg); color:var(--ink); font-family:"Plus Jakarta Sans",sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased; opacity:1; transform:translateY(0); transition: opacity .38s ease, transform .38s ease;}
+    body.page-transition-in{ opacity:0; transform:translateY(10px); }
+    body.page-transition-out{ opacity:0; transform:translateY(-10px); }
+    a{color:inherit;text-decoration:none}
+    .wrap{max-width:var(--max);margin:auto;padding:0 40px}
+    
+    /* CABECERA */
+    .top{position:sticky;top:0;z-index:100;background:rgba(246,247,244,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+    nav{min-height:95px;display:flex;align-items:center;justify-content:space-between;}
+    .header-left{display:flex;align-items:center;gap:24px;}
+    .brand{font-size:26px;font-weight:800;letter-spacing:-1px}
+    .brand span{background:var(--accent);padding:5px 12px;border-radius:10px;margin-left:6px;color:var(--ink)}
+    
+    .menu-dropdown{position:relative;display:inline-block}
+    .hamburger{background:none;border:none;cursor:pointer;padding:10px;display:flex;flex-direction:column;gap:5px;outline:none}
+    .hamburger span{display:block;width:26px;height:3px;background:var(--ink);border-radius:2px}
+    .dropdown-content{display:none;position:absolute;top:110%;left:0;background-color:var(--card);min-width:240px;box-shadow:0 20px 40px rgba(0,0,0,.1);border:1.5px solid var(--line);border-radius:16px;z-index:200;flex-direction:column;padding:12px 0}
+    .dropdown-content.show{display:flex;animation:slideDown .2s ease}
+    @keyframes slideDown{from{opacity:0;transform:translateY(-15px)}to{opacity:1;transform:translateY(0)}}
+    .dropdown-content a{padding:14px 24px;color:var(--muted);font-weight:700;font-size:15px;}
+    .dropdown-content a.active{color:var(--ink);background:#f0f4f0;border-left:4px solid var(--accent);padding-left:20px}
+
+    .auth-buttons{display:flex;gap:12px;align-items:center}
+    .btn-auth{display:inline-flex;align-items:center;justify-content:center;padding:12px 24px;border-radius:9999px;font-weight:800;font-size:14px;border:2px solid var(--ink);cursor:pointer;transition:.2s ease}
+    .btn-auth.light{background:#fff;color:var(--ink);box-shadow:0 3px 0 var(--ink)}
+    .btn-auth.green{background:var(--accent);color:var(--ink);box-shadow:0 3px 0 var(--ink)}
+
+    /* WIZARD QUESTIONNAIRE */
+    .hero{padding:60px 0 30px; text-align:center;}
+    .hero h1{font-size:clamp(36px,5vw,56px); letter-spacing:-.03em; line-height:1.1; margin:0 auto 24px; font-weight:800; max-width:900px;}
+    .hero p{font-size:18px; color:var(--muted); max-width:800px; margin:0 auto 40px;}
+
+    .upload-container{max-width:800px; margin:0 auto 80px; background:var(--card); border:2px dashed var(--line); border-radius:24px; padding:50px 40px; text-align:center;}
+    .upload-container.drag-over{border-color:var(--ink); background:#f0f5ed; transform:scale(1.01);}
+    
+    .wizard-step{display:none; text-align:left; animation:fadeIn 0.3s ease-out;}
+    .wizard-step.active{display:block;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+
+    .step-title{font-size:22px; font-weight:800; margin-bottom:10px; color:var(--ink); display:flex; justify-content:space-between; align-items:center;}
+    .step-subtitle{font-size:15px; color:var(--muted); margin-bottom:24px;}
+    
+    /* CARDS SELECTOR */
+    .option-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:16px; margin-bottom:24px;}
+    .option-card{background:var(--bg); border:1.5px solid var(--line); border-radius:14px; padding:20px; font-weight:800; font-size:14px; cursor:pointer; transition:.15s; display:flex; flex-direction:column; gap:8px;}
+    .option-card:hover{border-color:var(--ink); background:#fff;}
+    .option-card.selected{background:var(--dark); color:var(--accent); border-color:var(--dark);}
+    .option-card span.emoji{font-size:24px;}
+
+    /* INPUTS */
+    .form-group{margin-bottom:20px; display:flex; flex-direction:column;}
+    .form-group label{font-size:13px; font-weight:800; margin-bottom:8px; color:var(--muted);}
+    .form-group input, .form-group textarea, .form-group select{padding:14px; border:1.5px solid var(--line); border-radius:12px; font-size:15px; font-weight:700; background:var(--bg); color:var(--ink); outline:none; font-family:inherit;}
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus{background:#fff; border-color:var(--ink);}
+
+    .selected-file{display:none; margin:24px auto 0; max-width:600px; padding:16px 20px; background:#f0f5ee; border:1.5px solid rgba(184, 255, 61, 0.4); border-radius:14px; align-items:center; justify-content:space-between;}
+    .selected-file.show{display:flex;}
+    .btn-remove-file{background:none; border:none; color:#d9432f; font-size:22px; font-weight:800; cursor:pointer; outline:none; padding:8px;}
+
+    .wizard-nav-buttons{display:flex; justify-content:space-between; margin-top:32px; border-top:1.5px solid var(--line); padding-top:24px;}
+    .btn-green{display:inline-block; background:var(--accent); color:var(--ink); padding:16px 36px; border-radius:9999px; font-weight:800; font-size:15px; border:2px solid var(--ink); box-shadow:0 4px 0 var(--ink); cursor:pointer;}
+    .btn-green:hover:not(:disabled){transform:translateY(-1px); box-shadow:0 6px 0 var(--ink);}
+    .btn-green:disabled{opacity:0.5; cursor:not-allowed; box-shadow:none; transform:none;}
+    .btn-secondary{background:#fff; color:var(--ink); border:2px solid var(--ink); padding:16px 36px; border-radius:9999px; font-weight:800; font-size:15px; cursor:pointer;}
+
+    .progress-container{height:6px; background:var(--line); border-radius:3px; margin-bottom:32px; overflow:hidden;}
+    .progress-bar{height:100%; background:var(--ink); width:0%; transition:width 0.3s ease;}
+
+    /* FOOTER */
+    .footer{background:var(--bg); border-top:1px solid var(--line); padding:80px 0 40px; color:var(--muted); font-size:14px; line-height:1.6;}
+    .footergrid{display:grid; grid-template-columns:1.3fr .85fr .85fr; gap:60px; margin-bottom:48px;}
+    .footer-col h3{font-size:16px; font-weight:800; color:var(--ink); margin:0 0 20px;}
+    .footer-bottom{border-top:1px solid var(--line); padding-top:24px; display:flex; justify-content:center; text-align:center; font-size:13px; color:#7d8782;}
+
+    @media(max-width:992px){.footergrid{grid-template-columns:1.2fr 1fr; gap:40px}}
+    @media(max-width:768px){.wrap{padding:0 20px}.footergrid{grid-template-columns:1fr; gap:36px}}
   </style>
-
-
-  <script
-    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
-  ></script>
-
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../assets/js/auth-helper.js"></script>
-
 </head>
-
-
 <body>
 
-
-  <!-- =====================================================
-       CABECERA
-  ===================================================== -->
-
   <header class="top">
-
     <div class="wrap">
-
       <nav>
-
         <div class="header-left">
-
-
           <div class="menu-dropdown">
-
-            <button
-              class="hamburger"
-              onclick="toggleMenu()"
-              aria-label="Abrir menú"
-              type="button"
-            >
-
+            <button class="hamburger" onclick="toggleMenu()" aria-label="Abrir menú" type="button">
               <span></span>
               <span></span>
               <span></span>
-
             </button>
-
-
-            <div
-              class="dropdown-content"
-              id="mainMenu"
-            >
-
-              <a href="../index.html#portada">
-                Inicio
-              </a>
-
-              <a
-                href="../index.html#analizador"
-                class="active"
-              >
-                Analizador IA
-              </a>
-
-              <a href="../index.html#simulador">
-                Simulador
-              </a>
-
-              <a href="../index.html#herramientas">
-                Herramientas
-              </a>
-
-              <a href="../index.html#guias">
-                Guías
-              </a>
-
+            <div class="dropdown-content" id="mainMenu">
+              <a href="../index.html#portada">Inicio</a>
+              <a href="../index.html#analizador" class="active">Analizador IA</a>
+              <a href="../index.html#simulador">Simulador</a>
+              <a href="../index.html#herramientas">Herramientas</a>
+              <a href="../index.html#guias">Guías</a>
             </div>
-
           </div>
-
-
-          <a
-            class="brand"
-            href="../index.html#portada"
-            title="Volver al inicio"
-          >
-
-            PRINT<span>LAB</span>
-
-          </a>
-
+          <a class="brand" href="../index.html#portada" title="Volver al inicio">PRINT<span>LAB</span></a>
         </div>
-
-
         <div class="auth-buttons">
-
-          <a
-            href="login.html"
-            class="btn-auth light"
-          >
-            Iniciar Sesión
-          </a>
-
-          <a
-            href="registro.html"
-            class="btn-auth green"
-          >
-            Registrarse
-          </a>
-
+          <a href="login.html" class="btn-auth light" id="headerLogin">Iniciar Sesión</a>
+          <a href="registro.html" class="btn-auth green" id="headerRegister">Registrarse</a>
         </div>
-
       </nav>
-
     </div>
-
   </header>
 
-
-  <!-- =====================================================
-       CONTENIDO PRINCIPAL
-  ===================================================== -->
-
-  <main class="wrap">
-
-
-    <section class="hero">
-
-
-      <h1>
-        Detectamos los problemas y proponemos cómo resolverlos.
-      </h1>
-
-
-      <p>
-        El primer motor de diagnóstico geométrico asistido por IA para FDM y SLA. Sube tu diseño de ingeniería y evita impresiones fallidas antes de laminar.
-      </p>
-
-
-      <div class="logic-flow">
-
-        <div class="flow-step">
-          1. Sube tu STL
-        </div>
-
-        <div class="flow-arrow">
-          →
-        </div>
-
-        <div class="flow-step">
-          2. Descubre qué está mal
-        </div>
-
-        <div class="flow-arrow">
-          →
-        </div>
-
-        <div class="flow-step highlight">
-          3. Recibe la solución exacta
-        </div>
-
-        <div class="flow-arrow">
-          →
-        </div>
-
-        <div class="flow-step">
-          4. Mejora tu modelo
-        </div>
-
+  <main class="wrap" style="min-height:85vh; padding-top:40px;">
+    
+    <!-- CONTENEDOR PRINCIPAL DEL ASISTENTE MULTIPASO -->
+    <div class="upload-container" id="uploadContainer">
+      
+      <!-- BARRA DE PROGRESO DEL CUESTIONARIO -->
+      <div class="progress-container" id="progressContainer" style="display:none;">
+        <div class="progress-bar" id="progressBar"></div>
       </div>
 
-
-      <!-- =================================================
-           ZONA DE SUBIDA
-      ================================================= -->
-
-      <div class="upload-container" id="uploadContainer">
-
-        <div class="upload-icon">
-          📁
+      <!-- PASO 0: SUBIDA DEL STL -->
+      <div class="wizard-step active" id="step-upload">
+        <div class="upload-icon">📁</div>
+        <h3 class="upload-title" style="text-align:center;">Analizar nuevo modelo STL</h3>
+        <p class="upload-desc" style="text-align:center;">Soporte para FDM, SLA/MSLA y SLS. Límite ampliado: 500MB por archivo.</p>
+        
+        <input type="file" id="stlFile" accept=".stl" hidden>
+        
+        <div style="text-align:center; margin-bottom:20px;">
+          <button type="button" class="btn-green" id="analyzerAccessButton">Inicia sesión para subir archivos</button>
         </div>
 
-
-        <h3 class="upload-title">
-          Analizar nuevo modelo STL
-        </h3>
-
-
-        <p class="upload-desc">
-          Soporte para FDM, SLA/MSLA y SLS. Límite ampliado: 500MB por archivo.
-        </p>
-
-
-        <!-- Input real de tipo archivo oculto para el sistema -->
-        <input
-          type="file"
-          id="stlFile"
-          accept=".stl,model/stl,application/sla"
-          hidden
-        >
-
-        <!-- Botón de control dinámico del analizador -->
-        <button
-          type="button"
-          class="btn-green"
-          id="analyzerAccessButton"
-          style="font-family: inherit;"
-        >
-          Inicia sesión para subir archivos
-        </button>
-
-
-        <!-- Cuadro con datos del archivo seleccionado con botón de borrado en "X" -->
         <div class="selected-file" id="selectedFile">
           <div style="display:flex; align-items:center; gap:12px; text-align:left;">
             <div style="font-size:24px;">📄</div>
@@ -1124,555 +150,356 @@
               <div class="selected-file-size" id="selectedFileSize"></div>
             </div>
           </div>
-          <button type="button" class="btn-remove-file" id="removeFileBtn" title="Eliminar archivo">✕</button>
+          <button type="button" class="btn-remove-file" id="removeFileBtn">✕</button>
         </div>
-
-
-        <div class="drag-help" style="margin-top:18px; color:var(--muted); font-size:13px; font-weight:600;">
-          También puedes arrastrar y soltar aquí tu archivo STL.
-        </div>
-
-
-        <div style="display:block;">
-
-          <div class="privacy-badge">
-
-            <span>
-              🔒 Privacidad por Diseño
-            </span>
-
-            Archivos cifrados. No entrenamos IAs con tus prototipos.
-
-          </div>
-
-        </div>
-
+        <div class="drag-help" style="text-align:center;">También puedes arrastrar y soltar aquí tu archivo STL.</div>
       </div>
 
-
-      <!-- =================================================
-           CARACTERÍSTICAS
-      ================================================= -->
-
-      <section class="features">
-
-
-        <div class="feat-card">
-
-          <h4>
-            Cálculo Estructural Real
-          </h4>
-
-          <p>
-            No inventamos datos. Nuestro motor C++ calcula espesores, volúmenes y geometrías non-manifold. La IA solo interpreta e identifica la gravedad del problema.
-          </p>
-
+      <!-- PASO 1: ¿QUÉ TIPO DE PIEZA ES? -->
+      <div class="wizard-step" id="step-part-type">
+        <div class="step-title"><span>¿Qué tipo de pieza vas a fabricar?</span> <span style="font-size:14px; color:var(--muted);">1 / 8</span></div>
+        <div class="step-subtitle">Selecciona la clasificación que mejor se adapte a su funcionamiento real.</div>
+        <div class="option-grid">
+          <div class="option-card" data-val="funcional" onclick="selectCard(this, 'partType')"><span class="emoji">⚙️</span><span>Pieza funcional</span></div>
+          <div class="option-card" data-val="estructural" onclick="selectCard(this, 'partType')"><span class="emoji">🏗️</span><span>Pieza estructural</span></div>
+          <div class="option-card" data-val="sujecion" onclick="selectCard(this, 'partType')"><span class="emoji">🔩</span><span>Pieza de unión</span></div>
+          <div class="option-card" data-val="herramienta" onclick="selectCard(this, 'partType')"><span class="emoji">🛠️</span><span>Herramienta</span></div>
+          <div class="option-card" data-val="repuesto" onclick="selectCard(this, 'partType')"><span class="emoji">🔄</span><span>Repuesto</span></div>
+          <div class="option-card" data-val="estetica" onclick="selectCard(this, 'partType')"><span class="emoji">💎</span><span>Pieza estética</span></div>
+          <div class="option-card" data-val="prototipo" onclick="selectCard(this, 'partType')"><span class="emoji">🔬</span><span>Prototipo</span></div>
         </div>
-
-
-        <div class="feat-card">
-
-          <h4>
-            Puntuación Printability
-          </h4>
-
-          <p>
-            Obtén un "Score" de 0 a 100 basado en criterios empíricos objetivos. Conoce exactamente tus riesgos de warping, colapso de puentes o fallos de succión en resina.
-          </p>
-
-        </div>
-
-
-        <div class="feat-card">
-
-          <h4>
-            Control de Costes
-          </h4>
-
-          <p>
-            Cada análisis se guarda en tu historial seguro. Optimiza iteraciones reduciendo soportes innecesarios, ahorrando tiempo de máquina y filamento.
-          </p>
-
-        </div>
-
-
-      </section>
-
-
-    </section>
-
-  </main>
-
-    <!-- =====================================================
-       FOOTER
-  ===================================================== -->
-
-  <footer class="footer">
-
-    <div class="wrap">
-
-      <div class="footergrid">
-
-
-        <div class="footer-col">
-
-          <h3>
-            PrintLab — Ingeniería 3D
-          </h3>
-
-
-          <p>
-            Plataforma profesional de análisis y optimización STL mediante Inteligencia Artificial y simuladores paramétricos. Transformamos modelos 3D con problemas en geometrías perfectas listas para fabricar, ahorrando tiempo, material y costes en entornos industriales.
-          </p>
-
-
-          <p class="footer-secondary-text">
-            Desarrollado bajo principios de Privacy by Design. Los datos y archivos STL se procesan con estricta confidencialidad.
-          </p>
-
-        </div>
-
-
-        <div class="footer-col">
-
-          <h3>
-            Recursos y Herramientas
-          </h3>
-
-
-          <div class="footer-links">
-
-            <a href="../index.html#analizador">
-
-              <span class="arrow">
-                →
-              </span>
-
-              Analizador STL IA
-
-            </a>
-
-
-            <a href="../index.html#simulador">
-
-              <span class="arrow">
-                →
-              </span>
-
-              Simulador de Extrusión
-
-            </a>
-
-
-            <a href="../herramientas/calculadora-coste.html">
-
-              <span class="arrow">
-                →
-              </span>
-
-              Calculadoras de Coste y Masa
-
-            </a>
-
-
-            <a href="../index.html#guias">
-
-              <span class="arrow">
-                →
-              </span>
-
-              Base de Conocimiento
-
-            </a>
-
-
-            <a href="../materiales/index.html">
-
-              <span class="arrow">
-                →
-              </span>
-
-              Atlas de Materiales
-
-            </a>
-
-          </div>
-
-        </div>
-
-
-        <div class="footer-col">
-
-          <h3>
-            Soporte y Legal
-          </h3>
-
-
-          <div class="footer-links">
-
-            <a href="../herramientas/precios.html">
-
-              <span class="arrow">
-                →
-              </span>
-
-              Precios y Suscripciones
-
-            </a>
-
-
-            <a href="../herramientas/contacto.html">
-
-              <span class="arrow">
-                →
-              </span>
-
-              Contacto y Soporte
-
-            </a>
-
-
-            <a href="../condiciones-compra.html">
-
-              <span class="arrow">
-                →
-              </span>
-
-              Condiciones de Compra
-
-            </a>
-
-
-            <a href="../terminos.html">
-
-              <span class="arrow">
-                →
-              </span>
-
-              Términos y Condiciones
-
-            </a>
-
-
-            <a href="../privacidad.html">
-
-              <span class="arrow">
-                →
-              </span>
-
-              Política de Privacidad
-
-            </a>
-
-
-            <a href="../cookies.html">
-
-              <span class="arrow">
-                →
-              </span>
-
-              Política de Cookies
-
-            </a>
-
-          </div>
-
-        </div>
-
-
       </div>
 
-
-      <div class="footer-bottom">
-
-        <div class="footer-bottom-text">
-
-          © 2026 PrintLab.
-
+      <!-- PASO 2: ¿PARA QUÉ SIRVE LA PIEZA? -->
+      <div class="wizard-step" id="step-purpose">
+        <div class="step-title"><span>¿Para qué sirve la pieza?</span> <span style="font-size:14px; color:var(--muted);">2 / 8</span></div>
+        <div class="step-subtitle">Describe brevemente su función real para aportar contexto de ingeniería al análisis.</div>
+        <div class="form-group">
+          <label>Descripción de uso</label>
+          <textarea id="q-purpose" rows="4" placeholder="Ej: Es un soporte para sujetar una cámara deportiva al manillar de una bicicleta de montaña."></textarea>
         </div>
+      </div>
 
+      <!-- PASO 3: ¿QUÉ ESFUERZOS SOPORTARÁ? -->
+      <div class="wizard-step" id="step-forces">
+        <div class="step-title"><span>¿Qué tipo de esfuerzos soportará?</span> <span style="font-size:14px; color:var(--muted);">3 / 8</span></div>
+        <div class="step-subtitle">Selecciona todas las solicitaciones mecánicas que afectarán al modelo.</div>
+        <div class="option-grid">
+          <div class="option-card multi" data-val="compresion" onclick="toggleCard(this, 'forces')"><span class="emoji">⬇️</span><span>Compresión</span></div>
+          <div class="option-card multi" data-val="traccion" onclick="toggleCard(this, 'forces')"><span class="emoji">⬆️</span><span>Tracción</span></div>
+          <div class="option-card multi" data-val="flexion" onclick="toggleCard(this, 'forces')"><span class="emoji">↩️</span><span>Flexión</span></div>
+          <div class="option-card multi" data-val="torsion" onclick="toggleCard(this, 'forces')"><span class="emoji">🔄</span><span>Torsión</span></div>
+          <div class="option-card multi" data-val="impactos" onclick="toggleCard(this, 'forces')"><span class="emoji">💥</span><span>Impactos</span></div>
+          <div class="option-card multi" data-val="vibraciones" onclick="toggleCard(this, 'forces')"><span class="emoji">〰️</span><span>Vibraciones</span></div>
+          <div class="option-card multi" data-val="no_se" onclick="toggleCard(this, 'forces')"><span class="emoji">🤷</span><span>No lo sé</span></div>
+        </div>
+        <div class="form-group">
+          <label>¿Qué carga o peso aproximado soportará? (Opcional)</label>
+          <input type="number" id="q-load-weight" placeholder="Ej: 5 (en kg)">
+        </div>
+      </div>
+
+      <!-- PASO 4: DIRECCIÓN DE LA FUERZA -->
+      <div class="wizard-step" id="step-direction">
+        <div class="step-title"><span>¿Cómo se aplicará la fuerza?</span> <span style="font-size:14px; color:var(--muted);">4 / 8</span></div>
+        <div class="step-subtitle">Indica la dirección principal de la carga para definir la orientación óptima de las capas.</div>
+        <div class="option-grid">
+          <div class="option-card" data-val="arriba" onclick="selectCard(this, 'direction')"><span class="emoji">⬇️</span><span>Desde Arriba</span></div>
+          <div class="option-card" data-val="abajo" onclick="selectCard(this, 'direction')"><span class="emoji">⬆️</span><span>Desde Abajo</span></div>
+          <div class="option-card" data-val="lateral" onclick="selectCard(this, 'direction')"><span class="emoji">↔️</span><span>Esfuerzo Lateral</span></div>
+          <div class="option-card" data-val="torsional" onclick="selectCard(this, 'direction')"><span class="emoji">🔄</span><span>Esfuerzo Torsional</span></div>
+          <div class="option-card" data-val="no_se" onclick="selectCard(this, 'direction')"><span class="emoji">🤷</span><span>No lo sé</span></div>
+        </div>
+      </div>
+
+      <!-- PASO 5: CONDICIONES DE FUNCIONAMIENTO -->
+      <div class="wizard-step" id="step-conditions">
+        <div class="step-title"><span>¿En qué condiciones funcionará?</span> <span style="font-size:14px; color:var(--muted);">5 / 8</span></div>
+        <div class="step-subtitle">Selecciona los factores ambientales del entorno de trabajo de la pieza.</div>
+        <div class="option-grid">
+          <div class="option-card multi" data-val="interior" onclick="toggleCard(this, 'environment')"><span class="emoji">🏠</span><span>Interior</span></div>
+          <div class="option-card multi" data-val="exterior" onclick="toggleCard(this, 'environment')"><span class="emoji">☀️</span><span>Exterior / Intemperie</span></div>
+          <div class="option-card multi" data-val="humedad" onclick="toggleCard(this, 'environment')"><span class="emoji">💧</span><span>Humedad o Agua</span></div>
+          <div class="option-card multi" data-val="sol_uv" onclick="toggleCard(this, 'environment')"><span class="emoji">🕶️</span><span>Exposición UV</span></div>
+          <div class="option-card multi" data-val="temp_alta" onclick="toggleCard(this, 'environment')"><span class="emoji">🔥</span><span>Alta Temperatura</span></div>
+          <div class="option-card multi" data-val="quimicos" onclick="toggleCard(this, 'environment')"><span class="emoji">🧪</span><span>Productos Químicos</span></div>
+        </div>
+        <div class="form-group" id="temp-conditional-group" style="display:none;">
+          <label>Temperatura aproximada de funcionamiento (ºC)</label>
+          <input type="number" id="q-operating-temp" placeholder="Ej: 50">
+        </div>
+      </div>
+
+      <!-- PASO 6: MATERIAL PROPUESTO -->
+      <div class="wizard-step" id="step-material">
+        <div class="step-title"><span>¿Qué material tienes previsto utilizar?</span> <span style="font-size:14px; color:var(--muted);">6 / 8</span></div>
+        <div class="step-subtitle">La IA evaluará si es la elección correcta o te propondrá una alternativa más fiable.</div>
+        <div class="option-grid">
+          <div class="option-card" data-val="PLA" onclick="selectCard(this, 'material')"><span class="emoji">🌱</span><span>PLA</span></div>
+          <div class="option-card" data-val="PETG" onclick="selectCard(this, 'material')"><span class="emoji">🧪</span><span>PETG</span></div>
+          <div class="option-card" data-val="ABS" onclick="selectCard(this, 'material')"><span class="emoji">🔥</span><span>ABS</span></div>
+          <div class="option-card" data-val="ASA" onclick="selectCard(this, 'material')"><span class="emoji">☀️</span><span>ASA</span></div>
+          <div class="option-card" data-val="TPU" onclick="selectCard(this, 'material')"><span class="emoji">🩹</span><span>TPU (Flexible)</span></div>
+          <div class="option-card" data-val="Nylon" onclick="selectCard(this, 'material')"><span class="emoji">⚙️</span><span>Nylon / PA</span></div>
+          <div class="option-card" data-val="no_se" onclick="selectCard(this, 'material')"><span class="emoji">🤷</span><span>No lo sé</span></div>
+        </div>
+      </div>
+
+      <!-- PASO 7: PRIORIDAD DE LAMINACIÓN -->
+      <div class="wizard-step" id="step-priority">
+        <div class="step-title"><span>¿Qué quieres priorizar en el análisis?</span> <span style="font-size:14px; color:var(--muted);">7 / 8</span></div>
+        <div class="step-subtitle">Indica cuál es el factor de fabricación que requiere la máxima optimización.</div>
+        <div class="option-grid">
+          <div class="option-card" data-val="max_strength" onclick="selectCard(this, 'priority')"><span class="emoji">💪</span><span>Máxima resistencia</span></div>
+          <div class="option-card" data-val="low_weight" onclick="selectCard(this, 'priority')"><span class="emoji">🎈</span><span>Menor peso</span></div>
+          <div class="option-card" data-val="low_cost" onclick="selectCard(this, 'priority')"><span class="emoji">💶</span><span>Menor coste</span></div>
+          <div class="option-card" data-val="fast_print" onclick="selectCard(this, 'priority')"><span class="emoji">⚡</span><span>Menor tiempo</span></div>
+          <div class="option-card" data-val="balanced" onclick="selectCard(this, 'priority')"><span class="emoji">⚖️</span><span>Equilibrio óptimo</span></div>
+        </div>
+      </div>
+
+      <!-- PASO 8: DETALLES DE LA IMPRESORA (OPCIONAL) -->
+      <div class="wizard-step" id="step-printer">
+        <div class="step-title"><span>¿Qué impresora 3D utilizarás? (Opcional)</span> <span style="font-size:14px; color:var(--muted);">8 / 8</span></div>
+        <div class="step-subtitle">Aporta las especificaciones de tu máquina para ajustar parámetros de retracción y flujos volumétricos.</div>
+        <div class="form-group">
+          <label>Tecnología de impresión</label>
+          <select id="q-tech">
+            <option value="fdm">FDM (Filamento fundido)</option>
+            <option value="sla">SLA / MSLA (Resina líquida)</option>
+            <option value="sls">SLS (Sinterizado de polvo)</option>
+          </select>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+          <div class="form-group">
+            <label>Diámetro de boquilla (Nozzle en mm)</label>
+            <input type="number" id="q-nozzle" placeholder="Ej: 0.4" step="0.1">
+          </div>
+          <div class="form-group">
+            <label>Altura de capa habitual (mm)</label>
+            <input type="number" id="q-layer-height" placeholder="Ej: 0.2" step="0.05">
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTONES DE NAVEGACIÓN DEL WIZARD -->
+      <div class="wizard-nav-buttons" id="wizardNavigation" style="display:none;">
+        <button class="btn-secondary" id="prevBtn" onclick="navigateStep(-1)">Atrás</button>
+        <button class="btn-green" id="nextBtn" onclick="navigateStep(1)">Siguiente</button>
       </div>
 
     </div>
+  </main>
 
+  <footer class="footer">
+    <div class="wrap">
+      <div class="footergrid">
+        <div class="footer-col">
+          <h3>PrintLab — Ingeniería 3D</h3>
+          <p>Plataforma profesional de análisis y optimización STL mediante Inteligencia Artificial y simuladores paramétricos.</p>
+        </div>
+        <div class="footer-col">
+          <h3>Recursos y Herramientas</h3>
+          <div class="footer-links">
+            <a href="../index.html#analizador"><span>→</span> Analizador STL IA</a>
+            <a href="../index.html#simulador"><span>→</span> Simulador de Extrusión</a>
+            <a href="../herramientas/calculadora-coste.html"><span>→</span> Calculadoras de Coste y Masa</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h3>Soporte y Legal</h3>
+          <div class="footer-links">
+            <a href="../herramientas/precios.html"><span>→</span> Precios y Suscripciones</a>
+            <a href="../herramientas/contacto.html"><span>→</span> Contacto y Soporte</a>
+            <a href="../condiciones-compra.html"><span>→</span> Condiciones de Compra</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">© 2026 PrintLab.</div>
+    </div>
   </footer>
 
-
-
-  <!-- =====================================================
-       JAVASCRIPT DEL MENÚ
-  ===================================================== -->
-
   <script>
-
-    /* =====================================================
-       MENÚ HAMBURGUESA
-    ===================================================== */
-
     function toggleMenu(){
-
-      document
-        .getElementById('mainMenu')
-        .classList
-        .toggle('show');
-
+      document.getElementById('mainMenu').classList.toggle('show');
     }
-
-
-    /* =====================================================
-       CERRAR MENÚ AL HACER CLIC FUERA
-    ===================================================== */
-
-    window.onclick =
-      function(event){
-
-        if(
-          !event.target.closest('.menu-dropdown')
-          &&
-          !event.target.closest('.hamburger')
-        ){
-
-          var dropdowns =
-            document.getElementsByClassName(
-              "dropdown-content"
-            );
-
-
-          for(
-            var i = 0;
-            i < dropdowns.length;
-            i++
-          ){
-
-            var openDropdown =
-              dropdowns[i];
-
-
-            if(
-              openDropdown.classList.contains(
-                'show'
-              )
-            ){
-
-              openDropdown
-                .classList
-                .remove('show');
-
-            }
-
-          }
-
+    window.onclick = function(event){
+      if(!event.target.closest('.menu-dropdown') && !event.target.closest('.hamburger')){
+        var dropdowns = document.getElementsByClassName("dropdown-content");
+        for(var i=0; i<dropdowns.length; i++){
+          if(dropdowns[i].classList.contains('show')){ dropdowns[i].classList.remove('show'); }
         }
-
-      };
-
-
-
-    /* =====================================================
-       TRANSICIONES ENTRE PÁGINAS
-       0,38 s ENTRADA / 0,38 s SALIDA
-    ===================================================== */
-
-    (function(){
-
-      const reduceMotion =
-        window.matchMedia(
-          "(prefers-reduced-motion: reduce)"
-        ).matches;
-
-
-      if(reduceMotion){
-
-        return;
-
       }
-
-
-      /*
-        ENTRADA
-
-        La página comienza ligeramente
-        desplazada hacia abajo y transparente.
-      */
-
-      document.body.classList.add(
-        "page-transition-in"
-      );
-
-
-      requestAnimationFrame(
-        function(){
-
-          requestAnimationFrame(
-            function(){
-
-              document.body.classList.remove(
-                "page-transition-in"
-              );
-
-            }
-
-          );
-
-        }
-
-      );
-
-
-      /*
-        SALIDA
-
-        Solo interceptamos enlaces internos.
-      */
-
-      document.addEventListener(
-        "click",
-        function(event){
-
-          const link =
-            event.target.closest("a");
-
-
-          if(!link){
-
-            return;
-
-          }
-
-
-          const href =
-            link.getAttribute("href");
-
-
-          if(!href){
-
-            return;
-
-          }
-
-
-          /*
-            No tocar anclas.
-          */
-
-          if(
-            href.startsWith("#") ||
-            href.startsWith("javascript:")
-          ){
-
-            return;
-
-          }
-
-
-          /*
-            No interferir con Ctrl/Cmd,
-            Shift, Alt o pestañas nuevas.
-          */
-
-          if(
-            link.target === "_blank" ||
-            event.ctrlKey ||
-            event.metaKey ||
-            event.shiftKey ||
-            event.altKey
-          ){
-
-            return;
-
-          }
-
-
-          let url;
-
-
-          try{
-
-            url =
-              new URL(
-                href,
-                window.location.href
-              );
-
-          }
-
-          catch{
-
-            return;
-
-          }
-
-
-          /*
-            Solo páginas del mismo dominio.
-          */
-
-          if(
-            url.origin !==
-            window.location.origin
-          ){
-
-            return;
-
-          }
-
-
-          /*
-            Si es exactamente la misma página,
-            no hacemos transición.
-          */
-
-          if(
-            url.pathname ===
-              window.location.pathname
-            &&
-            url.search ===
-              window.location.search
-          ){
-
-            return;
-
-          }
-
-
-          event.preventDefault();
-
-
-          /*
-            Activamos la salida.
-          */
-
-          document.body.classList.add(
-            "page-transition-out"
-          );
-
-
-          /*
-            380 ms = 0,38 segundos.
-          */
-
-          setTimeout(
-            function(){
-
-              window.location.href =
-                url.href;
-
-            },
-            380
-          );
-
-        },
-        true
-      );
-
+    };
+
+    /* LÓGICA DE TRANSICIÓN DE ENTRADA */
+    (function(){
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if(reduceMotion){ return; }
+      document.body.classList.add("page-transition-in");
+      requestAnimationFrame(function(){
+        requestAnimationFrame(function(){
+          document.body.classList.remove("page-transition-in");
+        });
+      });
     })();
-
   </script>
 
   <!-- =====================================================
-       LÓGICA DEL ANALIZADOR STL (SUPABASE & CRÉDITOS)
+       LÓGICA DEL ANALIZADOR MULTIPASO REAL
   ===================================================== -->
   <script>
+    // Variables globales del formulario
+    const answers = {
+      partType: "",
+      purpose: "",
+      forces: [],
+      loadWeight: "",
+      direction: "",
+      environment: [],
+      operatingTemp: "",
+      material: "",
+      priority: "",
+      printerTech: "fdm",
+      nozzleSize: "",
+      layerHeight: ""
+    };
+
+    // Identificación de pasos de preguntas progresivas
+    const steps = [
+      "step-upload",
+      "step-part-type",
+      "step-purpose",
+      "step-forces",
+      "step-direction",
+      "step-conditions",
+      "step-material",
+      "step-priority",
+      "step-printer"
+    ];
+    let currentStepIdx = 0;
+
+    // Manejar selección de tarjetas de opción única
+    function selectCard(cardElement, field) {
+      const parent = cardElement.parentNode;
+      parent.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+      cardElement.classList.add('selected');
+      answers[field] = cardElement.dataset.val;
+      validateCurrentStep();
+    }
+
+    // Manejar tarjetas de selección múltiple
+    function toggleCard(cardElement, field) {
+      cardElement.classList.toggle('selected');
+      const val = cardElement.dataset.val;
+      
+      if (val === "no_se") {
+        const parent = cardElement.parentNode;
+        parent.querySelectorAll('.option-card').forEach(c => {
+          if (c !== cardElement) {
+            c.classList.remove('selected');
+            answers[field] = answers[field].filter(v => v !== c.dataset.val);
+          }
+        });
+      } else {
+        const noSeCard = cardElement.parentNode.querySelector('[data-val="no_se"]');
+        if (noSeCard) {
+          noSeCard.classList.remove('selected');
+          answers[field] = answers[field].filter(v => v !== "no_se");
+        }
+      }
+
+      if (cardElement.classList.contains('selected')) {
+        if (!answers[field].includes(val)) answers[field].push(val);
+      } else {
+        answers[field] = answers[field].filter(v => v !== val);
+      }
+
+      // Condicional de Temperatura
+      if (field === "environment") {
+        const tempGroup = document.getElementById("temp-conditional-group");
+        if (answers.environment.includes("temp_alta")) {
+          tempGroup.style.display = "flex";
+        } else {
+          tempGroup.style.display = "none";
+          document.getElementById("q-operating-temp").value = "";
+          answers.operatingTemp = "";
+        }
+      }
+
+      validateCurrentStep();
+    }
+
+    // Validar si el paso actual cumple los requisitos obligatorios
+    function validateCurrentStep() {
+      const nextBtn = document.getElementById("nextBtn");
+      let isValid = true;
+
+      if (currentStepIdx === 0) {
+        isValid = window.selectedSTLFile != null;
+      } else if (currentStepIdx === 1) {
+        isValid = answers.partType !== "";
+      } else if (currentStepIdx === 2) {
+        const text = document.getElementById("q-purpose").value.trim();
+        isValid = text.length > 5;
+        answers.purpose = text;
+      } else if (currentStepIdx === 3) {
+        isValid = answers.forces.length > 0;
+        answers.loadWeight = document.getElementById("q-load-weight").value.trim();
+      } else if (currentStepIdx === 4) {
+        isValid = answers.direction !== "";
+      } else if (currentStepIdx === 5) {
+        isValid = answers.environment.length > 0;
+        answers.operatingTemp = document.getElementById("q-operating-temp").value.trim();
+      } else if (currentStepIdx === 6) {
+        isValid = answers.material !== "";
+      } else if (currentStepIdx === 7) {
+        isValid = answers.priority !== "";
+      } else if (currentStepIdx === 8) {
+        answers.printerTech = document.getElementById("q-tech").value;
+        answers.nozzleSize = document.getElementById("q-nozzle").value.trim();
+        answers.layerHeight = document.getElementById("q-layer-height").value.trim();
+        isValid = true;
+      }
+
+      nextBtn.disabled = !isValid;
+    }
+
+    // Navegar de forma progresiva por el formulario
+    function navigateStep(direction) {
+      if (currentStepIdx === 2 && direction === 1) {
+        answers.purpose = document.getElementById("q-purpose").value.trim();
+      }
+      if (currentStepIdx === 3 && direction === 1) {
+        answers.loadWeight = document.getElementById("q-load-weight").value.trim();
+      }
+      if (currentStepIdx === 5 && direction === 1) {
+        answers.operatingTemp = document.getElementById("q-operating-temp").value.trim();
+      }
+
+      document.getElementById(steps[currentStepIdx]).classList.remove("active");
+      currentStepIdx += direction;
+      document.getElementById(steps[currentStepIdx]).classList.add("active");
+
+      // Actualizar Barra de Progreso
+      const progressPercent = (currentStepIdx / (steps.length - 1)) * 100;
+      document.getElementById("progressBar").style.width = `${progressPercent}%`;
+
+      // Visibilidad de botones de navegación
+      const prevBtn = document.getElementById("prevBtn");
+      const nextBtn = document.getElementById("nextBtn");
+
+      prevBtn.style.visibility = currentStepIdx === 0 ? "hidden" : "visible";
+      
+      if (currentStepIdx === steps.length - 1) {
+        nextBtn.textContent = "Iniciar Análisis Real";
+      } else {
+        nextBtn.textContent = "Siguiente";
+      }
+
+      validateCurrentStep();
+    }
+
     document.addEventListener("DOMContentLoaded", async function () {
       const accessButton = document.getElementById("analyzerAccessButton");
       const fileInput = document.getElementById("stlFile");
@@ -1682,30 +509,26 @@
       const selectedFileSize = document.getElementById("selectedFileSize");
       const removeFileBtn = document.getElementById("removeFileBtn");
 
-      // Validar que Supabase esté inicializado de forma global
+      const wizardNav = document.getElementById("wizardNavigation");
+      const progressContainer = document.getElementById("progressContainer");
+
+      // Vincular eventos de inputs de texto dinámicos
+      document.getElementById("q-purpose").addEventListener("input", validateCurrentStep);
+      document.getElementById("q-load-weight").addEventListener("input", validateCurrentStep);
+      document.getElementById("q-operating-temp").addEventListener("input", validateCurrentStep);
+
       const client = window.supabaseClient || (typeof supabaseClient !== "undefined" ? supabaseClient : null);
+      if (!client) return;
 
-      if (!client) {
-        console.error("Supabase no está disponible en este momento.");
-        return;
-      }
-
-      // Obtener sesión activa
       async function getCurrentSession() {
         try {
-          const { data, error } = await client.auth.getSession();
-          if (error) throw error;
+          const { data } = await client.auth.getSession();
           return data?.session || null;
-        } catch (e) {
-          console.warn("No se pudo leer la sesión activa:", e);
-          return null;
-        }
+        } catch { return null; }
       }
 
-      // Actualizar el estado del botón principal según el estado
       async function updateButtonState() {
         const session = await getCurrentSession();
-
         if (!session) {
           accessButton.textContent = "Inicia sesión para subir archivos";
           accessButton.dataset.state = "logged-out";
@@ -1713,7 +536,7 @@
           window.selectedSTLFile = null;
         } else {
           if (window.selectedSTLFile) {
-            accessButton.textContent = "Iniciar análisis (1 crédito)";
+            accessButton.textContent = "Comenzar Cuestionario";
             accessButton.dataset.state = "has-file";
           } else {
             accessButton.textContent = "Seleccionar archivo STL";
@@ -1725,47 +548,28 @@
 
       await updateButtonState();
 
-      // Escuchar cambios de autenticación
       if (client.auth && typeof client.auth.onAuthStateChange === "function") {
-        client.auth.onAuthStateChange(() => {
-          updateButtonState();
-        });
+        client.auth.onAuthStateChange(() => { updateButtonState(); });
       }
 
-      // Formatear tamaño del archivo en una unidad legible
-      function formatSize(bytes) {
-        if (bytes < 1024) return bytes + " B";
-        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
-        return (bytes / (1024 * 1024)).toFixed(1) + " MB";
-      }
-
-      // Procesar la selección de archivos
       function handleFile(file) {
         if (!file) return;
-
-        // Comprobar extensión STL
-        const name = file.name.toLowerCase();
-        if (!name.endsWith(".stl")) {
+        if (!file.name.toLowerCase().endsWith(".stl")) {
           alert("Por favor, sube un archivo geométrico con formato .stl válido.");
           return;
         }
-
-        // Límite ampliado de 500 MB
         if (file.size > 500 * 1024 * 1024) {
-          alert("El tamaño del archivo excede el límite máximo de 500 MB.");
+          alert("El archivo excede el límite de 500 MB.");
           return;
         }
 
         window.selectedSTLFile = file;
         selectedFileName.textContent = file.name;
-        selectedFileSize.textContent = formatSize(file.size);
-
+        selectedFileSize.textContent = (file.size / (1024 * 1024)).toFixed(1) + " MB";
         selectedFile.classList.add("show");
-
         updateButtonState();
       }
 
-      // Escuchar clic en el botón de borrar "✕" de color rojo
       removeFileBtn.addEventListener("click", (e) => {
         e.stopPropagation();
         window.selectedSTLFile = null;
@@ -1773,144 +577,185 @@
         updateButtonState();
       });
 
-      // Escuchar cambios en el input oculto
       fileInput.addEventListener("change", () => {
-        if (fileInput.files.length > 0) {
-          handleFile(fileInput.files[0]);
-        }
+        if (fileInput.files.length > 0) handleFile(fileInput.files[0]);
       });
 
-      // Acción del botón principal
+      // Acción del botón de acceso / inicio del wizard
       accessButton.addEventListener("click", async (e) => {
         e.preventDefault();
         const session = await getCurrentSession();
 
-        // Caso 1: No logueado -> Ir a iniciar sesión
         if (!session) {
-          // Provocar la salida de transición de PrintLab antes de ir al login
           document.body.classList.add("page-transition-out");
-          setTimeout(() => {
-            window.location.href = "login.html?redirect=analizador-stl.html";
-          }, 380);
+          setTimeout(() => { window.location.href = "login.html?redirect=analizador-stl.html"; }, 380);
           return;
         }
 
         const state = accessButton.dataset.state;
-
-        // Caso 2: Logueado pero sin archivo -> Abrir selector de archivos
         if (state === "logged-in-no-file") {
           fileInput.click();
-          return;
-        }
+        } else if (state === "has-file") {
+          // Ocultar zona de subida e iniciar el Wizard Cuestionario progresivo
+          document.querySelector(".upload-icon").style.display = "none";
+          document.querySelector(".upload-title").style.display = "none";
+          document.querySelector(".upload-desc").style.display = "none";
+          accessButton.style.display = "none";
+          document.querySelector(".drag-help").style.display = "none";
+          document.querySelector(".privacy-badge").style.display = "none";
 
-        // Caso 3: Logueado y con archivo listo -> Comprobar créditos, procesar y descontar
-        if (state === "has-file") {
-          accessButton.disabled = true;
-          accessButton.textContent = "Comprobando créditos...";
-
-          try {
-            // 1. Obtener créditos reales en tiempo real del perfil del usuario
-            const { data: profile, error: profileError } = await client
-              .from("profiles")
-              .select("credits")
-              .eq("id", session.user.id)
-              .single();
-
-            if (profileError) throw profileError;
-
-            // Si no tiene créditos suficientes, denegar el paso de forma inmediata
-            if (!profile || profile.credits < 1) {
-              document.body.classList.add("page-transition-out");
-              setTimeout(() => {
-                window.location.href = "precios.html";
-              }, 380);
-              return;
-            }
-
-            // 2. Enviar el archivo real al backend de Python en Render para el análisis geométrico real
-            accessButton.textContent = "Analizando geometría...";
-            const formData = new FormData();
-            formData.append("file", window.selectedSTLFile);
-
-            const apiResponse = await fetch("https://printlab-backend-dy7v.onrender.com/analyze", {
-              method: "POST",
-              body: formData
-            });
-
-            const analysisData = await apiResponse.json();
-            
-            if (!analysisData || !analysisData.success) {
-              throw new Error(analysisData?.error || "Error de cálculo geométrico en el servidor de Python.");
-            }
-
-            // Guardar los datos reales del análisis y la pieza optimizada Base64 en SessionStorage de forma limpia
-            sessionStorage.setItem("printlab_analysis", JSON.stringify({
-              volume: analysisData.volume_cm3,
-              dimensions: analysisData.dimensions,
-              watertight: analysisData.is_watertight,
-              critical_points: analysisData.critical_points,
-              file_name: window.selectedSTLFile.name,
-              optimized_base64: analysisData.optimized_mesh_base64 // El STL ligero simplificado viaja de forma local
-            }));
-
-            accessButton.textContent = "Descontando crédito...";
-
-            // 3. Ejecutar la llamada RPC a Supabase para descontar de forma segura 1 crédito
-            const { data: success, error: rpcError } = await client.rpc("deduct_analysis_credit");
-
-            if (rpcError || !success) {
-              throw new Error(rpcError?.message || "Ocurrió una inconsistencia en el cobro de créditos.");
-            }
-
-            // 4. Redirigir directamente al informe con la animación fluida de PrintLab
-            document.body.classList.add("page-transition-out");
-            setTimeout(() => {
-              window.location.href = "informe-stl.html";
-            }, 380);
-
-          } catch (err) {
-            console.error("Error procesando créditos:", err);
-            alert("No se ha podido procesar el análisis: " + (err.message || "Error de base de datos."));
-            accessButton.disabled = false;
-            updateButtonState();
-          }
+          progressContainer.style.display = "block";
+          wizardNav.style.display = "flex";
+          navigateStep(1); // Ir al paso 1
         }
       });
 
-      /* =====================================================
-         ARRANQUE DE SOPORTE DRAG & DROP
-      ===================================================== */
+      // GESTIÓN FINAL DE ENVÍO DE DATOS Y COBRO DE CRÉDITOS
+      const nextBtn = document.getElementById("nextBtn");
+      nextBtn.addEventListener("click", async () => {
+        if (currentStepIdx < steps.length - 1) return; // Si no es el último paso, ignorar clic
+
+        // Protección de doble clic de uso real
+        nextBtn.disabled = true;
+        nextBtn.textContent = "Procesando...";
+
+        const session = await getCurrentSession();
+        if (!session) {
+          window.location.href = "login.html";
+          return;
+        }
+
+        try {
+          // 1. Validar crédito
+          const { data: profile, error: profileError } = await client
+            .from("profiles")
+            .select("credits")
+            .eq("id", session.user.id)
+            .single();
+
+          if (profileError) throw profileError;
+
+          if (!profile || profile.credits < 1) {
+            alert("Saldo de créditos insuficiente para procesar el análisis real.");
+            window.location.href = "precios.html";
+            return;
+          }
+
+          // 2. Almacenar STL en Supabase Storage
+          nextBtn.textContent = "Almacenando archivo...";
+          const fileExt = window.selectedSTLFile.name.split('.').pop();
+          const fileName = `${session.user.id}/${Date.now()}.${fileExt}`;
+          const filePath = `uploads/${fileName}`;
+
+          const { data: uploadData, error: uploadError } = await client
+            .storage
+            .from('stls')
+            .upload(filePath, window.selectedSTLFile, { cacheControl: '3600', upsert: true });
+
+          let publicUrl = "";
+          if (!uploadError && uploadData) {
+            const { data: publicUrlData } = client.storage.from('stls').getPublicUrl(filePath);
+            publicUrl = publicUrlData?.publicUrl || "";
+          }
+
+          // 3. Llamar al backend de Python pasándole el STL y el cuestionario estructurado
+          nextBtn.textContent = "Analizando geometría...";
+          const formData = new FormData();
+          formData.append("file", window.selectedSTLFile);
+          formData.append("questionnaire", JSON.stringify(answers));
+
+          const apiResponse = await fetch("https://printlab-backend-dy7v.onrender.com/analyze", {
+            method: "POST",
+            body: formData
+          });
+
+          const analysisData = await apiResponse.json();
+          if (!analysisData || !analysisData.success) {
+            throw new Error(analysisData?.error || "Error de cálculo geométrico paramétrico en el backend.");
+          }
+
+          // 4. Decodificar la malla ligera de optimización
+          nextBtn.textContent = "Guardando resultados...";
+          const sliceSize = 1024;
+          const byteCharacters = atob(analysisData.optimized_mesh_base64);
+          const byteArrays = [];
+
+          for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+            const slice = byteCharacters.slice(offset, offset + sliceSize);
+            const byteNumbers = new Array(slice.length);
+            for (let i = 0; i < slice.length; i++) {
+              byteNumbers[i] = slice.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+            byteArrays.push(byteArray);
+          }
+
+          const optimizedFileBlob = new Blob(byteArrays, { type: "model/stl" });
+          const optimizedFileName = `${session.user.id}/${Date.now()}_optimized.stl`;
+          const optimizedFilePath = `uploads/${optimizedFileName}`;
+
+          const { data: optUploadData } = await client
+            .storage
+            .from('stls')
+            .upload(optimizedFilePath, optimizedFileBlob, { cacheControl: '3600', upsert: true });
+
+          let optimizedPublicUrl = "";
+          if (optUploadData) {
+            const { data: optPublicUrlData } = client.storage.from('stls').getPublicUrl(optimizedFilePath);
+            optimizedPublicUrl = optPublicUrlData?.publicUrl || "";
+          }
+
+          // Guardar de forma robusta la combinación en SessionStorage para informe-stl.html
+          sessionStorage.setItem("printlab_analysis", JSON.stringify({
+            volume: analysisData.volume_cm3,
+            dimensions: analysisData.dimensions,
+            watertight: analysisData.is_watertight,
+            critical_points: analysisData.critical_points,
+            file_name: window.selectedSTLFile.name,
+            optimized_base64: analysisData.optimized_mesh_base64,
+            slicer_settings: analysisData.slicer_settings, // Parámetros calculados dinámicamente por Python
+            user_questionnaire: answers
+          }));
+
+          // 5. Restar 1 crédito de forma segura en la base de datos
+          nextBtn.textContent = "Confirmando créditos...";
+          const { data: success, error: rpcError } = await client.rpc("deduct_analysis_credit");
+          if (rpcError || !success) {
+            throw new Error("Transacción denegada. Compruebe su saldo.");
+          }
+
+          // 6. Redirección suave
+          document.body.classList.add("page-transition-out");
+          setTimeout(() => { window.location.href = "informe-stl.html"; }, 380);
+
+        } catch (err) {
+          console.error(err);
+          alert("Error de procesamiento: " + err.message);
+          nextBtn.disabled = false;
+          nextBtn.textContent = "Iniciar Análisis Real";
+        }
+      });
+
+      // DRAG & DROP EVENTS
       uploadContainer.addEventListener("dragover", (e) => {
         e.preventDefault();
         uploadContainer.classList.add("drag-over");
       });
-
       uploadContainer.addEventListener("dragleave", (e) => {
         if (e.relatedTarget && uploadContainer.contains(e.relatedTarget)) return;
         uploadContainer.classList.remove("drag-over");
       });
-
       uploadContainer.addEventListener("drop", async (e) => {
         e.preventDefault();
         uploadContainer.classList.remove("drag-over");
-
         const session = await getCurrentSession();
-
         if (!session) {
-          document.body.classList.add("page-transition-out");
-          setTimeout(() => {
-            window.location.href = "login.html?redirect=analizador-stl.html";
-          }, 380);
+          window.location.href = "login.html";
           return;
         }
-
-        if (e.dataTransfer.files.length > 0) {
-          handleFile(e.dataTransfer.files[0]);
-        }
+        if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
       });
     });
   </script>
-
 </body>
-
 </html>
