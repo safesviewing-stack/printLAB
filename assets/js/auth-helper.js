@@ -15,8 +15,111 @@ const supabaseClient = supabase.createClient(
   SUPABASE_ANON_KEY
 );
 
-// Asegurar el acceso global explícito del cliente desde cualquier archivo de la web
+// Acceso global
 window.supabaseClient = supabaseClient;
+
+
+// =====================================================
+// ESTILOS DEL HEADER DEL USUARIO
+// =====================================================
+
+const authHeaderStyles = document.createElement("style");
+
+authHeaderStyles.textContent = `
+
+  /* =================================================
+     HEADER — USUARIO LOGUEADO
+     ================================================= */
+
+  .user-header-info{
+    display:flex;
+    align-items:center;
+    gap:16px;
+  }
+
+  .user-greeting{
+    font-weight:700;
+    font-size:18px;
+    color:var(--ink);
+    white-space:nowrap;
+  }
+
+  .credits-badge{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    background:var(--accent);
+    color:var(--ink);
+
+    padding:12px 20px;
+    min-height:50px;
+
+    border-radius:17px;
+    border:1px solid var(--ink);
+
+    font-weight:800;
+    font-size:17px;
+
+    white-space:nowrap;
+  }
+
+  .user-header-info .btn-auth.light{
+    background:#fff;
+    color:var(--ink);
+
+    cursor:pointer;
+
+    padding:10px 20px;
+
+    border-radius:9999px;
+
+    font-weight:800;
+
+    border:2px solid var(--ink);
+
+    transition:
+      transform .2s ease,
+      box-shadow .2s ease;
+  }
+
+  .user-header-info .btn-auth.light:hover{
+    transform:translateY(-1px);
+    box-shadow:0 4px 0 var(--ink);
+  }
+
+  .user-header-info .btn-auth.light:active{
+    transform:translateY(2px);
+    box-shadow:0 1px 0 var(--ink);
+  }
+
+
+  /* =================================================
+     RESPONSIVE
+     ================================================= */
+
+  @media(max-width:768px){
+
+    .user-header-info{
+      gap:8px;
+    }
+
+    .user-greeting{
+      font-size:15px;
+    }
+
+    .credits-badge{
+      padding:10px 14px;
+      min-height:44px;
+      font-size:14px;
+      border-radius:14px;
+    }
+
+  }
+
+`;
+
+document.head.appendChild(authHeaderStyles);
 
 
 // =====================================================
@@ -37,11 +140,14 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!prefersReduced) {
 
     document.body.style.opacity = "0";
+
     document.body.style.transition =
       "opacity 0.2s ease-in-out";
 
     setTimeout(() => {
+
       document.body.style.opacity = "1";
+
     }, 50);
 
   }
@@ -64,12 +170,14 @@ async function initAuth() {
 
   let user = null;
 
+
   try {
 
     const {
       data,
       error
     } = await supabaseClient.auth.getUser();
+
 
     if (error) {
 
@@ -83,6 +191,7 @@ async function initAuth() {
       user = data?.user || null;
 
     }
+
 
   } catch (error) {
 
@@ -115,6 +224,11 @@ async function initAuth() {
 
     let profile = null;
 
+
+    // -------------------------------------------------
+    // OBTENER PERFIL
+    // -------------------------------------------------
+
     try {
 
       const result =
@@ -126,7 +240,9 @@ async function initAuth() {
           .eq("id", user.id)
           .single();
 
+
       profile = result.data || null;
+
 
     } catch (error) {
 
@@ -138,11 +254,19 @@ async function initAuth() {
     }
 
 
+    // -------------------------------------------------
+    // NOMBRE
+    // -------------------------------------------------
+
     const name =
       profile?.full_name ||
       user.email?.split("@")[0] ||
       "Usuario";
 
+
+    // -------------------------------------------------
+    // CRÉDITOS
+    // -------------------------------------------------
 
     const credits =
       profile?.credits ?? 0;
@@ -156,52 +280,34 @@ async function initAuth() {
 
       authButtons.innerHTML = `
 
-        <span
-          style="
-            font-weight:700;
-            font-size:14px;
-            margin-right:8px;
-          "
-        >
-          Hola, ${name}
-        </span>
+        <div class="user-header-info">
 
-        <span
-          style="
-            background:var(--accent);
-            color:var(--ink);
-            padding:5px 12px;
-            border-radius:10px;
-            font-weight:800;
-            font-size:13px;
-            margin-right:16px;
-          "
-        >
-          Créditos: ${credits}
-        </span>
+          <span class="user-greeting">
+            Hola, ${name}
+          </span>
 
-        <button
-          id="btn-logout"
-          class="btn-auth light"
-          type="button"
-          style="
-            background:#fff;
-            cursor:pointer;
-            padding:10px 20px;
-            border-radius:9999px;
-            font-weight:800;
-            border:2px solid var(--ink);
-          "
-        >
-          Cerrar Sesión
-        </button>
+
+          <span class="credits-badge">
+            Créditos: ${credits}
+          </span>
+
+
+          <button
+            id="btn-logout"
+            class="btn-auth light"
+            type="button"
+          >
+            Cerrar Sesión
+          </button>
+
+        </div>
 
       `;
 
 
-      // -----------------------------------------------
+      // =================================================
       // CERRAR SESIÓN
-      // -----------------------------------------------
+      // =================================================
 
       const logoutButton =
         document.getElementById(
@@ -216,6 +322,7 @@ async function initAuth() {
           async () => {
 
             logoutButton.disabled = true;
+
             logoutButton.textContent =
               "Cerrando sesión...";
 
@@ -228,6 +335,10 @@ async function initAuth() {
                 await supabaseClient.auth.signOut();
 
 
+              // -----------------------------------------
+              // ERROR
+              // -----------------------------------------
+
               if (error) {
 
                 console.error(
@@ -235,16 +346,26 @@ async function initAuth() {
                   error
                 );
 
+
                 logoutButton.disabled =
                   false;
+
 
                 logoutButton.textContent =
                   "Cerrar Sesión";
 
+
                 return;
+
               }
 
+
+              // -----------------------------------------
+              // RECARGAR
+              // -----------------------------------------
+
               window.location.reload();
+
 
             } catch (error) {
 
@@ -253,8 +374,10 @@ async function initAuth() {
                 error
               );
 
+
               logoutButton.disabled =
                 false;
+
 
               logoutButton.textContent =
                 "Cerrar Sesión";
@@ -276,12 +399,16 @@ async function initAuth() {
     if (greetingDashboard) {
 
       greetingDashboard.innerHTML = `
+
         Hola, ${name}<br>
+
         Créditos disponibles:
         <strong>${credits}</strong>
+
       `;
 
     }
+
 
     return;
 
