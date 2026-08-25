@@ -10,9 +10,7 @@
   <style>
     :root{ --bg:#f6f7f4; --card:#fff; --ink:#0d1110; --muted:#5e6661; --line:#dfe4df; --accent:#b8ff3d; --dark:#111715; --max:1200px; }
     *{box-sizing:border-box}
-    body{margin:0; background:var(--bg); color:var(--ink); font-family:"Plus Jakarta Sans",sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased; opacity:1; transform:translateY(0); transition: opacity .38s ease, transform .38s ease;}
-    body.page-transition-in{ opacity:0; transform:translateY(10px); }
-    body.page-transition-out{ opacity:0; transform:translateY(-10px); }
+    body{margin:0; background:var(--bg); color:var(--ink); font-family:"Plus Jakarta Sans",sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased;}
     a{color:inherit;text-decoration:none}
     .wrap{max-width:var(--max);margin:auto;padding:0 40px}
     
@@ -28,21 +26,14 @@
     .hamburger span{display:block;width:26px;height:3px;background:var(--ink);border-radius:2px}
     .dropdown-content{display:none;position:absolute;top:110%;left:0;background-color:var(--card);min-width:240px;box-shadow:0 20px 40px rgba(0,0,0,.1);border:1.5px solid var(--line);border-radius:16px;z-index:200;flex-direction:column;padding:12px 0}
     .dropdown-content.show{display:flex;animation:slideDown .2s ease}
-    @keyframes slideDown{from{opacity:0;transform:translateY(-15px)}to{opacity:1;transform:translateY(0)}}
-    .dropdown-content a{padding:14px 24px;color:var(--muted);font-weight:700;font-size:15px;}
-    .dropdown-content a.active{color:var(--ink);background:#f0f4f0;border-left:4px solid var(--accent);padding-left:20px}
 
     .auth-buttons{display:flex;gap:12px;align-items:center}
-    .btn-auth{display:inline-flex;align-items:center;justify-content:center;padding:12px 24px;border-radius:9999px;font-weight:800;font-size:14px;border:2px solid var(--ink);cursor:pointer;transition:.2s ease}
+    .btn-auth{display:inline-flex;align-items:center;justify-content:center;padding:12px 24px;border-radius:9999px;font-weight:800;font-size:14px;border:2px solid var(--ink);cursor:pointer;}
     .btn-auth.light{background:#fff;color:var(--ink);box-shadow:0 3px 0 var(--ink)}
     .btn-auth.green{background:var(--accent);color:var(--ink);box-shadow:0 3px 0 var(--ink)}
 
     /* WIZARD QUESTIONNAIRE */
-    .hero{padding:60px 0 30px; text-align:center;}
-    .hero h1{font-size:clamp(36px,5vw,56px); letter-spacing:-.03em; line-height:1.1; margin:0 auto 24px; font-weight:800; max-width:900px;}
-    .hero p{font-size:18px; color:var(--muted); max-width:800px; margin:0 auto 40px;}
-
-    .upload-container{max-width:800px; margin:0 auto 80px; background:var(--card); border:2px dashed var(--line); border-radius:24px; padding:50px 40px; text-align:center;}
+    .upload-container{max-width:800px; margin:80px auto; background:var(--card); border:2px dashed var(--line); border-radius:24px; padding:50px 40px; text-align:center;}
     .upload-container.drag-over{border-color:var(--ink); background:#f0f5ed; transform:scale(1.01);}
     
     .wizard-step{display:none; text-align:left; animation:fadeIn 0.3s ease-out;}
@@ -97,31 +88,30 @@
       <nav>
         <div class="header-left">
           <div class="menu-dropdown">
-            <button class="hamburger" onclick="toggleMenu()" aria-label="Abrir menú" type="button">
+            <button class="hamburger" onclick="document.getElementById('mainMenu').classList.toggle('show');" aria-label="Abrir menú" type="button">
               <span></span>
               <span></span>
               <span></span>
             </button>
             <div class="dropdown-content" id="mainMenu">
               <a href="../index.html#portada">Inicio</a>
-              <a href="../index.html#analizador" class="active">Analizador IA</a>
+              <a href="analizador-stl.html" class="active">Analizador STL</a>
               <a href="../index.html#simulador">Simulador</a>
               <a href="../index.html#herramientas">Herramientas</a>
               <a href="../index.html#guias">Guías</a>
             </div>
           </div>
-          <a class="brand" href="../index.html#portada" title="Volver al inicio">PRINT<span>LAB</span></a>
+          <a class="brand" href="../index.html#portada">PRINT<span>LAB</span></a>
         </div>
         <div class="auth-buttons">
-          <a href="login.html" class="btn-auth light" id="headerLogin">Iniciar Sesión</a>
-          <a href="registro.html" class="btn-auth green" id="headerRegister">Registrarse</a>
+          <a href="login.html" class="btn-auth light">Iniciar Sesión</a>
+          <a href="registro.html" class="btn-auth green">Registrarse</a>
         </div>
       </nav>
     </div>
   </header>
 
-  <main class="wrap" style="min-height:85vh; padding-top:40px;">
-    
+  <main class="wrap">
     <div class="upload-container" id="uploadContainer">
       
       <div class="progress-container" id="progressContainer" style="display:none;">
@@ -130,8 +120,9 @@
 
       <!-- PASO 0: SUBIDA DEL STL -->
       <div class="wizard-step active" id="step-upload">
+        <div style="font-size:48px; margin-bottom:12px;">📁</div>
         <h3 class="upload-title" style="text-align:center;">Analizar nuevo modelo STL</h3>
-        <p class="upload-desc" style="text-align:center;">Soporte para FDM, SLA/MSLA y SLS. Límite ampliado: 100MB por archivo.</p>
+        <p class="upload-desc" style="text-align:center;">Soporte para FDM, SLA/MSLA y SLS. Límite ampliado: 500MB por archivo.</p>
         
         <input type="file" id="stlFile" accept=".stl" hidden>
         
@@ -295,22 +286,6 @@
           <h3>PrintLab — Ingeniería 3D</h3>
           <p>Plataforma profesional de análisis y optimización STL mediante Inteligencia Artificial y simuladores paramétricos.</p>
         </div>
-        <div class="footer-col">
-          <h3>Recursos y Herramientas</h3>
-          <div class="footer-links">
-            <a href="../index.html#analizador"><span>→</span> Analizador STL IA</a>
-            <a href="../index.html#simulador"><span>→</span> Simulador de Extrusión</a>
-            <a href="../herramientas/calculadora-coste.html"><span>→</span> Calculadoras de Coste y Masa</a>
-          </div>
-        </div>
-        <div class="footer-col">
-          <h3>Soporte y Legal</h3>
-          <div class="footer-links">
-            <a href="../herramientas/precios.html"><span>→</span> Precios y Suscripciones</a>
-            <a href="../herramientas/contacto.html"><span>→</span> Contacto y Soporte</a>
-            <a href="../condiciones-compra.html"><span>→</span> Condiciones de Compra</a>
-          </div>
-        </div>
       </div>
       <div class="footer-bottom">© 2026 PrintLab.</div>
     </div>
@@ -320,25 +295,6 @@
     function toggleMenu(){
       document.getElementById('mainMenu').classList.toggle('show');
     }
-    window.onclick = function(event){
-      if(!event.target.closest('.menu-dropdown') && !event.target.closest('.hamburger')){
-        var dropdowns = document.getElementsByClassName("dropdown-content");
-        for(var i=0; i<dropdowns.length; i++){
-          if(dropdowns[i].classList.contains('show')){ dropdowns[i].classList.remove('show'); }
-        }
-      }
-    };
-
-    (function(){
-      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      if(reduceMotion){ return; }
-      document.body.classList.add("page-transition-in");
-      requestAnimationFrame(function(){
-        requestAnimationFrame(function(){
-          document.body.classList.remove("page-transition-in");
-        });
-      });
-    })();
   </script>
 
   <script>
@@ -569,8 +525,7 @@
         const session = await getCurrentSession();
 
         if (!session) {
-          document.body.classList.add("page-transition-out");
-          setTimeout(() => { window.location.href = "login.html?redirect=analizador-stl.html"; }, 380);
+          window.location.href = "login.html";
           return;
         }
 
@@ -578,7 +533,6 @@
         if (state === "logged-in-no-file") {
           fileInput.click();
         } else if (state === "has-file") {
-          document.querySelector(".upload-icon").style.display = "none";
           document.querySelector(".upload-title").style.display = "none";
           document.querySelector(".upload-desc").style.display = "none";
           accessButton.style.display = "none";
@@ -628,12 +582,6 @@
             .from('stls')
             .upload(filePath, window.selectedSTLFile, { cacheControl: '3600', upsert: true });
 
-          let publicUrl = "";
-          if (!uploadError && uploadData) {
-            const { data: publicUrlData } = client.storage.from('stls').getPublicUrl(filePath);
-            publicUrl = publicUrlData?.publicUrl || "";
-          }
-
           nextBtn.textContent = "Analizando geometría...";
           const formData = new FormData();
           formData.append("file", window.selectedSTLFile);
@@ -649,36 +597,6 @@
             throw new Error(analysisData?.error || "Error de cálculo geométrico paramétrico en el backend.");
           }
 
-          nextBtn.textContent = "Guardando resultados...";
-          const sliceSize = 1024;
-          const byteCharacters = atob(analysisData.optimized_mesh_base64);
-          const byteArrays = [];
-
-          for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-            const slice = byteCharacters.slice(offset, offset + sliceSize);
-            const byteNumbers = new Array(slice.length);
-            for (let i = 0; i < slice.length; i++) {
-              byteNumbers[i] = slice.charCodeAt(i);
-            }
-            const byteArray = new Uint8Array(byteNumbers);
-            byteArrays.push(byteArray);
-          }
-
-          const optimizedFileBlob = new Blob(byteArrays, { type: "model/stl" });
-          const optimizedFileName = `${session.user.id}/${Date.now()}_optimized.stl`;
-          const optimizedFilePath = `uploads/${optimizedFileName}`;
-
-          const { data: optUploadData } = await client
-            .storage
-            .from('stls')
-            .upload(optimizedFilePath, optimizedFileBlob, { cacheControl: '3600', upsert: true });
-
-          let optimizedPublicUrl = "";
-          if (optUploadData) {
-            const { data: optPublicUrlData } = client.storage.from('stls').getPublicUrl(optimizedFilePath);
-            optimizedPublicUrl = optPublicUrlData?.publicUrl || "";
-          }
-
           sessionStorage.setItem("printlab_analysis", JSON.stringify({
             volume: analysisData.volume_cm3,
             dimensions: analysisData.dimensions,
@@ -687,9 +605,7 @@
             file_name: window.selectedSTLFile.name,
             optimized_base64: analysisData.optimized_mesh_base64,
             slicer_settings: analysisData.slicer_settings,
-            user_questionnaire: answers,
-            scenarios: analysisData.scenarios,
-            recommended_orientation: analysisData.recommended_orientation
+            user_questionnaire: answers
           }));
 
           nextBtn.textContent = "Confirmando créditos...";
@@ -698,11 +614,9 @@
             throw new Error("Transacción denegada. Compruebe su saldo.");
           }
 
-          document.body.classList.add("page-transition-out");
-          setTimeout(() => { window.location.href = "informe-stl.html"; }, 380);
+          window.location.href = "informe-stl.html";
 
         } catch (err) {
-          console.error(err);
           alert("Error de procesamiento: " + err.message);
           nextBtn.disabled = false;
           nextBtn.textContent = "Iniciar Análisis Real";
