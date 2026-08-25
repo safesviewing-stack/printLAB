@@ -194,6 +194,47 @@
       .footergrid { grid-template-columns: 1fr; gap: 36px; }
       .footer-bottom { flex-direction: column; align-items: flex-start;}
     }
+
+    /* REGLA FORZADA PARA EL INDICADOR DE CRÉDITOS (Alineado simétrico y redondeado perfecto) */
+    #authHeaderContainer span[style*="background" i],
+    #authHeaderContainer span[style*="accent" i],
+    #authHeaderContainer span:nth-child(2),
+    #authHeaderContainer div span:nth-child(2) {
+      background: var(--accent) !important;
+      background-color: var(--accent) !important;
+      color: var(--ink) !important;
+      padding: 8px 18px !important; /* Ajustado para dar más altura y ancho */
+      border-radius: 9999px !important; /* Fuerza cápsula perfecta */
+      font-weight: 800 !important;
+      font-size: 15px !important;
+      border: none !important;
+      border-width: 0px !important;
+      box-shadow: none !important;
+      display: inline-flex !important; /* Centrado vertical interno */
+      align-items: center !important;  
+      justify-content: center !important; 
+      align-self: center !important; /* Impide estiramiento vertical */
+      line-height: 1 !important; 
+      height: auto !important;
+      min-height: 0 !important;
+      max-height: 38px !important; /* Límite de altura ajustado para el nuevo padding */
+      margin: auto 0 !important;
+      white-space: nowrap !important;
+    }
+
+    /* REGLA FORZADA PARA EL SALUDO DE USUARIO (Impide alteraciones de tamaño) */
+    #authHeaderContainer .user-greeting,
+    #authHeaderContainer span:nth-child(1),
+    #authHeaderContainer div span:nth-child(1),
+    #authHeaderContainer span:first-child,
+    #authHeaderContainer div span:first-child {
+      font-weight: 700 !important;
+      font-size: 15px !important;
+      color: var(--ink) !important;
+      display: inline-block !important;
+      margin: auto 0 !important;
+      white-space: nowrap !important;
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/js/auth-helper.js"></script>
@@ -222,7 +263,8 @@
           <a class="brand" href="#portada" title="Volver al inicio">PRINT<span>LAB</span></a>
         </div>
 
-        <div class="auth-buttons" id="authHeaderContainer">
+        <!-- Se añade ocultación inicial por estilos inline para prevenir destellos -->
+        <div class="auth-buttons" id="authHeaderContainer" style="opacity: 0; visibility: hidden; transition: opacity 0.15s ease, visibility 0.15s ease;">
           <a href="herramientas/login.html" class="btn-auth light">Iniciar Sesión</a>
           <a href="herramientas/registro.html" class="btn-auth green">Registrarse</a>
         </div>
