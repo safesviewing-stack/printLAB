@@ -91,7 +91,7 @@
     @media(max-width:768px){.wrap{padding:0 20px}.footergrid{grid-template-columns:1fr; gap:36px}}
     @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
 
-    /* REGLA FORZADA PARA EL INDICADOR DE CRÉDITOS (Bloquea alteraciones por scripts externos) */
+    /* REGLA FORZADA PARA EL INDICADOR DE CRÉDITOS (Alineado simétrico y redondeado perfecto) */
     #authHeaderContainer span[style*="background" i],
     #authHeaderContainer span[style*="accent" i],
     #authHeaderContainer span:nth-child(2),
@@ -114,6 +114,20 @@
       height: auto !important;
       min-height: 0 !important;
       max-height: 32px !important; /* Límite estricto de altura */
+      margin: auto 0 !important;
+      white-space: nowrap !important;
+    }
+
+    /* REGLA FORZADA PARA EL SALUDO DE USUARIO (Impide alteraciones de tamaño) */
+    #authHeaderContainer .user-greeting,
+    #authHeaderContainer span:nth-child(1),
+    #authHeaderContainer div span:nth-child(1),
+    #authHeaderContainer span:first-child,
+    #authHeaderContainer div span:first-child {
+      font-weight: 700 !important;
+      font-size: 15px !important;
+      color: var(--ink) !important;
+      display: inline-block !important;
       margin: auto 0 !important;
       white-space: nowrap !important;
     }
@@ -614,12 +628,20 @@
       } catch { return null; }
     }
 
-    // Función para forzar el estilo de la insignia de créditos y corregir lo que inyecte auth-helper.js
+    // Función para forzar el estilo de la insignia de créditos y del saludo, corrigiendo lo que inyecte auth-helper.js
     function forceCreditsStyle() {
       const container = document.getElementById("authHeaderContainer");
       if (!container) return;
       const spans = container.getElementsByTagName("span");
       for (let span of spans) {
+        if (span.textContent.includes("Hola,")) {
+          span.style.setProperty("font-weight", "700", "important");
+          span.style.setProperty("font-size", "15px", "important");
+          span.style.setProperty("color", "var(--ink)", "important");
+          span.style.setProperty("display", "inline-block", "important");
+          span.style.setProperty("margin", "auto 0", "important");
+          span.style.setProperty("white-space", "nowrap", "important");
+        }
         if (span.textContent.includes("Créditos:")) {
           span.style.setProperty("background", "var(--accent)", "important");
           span.style.setProperty("background-color", "var(--accent)", "important");
