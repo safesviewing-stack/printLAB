@@ -1069,7 +1069,7 @@
 
 
         <p class="upload-desc">
-          Soporte para FDM, SLA/MSLA y SLS. Límite: 100MB por archivo.
+          Soporte para FDM, SLA/MSLA y SLS. Límite ampliado: 500MB por archivo.
         </p>
 
 
@@ -1720,9 +1720,9 @@
           return;
         }
 
-        // Límite de 100 MB
-        if (file.size > 100 * 1024 * 1024) {
-          alert("El tamaño del archivo excede el límite máximo de 100 MB.");
+        // Límite ampliado de 500 MB
+        if (file.size > 500 * 1024 * 1024) {
+          alert("El tamaño del archivo excede el límite máximo de 500 MB.");
           return;
         }
 
