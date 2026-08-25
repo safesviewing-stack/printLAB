@@ -4,12 +4,24 @@
 <head>
 
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  >
 
   <title>Analizador y Optimizador STL con IA — PrintLab PRO</title>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+  >
+
+  <link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+  >
 
   <link
     href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap"
@@ -29,9 +41,11 @@
       --max:1200px;
     }
 
+
     *{
       box-sizing:border-box;
     }
+
 
     body{
       margin:0;
@@ -39,12 +53,56 @@
       color:var(--ink);
       font-family:"Plus Jakarta Sans",sans-serif;
       line-height:1.6;
+
+      -webkit-font-smoothing:antialiased;
+
+      /* =====================================================
+         TRANSICIÓN ENTRE PÁGINAS — PRINTLAB
+         0,38 s ENTRADA / 0,38 s SALIDA
+      ===================================================== */
+
+      opacity:1;
+
+      transform:translateY(0);
+
+      transition:
+        opacity .38s cubic-bezier(.22,1,.36,1),
+        transform .38s cubic-bezier(.22,1,.36,1);
     }
+
+
+    body.page-transition-in{
+      opacity:0;
+      transform:translateY(10px);
+    }
+
+
+    body.page-transition-out{
+      opacity:0;
+      transform:translateY(-10px);
+    }
+
+
+    @media(prefers-reduced-motion:reduce){
+
+      body{
+        transition:none !important;
+      }
+
+      body.page-transition-in,
+      body.page-transition-out{
+        opacity:1;
+        transform:none;
+      }
+
+    }
+
 
     a{
       color:inherit;
       text-decoration:none;
     }
+
 
     .wrap{
       max-width:var(--max);
@@ -53,99 +111,148 @@
     }
 
 
-    /* =========================
-       CABECERA
-    ========================= */
+    /* =====================================================
+       CABECERA Y NAVEGACIÓN
+    ===================================================== */
 
     .top{
       position:sticky;
       top:0;
       z-index:100;
+
       background:rgba(246,247,244,.9);
+
       backdrop-filter:blur(16px);
+
       border-bottom:1px solid var(--line);
     }
 
+
     nav{
       min-height:95px;
+
       display:flex;
+
       align-items:center;
+
       justify-content:space-between;
     }
 
+
     .header-left{
       display:flex;
+
       align-items:center;
+
       gap:24px;
     }
 
+
     .brand{
       font-size:26px;
+
       font-weight:800;
+
       letter-spacing:-1px;
     }
 
+
     .brand span{
       background:var(--accent);
+
       padding:5px 12px;
+
       border-radius:10px;
+
       margin-left:6px;
+
       color:var(--ink);
     }
 
 
-    /* =========================
+    /* =====================================================
        MENÚ HAMBURGUESA
-    ========================= */
+    ===================================================== */
 
     .menu-dropdown{
       position:relative;
+
       display:inline-block;
     }
 
+
     .hamburger{
       background:none;
+
       border:none;
+
       cursor:pointer;
+
       padding:10px;
+
       display:flex;
+
       flex-direction:column;
+
       gap:5px;
+
       outline:none;
     }
 
+
     .hamburger span{
       display:block;
+
       width:26px;
+
       height:3px;
+
       background:var(--ink);
+
       border-radius:2px;
+
       transition:.3s;
     }
+
 
     .hamburger:hover span{
       background:var(--muted);
     }
 
+
     .dropdown-content{
       display:none;
+
       position:absolute;
+
       top:110%;
+
       left:0;
+
       background-color:var(--card);
+
       min-width:240px;
+
       box-shadow:0 20px 40px rgba(0,0,0,.1);
+
       border:1.5px solid var(--line);
+
       border-radius:16px;
- z-index:200;
+
+      z-index:200;
+
       flex-direction:column;
+
       padding:12px 0;
     }
 
+
     .dropdown-content.show{
       display:flex;
+
       animation:slideDown .2s ease;
     }
+
 
     @keyframes slideDown{
 
@@ -161,403 +268,525 @@
 
     }
 
+
     .dropdown-content a{
       padding:14px 24px;
+
       color:var(--muted);
+
       font-weight:700;
+
       font-size:15px;
+
       transition:.15s;
     }
 
+
     .dropdown-content a:hover{
       color:var(--ink);
+
       background:rgba(0,0,0,.03);
     }
 
+
     .dropdown-content a.active{
       color:var(--ink);
+
       background:#f0f4f0;
+
       border-left:4px solid var(--accent);
+
       padding-left:20px;
     }
 
 
-    /* =========================
+    /* =====================================================
        BOTONES AUTENTICACIÓN
-    ========================= */
+    ===================================================== */
 
     .auth-buttons{
       display:flex;
+
       gap:12px;
+
       align-items:center;
     }
+
 
     .btn-auth{
       display:inline-flex;
+
       align-items:center;
+
       justify-content:center;
+
       padding:12px 24px;
+
       border-radius:9999px;
+
       font-weight:800;
+
       font-size:14px;
+
       cursor:pointer;
+
       transition:.2s ease;
+
       text-decoration:none;
+
       border:2px solid var(--ink);
     }
 
+
     .btn-auth.light{
       background:#fff;
+
       color:var(--ink);
+
       box-shadow:0 3px 0 var(--ink);
     }
+
 
     .btn-auth.light:hover{
       transform:translateY(-1px);
+
       box-shadow:0 4px 0 var(--ink);
     }
+
 
     .btn-auth.light:active{
       transform:translateY(2px);
+
       box-shadow:0 1px 0 var(--ink);
     }
+
 
     .btn-auth.green{
       background:var(--accent);
+
       color:var(--ink);
+
       box-shadow:0 3px 0 var(--ink);
     }
 
+
     .btn-auth.green:hover{
       transform:translateY(-1px);
+
       box-shadow:0 4px 0 var(--ink);
     }
 
+
     .btn-auth.green:active{
       transform:translateY(2px);
+
       box-shadow:0 1px 0 var(--ink);
     }
 
 
-    /* =========================
-       HERO
-    ========================= */
+    /* =====================================================
+       PORTADA
+    ===================================================== */
 
     .hero{
       padding:100px 0 60px;
+
       text-align:center;
     }
 
+
     .hero h1{
       font-size:clamp(44px,5vw,68px);
+
       letter-spacing:-.03em;
+
       line-height:1.1;
+
       margin:0 auto 24px;
+
       font-weight:800;
+
       max-width:900px;
     }
 
+
     .hero p{
       font-size:20px;
+
       color:var(--muted);
+
       max-width:800px;
+
       margin:0 auto 40px;
     }
 
 
-    /* =========================
+    /* =====================================================
        FLUJO
-    ========================= */
+    ===================================================== */
 
     .logic-flow{
       display:flex;
+
       align-items:center;
+
       justify-content:center;
+
       gap:16px;
+
       margin-bottom:60px;
+
       flex-wrap:wrap;
     }
 
+
     .flow-step{
       background:var(--card);
+
       border:1.5px solid var(--line);
+
       padding:12px 20px;
+
       border-radius:99px;
+
       font-weight:800;
+
       font-size:14px;
+
       box-shadow:0 4px 10px rgba(0,0,0,.02);
     }
 
+
     .flow-step.highlight{
       background:var(--dark);
+
       color:var(--accent);
+
       border-color:var(--dark);
     }
 
+
     .flow-arrow{
       color:var(--muted);
+
       font-weight:800;
     }
 
 
-    /* =========================
+    /* =====================================================
        ZONA DE SUBIDA
-    ========================= */
+    ===================================================== */
 
     .upload-container{
       max-width:800px;
+
       margin:0 auto 80px;
+
       background:var(--card);
+
       border:2px dashed var(--line);
+
       border-radius:24px;
+
       padding:60px 40px;
+
       text-align:center;
+
       transition:.2s;
     }
+
 
     .upload-container:hover{
       border-color:var(--ink);
+
       background:#fafbfa;
     }
 
-    .upload-container.drag-over{
-      border-color:var(--ink);
-      background:#f0f5ed;
-      transform:scale(1.01);
-    }
 
     .upload-icon{
       font-size:48px;
+
       margin-bottom:20px;
     }
 
+
     .upload-title{
       font-size:22px;
+
       font-weight:800;
+
       margin:0 0 10px;
+
       letter-spacing:-.5px;
     }
 
+
     .upload-desc{
       color:var(--muted);
+
       margin:0 0 30px;
+
       font-size:15px;
     }
 
+
     .btn-green{
       display:inline-block;
+
       background:var(--accent);
+
       color:var(--ink);
+
       padding:18px 40px;
+
       border-radius:9999px;
+
       font-weight:800;
+
       font-size:16px;
+
       transition:.2s;
+
       border:2px solid var(--ink);
+
       box-shadow:0 4px 0 var(--ink);
+
       cursor:pointer;
     }
 
+
     .btn-green:hover{
       transform:translateY(-1px);
+
       box-shadow:0 6px 0 var(--ink);
     }
 
+
     .btn-green:active{
       transform:translateY(3px);
+
       box-shadow:0 1px 0 var(--ink);
     }
 
 
-    /* =========================
-       ARCHIVO SELECCIONADO
-    ========================= */
-
-    .selected-file{
-      display:none;
-      margin:24px auto 0;
-      max-width:600px;
-      padding:14px 18px;
-      background:#f0f4f0;
-      border:1px solid var(--line);
-      border-radius:12px;
-      text-align:left;
-    }
-
-    .selected-file.show{
-      display:block;
-    }
-
-    .selected-file-name{
-      font-weight:800;
-      word-break:break-word;
-    }
-
-    .selected-file-size{
-      color:var(--muted);
-      font-size:13px;
-      margin-top:3px;
-    }
-
-    .drag-help{
-      margin-top:18px;
-      color:var(--muted);
-      font-size:13px;
-      font-weight:600;
-    }
-
-
-    /* =========================
-       PRIVACIDAD
-    ========================= */
-
     .privacy-badge{
       display:inline-flex;
+
       align-items:center;
+
       gap:8px;
+
       margin-top:24px;
+
       font-size:13px;
+
       color:var(--muted);
+
       font-weight:700;
     }
 
+
     .privacy-badge span{
       background:#eef2ee;
+
       padding:4px 10px;
+
       border-radius:6px;
+
       color:#1e694b;
     }
 
 
-    /* =========================
+    /* =====================================================
        FEATURES
-    ========================= */
+    ===================================================== */
 
     .features{
       display:grid;
+
       grid-template-columns:repeat(3,1fr);
+
       gap:30px;
+
       margin-bottom:100px;
     }
 
+
     .feat-card{
       background:var(--card);
+
       padding:30px;
+
       border-radius:20px;
+
       border:1px solid var(--line);
     }
 
+
     .feat-card h4{
       font-size:18px;
+
       font-weight:800;
+
       margin:0 0 10px;
     }
 
+
     .feat-card p{
       font-size:14.5px;
+
       color:var(--muted);
+
       margin:0;
     }
 
 
-    /* =========================
+    /* =====================================================
        FOOTER
-    ========================= */
+    ===================================================== */
 
     .footer{
       background:var(--bg);
+
       border-top:1px solid var(--line);
+
       padding:80px 0 40px;
+
       color:var(--muted);
+
       font-size:14px;
+
       line-height:1.6;
     }
 
+
     .footergrid{
       display:grid;
+
       grid-template-columns:1.3fr .85fr .85fr;
+
       gap:60px;
+
       margin-bottom:48px;
     }
 
+
     .footer-col h3{
       font-size:16px;
+
       font-weight:800;
+
       color:var(--ink);
+
       margin:0 0 20px;
+
       letter-spacing:-.3px;
     }
 
+
     .footer-col p{
       margin:0 0 16px;
+
       color:var(--muted);
     }
+
 
     .footer-secondary-text{
       font-size:12.5px;
+
       line-height:1.5;
+
       color:#7d8782;
+
       margin-top:12px;
     }
 
+
     .footer-links{
       display:flex;
+
       flex-direction:column;
+
       gap:10px;
     }
 
+
     .footer-links a{
       color:var(--muted);
-      transition:color .15s ease,transform .15s ease;
+
+      transition:
+        color .15s ease,
+        transform .15s ease;
+
       cursor:pointer;
+
       display:inline-flex;
+
       align-items:center;
+
       gap:6px;
+
       text-decoration:none;
     }
 
+
     .footer-links a:hover{
       color:var(--ink);
+
       transform:translateX(2px);
     }
+
 
     .footer-links a span.arrow{
       transition:color .15s ease;
     }
 
+
     .footer-links a:hover span.arrow{
       color:var(--accent);
     }
 
+
     .footer-bottom{
       border-top:1px solid var(--line);
+
       padding-top:24px;
+
       display:flex;
+
       justify-content:center;
+
       align-items:center;
+
       text-align:center;
+
       font-size:13px;
+
       color:#7d8782;
     }
 
 
-    /* =========================
+    /* =====================================================
        RESPONSIVE
-    ========================= */
+    ===================================================== */
 
     @media(max-width:992px){
 
       .footergrid{
         grid-template-columns:1.2fr 1fr;
+
         gap:40px;
       }
 
+
       .features{
         grid-template-columns:1fr;
+
         gap:20px;
       }
 
     }
+
 
     @media(max-width:750px){
 
@@ -565,13 +794,17 @@
         padding:0 24px;
       }
 
+
       .auth-buttons{
         flex-direction:column;
+
         width:100%;
+
         display:none;
       }
 
     }
+
 
     @media(max-width:768px){
 
@@ -579,31 +812,35 @@
         font-size:38px;
       }
 
+
       .header-left{
         gap:10px;
       }
 
+
       .btn-auth{
         padding:10px 16px;
+
         font-size:13px;
       }
+
 
       .brand{
         font-size:22px;
       }
 
+
       .footergrid{
         grid-template-columns:1fr;
+
         gap:36px;
       }
 
+
       .footer-bottom{
         flex-direction:column;
-        align-items:flex-start;
-      }
 
-      .upload-container{
-        padding:45px 24px;
+        align-items:flex-start;
       }
 
     }
@@ -611,10 +848,10 @@
   </style>
 
 
-  <!-- SUPABASE -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+  ></script>
 
-  <!-- HELPER DE AUTENTICACIÓN -->
   <script src="../assets/js/auth-helper.js"></script>
 
 </head>
@@ -623,9 +860,9 @@
 <body>
 
 
-  <!-- =========================
+  <!-- =====================================================
        CABECERA
-  ========================= -->
+  ===================================================== -->
 
   <header class="top">
 
@@ -635,19 +872,27 @@
 
         <div class="header-left">
 
+
           <div class="menu-dropdown">
 
             <button
               class="hamburger"
               onclick="toggleMenu()"
               aria-label="Abrir menú"
+              type="button"
             >
+
               <span></span>
               <span></span>
               <span></span>
+
             </button>
 
-            <div class="dropdown-content" id="mainMenu">
+
+            <div
+              class="dropdown-content"
+              id="mainMenu"
+            >
 
               <a href="../index.html#portada">
                 Inicio
@@ -682,7 +927,9 @@
             href="../index.html#portada"
             title="Volver al inicio"
           >
+
             PRINT<span>LAB</span>
+
           </a>
 
         </div>
@@ -693,7 +940,6 @@
           <a
             href="login.html"
             class="btn-auth light"
-            id="headerLogin"
           >
             Iniciar Sesión
           </a>
@@ -701,7 +947,6 @@
           <a
             href="registro.html"
             class="btn-auth green"
-            id="headerRegister"
           >
             Registrarse
           </a>
@@ -715,26 +960,25 @@
   </header>
 
 
-  <!-- =========================
+  <!-- =====================================================
        CONTENIDO PRINCIPAL
-  ========================= -->
+  ===================================================== -->
 
   <main class="wrap">
 
+
     <section class="hero">
+
 
       <h1>
         Detectamos los problemas y proponemos cómo resolverlos.
       </h1>
 
+
       <p>
-        El primer motor de diagnóstico geométrico asistido por IA
-        para FDM y SLA. Sube tu diseño de ingeniería y evita
-        impresiones fallidas antes de laminar.
+        El primer motor de diagnóstico geométrico asistido por IA para FDM y SLA. Sube tu diseño de ingeniería y evita impresiones fallidas antes de laminar.
       </p>
 
-
-      <!-- FLUJO -->
 
       <div class="logic-flow">
 
@@ -769,86 +1013,39 @@
       </div>
 
 
-      <!-- =========================
+      <!-- =================================================
            ZONA DE SUBIDA
-      ========================= -->
+      ================================================= -->
 
-      <div
-        class="upload-container"
-        id="uploadContainer"
-      >
+      <div class="upload-container">
 
         <div class="upload-icon">
           📁
         </div>
 
+
         <h3 class="upload-title">
           Analizar nuevo modelo STL
         </h3>
 
+
         <p class="upload-desc">
-          Soporte para FDM, SLA/MSLA y SLS.
-          Límite: 100MB por archivo.
+          Soporte para FDM, SLA/MSLA y SLS. Límite: 100MB por archivo.
         </p>
 
 
         <!--
-          INPUT REAL DE ARCHIVO.
-
-          Está oculto porque queremos que el usuario
-          utilice nuestro botón o arrastre el archivo.
+          Si el usuario no está autenticado,
+          el login se encargará de devolverlo
+          posteriormente al analizador.
         -->
 
-        <input
-          type="file"
-          id="stlFile"
-          accept=".stl,model/stl,application/sla"
-          hidden
-        >
-
-
-        <!--
-          BOTÓN PRINCIPAL
-
-          Si NO hay sesión:
-          → login.html?redirect=analizador-stl.html
-
-          Si HAY sesión:
-          → abre el selector de archivos.
-        -->
-
-        <button
-          type="button"
+        <a
+          href="login.html?redirect=analizador-stl.html"
           class="btn-green"
-          id="analyzerAccessButton"
         >
           Inicia sesión para subir archivos
-        </button>
-
-
-        <!-- ARCHIVO SELECCIONADO -->
-
-        <div
-          class="selected-file"
-          id="selectedFile"
-        >
-
-          <div
-            class="selected-file-name"
-            id="selectedFileName"
-          ></div>
-
-          <div
-            class="selected-file-size"
-            id="selectedFileSize"
-          ></div>
-
-        </div>
-
-
-        <div class="drag-help">
-          También puedes arrastrar y soltar aquí tu archivo STL.
-        </div>
+        </a>
 
 
         <div style="display:block;">
@@ -859,8 +1056,7 @@
               🔒 Privacidad por Diseño
             </span>
 
-            Archivos cifrados.
-            No entrenamos IAs con tus prototipos.
+            Archivos cifrados. No entrenamos IAs con tus prototipos.
 
           </div>
 
@@ -868,69 +1064,63 @@
 
       </div>
 
-    </section>
+
+      <!-- =================================================
+           CARACTERÍSTICAS
+      ================================================= -->
+
+      <section class="features">
 
 
-    <!-- =========================
-         CARACTERÍSTICAS
-    ========================= -->
+        <div class="feat-card">
 
-    <section class="features">
+          <h4>
+            Cálculo Estructural Real
+          </h4>
 
-      <div class="feat-card">
+          <p>
+            No inventamos datos. Nuestro motor C++ calcula espesores, volúmenes y geometrías non-manifold. La IA solo interpreta e identifica la gravedad del problema.
+          </p>
 
-        <h4>
-          Cálculo Estructural Real
-        </h4>
-
-        <p>
-          No inventamos datos. Nuestro motor C++ calcula
-          espesores, volúmenes y geometrías non-manifold.
-          La IA solo interpreta e identifica la gravedad
-          del problema.
-        </p>
-
-      </div>
+        </div>
 
 
-      <div class="feat-card">
+        <div class="feat-card">
 
-        <h4>
-          Puntuación Printability
-        </h4>
+          <h4>
+            Puntuación Printability
+          </h4>
 
-        <p>
-          Obtén un "Score" de 0 a 100 basado en criterios
-          empíricos objetivos. Conoce exactamente tus riesgos
-          de warping, colapso de puentes o fallos de succión
-          en resina.
-        </p>
+          <p>
+            Obtén un "Score" de 0 a 100 basado en criterios empíricos objetivos. Conoce exactamente tus riesgos de warping, colapso de puentes o fallos de succión en resina.
+          </p>
 
-      </div>
+        </div>
 
 
-      <div class="feat-card">
+        <div class="feat-card">
 
-        <h4>
-          Control de Costes
-        </h4>
+          <h4>
+            Control de Costes
+          </h4>
 
-        <p>
-          Cada análisis se guarda en tu historial seguro.
-          Optimiza iteraciones reduciendo soportes innecesarios,
-          ahorrando tiempo de máquina y filamento.
-        </p>
+          <p>
+            Cada análisis se guarda en tu historial seguro. Optimiza iteraciones reduciendo soportes innecesarios, ahorrando tiempo de máquina y filamento.
+          </p>
 
-      </div>
+        </div>
+
+
+      </section>
+
 
     </section>
 
   </main>
 
-
-  <!-- =========================
+    <!-- =====================================================
        FOOTER
-  ========================= -->
+  ===================================================== -->
 
   <footer class="footer">
 
@@ -945,19 +1135,14 @@
             PrintLab — Ingeniería 3D
           </h3>
 
+
           <p>
-            Plataforma profesional de análisis y optimización
-            STL mediante Inteligencia Artificial y simuladores
-            paramétricos. Transformamos modelos 3D con problemas
-            en geometrías perfectas listas para fabricar,
-            ahorrando tiempo, material y costes en entornos
-            industriales.
+            Plataforma profesional de análisis y optimización STL mediante Inteligencia Artificial y simuladores paramétricos. Transformamos modelos 3D con problemas en geometrías perfectas listas para fabricar, ahorrando tiempo, material y costes en entornos industriales.
           </p>
 
+
           <p class="footer-secondary-text">
-            Desarrollado bajo principios de Privacy by Design.
-            Los datos y archivos STL se procesan con estricta
-            confidencialidad.
+            Desarrollado bajo principios de Privacy by Design. Los datos y archivos STL se procesan con estricta confidencialidad.
           </p>
 
         </div>
@@ -969,31 +1154,61 @@
             Recursos y Herramientas
           </h3>
 
+
           <div class="footer-links">
 
             <a href="../index.html#analizador">
-              <span class="arrow">→</span>
+
+              <span class="arrow">
+                →
+              </span>
+
               Analizador STL IA
+
             </a>
+
 
             <a href="../index.html#simulador">
-              <span class="arrow">→</span>
+
+              <span class="arrow">
+                →
+              </span>
+
               Simulador de Extrusión
+
             </a>
+
 
             <a href="../herramientas/calculadora-coste.html">
-              <span class="arrow">→</span>
+
+              <span class="arrow">
+                →
+              </span>
+
               Calculadoras de Coste y Masa
+
             </a>
+
 
             <a href="../index.html#guias">
-              <span class="arrow">→</span>
+
+              <span class="arrow">
+                →
+              </span>
+
               Base de Conocimiento
+
             </a>
 
+
             <a href="../materiales/index.html">
-              <span class="arrow">→</span>
+
+              <span class="arrow">
+                →
+              </span>
+
               Atlas de Materiales
+
             </a>
 
           </div>
@@ -1007,41 +1222,78 @@
             Soporte y Legal
           </h3>
 
+
           <div class="footer-links">
 
             <a href="../herramientas/precios.html">
-              <span class="arrow">→</span>
+
+              <span class="arrow">
+                →
+              </span>
+
               Precios y Suscripciones
+
             </a>
+
 
             <a href="../herramientas/contacto.html">
-              <span class="arrow">→</span>
+
+              <span class="arrow">
+                →
+              </span>
+
               Contacto y Soporte
+
             </a>
+
 
             <a href="../condiciones-compra.html">
-              <span class="arrow">→</span>
+
+              <span class="arrow">
+                →
+              </span>
+
               Condiciones de Compra
+
             </a>
+
 
             <a href="../terminos.html">
-              <span class="arrow">→</span>
+
+              <span class="arrow">
+                →
+              </span>
+
               Términos y Condiciones
+
             </a>
+
 
             <a href="../privacidad.html">
-              <span class="arrow">→</span>
+
+              <span class="arrow">
+                →
+              </span>
+
               Política de Privacidad
+
             </a>
 
+
             <a href="../cookies.html">
-              <span class="arrow">→</span>
+
+              <span class="arrow">
+                →
+              </span>
+
               Política de Cookies
+
             </a>
 
           </div>
 
         </div>
+
 
       </div>
 
@@ -1049,7 +1301,9 @@
       <div class="footer-bottom">
 
         <div class="footer-bottom-text">
+
           © 2026 PrintLab.
+
         </div>
 
       </div>
@@ -1059,672 +1313,274 @@
   </footer>
 
 
-  <!-- =========================
-       JAVASCRIPT
-  ========================= -->
+
+  <!-- =====================================================
+       JAVASCRIPT DEL MENÚ
+  ===================================================== -->
 
   <script>
 
-
-    /* ==========================================
+    /* =====================================================
        MENÚ HAMBURGUESA
-    ========================================== */
+    ===================================================== */
 
     function toggleMenu(){
 
-      const menu =
-        document.getElementById("mainMenu");
-
-      if(menu){
-        menu.classList.toggle("show");
-      }
+      document
+        .getElementById('mainMenu')
+        .classList
+        .toggle('show');
 
     }
 
 
-    /* ==========================================
+    /* =====================================================
        CERRAR MENÚ AL HACER CLIC FUERA
-    ========================================== */
+    ===================================================== */
 
-    window.addEventListener(
-      "click",
+    window.onclick =
       function(event){
 
         if(
-          !event.target.closest(".menu-dropdown") &&
-          !event.target.closest(".hamburger")
+          !event.target.closest('.menu-dropdown')
+          &&
+          !event.target.closest('.hamburger')
         ){
 
-          const dropdowns =
+          var dropdowns =
             document.getElementsByClassName(
               "dropdown-content"
             );
 
+
           for(
-            let i = 0;
+            var i = 0;
             i < dropdowns.length;
             i++
           ){
 
-            dropdowns[i].classList.remove("show");
+            var openDropdown =
+              dropdowns[i];
 
-          }
-
-        }
-
-      }
-    );
-
-
-    /* ==========================================
-       ACCESO Y SUBIDA STL DINÁMICA
-    ========================================== */
-
-    document.addEventListener(
-      "DOMContentLoaded",
-      async function(){
-
-        const accessButton =
-          document.getElementById(
-            "analyzerAccessButton"
-          );
-
-        const fileInput =
-          document.getElementById(
-            "stlFile"
-          );
-
-        const uploadContainer =
-          document.getElementById(
-            "uploadContainer"
-          );
-
-        const selectedFile =
-          document.getElementById(
-            "selectedFile"
-          );
-
-        const selectedFileName =
-          document.getElementById(
-            "selectedFileName"
-          );
-
-        const selectedFileSize =
-          document.getElementById(
-            "selectedFileSize"
-          );
-
-
-        if(
-          !accessButton ||
-          !fileInput ||
-          !uploadContainer
-        ){
-
-          console.error(
-            "No se encontraron los elementos del analizador."
-          );
-
-          return;
-
-        }
-
-
-        /* ==========================================
-           OBTENER CLIENTE SUPABASE
-        ========================================== */
-
-        let client = null;
-
-
-        if(
-          typeof window.supabaseClient !== "undefined" &&
-          window.supabaseClient
-        ){
-
-          client =
-            window.supabaseClient;
-
-        }
-
-
-        if(
-          !client &&
-          typeof supabaseClient !== "undefined" &&
-          supabaseClient
-        ){
-
-          client =
-            supabaseClient;
-
-        }
-
-
-        /* ==========================================
-           COMPROBAR SESIÓN
-        ========================================== */
-
-        async function getCurrentSession(){
-
-          try{
 
             if(
-              client &&
-              client.auth &&
-              typeof client.auth.getSession === "function"
-            ){
-
-              const result =
-                await client.auth.getSession();
-
-              if(
-                result &&
-                result.data &&
-                result.data.session
-              ){
-
-                return result.data.session;
-
-              }
-
-            }
-
-          }catch(error){
-
-            console.warn(
-              "No se pudo comprobar la sesión:",
-              error
-            );
-
-          }
-
-          return null;
-
-        }
-
-
-        /* ==========================================
-           ACTUALIZAR ESTADO DEL BOTÓN
-        ========================================== */
-
-        async function updateUI(){
-
-          const session =
-            await getCurrentSession();
-
-
-          if(!session){
-
-            // ESTADO: Sin sesión iniciada
-            accessButton.textContent =
-              "Inicia sesión para subir archivos";
-
-            accessButton.dataset.state =
-              "logged-out";
-
-            selectedFile.classList.remove("show");
-
-            window.selectedSTLFile = null;
-
-          }else{
-
-            if(window.selectedSTLFile){
-
-              // ESTADO: Logueado y con archivo cargado (Listo para debitar y analizar)
-              accessButton.textContent =
-                "Iniciar análisis (1 crédito)";
-
-              accessButton.dataset.state =
-                "has-file";
-
-            }else{
-
-              // ESTADO: Logueado pero sin archivo cargado
-              accessButton.textContent =
-                "Seleccionar archivo STL";
-
-              accessButton.dataset.state =
-                "logged-in-no-file";
-
-              selectedFile.classList.remove("show");
-
-            }
-
-          }
-
-        }
-
-
-        await updateUI();
-
-
-        /* ==========================================
-           ESCUCHAR CAMBIOS DE SESIÓN
-        ========================================== */
-
-        if(
-          client &&
-          client.auth &&
-          typeof client.auth.onAuthStateChange === "function"
-        ){
-
-          client.auth.onAuthStateChange(
-            function(){
-
-              updateUI();
-
-            }
-          );
-
-        }
-
-
-        /* ==========================================
-           CREAR URL DE RETORNO AL LOGIN
-        ========================================== */
-
-        function redirectToLogin(){
-
-          const currentUrl = "analizador-stl.html";
-
-          const redirect =
-            encodeURIComponent(
-              currentUrl
-            );
-
-          window.location.href =
-            "login.html?redirect=" +
-            redirect;
-
-        }
-
-
-        /* ==========================================
-           VALIDAR STL
-        ========================================== */
-
-        function isValidSTL(file){
-
-          if(!file){
-            return false;
-          }
-
-          const name =
-            file.name.toLowerCase();
-
-          return name.endsWith(".stl");
-
-        }
-
-
-        /* ==========================================
-           FORMATEAR TAMAÑO
-        ========================================== */
-
-        function formatFileSize(bytes){
-
-          if(bytes < 1024){
-
-            return bytes + " B";
-
-          }
-
-          if(bytes < 1024 * 1024){
-
-            return (
-              (bytes / 1024).toFixed(1) +
-              " KB"
-            );
-
-          }
-
-          return (
-            (bytes / (1024 * 1024)).toFixed(1) +
-            " MB"
-          );
-
-        }
-
-
-        /* ==========================================
-           MOSTRAR ARCHIVO SELECCIONADO
-        ========================================== */
-
-        function handleFileSelection(file){
-
-          if(!file){
-            return;
-          }
-
-
-          if(!isValidSTL(file)){
-
-            alert(
-              "La plataforma requiere un archivo con formato geométrico .stl"
-            );
-
-            return;
-
-          }
-
-
-          const maxSize =
-            100 * 1024 * 1024;
-
-
-          if(file.size > maxSize){
-
-            alert(
-              "El archivo excede el límite máximo permitido de 100 MB."
-            );
-
-            return;
-
-          }
-
-
-          window.selectedSTLFile = file;
-
-          selectedFileName.textContent =
-            "📄 " + file.name;
-
-
-          selectedFileSize.innerHTML = `
-            ${formatFileSize(file.size)} 
-            <span id="change-file-link" style="color:var(--muted); text-decoration:underline; cursor:pointer; margin-left:12px; font-weight:700;">Cambiar archivo</span>
-          `;
-
-
-          selectedFile.classList.add(
-            "show"
-          );
-
-
-          // Lógica para permitir cambiar el archivo seleccionado
-          const changeLink =
-            document.getElementById(
-              "change-file-link"
-            );
-
-
-          if(changeLink){
-
-            changeLink.addEventListener(
-              "click",
-              function(e){
-
-                e.stopPropagation();
-
-                window.selectedSTLFile = null;
-
-                fileInput.value = ""; // Limpiar input físico
-
-                updateUI();
-
-              }
-            );
-
-          }
-
-
-          updateUI();
-
-        }
-
-
-        /* ==========================================
-           CAMBIO DE ARCHIVO NORMAL
-        ========================================== */
-
-        fileInput.addEventListener(
-          "change",
-          function(){
-
-            if(
-              fileInput.files &&
-              fileInput.files.length > 0
-            ){
-
-              handleFileSelection(
-                fileInput.files[0]
-              );
-
-            }
-
-          }
-        );
-
-
-        /* ==========================================
-           ACCIONES AL HACER CLICK EN EL BOTÓN
-        ========================================== */
-
-        accessButton.addEventListener(
-          "click",
-          async function(event){
-
-            event.preventDefault();
-
-            const session =
-              await getCurrentSession();
-
-
-            // ESTADO 1: No ha iniciado sesión
-            if(!session){
-
-              redirectToLogin();
-
-              return;
-
-            }
-
-
-            const state =
-              accessButton.dataset.state;
-
-
-            // ESTADO 2: Con sesión, pero sin archivo seleccionado (Abre el explorador)
-            if(state === "logged-in-no-file"){
-
-              fileInput.click();
-
-              return;
-
-            }
-
-
-            // ESTADO 3: Con sesión y archivo cargado (Ejecuta el débito y análisis)
-            if(state === "has-file"){
-
-              accessButton.disabled = true;
-
-              accessButton.textContent =
-                "Verificando saldo...";
-
-
-              try{
-
-
-                // Consultar el perfil de usuario para confirmar créditos
-                const {
-                  data:profile,
-                  error:profileError
-                } =
-                  await client
-                    .from("profiles")
-                    .select("credits")
-                    .eq("id", session.user.id)
-                    .single();
-
-
-                if(profileError){
-                  throw profileError;
-                }
-
-
-                if(
-                  !profile ||
-                  profile.credits < 1
-                ){
-
-                  alert(
-                    "Tu saldo de créditos es insuficiente para procesar el análisis. Redirigiendo a planes..."
-                  );
-
-                  window.location.href =
-                    "precios.html";
-
-                  return;
-
-                }
-
-
-                accessButton.textContent =
-                  "Procesando geometría...";
-
-
-                // Ejecutar transacción segura del lado de la base de datos (RPC) [6]
-                const {
-                  data:success,
-                  error:rpcError
-                } =
-                  await client.rpc(
-                    "deduct_analysis_credit"
-                  );
-
-
-                if(
-                  rpcError ||
-                  !success
-                ){
-
-                  throw new Error(
-                    rpcError?.message ||
-                    "Ocurrió una inconsistencia en el cobro de créditos."
-                  );
-
-                }
-
-
-                // Simulación o transferencia de análisis exitosa
-                alert(
-                  "Análisis autorizado. Descontando 1 crédito de tu cuenta."
-                );
-
-                window.location.href =
-                  "informe-stl.html";
-
-
-              }catch(error){
-
-                console.error(
-                  "Inconsistencia en el procesamiento:",
-                  error
-                );
-
-                alert(
-                  "Error de validación: " +
-                  error.message
-                );
-
-                accessButton.disabled = false;
-
-                updateUI();
-
-              }
-
-            }
-
-          }
-        );
-
-
-        /* ==========================================
-           CONTROL DE ARRASTRAR Y SOLTAR (Drag & Drop)
-        ========================================== */
-
-        uploadContainer.addEventListener(
-          "dragover",
-          function(event){
-
-            event.preventDefault();
-
-            uploadContainer.classList.add(
-              "drag-over"
-            );
-
-          }
-        );
-
-
-        uploadContainer.addEventListener(
-          "dragleave",
-          function(event){
-
-            if(
-              event.relatedTarget &&
-              uploadContainer.contains(
-                event.relatedTarget
+              openDropdown.classList.contains(
+                'show'
               )
             ){
 
-              return;
+              openDropdown
+                .classList
+                .remove('show');
 
             }
-
-            uploadContainer.classList.remove(
-              "drag-over"
-            );
 
           }
-        );
+
+        }
+
+      };
 
 
-        uploadContainer.addEventListener(
-          "drop",
-          async function(event){
 
-            event.preventDefault();
+    /* =====================================================
+       TRANSICIONES ENTRE PÁGINAS
+       0,38 s ENTRADA / 0,38 s SALIDA
+    ===================================================== */
 
-            uploadContainer.classList.remove(
-              "drag-over"
-            );
+    (function(){
 
-
-            const session =
-              await getCurrentSession();
-
-
-            if(!session){
-
-              redirectToLogin();
-
-              return;
-
-            }
+      const reduceMotion =
+        window.matchMedia(
+          "(prefers-reduced-motion: reduce)"
+        ).matches;
 
 
-            const files =
-              event.dataTransfer.files;
+      if(reduceMotion){
+
+        return;
+
+      }
 
 
-            if(
-              files &&
-              files.length > 0
-            ){
+      /*
+        ENTRADA
 
-              handleFileSelection(
-                files[0]
+        La página comienza ligeramente
+        desplazada hacia abajo y transparente.
+      */
+
+      document.body.classList.add(
+        "page-transition-in"
+      );
+
+
+      requestAnimationFrame(
+        function(){
+
+          requestAnimationFrame(
+            function(){
+
+              document.body.classList.remove(
+                "page-transition-in"
               );
 
             }
 
+          );
+
+        }
+
+      );
+
+
+      /*
+        SALIDA
+
+        Solo interceptamos enlaces internos.
+      */
+
+      document.addEventListener(
+        "click",
+        function(event){
+
+          const link =
+            event.target.closest("a");
+
+
+          if(!link){
+
+            return;
+
           }
-        );
 
 
-      }
-    );
+          const href =
+            link.getAttribute("href");
+
+
+          if(!href){
+
+            return;
+
+          }
+
+
+          /*
+            No tocar anclas.
+          */
+
+          if(
+            href.startsWith("#") ||
+            href.startsWith("javascript:")
+          ){
+
+            return;
+
+          }
+
+
+          /*
+            No interferir con Ctrl/Cmd,
+            Shift, Alt o pestañas nuevas.
+          */
+
+          if(
+            link.target === "_blank" ||
+            event.ctrlKey ||
+            event.metaKey ||
+            event.shiftKey ||
+            event.altKey
+          ){
+
+            return;
+
+          }
+
+
+          let url;
+
+
+          try{
+
+            url =
+              new URL(
+                href,
+                window.location.href
+              );
+
+          }
+
+          catch{
+
+            return;
+
+          }
+
+
+          /*
+            Solo páginas del mismo dominio.
+          */
+
+          if(
+            url.origin !==
+            window.location.origin
+          ){
+
+            return;
+
+          }
+
+
+          /*
+            Si es exactamente la misma página,
+            no hacemos transición.
+          */
+
+          if(
+            url.pathname ===
+              window.location.pathname
+            &&
+            url.search ===
+              window.location.search
+          ){
+
+            return;
+
+          }
+
+
+          event.preventDefault();
+
+
+          /*
+            Activamos la salida.
+          */
+
+          document.body.classList.add(
+            "page-transition-out"
+          );
+
+
+          /*
+            380 ms = 0,38 segundos.
+          */
+
+          setTimeout(
+            function(){
+
+              window.location.href =
+                url.href;
+
+            },
+            380
+          );
+
+        },
+        true
+      );
+
+    })();
 
   </script>
 
