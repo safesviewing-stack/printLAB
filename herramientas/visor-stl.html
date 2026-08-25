@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Módulo de Soluciones STL — PrintLab</title>
+  <title>Centro de Soluciones STL — PrintLab</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -75,11 +75,10 @@
     .footer { background: var(--bg); border-top: 1px solid var(--line); padding: 80px 0 40px; color: var(--muted); font-size: 14px; line-height: 1.6; }
     .footergrid { display: grid; grid-template-columns: 1.3fr 0.85fr 0.85fr; gap: 60px; margin-bottom: 48px; }
     .footer-col h3 { font-size: 16px; font-weight: 800; color: var(--ink); margin: 0 0 20px; }
-    .footer-links { display: flex; flex-direction: column; gap: 10px; }
-    .footer-links a { color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
     .footer-bottom { border-top: 1px solid var(--line); padding-top: 24px; text-align:center; color: #7d8782;}
 
-    @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+    @media(max-width:992px){ .calc-layout{grid-template-columns: 1fr;} .options-grid{grid-template-columns:repeat(2,1fr);} }
+    @media(max-width:600px){ .options-grid{grid-template-columns:1fr;} }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/STLLoader.js"></script>
@@ -123,7 +122,7 @@
 
     <div class="calc-layout">
       
-      <!-- COLUMNA IZQUIERDA: VISOR 3D (Alineado con el panel de resultados) -->
+      <!-- COLUMNA IZQUIERDA: VISOR 3D -->
       <div class="panel-visualizador">
         <div class="viewport-card">
           <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -138,7 +137,7 @@
         </div>
       </div>
 
-      <!-- COLUMNA DERECHA: CONSOLA DE CONFIGURACIÓN Y OPERACIONES -->
+      <!-- COLUMNA DERECHA: CONSOLA DE OPERACIONES -->
       <div class="panel-acciones">
         <div class="input-panel">
           <h2>Módulo de Trabajo</h2>
@@ -235,10 +234,10 @@
       <div class="footergrid">
         <div class="footer-col">
           <h3>PrintLab — Ingeniería 3D</h3>
-          <p>Plataforma profesional de análisis y optimización STL mediante Inteligencia Artificial y simuladores paramétricos. Transformamos mallas complejas en piezas listas para fabricar.</p>
+          <p>Módulo de informe y planos técnicos de fabricación aditiva.</p>
         </div>
       </div>
-      <div class="footer-bottom">© 2026 PrintLab. Todos los derechos reservados.</div>
+      <div class="footer-bottom">© 2026 PrintLab.</div>
     </div>
   </footer>
 
@@ -287,29 +286,50 @@
         const loader = new THREE.STLLoader();
         const geometry = loader.parse(e.target.result);
         
-        if (activeMesh) scene.remove(activeMesh);
+        // Limpiar mallas y esferas anteriores antes de cargar la nueva
+        cleanSceneComponents();
         
         const material = new THREE.MeshPhongMaterial({ color: 0x90a4ae, flatShading: true });
         activeMesh = new THREE.Mesh(geometry, material);
-        geometry.center();
+        
+        // --- CORRECCIÓN: Mantener coordenadas absolutas para sincronizar con Python ---
         scene.add(activeMesh);
 
-        const box = new THREE.Box3().setFromObject(activeMesh);
-        const size = box.getSize(new THREE.Vector3()).length();
-        camera.position.set(size, size, size);
+        // Centrar controles y cámara en la caja delimitadora del modelo original
+        geometry.computeBoundingBox();
+        const center = new THREE.Vector3();
+        geometry.boundingBox.getCenter(center);
+        controls.target.copy(center);
+        
+        const size = geometry.boundingBox.getSize(new THREE.Vector3()).length();
+        camera.position.set(center.x + size * 0.8, center.y + size * 0.8, center.z + size * 0.8);
         controls.update();
       };
       reader.readAsArrayBuffer(file);
+    }
+
+    function cleanSceneComponents() {
+      if (activeMesh) {
+        // Eliminar esferas que estuvieran anidadas dentro de la malla activa
+        for (let i = activeMesh.children.length - 1; i >= 0; i--) {
+          const child = activeMesh.children[i];
+          if (child instanceof THREE.Mesh) {
+            activeMesh.remove(child);
+          }
+        }
+        scene.remove(activeMesh);
+      }
     }
 
     const dropZone = document.getElementById("dropZone");
     const fileInput = document.getElementById("fileInput");
 
     dropZone.addEventListener("click", () => fileInput.click());
-    dropZone.addEventListener("dragover", (e) => { e.preventDefault(); dropZone.style.add("dragover"); });
+    dropZone.addEventListener("dragover", (e) => { e.preventDefault(); dropZone.classList.add("dragover"); });
     dropZone.addEventListener("dragleave", () => dropZone.classList.remove("dragover"));
     dropZone.addEventListener("drop", (e) => {
       e.preventDefault();
+      dropZone.classList.remove("dragover");
       if (e.dataTransfer.files.length > 0) processUpload(e.dataTransfer.files[0]);
     });
     fileInput.addEventListener("change", () => {
@@ -371,20 +391,32 @@
       }
     }
 
-    // --- ACCIÓN REAL 4: DIBUJAR MARCAS ROJAS EN EL VISOR ---
+    // --- ACCIÓN REAL 4: DIBUJAR MARCAS ROJAS VINCULADAS AL MODELO ---
     function triggerResistanceAnalysis() {
-      if (!analysisData || !analysisData.critical_points) return;
+      if (!analysisData || !analysisData.critical_points || !activeMesh) return;
 
-      // Dibujar esferas rojas de advertencia en las coordenadas devueltas por Python
+      // Limpiar marcas previas que estuvieran dentro de la malla activa
+      for (let i = activeMesh.children.length - 1; i >= 0; i--) {
+        const child = activeMesh.children[i];
+        if (child instanceof THREE.Mesh) {
+          activeMesh.remove(child);
+        }
+      }
+
+      // Dibujar esferas rojas utilizando coordenadas locales/absolutas directamente como hijos del modelo
       analysisData.critical_points.forEach(pt => {
         const sphereGeo = new THREE.SphereGeometry(1.5, 16, 16);
         const sphereMat = new THREE.MeshBasicMaterial({ color: 0xd9432f });
         const sphere = new THREE.Mesh(sphereGeo, sphereMat);
+        
+        // --- CORRECCIÓN CLAVE: Posicionar en el espacio local de la malla ---
         sphere.position.set(pt.x, pt.y, pt.z);
-        scene.add(sphere);
+        
+        // Añadir como hijo de la malla activa para que sigan rotaciones/desplazamientos
+        activeMesh.add(sphere);
       });
 
-      alert("Zonas críticas de tensión localizadas físicamente sobre el modelo.");
+      alert("Zonas críticas de tensión localizadas físicamente y vinculadas al modelo.");
     }
 
     // --- ACCIÓN REAL 5: DIVIDIR STL ---
