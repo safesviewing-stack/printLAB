@@ -196,7 +196,7 @@
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="assets/js/auth-helper.js"></script>
+  <script src="assets/js/auth-helper.js"></script>
 </head>
 <body>
   
@@ -827,47 +827,6 @@
     </div>
   </div>
 
-  <!-- MODALES EXTRAS DEL SIMULADOR -->
-  <div id="modal-metodologia" class="modal">
-    <div class="modal-content">
-      <span class="modal-close" onclick="closeModal('modal-metodologia')">✕</span>
-      <h3>Metodología del simulador</h3>
-      <div class="modal-section">
-        <h4>¿Cómo calcula el simulador los resultados?</h4>
-        <p>El simulador es un modelo matemático de optimización conceptual que no se comporta de forma lineal. Está programado para interpretar la interacción física de las 10 variables de entrada basándose en dos tipos de datos:</p>
-        <p><strong>1. Datos Experimentales de Origen (Fabricantes):</strong> Las temperaturas recomendadas, HDT de los polímeros, elasticidad de los filamentos e higroscopia se mapean directamente de las fichas técnicas (TDS) de Prusa y Bambu Lab.</p>
-        <p><strong>2. Reducciones Algorítmicas Propias:</strong> La influencia de los parámetros de corte (Slicing) se rige por estimaciones de ingeniería de la plataforma:</p>
-        <ul>
-          <li>La resistencia mecánica disminuye de forma no lineal si la temperatura excede o cae del umbral del polímero debido a la cristalización ineficiente o degradación térmica.</li>
-          <li>La resistencia disminuye un 40% en orientación vertical debido al comportamiento anisotrópico del eje Z (conforme al estándar ASTM D638).</li>
-          <li>El tiempo de impresión estimado es un cálculo relativo de volumen/extrusión sobre una geometría de control mediana (100 cm³), no un tiempo físico de máquina.</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: LIMITACIONES Y SEGURIDAD -->
-  <div id="modal-limitaciones" class="modal">
-    <div class="modal-content">
-      <span class="modal-close" onclick="closeModal('modal-limitaciones')">✕</span>
-      <h3>Limitaciones y seguridad</h3>
-      <div class="modal-section">
-        <h4>Limitaciones del Simulador</h4>
-        <p>Las estimaciones provienen de un entorno controlado ideal. Los resultados en el taller real variarán sustancialmente de acuerdo a:</p>
-        <ul>
-          <li>La calibración exacta de la extrusión y pasos de motor de la impresora (E-steps).</li>
-          <li>La marca, lote, humedad absorbida y aditivos colorantes del filamento utilizado.</li>
-          <li>Condiciones ambientales de la habitación (corrientes de aire frío o humedad ambiental elevada).</li>
-        </ul>
-      </div>
-      <div class="modal-section">
-        <h4>Seguridad y Gestión de Riesgos</h4>
-        <p><strong>Emisiones nocivas (COVs y UFPs):</strong> Termoplásticos como el ABS, ASA o PC liberan estireno y partículas ultra finas nocivas durante el proceso de fusión. Es imprescindible imprimir estos materiales con sistemas de filtrado por carbón activo/HEPA o en habitaciones con ventilación forzada controlada hacia el exterior.</p>
-        <p><strong>Riesgos Térmicos:</strong> Las temperaturas de hotend (>220ºC) y cama pueden producir quemaduras graves. Corta siempre el flujo de alimentación antes de intervenir el extrusor.</p>
-      </div>
-    </div>
-  </div>
-
   <footer class="footer">
     <div class="wrap">
       <div class="footergrid">
@@ -1404,8 +1363,6 @@
     });
   </script>
   <!-- INTEGRACIÓN CON SUPABASE -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="assets/js/auth-helper.js"></script>
   <script>
     // Mostrar saludo personalizado en la sección Hero / Dashboard si existe
     async function updateDashboardGreeting() {
@@ -1427,7 +1384,5 @@
     }
     document.addEventListener('DOMContentLoaded', updateDashboardGreeting);
   </script>
-</body>
-</html>
 </body>
 </html>
