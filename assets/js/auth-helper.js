@@ -53,7 +53,7 @@ authHeaderStyles.textContent = `
     background:var(--accent);
     color:var(--ink);
 
-    padding:4px 12px;
+    padding:8px 18px;
 
     border-radius:9999px;
     border:none;
