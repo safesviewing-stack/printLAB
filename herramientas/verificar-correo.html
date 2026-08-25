@@ -1,18 +1,27 @@
 <!doctype html>
 <html lang="es">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
 
-  <title>Verificar correo — PrintLab PRO</title>
+<head>
+
+  <meta charset="utf-8">
 
   <meta
-    name="description"
-    content="Verifica tu correo electrónico para activar tu cuenta de PrintLab."
+    name="viewport"
+    content="width=device-width, initial-scale=1"
   >
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <title>Verificar correo — PrintLab</title>
+
+  <link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+  >
+
+  <link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+  >
 
   <link
     href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap"
@@ -22,1105 +31,1254 @@
   <style>
 
     :root{
+
       --bg:#f6f7f4;
-      --card:#fff;
+      --card:#ffffff;
       --ink:#0d1110;
       --muted:#5e6661;
       --line:#dfe4df;
       --accent:#b8ff3d;
       --dark:#111715;
-      --max:1200px;
+
     }
+
 
     *{
       box-sizing:border-box;
     }
 
+
     body{
+
       margin:0;
+
       background:var(--bg);
+
       color:var(--ink);
+
       font-family:"Plus Jakarta Sans",sans-serif;
-      line-height:1.6;
+
+      min-height:100vh;
+
+      display:flex;
+
+      flex-direction:column;
+
       -webkit-font-smoothing:antialiased;
+
+
+      /* =====================================================
+         TRANSICIÓN ENTRE PÁGINAS — PRINTLAB
+         0,38 s ENTRADA / 0,38 s SALIDA
+      ===================================================== */
+
+      opacity:1;
+
+      transform:translateY(0);
+
+      transition:
+        opacity .38s cubic-bezier(.22,1,.36,1),
+        transform .38s cubic-bezier(.22,1,.36,1);
+
     }
+
+
+    body.page-transition-in{
+
+      opacity:0;
+
+      transform:translateY(10px);
+
+    }
+
+
+    body.page-transition-out{
+
+      opacity:0;
+
+      transform:translateY(-10px);
+
+    }
+
+
+    @media(prefers-reduced-motion:reduce){
+
+      body{
+
+        transition:none !important;
+
+      }
+
+      body.page-transition-in,
+      body.page-transition-out{
+
+        opacity:1;
+
+        transform:none;
+
+      }
+
+    }
+
 
     a{
+
       color:inherit;
+
       text-decoration:none;
+
     }
 
-    .wrap{
-      max-width:var(--max);
-      margin:auto;
-      padding:0 40px;
-    }
 
-    /* HEADER */
+    /* =====================================================
+       HEADER
+    ===================================================== */
 
     .top{
-      position:sticky;
-      top:0;
-      z-index:100;
+
       background:rgba(246,247,244,.9);
+
       backdrop-filter:blur(16px);
+
       border-bottom:1px solid var(--line);
+
     }
+
 
     nav{
+
+      max-width:1200px;
+
       min-height:95px;
+
+      margin:auto;
+
+      padding:0 40px;
+
       display:flex;
+
       align-items:center;
-      justify-content:space-between;
+
     }
 
-    .header-left{
-      display:flex;
-      align-items:center;
-      gap:24px;
-    }
 
     .brand{
+
       font-size:26px;
+
       font-weight:800;
+
       letter-spacing:-1px;
+
+      text-decoration:none;
+
+      color:var(--ink);
+
     }
+
 
     .brand span{
+
       background:var(--accent);
+
       padding:5px 12px;
+
       border-radius:10px;
+
       margin-left:6px;
+
     }
 
-    .menu-dropdown{
-      position:relative;
-    }
 
-    .hamburger{
-      background:none;
-      border:none;
-      cursor:pointer;
-      padding:10px;
-      display:flex;
-      flex-direction:column;
-      gap:5px;
-    }
-
-    .hamburger span{
-      display:block;
-      width:26px;
-      height:3px;
-      background:var(--ink);
-      border-radius:2px;
-    }
-
-    .dropdown-content{
-      display:none;
-      position:absolute;
-      top:110%;
-      left:0;
-      background:var(--card);
-      min-width:240px;
-      box-shadow:0 20px 40px rgba(0,0,0,.1);
-      border:1.5px solid var(--line);
-      border-radius:16px;
-      z-index:200;
-      flex-direction:column;
-      padding:12px 0;
-    }
-
-    .dropdown-content.show{
-      display:flex;
-    }
-
-    .dropdown-content a{
-      padding:14px 24px;
-      color:var(--muted);
-      font-weight:700;
-      font-size:15px;
-    }
-
-    .dropdown-content a:hover{
-      color:var(--ink);
-      background:rgba(0,0,0,.03);
-    }
-
-    .auth-buttons{
-      display:flex;
-      gap:12px;
-      align-items:center;
-    }
-
-    .btn-auth{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      padding:12px 24px;
-      border-radius:9999px;
-      font-weight:800;
-      font-size:14px;
-      border:2px solid var(--ink);
-    }
-
-    .btn-auth.light{
-      background:#fff;
-      color:var(--ink);
-      box-shadow:0 3px 0 var(--ink);
-    }
-
-    .btn-auth.green{
-      background:var(--accent);
-      color:var(--ink);
-      box-shadow:0 3px 0 var(--ink);
-    }
-
-    /* CONTENIDO */
+    /* =====================================================
+       CONTENIDO
+    ===================================================== */
 
     main{
-      min-height:75vh;
+
+      flex:1;
+
       display:flex;
+
       align-items:center;
+
       justify-content:center;
-      padding:60px 0;
+
+      padding:40px 24px;
+
     }
 
-    .verify-container{
+
+    .card{
+
       width:100%;
-      max-width:560px;
+
+      max-width:480px;
+
       background:var(--card);
-      padding:55px 45px;
-      border-radius:24px;
+
       border:1px solid var(--line);
-      box-shadow:0 20px 40px rgba(0,0,0,.04);
+
+      border-radius:24px;
+
+      padding:50px 40px;
+
       text-align:center;
+
+      box-shadow:0 20px 40px rgba(0,0,0,.03);
+
+      animation:cardAppear .38s cubic-bezier(.22,1,.36,1);
+
     }
 
-    .verify-icon{
-      width:74px;
-      height:74px;
-      margin:0 auto 25px;
-      border-radius:50%;
-      background:var(--accent);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:34px;
-      font-weight:800;
+
+    @keyframes cardAppear{
+
+      from{
+
+        opacity:0;
+
+        transform:translateY(12px) scale(.99);
+
+      }
+
+      to{
+
+        opacity:1;
+
+        transform:translateY(0) scale(1);
+
+      }
+
     }
+
+
+    .icon{
+
+      width:70px;
+
+      height:70px;
+
+      margin:0 auto 25px;
+
+      border-radius:50%;
+
+      background:var(--accent);
+
+      display:flex;
+
+      align-items:center;
+
+      justify-content:center;
+
+      font-size:32px;
+
+      font-weight:800;
+
+    }
+
 
     h1{
+
       margin:0 0 12px;
-      font-size:30px;
-      line-height:1.2;
-      letter-spacing:-.6px;
+
+      font-size:28px;
+
+      letter-spacing:-.5px;
+
     }
 
-    .description{
-      margin:0 auto 30px;
-      max-width:450px;
+
+    p{
+
+      margin:0 0 28px;
+
       color:var(--muted);
+
       font-size:15px;
+
+      line-height:1.7;
+
     }
 
-    .email-box{
-      background:var(--bg);
-      border:1px solid var(--line);
-      border-radius:14px;
-      padding:16px;
-      margin:0 auto 25px;
-      font-weight:800;
-      word-break:break-word;
-    }
 
-    .status{
-      display:none;
-      margin:20px 0;
-      padding:14px 16px;
-      border-radius:12px;
-      font-size:14px;
-      font-weight:700;
-    }
+    .email{
 
-    .status.show{
       display:block;
-    }
 
-    .status.error{
-      color:#b42318;
-      background:#fff1f0;
-      border:1px solid #f1c4c0;
-    }
+      margin:-10px 0 28px;
 
-    .status.success{
-      color:#246b27;
-      background:#f0faee;
-      border:1px solid #c7e5c2;
-    }
-
-    .status.info{
-      color:#45504a;
-      background:#f2f4f2;
-      border:1px solid var(--line);
-    }
-
-    .mail-button{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      min-width:230px;
-      padding:15px 24px;
-      background:var(--ink);
-      color:#fff;
-      border-radius:12px;
-      font-weight:800;
-      border:2px solid var(--ink);
-      transition:.2s;
-    }
-
-    .mail-button:hover{
-      transform:translateY(-2px);
-      box-shadow:0 4px 0 var(--accent);
-    }
-
-    .secondary-button{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      margin-top:14px;
-      padding:12px 20px;
-      background:#fff;
       color:var(--ink);
-      border:2px solid var(--ink);
-      border-radius:12px;
+
       font-weight:800;
+
+      word-break:break-word;
+
+    }
+
+
+    /* =====================================================
+       BOTONES
+    ===================================================== */
+
+    .btn{
+
+      display:inline-flex;
+
+      width:100%;
+
+      align-items:center;
+
+      justify-content:center;
+
+      padding:16px;
+
+      border-radius:12px;
+
+      background:var(--ink);
+
+      color:white;
+
+      font-size:16px;
+
+      font-weight:800;
+
+      text-decoration:none;
+
+      border:2px solid var(--ink);
+
+      transition:.2s ease;
+
       cursor:pointer;
-      font-family:inherit;
+
     }
 
-    .secondary-button:disabled{
-      opacity:.5;
-      cursor:not-allowed;
+
+    .btn:hover{
+
+      background:var(--dark);
+
+      box-shadow:0 4px 0 var(--accent);
+
+      transform:translateY(-2px);
+
     }
 
-    .small-text{
-      margin-top:28px;
-      color:var(--muted);
-      font-size:13px;
+
+    .secondary{
+
+      margin-top:18px;
+
+      background:transparent;
+
+      color:var(--ink);
+
+      border-color:var(--line);
+
+      box-shadow:none;
+
     }
 
-    /* FOOTER INTEGRADO UNIFICADO */
+
+    .secondary:hover{
+
+      background:var(--bg);
+
+      box-shadow:none;
+
+      transform:none;
+
+    }
+
+
+    .success{
+
+      display:none;
+
+    }
+
+
+    .error{
+
+      display:none;
+
+      color:#c0392b;
+
+      font-size:14px;
+
+      margin-top:20px;
+
+      line-height:1.6;
+
+    }
+
+
+    .error a{
+
+      display:inline-block;
+
+      margin-top:4px;
+
+      color:var(--ink);
+
+      font-weight:800;
+
+      text-decoration:underline;
+
+    }
+
+
+    /* =====================================================
+       FOOTER
+    ===================================================== */
 
     .footer{
+
       background:var(--bg);
+
       border-top:1px solid var(--line);
-      padding:80px 0 40px;
+
+      padding:50px 0 30px;
+
       color:var(--muted);
-      font-size:14px;
-      line-height:1.6;
+
+      font-size:13px;
+
     }
 
-    .footergrid{
-      display:grid;
-      grid-template-columns:1.3fr .85fr .85fr;
-      gap:60px;
-      margin-bottom:48px;
+
+    .footer-wrap{
+
+      max-width:1200px;
+
+      margin:auto;
+
+      padding:0 40px;
+
     }
 
-    .footer-col h3{
-      font-size:16px;
-      font-weight:800;
-      color:var(--ink);
-      margin:0 0 20px;
-      letter-spacing:-.3px;
-    }
-
-    .footer-col p{
-      margin:0 0 16px;
-      color:var(--muted);
-    }
-
-    .footer-secondary-text{
-      font-size:12.5px;
-      color:#7d8782;
-      margin-top:12px;
-    }
-
-    .footer-links{
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-    }
-
-    .footer-links a{
-      color:var(--muted);
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-    }
-
-    .footer-links a:hover{
-      color:var(--ink);
-    }
 
     .footer-bottom{
-      border-top:1px solid var(--line);
-      padding-top:24px;
+
       display:flex;
+
       justify-content:center;
+
+      align-items:center;
+
       text-align:center;
-      font-size:13px;
+
       color:#7d8782;
-    }
-
-    @media(max-width:992px){
-
-      .footergrid{
-        grid-template-columns:1.2fr 1fr;
-        gap:40px;
-      }
 
     }
 
-    @media(max-width:768px){
 
-      .wrap{
-        padding:0 20px;
+    /* =====================================================
+       RESPONSIVE
+    ===================================================== */
+
+    @media(max-width:600px){
+
+      nav{
+
+        padding:0 24px;
+
       }
 
-      .auth-buttons{
-        display:none;
+
+      .brand{
+
+        font-size:22px;
+
       }
 
-      .verify-container{
-        padding:40px 25px;
+
+      .card{
+
+        padding:40px 24px;
+
       }
 
-      .footergrid{
-        grid-template-columns:1fr;
-        gap:36px;
+
+      .footer-wrap{
+
+        padding:0 24px;
+
       }
 
     }
 
   </style>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- SUPABASE -->
+
+  <script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+  ></script>
+
+
+  <!-- CONFIGURACIÓN DE AUTENTICACIÓN -->
+
+  <script src="../assets/js/auth-helper.js"></script>
+
 
 </head>
+
 
 <body>
 
 
-<header class="top">
+  <!-- =====================================================
+       HEADER
+  ===================================================== -->
 
-  <div class="wrap">
+  <header class="top">
 
     <nav>
 
-      <div class="header-left">
+      <a
+        class="brand"
+        href="../index.html#portada"
+      >
 
-        <div class="menu-dropdown">
+        PRINT<span>LAB</span>
 
-          <button
-            class="hamburger"
-            id="menu-button"
-            type="button"
-            aria-label="Abrir menú"
-          >
-            <span></span>
-            <span></span>
-            <span></span>
-          </button>
-
-          <div
-            class="dropdown-content"
-            id="mainMenu"
-          >
-
-            <a href="../index.html#portada">
-              Inicio
-            </a>
-
-            <a href="../index.html#analizador">
-              Analizador IA
-            </a>
-
-            <a href="../index.html#simulador">
-              Simulador
-            </a>
-
-            <a href="../index.html#herramientas">
-              Herramientas
-            </a>
-
-            <a href="../index.html#guias">
-              Guías
-            </a>
-
-          </div>
-
-        </div>
-
-
-        <a
-          class="brand"
-          href="../index.html#portada"
-        >
-          PRINT<span>LAB</span>
-        </a>
-
-      </div>
-
-
-      <div class="auth-buttons">
-
-        <a
-          href="login.html"
-          class="btn-auth light"
-        >
-          Iniciar Sesión
-        </a>
-
-        <a
-          href="registro.html"
-          class="btn-auth green"
-        >
-          Registrarse
-        </a>
-
-      </div>
+      </a>
 
     </nav>
 
-  </div>
-
-</header>
+  </header>
 
 
 
-<main>
+  <!-- =====================================================
+       CONTENIDO
+  ===================================================== -->
 
-  <div class="wrap">
+  <main>
 
-    <div class="verify-container">
 
-      <div class="verify-icon">
-        ✓
+    <!-- ===================================================
+         ESPERA DE VERIFICACIÓN
+    =================================================== -->
+
+    <div
+      class="card"
+      id="waiting-card"
+    >
+
+      <div class="icon">
+        @
       </div>
 
 
-      <h1 id="page-title">
+      <h1>
         Verifica tu correo
       </h1>
 
 
-      <p
-        class="description"
-        id="page-description"
-      >
-        Hemos enviado un enlace de verificación a tu correo electrónico.
-        Pulsa el enlace para activar tu cuenta de PrintLab.
+      <p>
+        Hemos enviado un enlace de verificación a tu dirección de correo electrónico.
       </p>
 
 
-      <div
-        class="email-box"
+      <span
+        class="email"
         id="email-display"
-      >
-        Revisa tu bandeja de entrada
-      </div>
+      ></span>
 
 
       <a
+        class="btn"
         href="https://mail.google.com/"
         target="_blank"
-        rel="noopener noreferrer"
-        class="mail-button"
-        id="mail-button"
+        rel="noopener"
       >
-        Verificar correo
+        Abrir correo
       </a>
 
 
-      <div
-        id="status"
-        class="status"
-      ></div>
+      <a
+        class="btn secondary"
+        id="waiting-back-link"
+        href="../index.html"
+      >
+        Volver al inicio
+      </a>
+
+    </div>
 
 
-      <div class="small-text">
 
-        Cuando hayas pulsado el enlace de verificación,
-        esta página continuará automáticamente.
+    <!-- ===================================================
+         VERIFICACIÓN CORRECTA
+    =================================================== -->
+
+    <div
+      class="card success"
+      id="success-card"
+    >
+
+      <div class="icon">
+        ✓
+      </div>
+
+
+      <h1>
+        Correo verificado
+      </h1>
+
+
+      <p>
+        Tu cuenta de PrintLab ha sido verificada correctamente.
+      </p>
+
+
+      <a
+        class="btn"
+        id="success-continue"
+        href="../index.html"
+      >
+        Continuar
+      </a>
+
+    </div>
+
+
+
+    <!-- ===================================================
+         ERROR
+    =================================================== -->
+
+    <div
+      class="card error"
+      id="error-card"
+    >
+
+      <div class="icon">
+        !
+      </div>
+
+
+      <h1>
+        Enlace no válido
+      </h1>
+
+
+      <p>
+        No se ha podido verificar el correo.
+        El enlace puede haber caducado o ya haber sido utilizado.
+      </p>
+
+
+      <a
+        href="registro.html"
+      >
+        Volver al registro
+      </a>
+
+    </div>
+
+
+  </main>
+
+
+
+  <!-- =====================================================
+       FOOTER
+  ===================================================== -->
+
+  <footer class="footer">
+
+    <div class="footer-wrap">
+
+      <div class="footer-bottom">
+
+        © 2026 PrintLab.
 
       </div>
 
     </div>
 
-  </div>
-
-</main>
-
-
-<!-- FOOTER COMPLETO UNIFICADO -->
-<footer class="footer">
-
-  <div class="wrap">
-
-    <div class="footergrid">
-
-
-      <div class="footer-col">
-
-        <h3>
-          PrintLab — Ingeniería 3D
-        </h3>
-
-        <p>
-          Plataforma profesional de análisis y optimización STL
-          mediante Inteligencia Artificial y simuladores paramétricos.
-        </p>
-
-        <p class="footer-secondary-text">
-          Desarrollado bajo principios de Privacy by Design.
-          Los datos y archivos STL se procesan con estricta
-          confidencialidad.
-        </p>
-
-      </div>
+  </footer>
 
 
 
-      <div class="footer-col">
+  <!-- =====================================================
+       JAVASCRIPT
+  ===================================================== -->
 
-        <h3>
-          Recursos y Herramientas
-        </h3>
+  <script>
 
-        <div class="footer-links">
+    /* =====================================================
+       DESTINO ORIGINAL
+    ===================================================== */
 
-          <a href="../index.html#analizador">
-            <span>→</span>
-            Analizador STL IA
-          </a>
+    /*
+      El registro guarda aquí el destino original:
 
-          <a href="../index.html#simulador">
-            <span>→</span>
-            Simulador de Extrusión
-          </a>
+      printlab_redirect_after_auth
 
-          <a href="../herramientas/calculadora-coste.html">
-            <span>→</span>
-            Calculadoras de Coste y Masa
-          </a>
+      Puede ser:
 
-          <a href="../index.html#guias">
-            <span>→</span>
-            Base de Conocimiento
-          </a>
+      ../index.html
 
-          <a href="../materiales/index.html">
-            <span>→</span>
-            Atlas de Materiales
-          </a>
+      o
 
-        </div>
-
-      </div>
+      analizador-stl.html
+    */
 
 
-
-      <div class="footer-col">
-
-        <h3>
-          Soporte y Legal
-        </h3>
-
-        <div class="footer-links">
-
-          <a href="../herramientas/precios.html">
-            <span>→</span>
-            Precios y Suscripciones
-          </a>
-
-          <a href="../herramientas/contacto.html">
-            <span>→</span>
-            Contacto y Soporte
-          </a>
-
-          <a href="../condiciones-compra.html">
-            <span>→</span>
-            Condiciones de Compra
-          </a>
-
-          <a href="../terminos.html">
-            <span>→</span>
-            Términos y Condiciones
-          </a>
-
-          <a href="../privacidad.html">
-            <span>→</span>
-            Política de Privacidad
-          </a>
-
-          <a href="../cookies.html">
-            <span>→</span>
-            Política de Cookies
-          </a>
-
-        </div>
-
-      </div>
+    let redirectTarget =
+      sessionStorage.getItem(
+        "printlab_redirect_after_auth"
+      );
 
 
-    </div>
+    /*
+      Si no existe ningún destino guardado,
+      volvemos al inicio.
+    */
+
+    if(!redirectTarget){
+
+      redirectTarget =
+        "../index.html";
+
+    }
 
 
-    <div class="footer-bottom">
-
-      © 2026 PrintLab.
-
-    </div>
-
-  </div>
-
-</footer>
-
-
-
-<script>
-
-/* =====================================================
-   SUPABASE
-===================================================== */
-
-const SUPABASE_URL =
-  "https://jmwprzgfdkphbxryjbnr.supabase.co";
-
-const SUPABASE_ANON_KEY =
-  "sb_publishable_kelRYJ3Fa56DXY3GhxWLHQ_YiLJzStR";
-
-const supabaseClient =
-  supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_ANON_KEY
-  );
-
-
-/* =====================================================
-   MENÚ
-===================================================== */
-
-const menuButton =
-  document.getElementById("menu-button");
-
-const mainMenu =
-  document.getElementById("mainMenu");
-
-menuButton.addEventListener(
-  "click",
-  function(e){
-
-    e.stopPropagation();
-
-    mainMenu.classList.toggle("show");
-
-  }
-);
-
-document.addEventListener(
-  "click",
-  function(e){
+    /*
+      Seguridad:
+      nunca permitimos URLs externas.
+    */
 
     if(
-      !e.target.closest(".menu-dropdown")
+      redirectTarget.startsWith("http://") ||
+      redirectTarget.startsWith("https://") ||
+      redirectTarget.startsWith("//")
     ){
 
-      mainMenu.classList.remove("show");
+      redirectTarget =
+        "../index.html";
 
     }
 
-  }
-);
 
+    /*
+      Solo permitimos los destinos internos
+      que realmente utiliza PrintLab.
+    */
 
-/* =====================================================
-   DESTINO ORIGINAL
-===================================================== */
+    const allowedRedirects = [
 
-let redirectTarget =
-  sessionStorage.getItem(
-    "printlab_redirect_after_auth"
-  );
+      "../index.html",
 
+      "analizador-stl.html",
 
-if(!redirectTarget){
+      "informe-stl.html"
 
-  redirectTarget =
-    "../index.html";
+    ];
 
-}
-
-
-if(
-  redirectTarget.startsWith("http://") ||
-  redirectTarget.startsWith("https://") ||
-  redirectTarget.startsWith("//")
-){
-
-  redirectTarget =
-    "../index.html";
-
-}
-
-
-/* =====================================================
-   EMAIL
-===================================================== */
-
-const emailDisplay =
-  document.getElementById(
-    "email-display"
-  );
-
-const pendingEmail =
-  sessionStorage.getItem(
-    "printlab_pending_email"
-  );
-
-
-if(pendingEmail){
-
-  emailDisplay.textContent =
-    pendingEmail;
-
-}
-
-
-/* =====================================================
-   ELEMENTOS
-===================================================== */
-
-const statusElement =
-  document.getElementById("status");
-
-const resendButton =
-  document.getElementById("resend-button");
-
-const pageTitle =
-  document.getElementById("page-title");
-
-const pageDescription =
-  document.getElementById("page-description");
-
-const mailButton =
-  document.getElementById("mail-button");
-
-
-function showStatus(
-  message,
-  type = "info"
-){
-
-  statusElement.textContent =
-    message;
-
-  statusElement.className =
-    "status show " + type;
-
-}
-
-
-/* =====================================================
-   COMPROBAR VERIFICACIÓN
-===================================================== */
-
-async function checkVerification(){
-
-  const {
-    data:{
-      session
-    }
-  } =
-    await supabaseClient
-      .auth
-      .getSession();
-
-
-  if(!session){
-
-    return false;
-
-  }
-
-
-  const user =
-    session.user;
-
-
-  if(
-    user.email_confirmed_at ||
-    user.confirmed_at
-  ){
-
-    pageTitle.textContent =
-      "Correo verificado ✓";
-
-    pageDescription.textContent =
-      "Tu cuenta de PrintLab ya está activa. Te estamos llevando al siguiente paso.";
-
-
-    if (mailButton) {
-      mailButton.style.display =
-        "none";
-    }
-
-    if (resendButton) {
-      resendButton.style.display =
-        "none";
-    }
-
-
-    showStatus(
-      "Verificación completada correctamente.",
-      "success"
-    );
-
-
-    sessionStorage.removeItem(
-      "printlab_pending_name"
-    );
-
-    sessionStorage.removeItem(
-      "printlab_pending_email"
-    );
-
-    sessionStorage.removeItem(
-      "printlab_redirect_after_auth"
-    );
-
-
-    // Redirección ágil de 1000 ms tras éxito
-    setTimeout(
-      function(){
-
-        window.location.replace(
-          redirectTarget
-        );
-
-      },
-      1000
-    );
-
-
-    return true;
-
-  }
-
-
-  return false;
-
-}
-
-
-/* =====================================================
-   DETECTAR VERIFICACIÓN
-===================================================== */
-
-checkVerification();
-
-
-/*
- * También escuchamos el cambio de sesión.
- */
-
-supabaseClient.auth.onAuthStateChange(
-  async function(
-    event,
-    session
-  ){
 
     if(
-      event === "SIGNED_IN" &&
-      session
+      !allowedRedirects.includes(
+        redirectTarget
+      )
     ){
 
-      const user =
-        session.user;
+      redirectTarget =
+        "../index.html";
 
+    }
+
+
+    /* =====================================================
+       MOSTRAR EMAIL
+    ===================================================== */
+
+    const params =
+      new URLSearchParams(
+        window.location.search
+      );
+
+
+    const email =
+      params.get("email");
+
+
+    if(email){
+
+      document
+        .getElementById("email-display")
+        .textContent =
+          email;
+
+    }
+
+        /* =====================================================
+       BOTÓN DE ESPERA
+    ===================================================== */
+
+    const waitingBackLink =
+      document.getElementById(
+        "waiting-back-link"
+      );
+
+
+    if(waitingBackLink){
+
+      /*
+        Si el usuario llegó desde el analizador,
+        volver al inicio no sería lo esperado.
+
+        Le permitimos volver al analizador.
+      */
 
       if(
-        user.email_confirmed_at ||
-        user.confirmed_at
+        redirectTarget ===
+        "analizador-stl.html"
       ){
 
-        pageTitle.textContent =
-          "Correo verificado ✓";
+        waitingBackLink.href =
+          "analizador-stl.html";
 
-        pageDescription.textContent =
-          "Tu cuenta de PrintLab ya está activa. Te estamos llevando al siguiente paso.";
+        waitingBackLink.textContent =
+          "Volver al analizador";
 
-        if (mailButton) {
-          mailButton.style.display =
-            "none";
-        }
+      }
 
-        if (resendButton) {
-          resendButton.style.display =
-            "none";
-        }
+      else{
 
-
-        showStatus(
-          "Verificación completada correctamente.",
-          "success"
-        );
-
-
-        sessionStorage.removeItem(
-          "printlab_pending_name"
-        );
-
-        sessionStorage.removeItem(
-          "printlab_pending_email"
-        );
-
-
-        const destination =
-          redirectTarget ||
+        waitingBackLink.href =
           "../index.html";
 
-
-        sessionStorage.removeItem(
-          "printlab_redirect_after_auth"
-        );
-
-
-        // Redirección ágil de 500 ms
-        setTimeout(
-          function(){
-
-            window.location.replace(
-              destination
-            );
-
-          },
-          500
-        );
+        waitingBackLink.textContent =
+          "Volver al inicio";
 
       }
 
     }
 
-  }
-);
 
 
-/* =====================================================
-   REENVIAR CORREO (Salvaguarda por remoción del botón)
-===================================================== */
+    /* =====================================================
+       BOTÓN DE CONTINUAR DESPUÉS DE VERIFICAR
+    ===================================================== */
 
-if (resendButton) {
-  resendButton.addEventListener(
-    "click",
-    async function(){
+    const successContinue =
+      document.getElementById(
+        "success-continue"
+      );
 
-      if(!pendingEmail){
 
-        showStatus(
-          "No se ha encontrado el correo de registro.",
-          "error"
-        );
+    if(successContinue){
+
+      /*
+        Si el registro empezó desde el analizador:
+
+        Registro
+        ↓
+        Verificar correo
+        ↓
+        Analizador STL
+      */
+
+      if(
+        redirectTarget ===
+        "analizador-stl.html"
+      ){
+
+        successContinue.href =
+          "analizador-stl.html";
+
+        successContinue.textContent =
+          "Continuar al analizador";
+
+      }
+
+      /*
+        Si el usuario se registró desde el inicio:
+
+        Registro
+        ↓
+        Verificar correo
+        ↓
+        Inicio
+      */
+
+      else{
+
+        successContinue.href =
+          "../index.html";
+
+        successContinue.textContent =
+          "Continuar al inicio";
+
+      }
+
+    }
+
+
+
+    /* =====================================================
+       COMPROBAR VERIFICACIÓN
+    ===================================================== */
+
+    (async function(){
+
+      /*
+        Comprobar si hemos llegado aquí
+        después de pulsar el enlace de confirmación.
+      */
+
+      const hash =
+        window.location.hash;
+
+
+      const hasAuthTokens =
+        hash.includes("access_token") ||
+        hash.includes("type=signup");
+
+
+      /*
+        Si no hay tokens, simplemente dejamos
+        visible la pantalla de espera.
+      */
+
+      if(!hasAuthTokens){
 
         return;
 
       }
 
 
-      resendButton.disabled =
-        true;
+      try{
 
-      resendButton.textContent =
-        "Enviando...";
+        /*
+          Supabase procesa automáticamente
+          el enlace de confirmación.
+        */
 
+        const {
 
-      const {
-        error
-      } =
-        await supabaseClient
-          .auth
-          .resend({
+          data,
+          error
 
-            type:
-              "signup",
-
-            email:
-              pendingEmail,
-
-            options:{
-
-              emailRedirectTo:
-                window.location.origin +
-                "/printLAB/herramientas/verificar-correo.html"
-
-            }
-
-          });
+        } =
+          await supabaseClient.auth.getSession();
 
 
-      if(error){
+        /*
+          Verificación correcta.
+        */
+
+        if(
+          !error &&
+          data &&
+          data.session
+        ){
+
+          document
+            .getElementById("waiting-card")
+            .style.display =
+              "none";
+
+
+          document
+            .getElementById("error-card")
+            .style.display =
+              "none";
+
+
+          document
+            .getElementById("success-card")
+            .style.display =
+              "block";
+
+
+          /*
+            Limpiar los tokens de la URL.
+
+            Así no aparecen access_token,
+            type=signup, etc. en la barra.
+          */
+
+          window.history.replaceState(
+
+            {},
+
+            document.title,
+
+            window.location.pathname
+
+          );
+
+
+          return;
+
+        }
+
+
+        /*
+          Si Supabase no devuelve sesión,
+          mostrar error.
+        */
+
+        document
+          .getElementById("waiting-card")
+          .style.display =
+            "none";
+
+
+        document
+          .getElementById("success-card")
+          .style.display =
+            "none";
+
+
+        document
+          .getElementById("error-card")
+          .style.display =
+            "block";
+
+
+      }
+
+      catch(error){
 
         console.error(
+          "Error verificando correo:",
           error
         );
 
 
-        showStatus(
-          "No se ha podido reenviar el correo. Inténtalo de nuevo.",
-          "error"
-        );
+        document
+          .getElementById("waiting-card")
+          .style.display =
+            "none";
 
 
-        resendButton.disabled =
-          false;
+        document
+          .getElementById("success-card")
+          .style.display =
+            "none";
 
-        resendButton.textContent =
-          "Reenviar correo";
+
+        document
+          .getElementById("error-card")
+          .style.display =
+            "block";
+
+      }
+
+    })();
+
+
+
+    /* =====================================================
+       TRANSICIÓN ENTRE PÁGINAS — PRINTLAB
+       0,38 s ENTRADA / 0,38 s SALIDA
+    ===================================================== */
+
+    (function(){
+
+      const reduceMotion =
+        window.matchMedia(
+          "(prefers-reduced-motion: reduce)"
+        ).matches;
+
+
+      if(reduceMotion){
 
         return;
 
       }
 
 
-      showStatus(
-        "Correo reenviado correctamente. Revisa tu bandeja de entrada.",
-        "success"
+      /*
+        ENTRADA
+
+        La página aparece suavemente desde
+        una pequeña posición inferior.
+      */
+
+      document.body.classList.add(
+        "page-transition-in"
       );
 
 
-      resendButton.textContent =
-        "Correo reenviado ✓";
-
-
-      setTimeout(
+      requestAnimationFrame(
         function(){
 
-          resendButton.disabled =
-            false;
+          requestAnimationFrame(
+            function(){
 
-          resendButton.textContent =
-            "Reenviar correo";
+              document.body.classList.remove(
+                "page-transition-in"
+              );
 
-        },
-        30000
+            }
+
+          );
+
+        }
+
       );
 
-    }
-  );
-}
 
-</script>
+      /*
+        SALIDA
+
+        Interceptamos únicamente enlaces internos.
+      */
+
+      document.addEventListener(
+        "click",
+        function(event){
+
+          const link =
+            event.target.closest("a");
+
+
+          if(!link){
+
+            return;
+
+          }
+
+
+          const href =
+            link.getAttribute("href");
+
+
+          if(!href){
+
+            return;
+
+          }
+
+
+          /*
+            No animar anclas.
+          */
+
+          if(
+            href.startsWith("#") ||
+            href.startsWith("javascript:")
+          ){
+
+            return;
+
+          }
+
+
+          /*
+            Mantener comportamiento normal
+            para pestañas nuevas.
+          */
+
+          if(
+            link.target === "_blank" ||
+            event.ctrlKey ||
+            event.metaKey ||
+            event.shiftKey ||
+            event.altKey
+          ){
+
+            return;
+
+          }
+
+
+          let url;
+
+
+          try{
+
+            url =
+              new URL(
+                href,
+                window.location.href
+              );
+
+          }
+
+          catch{
+
+            return;
+
+          }
+
+
+          /*
+            Solo enlaces internos.
+          */
+
+          if(
+            url.origin !==
+            window.location.origin
+          ){
+
+            return;
+
+          }
+
+
+          /*
+            No interceptar si seguimos
+            exactamente en la misma URL.
+          */
+
+          if(
+            url.pathname ===
+              window.location.pathname
+            &&
+            url.search ===
+              window.location.search
+          ){
+
+            return;
+
+          }
+
+
+          event.preventDefault();
+
+
+          /*
+            Animación de salida.
+          */
+
+          document.body.classList.add(
+            "page-transition-out"
+          );
+
+
+          /*
+            380 ms = 0,38 segundos.
+          */
+
+          setTimeout(
+            function(){
+
+              window.location.href =
+                url.href;
+
+            },
+            380
+          );
+
+        },
+        true
+      );
+
+    })();
+
+  </script>
+
 
 </body>
+
 </html>
