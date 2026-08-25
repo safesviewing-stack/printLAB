@@ -153,7 +153,7 @@
     .modal-link{color:var(--ink);font-weight:800;text-decoration:underline}
     .modal-link:hover{color:var(--muted)}
 
-    /* FOOTER UNIVERSAL UNIFICADO */
+    /* PIE DE PÁGINA UNIFICADO COPIADO DE REFERENCIA */
     .footer { background: var(--bg); border-top: 1px solid var(--line); padding: 80px 0 40px; color: var(--muted); font-size: 14px; line-height: 1.6; }
     .footergrid { display: grid; grid-template-columns: 1.3fr 0.85fr 0.85fr; gap: 60px; margin-bottom: 48px; }
     .footer-col h3 { font-size: 16px; font-weight: 800; color: var(--ink); margin: 0 0 20px; letter-spacing: -0.3px; }
@@ -213,7 +213,7 @@
             </button>
             <div class="dropdown-content" id="mainMenu">
               <a href="#portada" class="active">Inicio</a>
-              <a href="#analizador">Analizador STL</a>
+              <a href="herramientas/analizador-stl.html">Analizador STL</a>
               <a href="#simulador">Simulador</a>
               <a href="#herramientas">Herramientas</a>
               <a href="#guias">Guías</a>
@@ -222,7 +222,7 @@
           <a class="brand" href="#portada" title="Volver al inicio">PRINT<span>LAB</span></a>
         </div>
 
-        <div class="auth-buttons">
+        <div class="auth-buttons" id="authHeaderContainer">
           <a href="herramientas/login.html" class="btn-auth light">Iniciar Sesión</a>
           <a href="herramientas/registro.html" class="btn-auth green">Registrarse</a>
         </div>
@@ -235,7 +235,7 @@
     <!-- PORTADA -->
     <section id="portada" class="hero section">
       <div>
-        <div class="eyebrow">Decisiones basadas en datos técnicos</div>
+        <div class="eyebrow" id="dashboard-greeting">Decisiones basadas en datos técnicos</div>
         <h1>La guía práctica para entender la impresión 3D.</h1>
         <p>Soluciones de ingeniería respaldadas por normativas ISO, ASTM y documentación de fabricantes (Prusa, UltiMaker, Formlabs). Deja de adivinar parámetros.</p>
         
@@ -727,21 +727,24 @@
     </div>
   </div>
 
+  <!-- PIE DE PÁGINA UNIFICADO COPIADO DE LA REFERENCIA -->
   <footer class="footer">
     <div class="wrap">
       <div class="footergrid">
         <div class="footer-col">
           <h3>PrintLab — Ingeniería 3D</h3>
-          <p>Plataforma profesional de análisis y optimización STL mediante Inteligencia Artificial y simuladores paramétricos.</p>
+          <p>Plataforma profesional de análisis y optimización STL mediante Inteligencia Artificial y simuladores paramétricos. Transformamos modelos 3D con problemas en geometrías perfectas listas para fabricar, ahorrando tiempo, material y costes en entornos industriales.</p>
+          <p class="footer-secondary-text">Desarrollado bajo principios de Privacy by Design. Los datos y archivos STL se procesan con estricta confidencialidad.</p>
         </div>
         
         <div class="footer-col">
           <h3>Recursos y Herramientas</h3>
           <div class="footer-links">
-            <a href="#analizador"><span class="arrow">→</span> Analizador STL</a>
+            <a href="herramientas/analizador-stl.html"><span class="arrow">→</span> Analizador STL IA</a>
             <a href="#simulador"><span class="arrow">→</span> Simulador de Extrusión</a>
             <a href="herramientas/calculadora-coste.html"><span class="arrow">→</span> Calculadoras de Coste y Masa</a>
             <a href="#guias"><span class="arrow">→</span> Base de Conocimiento</a>
+            <a href="materiales/index.html"><span class="arrow">→</span> Atlas de Materiales</a>
           </div>
         </div>
         
@@ -752,12 +755,14 @@
             <a href="herramientas/contacto.html"><span class="arrow">→</span> Contacto y Soporte</a>
             <a href="condiciones-compra.html"><span class="arrow">→</span> Condiciones de Compra</a>
             <a href="terminos.html"><span class="arrow">→</span> Términos y Condiciones</a>
+            <a href="privacidad.html"><span class="arrow">→</span> Política de Privacidad</a>
+            <a href="cookies.html"><span class="arrow">→</span> Política de Cookies</a>
           </div>
         </div>
       </div>
       
       <div class="footer-bottom">
-        <div class="footer-bottom-text">© 2026 PrintLab. All rights reserved.</div>
+        <div class="footer-bottom-text">© 2026 PrintLab.</div>
       </div>
     </div>
   </footer>
@@ -1076,7 +1081,7 @@
         if (speed > maxOptSpeed) textWarnSpeed = `⚠️ Velocidad alta para ABS: el enfriamiento rápido debilita la fusión.`;
       } else if (material === 'TPU') {
         minOptTemp = 215; maxOptTemp = 235; minOptBed = 30; maxOptBed = 60; maxOptSpeed = 50;
-        if (temp < minOptTemp) textWarnTemp = `⚠️ Temperatura baja para TPU: riesgo de extrusión deficiente o atasco.`;
+        if (temp < minOptTemp) textWarnTemp = `⚠️ Temperatura baja para TPU: riesgo de extrusión deficiente o acople.`;
         if (speed > maxOptSpeed) textWarnSpeed = `⚠️ Velocidad excesiva para TPU: el filamento flexible se doblará en los engranajes.`;
       } else if (material === 'PC') {
         minOptTemp = 260; maxOptTemp = 295; minOptBed = 100; maxOptBed = 120; maxOptSpeed = 90;
