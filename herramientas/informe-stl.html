@@ -44,14 +44,32 @@
     @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
 
     /* ESTILOS DEL INFORME */
-    .user-tag{font-size:14px; font-weight:700; color:var(--muted); background:var(--card); border:1px solid var(--line); padding:8px 16px; border-radius:99px; display:inline-block; margin-top:20px;}
-    .report-grid{display:grid; grid-template-columns: 0.8fr 1.2fr; gap:40px; padding:20px 0 60px;}
+    .report-grid{display:grid; grid-template-columns: 1fr 1.1fr; gap:40px; padding:40px 0 60px;}
     
-    /* 3D Viewer Placeholder */
-    .viewer-3d{background:var(--dark); border-radius:24px; height:500px; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#fff; position:relative; overflow:hidden;}
-    .viewer-overlay{position:absolute; top:20px; left:20px; display:flex; gap:10px; flex-wrap:wrap;}
-    .v-btn{background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff; padding:6px 12px; border-radius:8px; font-size:12px; cursor:pointer;}
-    .v-btn:hover{background:rgba(255,255,255,0.2);}
+    /* 3D / Isometric Comparison Container */
+    .mesh-comparison{
+      background:var(--dark); 
+      border-radius:24px; 
+      padding:32px; 
+      color:#fff;
+      display:flex; 
+      flex-direction:column; 
+      gap:24px;
+      box-shadow:0 15px 35px rgba(0,0,0,0.15);
+    }
+    .mesh-view-header{display:flex; justify-content:space-between; align-items:center;}
+    .mesh-title{font-size:14px; text-transform:uppercase; letter-spacing:1px; font-weight:800; color:#b8c0bb;}
+    .mesh-canvas{
+      background:#161d1a; 
+      border-radius:16px; 
+      height:250px; 
+      display:flex; 
+      align-items:center; 
+      justify-content:center;
+      border:1px dashed #2e3a35;
+      position:relative;
+    }
+    .mesh-overlay-tag{position:absolute; top:12px; right:12px; background:rgba(0,0,0,0.6); padding:4px 10px; border-radius:6px; font-size:11px; font-weight:700;}
 
     /* Score Box */
     .score-card{background:var(--card); border:1.5px solid var(--line); border-radius:20px; padding:30px; margin-bottom:24px;}
@@ -78,6 +96,51 @@
     .solution-text{font-size:15px; margin:8px 0; font-weight:700;}
     .benefit-text{font-size:14px; color:var(--muted); margin:0;}
 
+    /* Descargas Bloqueadas con Glassmorphism */
+    .download-panel{
+      background:var(--card); 
+      border:1.5px solid var(--line); 
+      border-radius:24px; 
+      padding:36px; 
+      margin-top:32px;
+      position:relative;
+      overflow:hidden;
+    }
+    .lock-overlay{
+      position:absolute; 
+      top:0; left:0; width:100%; height:100%; 
+      background:rgba(246, 247, 244, 0.85); 
+      backdrop-filter:blur(8px);
+      display:flex; 
+      flex-direction:column; 
+      align-items:center; 
+      justify-content:center; 
+      padding:40px; 
+      text-align:center;
+      z-index:10;
+    }
+    .lock-icon{font-size:42px; margin-bottom:16px;}
+    .lock-title{font-size:20px; font-weight:800; margin:0 0 8px; letter-spacing:-0.5px;}
+    .lock-desc{font-size:14px; color:var(--muted); margin:0 0 24px; max-width:380px;}
+
+    .btn-download-stl{
+      display:inline-flex; 
+      align-items:center; 
+      justify-content:center; 
+      gap:10px;
+      width:100%; 
+      padding:16px; 
+      background:var(--ink); 
+      color:#fff; 
+      border:2px solid var(--ink);
+      border-radius:12px; 
+      font-weight:800; 
+      font-size:15px;
+      cursor:pointer;
+      transition:0.2s;
+    }
+    .btn-download-stl:hover{transform:translateY(-2px); box-shadow:0 4px 0 var(--accent);}
+
     /* Disclaimer */
     .disclaimer{font-size:12px; color:var(--muted); background:var(--bg); padding:16px; border-radius:12px; margin-top:40px; border:1px solid var(--line);}
 
@@ -100,7 +163,6 @@
     }
     @media(max-width:992px){
       .report-grid{grid-template-columns: 1fr;}
-      .viewer-3d{height: 400px;}
     }
     @media(max-width: 768px) {
       .header-left { gap: 10px; }
@@ -111,7 +173,7 @@
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="../assets/js/auth-helper.js"></script>
+  <script src="../assets/js/auth-helper.js"></script>
 </head>
 <body>
 
@@ -127,7 +189,7 @@
             </button>
             <div class="dropdown-content" id="mainMenu">
               <a href="../index.html#portada">Inicio</a>
-              <a href="../index.html#analizador" class="active">Analizador IA</a>
+              <a href="../index.html#analizador" class="active">Analizador STL</a>
               <a href="../index.html#simulador">Simulador</a>
               <a href="../index.html#herramientas">Herramientas</a>
               <a href="../index.html#guias">Guías</a>
@@ -145,35 +207,57 @@
   </header>
 
   <main class="wrap">
-    <div class="user-tag">Créditos restantes: 14</div>
     <div class="report-grid">
       
-      <!-- LADO IZQUIERDO: VISOR Y DATOS TÉCNICOS -->
+      <!-- LADO IZQUIERDO: COMPARATIVA VISUAL ORIGINAL VS OPTIMIZADA -->
       <div>
-        <div class="viewer-3d">
-          <div class="viewer-overlay">
-            <button class="v-btn">Rotar</button>
-            <button class="v-btn">Wireframe</button>
-            <button class="v-btn">Resaltar Errores</button>
+        <div class="mesh-comparison">
+          <div class="mesh-view-header">
+            <span class="mesh-title">1. Pieza Original</span>
+            <span style="color:#ffa294; font-weight:800; font-size:12px;">⚠️ Voladizo y muros críticos</span>
           </div>
-          <p style="color:#b8c0bb; font-size:14px; text-align:center;">[Visor interactivo WebGL / Three.js]</p>
-          <img src="data:image/svg+xml;utf8,<svg fill='none' stroke='%233b443f' stroke-width='2' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'><path stroke-linecap='round' stroke-linejoin='round' d='M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4'></path></svg>" width="120" style="margin-top:20px; opacity:0.5;">
+          <div class="mesh-canvas">
+            <span class="mesh-overlay-tag" style="background:rgba(158,50,35,0.4); border:1px solid #9e3223; color:#ff9c8c">Grosor: 0.72 mm</span>
+            <!-- Representación CAD de pieza original con fallas -->
+            <svg width="140" height="140" viewBox="0 0 24 24" fill="none" stroke="#ffa294" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              <!-- Puntos críticos marcados en rojo -->
+              <circle cx="12" cy="11" r="2" fill="#9e3223" stroke="#ff3e24" stroke-width="1" />
+              <circle cx="8" cy="15" r="2" fill="#9e3223" stroke="#ff3e24" stroke-width="1" />
+            </svg>
+          </div>
+
+          <div class="mesh-view-header" style="margin-top:16px;">
+            <span class="mesh-title" style="color:var(--accent);">2. Propuesta Optimizada</span>
+            <span style="color:var(--accent); font-weight:800; font-size:12px;">✓ Tolerancias resueltas</span>
+          </div>
+          <div class="mesh-canvas" style="background:#131c15; border-color:#2a442d;">
+            <span class="mesh-overlay-tag" style="background:rgba(30,105,75,0.4); border:1px solid #1e694b; color:var(--accent);">Grosor: 1.20 mm</span>
+            <!-- Representación CAD de pieza optimizada -->
+            <svg width="140" height="140" viewBox="0 0 24 24" fill="none" stroke="#b8ff3d" stroke-width="1.8">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              <!-- Zonas reforzadas redondeadas (fillets) en verde -->
+              <circle cx="12" cy="11" r="2.5" fill="#1e694b" stroke="#b8ff3d" stroke-width="1" />
+            </svg>
+          </div>
         </div>
 
-        <div style="margin-top:24px; padding:20px; background:var(--card); border:1px solid var(--line); border-radius:16px; font-size:14px;">
-          <h4 style="margin:0 0 12px; font-weight:800;">Datos Estructurados (Motor Geométrico)</h4>
-          <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span>Volumen:</span> <strong>14.2 cm³</strong></div>
-          <div style="display:flex; justify-content:space-between; margin-bottom:6px;"><span>Dimensiones:</span> <strong>45 x 60 x 32 mm</strong></div>
-          <div style="display:flex; justify-content:space-between;"><span>Tecnología evaluada:</span> <strong>FDM (PLA)</strong></div>
+        <div style="margin-top:24px; padding:24px; background:var(--card); border:1.5px solid var(--line); border-radius:20px; font-size:14.5px;">
+          <h4 style="margin:0 0 16px; font-weight:800; font-size:16px; letter-spacing:-0.3px;">Datos Técnicos de Fabricación (Estructurados)</h4>
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px dashed var(--line); padding-bottom:6px;"><span>Volumen Sólido:</span> <strong>14.2 cm³</strong></div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px dashed var(--line); padding-bottom:6px;"><span>Dimensiones límites:</span> <strong>45 x 60 x 32 mm</strong></div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px dashed var(--line); padding-bottom:6px;"><span>Tecnología idónea:</span> <strong>FDM (Extrusión termoplástica)</strong></div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px dashed var(--line); padding-bottom:6px;"><span>Material base propuesto:</span> <strong style="color:#2a694b">PETG (Alta cohesión)</strong></div>
+          <div style="display:flex; justify-content:space-between;"><span>Temperatura recomendada:</span> <strong>240 ºC / Cama 80 ºC</strong></div>
         </div>
       </div>
 
-      <!-- LADO DERECHO: LA LÓGICA DE VALOR (PROBLEMA -> SOLUCIÓN) -->
+      <!-- LADO DERECHO: LA LÓGICA DE VALOR (PROBLEMA -> SOLUCIÓN + DESCARGA BLOQUEADA) -->
       <div>
         <div class="score-card">
           <p class="score-title">Printability Score</p>
-          <p class="score-value">67<span>/100</span></p>
-          <p style="margin:0; color:var(--muted); font-size:15px;">El modelo presenta riesgos altos de fracaso durante la impresión FDM debido a fallos estructurales en la base.</p>
+          <p class="score-value" style="color:var(--warning)">67<span>/100</span></p>
+          <p style="margin:0; color:var(--muted); font-size:15px; line-height:1.5;">El modelo presenta riesgos térmicos altos de desprendimiento de capas y sub-extrusión estructural en paredes verticales finas.</p>
         </div>
 
         <div class="problem-list">
@@ -181,17 +265,17 @@
           <!-- PROBLEMA 1 -->
           <div class="prob-card">
             <div class="prob-header">
-              <h3 class="prob-title">Pared demasiado fina</h3>
+              <h3 class="prob-title">Pared vertical demasiado fina</h3>
               <span class="prob-badge">Crítico</span>
             </div>
             <div class="prob-data">
               <div class="data-item"><span>Medición Actual</span><strong>0.72 mm</strong></div>
-              <div class="data-item"><span>Mínimo Recomendado</span><strong>1.20 mm (3 Perímetros)</strong></div>
+              <div class="data-item"><span>Mínimo Mecánico</span><strong>1.20 mm (3 Perímetros)</strong></div>
             </div>
             <div class="solution-box">
-              <strong>Solución</strong>
+              <strong>Solución aplicada</strong>
               <p class="solution-text">Aumentar el espesor geométrico de la pared exterior de la carcasa en aproximadamente 0.48 mm.</p>
-              <p class="benefit-text">Beneficio esperado: Evitará agujeros de sub-extrusión y aportará resistencia mecánica real a la pieza final.</p>
+              <p class="benefit-text">Beneficio esperado: Elimina por completo agujeros por falta de extrusión y asegura la resistencia estructural necesaria.</p>
             </div>
           </div>
 
@@ -203,19 +287,46 @@
             </div>
             <div class="prob-data">
               <div class="data-item"><span>Ángulo Detectado</span><strong>68º</strong></div>
-              <div class="data-item"><span>Límite Seguro (Sin soporte)</span><strong>45º - 50º</strong></div>
+              <div class="data-item"><span>Límite Autoportante</span><strong>45º - 50º</strong></div>
             </div>
             <div class="solution-box">
-              <strong>Solución</strong>
-              <p class="solution-text">Generar soportes orgánicos tipo árbol bajo la barbilla del modelo, o inclinar la pieza 15º en el eje Y.</p>
-              <p class="benefit-text">Beneficio esperado (Estimación): Mejor acabado superficial inferior y prevención de descolgamiento de plástico fundido.</p>
+              <strong>Solución aplicada</strong>
+              <p class="solution-text">Generar soportes orgánicos tipo árbol bajo el puente, o inclinar el plano de impresión 15º en el eje Y.</p>
+              <p class="benefit-text">Beneficio esperado: Garantiza un correcto puenteado térmico y evita goteos de plástico.</p>
             </div>
           </div>
 
         </div>
 
+        <!-- PANEL DE DESCARGA CON SISTEMA DE BLOQUEO DINÁMICO -->
+        <div class="download-panel">
+          
+          <!-- Capa de bloqueo translúcida (Glassmorphism) -->
+          <div class="lock-overlay" id="downloadLockOverlay">
+            <div class="lock-icon">🔒</div>
+            <h3 class="lock-title">Archivos de Fabricación Bloqueados</h3>
+            <p class="lock-desc">Para descargar la propuesta geométrica optimizada en formato .STL y el informe completo, se requiere descontar 1 crédito de análisis.</p>
+            
+            <button class="btn-download-stl" id="unlockDownloadBtn" style="background:var(--accent); color:var(--ink); border-color:var(--ink); width:auto; padding:12px 30px; box-shadow:0 3px 0 var(--ink);">
+              Desbloquear descarga con 1 crédito
+            </button>
+            <p style="margin:10px 0 0; font-size:12px; color:var(--muted); font-weight:700;">No requiere volver a subir el archivo STL.</p>
+          </div>
+
+          <!-- Estructura de descargas interna (Se desbloqueará dinámicamente) -->
+          <h4 style="margin:0 0 20px; font-weight:800; font-size:16px;">Descarga de Resultados</h4>
+          
+          <button class="btn-download-stl" style="margin-bottom:12px;">
+            Descargar pieza optimizada (.STL)
+          </button>
+          
+          <button class="btn-download-stl" style="background:#fff; color:var(--ink);">
+            Descargar Informe de Ingeniería (.PDF)
+          </button>
+        </div>
+
         <div class="disclaimer">
-          Los resultados mostrados son orientativos y se basan exclusivamente en el archivo STL proporcionado y las tolerancias paramétricas seleccionadas. Las recomendaciones generadas por la IA son una herramienta de asistencia técnica, pero no constituyen una certificación ni garantía de fabricación o seguridad estructural de la pieza en entornos reales.
+          Los resultados mostrados se basan de forma exclusiva en el archivo de mallas STL suministrado y las reglas de diseño para fabricación aditiva (DfAM). El archivo corregido se genera de forma algorítmica para cumplir tolerancias físicas recomendadas por fabricantes (Prusa, UltiMaker). El usuario final debe verificar el modelo antes de su puesta en servicio.
         </div>
       </div>
 
@@ -270,6 +381,80 @@
         }
       }
     }
+  </script>
+
+  <!-- =====================================================
+       LÓGICA DE DESBLOQUEO REAL DE RESULTADOS
+  ===================================================== -->
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      const lockOverlay = document.getElementById("downloadLockOverlay");
+      const unlockBtn = document.getElementById("unlockDownloadBtn");
+
+      // Validar Supabase
+      const client = window.supabaseClient || (typeof supabaseClient !== "undefined" ? supabaseClient : null);
+
+      if (!client) {
+        console.error("Supabase no inicializado en el informe.");
+        return;
+      }
+
+      // Comprobar estado de créditos al entrar a la página
+      async function checkCurrentCredits() {
+        const { data: { user } } = await client.auth.getUser();
+        if (!user) {
+          // Si no está logueado, forzar bloqueo redireccionando al login
+          unlockBtn.textContent = "Inicia sesión para desbloquear";
+          unlockBtn.addEventListener("click", () => {
+            window.location.href = "login.html?redirect=informe-stl.html";
+          });
+          return;
+        }
+
+        // Consultar perfil para saber créditos disponibles
+        const { data: profile } = await client
+          .from("profiles")
+          .select("credits")
+          .eq("id", user.id)
+          .single();
+
+        // Si ya compró y quiere desbloquear
+        unlockBtn.addEventListener("click", async () => {
+          if (!profile || profile.credits < 1) {
+            // No tiene saldo -> Redirigir suavemente a precios.html
+            document.body.classList.add("page-transition-out");
+            setTimeout(() => {
+              window.location.href = "precios.html";
+            }, 380);
+            return;
+          }
+
+          unlockBtn.disabled = true;
+          unlockBtn.textContent = "Desbloqueando...";
+
+          try {
+            // Descontar 1 crédito de forma segura con la función RPC
+            const { data: success, error: rpcError } = await client.rpc("deduct_analysis_credit");
+
+            if (rpcError || !success) {
+              throw new Error(rpcError?.message || "Error procesando el saldo.");
+            }
+
+            // Ocultar capa de bloqueo de forma definitiva
+            lockOverlay.style.display = "none";
+            alert("Descarga autorizada con éxito. Tus archivos optimizados ya están listos.");
+
+          } catch (err) {
+            console.error(err);
+            alert("Error: " + err.message);
+            unlockBtn.disabled = false;
+            unlockBtn.textContent = "Desbloquear descarga con 1 crédito";
+          }
+        });
+      }
+
+      await checkCurrentCredits();
+    });
   </script>
 </body>
 </html>
