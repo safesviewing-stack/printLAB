@@ -40,27 +40,27 @@ authHeaderStyles.textContent = `
 
   .user-greeting{
     font-weight:700;
-    font-size:18px;
+    font-size:15px;
     color:var(--ink);
     white-space:nowrap;
   }
 
   .credits-badge{
-    display:flex;
+    display:inline-flex;
     align-items:center;
     justify-content:center;
 
     background:var(--accent);
     color:var(--ink);
 
-    padding:12px 20px;
-    min-height:50px;
+    padding:4px 12px;
 
-    border-radius:17px;
-    border:1px solid var(--ink);
+    border-radius:9999px;
+    border:none;
 
     font-weight:800;
-    font-size:17px;
+    font-size:15px;
+    line-height:1;
 
     white-space:nowrap;
   }
@@ -102,14 +102,14 @@ authHeaderStyles.textContent = `
     }
 
     .user-greeting{
-      font-size:15px;
+      font-size:13px;
     }
 
     .credits-badge{
-      padding:10px 14px;
-      min-height:44px;
-      font-size:14px;
-      border-radius:14px;
+      padding:4px 10px;
+      min-height:auto;
+      font-size:13px;
+      border-radius:9999px;
     }
 
     .user-header-info .btn-auth.light{
