@@ -97,7 +97,7 @@
     .solution-text{font-size:15px; margin:8px 0; font-weight:700;}
     .benefit-text{font-size:14px; color:var(--muted); margin:0;}
 
-    /* Descargas Bloqueadas con Glassmorphism */
+    /* Panel de descargas (Desbloqueado por defecto) */
     .download-panel{
       background:var(--card); 
       border:1.5px solid var(--line); 
@@ -107,22 +107,6 @@
       position:relative;
       overflow:hidden;
     }
-    .lock-overlay{
-      position:absolute; 
-      top:0; left:0; width:100%; height:100%; 
-      background:rgba(246, 247, 244, 0.85); 
-      backdrop-filter:blur(8px);
-      display:flex; 
-      flex-direction:column; 
-      align-items:center; 
-      justify-content:center; 
-      padding:40px; 
-      text-align:center;
-      z-index:10;
-    }
-    .lock-icon{font-size:42px; margin-bottom:16px;}
-    .lock-title{font-size:20px; font-weight:800; margin:0 0 8px; letter-spacing:-0.5px;}
-    .lock-desc{font-size:14px; color:var(--muted); margin:0 0 24px; max-width:380px;}
 
     .btn-download-stl{
       display:inline-flex; 
@@ -242,7 +226,7 @@
         </div>
       </div>
 
-      <!-- LADO DERECHO: LA LÓGICA DE VALOR (PROBLEMA -> SOLUCIÓN + DESCARGA BLOQUEADA) -->
+      <!-- LADO DERECHO: LA LÓGICA DE VALOR (PROBLEMA -> SOLUCIÓN) -->
       <div>
         <div class="score-card">
           <p class="score-title">Printability Score</p>
@@ -281,36 +265,22 @@
             </div>
             <div class="solution-box">
               <strong>Solución aplicada</strong>
-              <p class="solution-text">Generar soportes orgánicos tipo árbol bajo el puente, o inclinar el plano de impresión 15º en el eje Y.</p>
-              <p class="benefit-text">Beneficio esperado: Garantiza un correcto puenteado térmico y evita goteos de plástico.</p>
+              <p class="solution-text">Generar Soportes Orgánicos (árbol) bajo las zonas de voladizo o reorientar el modelo 45º sobre la base.</p>
+              <p class="benefit-text">Beneficio esperado: Evita descuelgues y colapsos de filamento fundido en el aire.</p>
             </div>
           </div>
 
         </div>
 
-        <!-- PANEL DE DESCARGA CON SISTEMA DE BLOQUEO DINÁMICO -->
+        <!-- PANEL DE DESCARGA (DESBLOQUEADO POR DEFECTO TRAS COBRO SEGURO EN ANALIZADOR) -->
         <div class="download-panel">
+          <h4 style="margin:0 0 20px; font-weight:800; font-size:16px; color:var(--ink);">Descarga de Resultados</h4>
           
-          <!-- Capa de bloqueo translúcida (Glassmorphism) -->
-          <div class="lock-overlay" id="downloadLockOverlay">
-            <div class="lock-icon">🔒</div>
-            <h3 class="lock-title">Archivos de Fabricación Bloqueados</h3>
-            <p class="lock-desc">Para descargar la propuesta geométrica optimizada en formato .STL y el informe completo, se requiere descontar 1 crédito de análisis.</p>
-            
-            <button class="btn-download-stl" id="unlockDownloadBtn" style="background:var(--accent); color:var(--ink); border-color:var(--ink); width:auto; padding:12px 30px; box-shadow:0 3px 0 var(--ink);">
-              Desbloquear descarga con 1 crédito
-            </button>
-            <p style="margin:10px 0 0; font-size:12px; color:var(--muted); font-weight:700;">No requiere volver a subir el archivo STL.</p>
-          </div>
-
-          <!-- Estructura de descargas interna (Se desbloqueará dinámicamente) -->
-          <h4 style="margin:0 0 20px; font-weight:800; font-size:16px;">Descarga de Resultados</h4>
-          
-          <button class="btn-download-stl" id="downloadStlBtn" style="margin-bottom:12px;">
+          <button class="btn-download-stl" id="downloadStlBtn" style="margin-bottom:12px; background:var(--accent); color:var(--ink); border-color:var(--ink);">
             Descargar pieza optimizada (.STL)
           </button>
           
-          <button class="btn-download-stl" style="background:#fff; color:var(--ink);">
+          <button class="btn-download-stl" id="downloadPdfBtn" style="background:#fff; color:var(--ink);">
             Descargar Informe de Ingeniería (.PDF)
           </button>
         </div>
@@ -362,23 +332,33 @@
     </div>
   </footer>
 
+  <script>
+    window.onclick = function(event) {
+      if (!event.target.closest('.menu-dropdown')) {
+        var dropdowns = document.getElementsByClassName("dropdown-content");
+        for (var i = 0; i < dropdowns.length; i++) {
+          if (dropdowns[i].classList.contains('show')) { dropdowns[i].classList.remove('show'); }
+        }
+      }
+    }
+  </script>
+
   <!-- =====================================================
        LÓGICA DEL VISOR 3D (THREE.JS)
   ===================================================== -->
   <script>
-    // Inicializar el visor interactivo de forma segura
     function init3DViewer(containerId, stlUrl, criticalPoints) {
       const container = document.getElementById(containerId);
       if (!container) return;
 
-      // 1. Configuración básica de Three.js
+      // 1. Configuración de Three.js
       const scene = new THREE.Scene();
       scene.background = new THREE.Color(0x161d1a);
 
       const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
       camera.position.set(0, 0, 100);
 
-      const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setSize(container.clientWidth, container.clientHeight);
       container.appendChild(renderer.domElement);
 
@@ -390,25 +370,23 @@
       const light2 = new THREE.AmbientLight(0x505050);
       scene.add(light2);
 
-      // Controles orbitales
       const controls = new THREE.OrbitControls(camera, renderer.domElement);
 
-      // 3. Lector STL
+      // 3. Cargar STL real
       const loader = new THREE.STLLoader();
       loader.load(stlUrl, function (geometry) {
-        const material = new THREE.MeshPhongMaterial({ color: 0x90a095, specular: 0x111111, shininess: 100 });
+        const material = new THREE.MeshPhongMaterial({ color: 0x1e694b, specular: 0x111111, shininess: 80 });
         const mesh = new THREE.Mesh(geometry, material);
 
         geometry.center();
         scene.add(mesh);
 
-        // Encuadrar la cámara
         const box = new THREE.Box3().setFromObject(mesh);
         const size = box.getSize(new THREE.Vector3()).length();
         camera.position.set(0, 0, size * 1.5);
         controls.update();
 
-        // 4. Pintar marcadores rojos de colapso en 3D
+        // 4. Pintar marcadores de colapso en 3D
         if (criticalPoints && criticalPoints.length > 0) {
           const sphereGeom = new THREE.SphereGeometry(size * 0.015, 8, 8);
           const sphereMat = new THREE.MeshBasicMaterial({ color: 0xff3e24 });
@@ -420,8 +398,8 @@
           });
         }
       }, undefined, function (err) {
-        console.warn("Cargando modelo por defecto (sin archivo cargado):", err);
-        // Si no hay archivo real, renderizamos un cubo de marcador de posición
+        console.warn("No se pudo cargar el archivo STL en el visor.", err);
+        // Marcador de posición por defecto
         const geom = new THREE.BoxGeometry(20, 20, 20);
         const mat = new THREE.MeshPhongMaterial({ color: 0x2e3a35 });
         const mesh = new THREE.Mesh(geom, mat);
@@ -444,105 +422,66 @@
   </script>
 
   <!-- =====================================================
-       LÓGICA DE CONEXIÓN, DATOS Y DESBLOQUEO REAL
+       LÓGICA DE CARGA DE DATOS Y DESCARGA DIRECTA
   ===================================================== -->
   <script>
     document.addEventListener("DOMContentLoaded", async () => {
-      const lockOverlay = document.getElementById("downloadLockOverlay");
-      const unlockBtn = document.getElementById("unlockDownloadBtn");
       const downloadStlBtn = document.getElementById("downloadStlBtn");
+      const downloadPdfBtn = document.getElementById("downloadPdfBtn");
 
       const reportFileName = document.getElementById("reportFileName");
       const reportVolume = document.getElementById("reportVolume");
       const reportDimensions = document.getElementById("reportDimensions");
       const reportScore = document.getElementById("reportScore");
 
-      // Validar Supabase
-      const client = window.supabaseClient || (typeof supabaseClient !== "undefined" ? supabaseClient : null);
-
-      if (!client) {
-        console.error("Supabase no inicializado.");
-        return;
-      }
-
-      // 1. Leer los datos reales del SessionStorage procesados por Python
+      // 1. Leer los datos reales de la memoria del navegador
       const storedAnalysis = sessionStorage.getItem("printlab_analysis");
-      let analysis = null;
 
       if (storedAnalysis) {
-        analysis = JSON.parse(storedAnalysis);
+        const analysis = JSON.parse(storedAnalysis);
         
-        // Actualizar datos estructurados reales en la interfaz
+        // Actualizar datos de texto de forma dinámica
         reportFileName.textContent = "📄 " + analysis.file_name;
         reportVolume.textContent = `${analysis.volume} cm³`;
         reportDimensions.textContent = analysis.dimensions;
         
-        // Calcular un Printability Score dinámico
         const score = analysis.watertight ? (analysis.critical_points.length > 10 ? 72 : 94) : 45;
         reportScore.innerHTML = `${score}<span>/100</span>`;
-        
-        // Inicializar el visor 3D real con la pieza y sus coordenadas rojas
-        init3DViewer("canvas3dContainer", analysis.file_url, analysis.critical_points);
+
+        // 2. Decodificar la pieza ligera Base64 almacenada localmente y crear un enlace temporal
+        if (analysis.optimized_base64) {
+          const byteCharacters = atob(analysis.optimized_base64);
+          const byteNumbers = new Array(byteCharacters.length);
+          for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+          }
+          const byteArray = new Uint8Array(byteNumbers);
+          const blob = new Blob([byteArray], { type: "model/stl" });
+          const stlLocalUrl = URL.createObjectURL(blob);
+
+          // Inicializar el visor 3D real con la pieza y sus coordenadas rojas
+          init3DViewer("canvas3dContainer", stlLocalUrl, analysis.critical_points);
+
+          // Configurar el botón de descarga del STL
+          downloadStlBtn.addEventListener("click", () => {
+            const a = document.createElement("a");
+            a.href = stlLocalUrl;
+            a.download = "optimized_" + (analysis.file_name || "piece.stl");
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+          });
+        } else {
+          init3DViewer("canvas3dContainer", "", []);
+        }
       } else {
-        // Inicializar visor vacío/demo si no hay análisis previo
         init3DViewer("canvas3dContainer", "", []);
       }
 
-      // 2. Controlar estado de créditos del usuario
-      async function checkCreditsAndUnlock() {
-        const { data: { user } } = await client.auth.getUser();
-        if (!user) {
-          unlockBtn.textContent = "Inicia sesión para desbloquear";
-          unlockBtn.addEventListener("click", () => {
-            window.location.href = "login.html?redirect=informe-stl.html";
-          });
-          return;
-        }
-
-        const { data: profile } = await client
-          .from("profiles")
-          .select("credits")
-          .eq("id", user.id)
-          .single();
-
-        unlockBtn.addEventListener("click", async () => {
-          if (!profile || profile.credits < 1) {
-            document.body.classList.add("page-transition-out");
-            setTimeout(() => {
-              window.location.href = "precios.html";
-            }, 380);
-            return;
-          }
-
-          unlockBtn.disabled = true;
-          unlockBtn.textContent = "Desbloqueando...";
-
-          try {
-            // Descontar crédito de forma segura
-            const { data: success, error: rpcError } = await client.rpc("deduct_analysis_credit");
-
-            if (rpcError || !success) throw new Error(rpcError?.message || "Error procesando el saldo.");
-
-            lockOverlay.style.display = "none";
-            alert("Descarga desbloqueada con éxito.");
-
-            // Habilitar descarga física real
-            if (analysis && analysis.file_url) {
-              downloadStlBtn.addEventListener("click", () => {
-                window.open(analysis.file_url, "_blank");
-              });
-            }
-
-          } catch (err) {
-            console.error(err);
-            alert("Error: " + err.message);
-            unlockBtn.disabled = false;
-            unlockBtn.textContent = "Desbloquear descarga con 1 crédito";
-          }
-        });
-      }
-
-      await checkCreditsAndUnlock();
+      // Configuración del botón de descarga del PDF (Simulado de reporte)
+      downloadPdfBtn.addEventListener("click", () => {
+        alert("Generando informe de fabricación .PDF completo en segundo plano...");
+      });
     });
   </script>
 </body>
