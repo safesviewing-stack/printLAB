@@ -246,10 +246,10 @@
         </div>
       </div>
 
-      <!-- PASO 8: DETALLES DE LA IMPRESORA (OPCIONAL) -->
+      <!-- PASO 8: DETALLES DE LA IMPRESORA (OBLIGATORIO) -->
       <div class="wizard-step" id="step-printer">
-        <div class="step-title"><span>¿Qué impresora 3D utilizarás? (Opcional)</span> <span style="font-size:14px; color:var(--muted);">8 / 8</span></div>
-        <div class="step-subtitle">Aporta las especificaciones de tu máquina para ajustar parámetros de retracción y flujos volumétricos.</div>
+        <div class="step-title"><span>¿Qué impresora 3D utilizarás?</span> <span style="font-size:14px; color:var(--muted);">8 / 8</span></div>
+        <div class="step-subtitle">Aporta las especificaciones técnicas de tu máquina de forma obligatoria para calibrar los flujos volumétricos.</div>
         <div class="form-group">
           <label>Tecnología de impresión</label>
           <select id="q-tech">
@@ -374,6 +374,7 @@
       validateCurrentStep();
     }
 
+    // --- CORRECCIÓN: Paso 8 de la impresora obligatorio ---
     function validateCurrentStep() {
       const nextBtn = document.getElementById("nextBtn");
       let isValid = true;
@@ -400,9 +401,13 @@
         isValid = answers.priority !== "";
       } else if (currentStepIdx === 8) {
         answers.printerTech = document.getElementById("q-tech").value;
-        answers.nozzleSize = document.getElementById("q-nozzle").value.trim();
-        answers.layerHeight = document.getElementById("q-layer-height").value.trim();
-        isValid = true;
+        const nozzleVal = document.getElementById("q-nozzle").value.trim();
+        const layerVal = document.getElementById("q-layer-height").value.trim();
+        answers.nozzleSize = nozzleVal;
+        answers.layerHeight = layerVal;
+        
+        // Bloquea el envío si falta el diámetro de la boquilla o la altura de la capa
+        isValid = nozzleVal !== "" && layerVal !== "";
       }
 
       nextBtn.disabled = !isValid;
@@ -455,6 +460,10 @@
       document.getElementById("q-purpose").addEventListener("input", validateCurrentStep);
       document.getElementById("q-load-weight").addEventListener("input", validateCurrentStep);
       document.getElementById("q-operating-temp").addEventListener("input", validateCurrentStep);
+      
+      // Vincula los eventos de entrada de la impresora para habilitar dinámicamente el botón verde final
+      document.getElementById("q-nozzle").addEventListener("input", validateCurrentStep);
+      document.getElementById("q-layer-height").addEventListener("input", validateCurrentStep);
 
       const client = window.supabaseClient || (typeof supabaseClient !== "undefined" ? supabaseClient : null);
       if (!client) return;
