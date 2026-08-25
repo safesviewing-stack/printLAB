@@ -441,8 +441,8 @@ async function initAuth() {
 
       greetingDashboard.innerHTML = `Hola, ${name} | Dispones de ${credits} créditos`;
       
-      greetingDashboard.style.background = "rgba(184, 255, 61, 0.2)";
-      greetingDashboard.style.color = "var(--ink)";
+      greetingDashboard.style.setProperty("background", "rgba(184, 255, 61, 0.2)", "important");
+      greetingDashboard.style.setProperty("color", "var(--ink)", "important");
 
     }
 
