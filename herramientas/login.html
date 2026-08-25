@@ -59,9 +59,10 @@
       line-height:1.6;
       -webkit-font-smoothing:antialiased;
 
-      /* TRANSICIÓN PRINTLAB */
+      /* TRANSICIÓN ENTRE PÁGINAS — PRINTLAB */
       opacity:1;
       transform:translateY(0);
+
       transition:
         opacity .38s cubic-bezier(.22,1,.36,1),
         transform .38s cubic-bezier(.22,1,.36,1);
@@ -563,7 +564,9 @@
 
 </head>
 
+
 <body>
+
 
   <!-- =========================
        CABECERA
@@ -591,6 +594,7 @@
               <span></span>
 
             </button>
+
 
             <div
               class="dropdown-content"
@@ -621,15 +625,19 @@
 
           </div>
 
+
           <a
             class="brand"
             href="../index.html#portada"
             title="Volver al inicio"
           >
+
             PRINT<span>LAB</span>
+
           </a>
 
         </div>
+
 
         <div class="auth-buttons">
 
@@ -655,6 +663,7 @@
     </div>
 
   </header>
+
 
   <!-- =========================
        CONTENIDO
@@ -684,6 +693,7 @@
 
       </div>
 
+
       <form
         id="login-form"
         novalidate
@@ -704,6 +714,7 @@
           >
 
         </div>
+
 
         <div class="form-group">
 
@@ -730,6 +741,7 @@
 
         </div>
 
+
         <!-- MENSAJE DE ERROR -->
 
         <div
@@ -737,6 +749,7 @@
           class="login-message"
           aria-live="polite"
         ></div>
+
 
         <button
           type="submit"
@@ -747,6 +760,7 @@
         </button>
 
       </form>
+
 
       <div class="switch-auth">
 
@@ -765,6 +779,7 @@
 
   </main>
 
+
   <!-- =========================
        FOOTER
   ========================= -->
@@ -774,6 +789,7 @@
     <div class="wrap">
 
       <div class="footergrid">
+
 
         <div class="footer-col">
 
@@ -790,6 +806,7 @@
           </p>
 
         </div>
+
 
         <div class="footer-col">
 
@@ -827,6 +844,7 @@
           </div>
 
         </div>
+
 
         <div class="footer-col">
 
@@ -870,7 +888,9 @@
 
         </div>
 
+
       </div>
+
 
       <div class="footer-bottom">
 
@@ -884,466 +904,499 @@
 
   </footer>
 
-    <script>
+
+  <!-- =========================
+       JAVASCRIPT
+  ========================= -->
+
+  <script>
+
     /* =====================================================
-       LOGIN PRINTLAB
+       MENÚ
     ===================================================== */
 
-    document.addEventListener("DOMContentLoaded", function(){
+    const menuButton =
+      document.getElementById("menu-button");
 
-      /* =====================================================
-         MENÚ HAMBURGUESA
-      ===================================================== */
+    const mainMenu =
+      document.getElementById("mainMenu");
 
-      const menuButton =
-        document.getElementById("menu-button");
 
-      const mainMenu =
-        document.getElementById("mainMenu");
+    if(menuButton && mainMenu){
 
-      if(menuButton && mainMenu){
+      menuButton.addEventListener(
+        "click",
+        function(e){
 
-        menuButton.addEventListener(
-          "click",
-          function(e){
+          e.stopPropagation();
 
-            e.stopPropagation();
+          mainMenu.classList.toggle("show");
 
-            mainMenu.classList.toggle("show");
+        }
+      );
 
-          }
-        );
+    }
 
-        document.addEventListener(
-          "click",
-          function(e){
 
-            if(
-              !mainMenu.contains(e.target) &&
-              !menuButton.contains(e.target)
-            ){
+    document.addEventListener(
+      "click",
+      function(e){
 
-              mainMenu.classList.remove("show");
+        if(
+          !e.target.closest(".menu-dropdown")
+          &&
+          mainMenu
+        ){
 
-            }
+          mainMenu.classList.remove("show");
 
-          }
-        );
+        }
 
       }
+    );
 
 
-      /* =====================================================
-         DESTINO DESPUÉS DEL LOGIN
-      ===================================================== */
+    /* =====================================================
+       DESTINO DESPUÉS DEL LOGIN
+    ===================================================== */
 
-      const params =
-        new URLSearchParams(
-          window.location.search
-        );
+    /*
+      Hay tres posibilidades:
 
-      const requestedLoginRedirect =
-        params.get("redirect");
+      1. Venimos del analizador:
 
+         login.html?redirect=analizador-stl.html
 
-      /*
-        Solo permitimos destinos internos
-        conocidos para evitar redirecciones
-        externas.
-      */
-
-      const allowedLoginRedirects = [
-
-        "../index.html",
-
-        "../index.html#portada",
-
-        "../index.html#analizador",
-
-        "../index.html#simulador",
-
-        "../index.html#herramientas",
-
-        "../index.html#guias",
-
-        "../herramientas/analizador-stl.html",
-
-        "../analizador-stl.html"
-
-      ];
+         → volvemos al analizador.
 
 
-      const loginRedirectTarget =
-        allowedLoginRedirects.includes(
-          requestedLoginRedirect
-        )
-          ? requestedLoginRedirect
-          : "../index.html";
+      2. Venimos de otra herramienta:
+
+         login.html?redirect=informe-stl.html
+
+         → volvemos a esa herramienta.
 
 
-      /*
-        Guardamos el destino para que no se pierda
-        al navegar entre las páginas de autenticación.
-      */
+      3. Entramos directamente a login.html:
 
-      sessionStorage.setItem(
-        "printlab_auth_redirect",
-        loginRedirectTarget
+         → vamos al inicio.
+    */
+
+
+    const loginParams =
+      new URLSearchParams(
+        window.location.search
       );
 
 
-      /* =====================================================
-         ENLACES DE REGISTRO
-      ===================================================== */
-
-      const registerLink =
-        document.getElementById(
-          "register-link"
-        );
+    let requestedLoginRedirect =
+      loginParams.get("redirect") || "";
 
 
-      const headerRegisterLink =
-        document.getElementById(
-          "header-register-link"
-        );
+    /*
+      Si no existe redirect en la URL,
+      intentamos recuperar el destino
+      que hubiera guardado otra página.
+    */
+
+    if(!requestedLoginRedirect){
+
+      requestedLoginRedirect =
+        sessionStorage.getItem(
+          "printlab_auth_redirect"
+        ) || "";
+
+    }
 
 
-      const registerUrl =
-        `registro.html?redirect=${encodeURIComponent(
-          loginRedirectTarget
-        )}`;
+    /*
+      Solo permitimos destinos internos
+      conocidos.
+
+      Esto evita que alguien pueda utilizar
+      el parámetro redirect para enviar al
+      usuario a una página externa.
+    */
+
+    const allowedLoginRedirects = [
+
+      "../index.html",
+
+      "analizador-stl.html",
+
+      "informe-stl.html"
+
+    ];
 
 
-      if(registerLink){
-
-        registerLink.href =
-          registerUrl;
-
-      }
-
-
-      if(headerRegisterLink){
-
-        headerRegisterLink.href =
-          registerUrl;
-
-      }
+    let loginRedirectTarget =
+      allowedLoginRedirects.includes(
+        requestedLoginRedirect
+      )
+      ? requestedLoginRedirect
+      : "../index.html";
 
 
-      /* =====================================================
-         LOGIN SUPABASE
-      ===================================================== */
+    /*
+      Guardamos el destino para que no se pierda
+      al navegar entre las páginas de autenticación.
+    */
 
-      const loginForm =
-        document.getElementById(
-          "login-form"
-        );
-
-
-      const loginButton =
-        document.getElementById(
-          "login-button"
-        );
+    sessionStorage.setItem(
+      "printlab_auth_redirect",
+      loginRedirectTarget
+    );
 
 
-      const loginMessage =
-        document.getElementById(
-          "login-message"
-        );
+    /* =====================================================
+       ENLACES DE REGISTRO
+    ===================================================== */
+
+    const registerLink =
+      document.getElementById(
+        "register-link"
+      );
 
 
-      if(loginForm){
-
-        loginForm.addEventListener(
-          "submit",
-          async function(e){
-
-            e.preventDefault();
+    const headerRegisterLink =
+      document.getElementById(
+        "header-register-link"
+      );
 
 
-            /*
-              Ocultar mensaje anterior.
-            */
+    const registerUrl =
+      `registro.html?redirect=${encodeURIComponent(
+        loginRedirectTarget
+      )}`;
 
-            loginMessage.classList.remove(
+
+    if(registerLink){
+
+      registerLink.href =
+        registerUrl;
+
+    }
+
+
+    if(headerRegisterLink){
+
+      headerRegisterLink.href =
+        registerUrl;
+
+    }
+
+        /* =====================================================
+       LOGIN SUPABASE
+    ===================================================== */
+
+    const loginForm =
+      document.getElementById(
+        "login-form"
+      );
+
+
+    const loginButton =
+      document.getElementById(
+        "login-button"
+      );
+
+
+    const loginMessage =
+      document.getElementById(
+        "login-message"
+      );
+
+
+    if(loginForm){
+
+      loginForm.addEventListener(
+        "submit",
+        async function(e){
+
+          e.preventDefault();
+
+
+          /*
+            Ocultar mensaje anterior.
+          */
+
+          loginMessage.classList.remove(
+            "show"
+          );
+
+          loginMessage.textContent = "";
+
+
+          /*
+            Obtener datos.
+          */
+
+          const email =
+            document
+              .getElementById("login-email")
+              .value
+              .trim();
+
+
+          const password =
+            document
+              .getElementById("login-password")
+              .value;
+
+
+          /*
+            Validación básica.
+          */
+
+          if(!email || !password){
+
+            loginMessage.textContent =
+              "Introduce tu email y contraseña.";
+
+            loginMessage.classList.add(
               "show"
             );
 
-            loginMessage.textContent = "";
-
-
-            /*
-              Obtener datos.
-            */
-
-            const email =
-              document
-                .getElementById("login-email")
-                .value
-                .trim();
-
-
-            const password =
-              document
-                .getElementById("login-password")
-                .value;
-
-
-            /*
-              Validación básica.
-            */
-
-            if(!email || !password){
-
-              loginMessage.textContent =
-                "Introduce tu email y contraseña.";
-
-              loginMessage.classList.add(
-                "show"
-              );
-
-              return;
-
-            }
-
-
-            /*
-              Estado de carga.
-            */
-
-            loginButton.disabled = true;
-
-            loginButton.textContent =
-              "Iniciando sesión...";
-
-
-            try{
-
-              /*
-                Iniciar sesión con Supabase.
-              */
-
-              const {
-                data,
-                error
-              } =
-                await supabaseClient.auth
-                  .signInWithPassword({
-
-                    email:email,
-
-                    password:password
-
-                  });
-
-
-              if(error){
-
-                throw error;
-
-              }
-
-
-              /*
-                Comprobamos que Supabase
-                realmente haya creado la sesión.
-              */
-
-              if(
-                !data ||
-                !data.session
-              ){
-
-                throw new Error(
-                  "No se pudo crear la sesión."
-                );
-
-              }
-
-
-              /*
-                Login correcto.
-              */
-
-              loginButton.textContent =
-                "Sesión iniciada ✓";
-
-
-              /*
-                Recuperamos el destino
-                una última vez.
-
-                Esto permite volver al analizador
-                aunque el usuario haya pasado por
-                otras páginas antes del login.
-              */
-
-              const finalRedirect =
-                sessionStorage.getItem(
-                  "printlab_auth_redirect"
-                ) || loginRedirectTarget;
-
-
-              /*
-                Pequeña espera visual.
-              */
-
-              setTimeout(
-                function(){
-
-                  /*
-                    Limpiamos el destino después
-                    de utilizarlo.
-                  */
-
-                  sessionStorage.removeItem(
-                    "printlab_auth_redirect"
-                  );
-
-
-                  /*
-                    Volvemos exactamente a la
-                    página que originó el login.
-                  */
-
-                  window.location.href =
-                    finalRedirect;
-
-                },
-                500
-              );
-
-
-            }
-
-            catch(error){
-
-              console.error(
-                "Error al iniciar sesión:",
-                error
-              );
-
-
-              /*
-                Mostrar error dentro de la página.
-                No usamos alert().
-              */
-
-              let errorText =
-                "No se pudo iniciar sesión. Comprueba tu email y contraseña.";
-
-
-              /*
-                Mensajes más específicos
-                cuando Supabase los proporciona.
-              */
-
-              if(
-                error &&
-                typeof error.message === "string"
-              ){
-
-                const message =
-                  error.message.toLowerCase();
-
-
-                if(
-                  message.includes(
-                    "email not confirmed"
-                  )
-                ){
-
-                  errorText =
-                    "Debes verificar tu correo electrónico antes de iniciar sesión.";
-
-                }
-
-                else if(
-                  message.includes(
-                    "invalid login credentials"
-                  )
-                ){
-
-                  errorText =
-                    "El email o la contraseña no son correctos.";
-
-                }
-
-                else if(
-                  message.includes(
-                    "too many requests"
-                  )
-                ){
-
-                  errorText =
-                    "Demasiados intentos. Espera unos minutos y vuelve a intentarlo.";
-
-                }
-
-              }
-
-
-              loginMessage.textContent =
-                errorText;
-
-
-              loginMessage.classList.add(
-                "show"
-              );
-
-
-              /*
-                Restaurar botón.
-              */
-
-              loginButton.disabled =
-                false;
-
-
-              loginButton.textContent =
-                "Entrar a mi cuenta";
-
-            }
+            return;
 
           }
-        );
-
-      }
 
 
-      /* =====================================================
-         OLVIDÉ MI CONTRASEÑA
-      ===================================================== */
+          /*
+            Estado de carga.
+          */
 
-      const forgotPassword =
-        document.getElementById(
-          "forgot-password"
-        );
+          loginButton.disabled = true;
+
+          loginButton.textContent =
+            "Iniciando sesión...";
 
 
-      if(forgotPassword){
+          try{
 
-        forgotPassword.addEventListener(
-          "click",
-          function(e){
 
-            e.preventDefault();
+            /*
+              Iniciar sesión con Supabase.
+            */
+
+            const {
+              data,
+              error
+            } =
+              await supabaseClient.auth
+                .signInWithPassword({
+
+                  email:email,
+
+                  password:password
+
+                });
+
+
+            if(error){
+
+              throw error;
+
+            }
+
+
+            /*
+              Comprobamos que Supabase
+              realmente haya creado la sesión.
+            */
+
+            if(
+              !data ||
+              !data.session
+            ){
+
+              throw new Error(
+                "No se pudo crear la sesión."
+              );
+
+            }
+
+
+            /*
+              Login correcto.
+            */
+
+            loginButton.textContent =
+              "Sesión iniciada ✓";
+
+
+            /*
+              Recuperamos el destino
+              una última vez.
+
+              Esto es importante porque permite
+              volver al analizador aunque el
+              usuario haya pasado por otras
+              páginas antes del login.
+            */
+
+            const finalRedirect =
+              sessionStorage.getItem(
+                "printlab_auth_redirect"
+              ) || loginRedirectTarget;
+
+
+            /*
+              Pequeña espera visual.
+            */
+
+            setTimeout(
+              function(){
+
+                /*
+                  Limpiamos el destino después
+                  de utilizarlo.
+                */
+
+                sessionStorage.removeItem(
+                  "printlab_auth_redirect"
+                );
+
+
+                /*
+                  Volvemos exactamente a la
+                  página que originó el login.
+                */
+
+                window.location.href =
+                  finalRedirect;
+
+              },
+              500
+            );
+
+
+          }
+          catch(error){
+
+            console.error(
+              "Error al iniciar sesión:",
+              error
+            );
+
+
+            /*
+              Mostrar error dentro de la página.
+              No usamos alert().
+            */
+
+            let errorText =
+              "No se pudo iniciar sesión. Comprueba tu email y contraseña.";
+
+
+            /*
+              Mensajes más específicos
+              cuando Supabase los proporciona.
+            */
+
+            if(
+              error &&
+              typeof error.message === "string"
+            ){
+
+              const message =
+                error.message.toLowerCase();
+
+
+              if(
+                message.includes(
+                  "email not confirmed"
+                )
+              ){
+
+                errorText =
+                  "Debes verificar tu correo electrónico antes de iniciar sesión.";
+
+              }
+
+              else if(
+                message.includes(
+                  "invalid login credentials"
+                )
+              ){
+
+                errorText =
+                  "El email o la contraseña no son correctos.";
+
+              }
+
+              else if(
+                message.includes(
+                  "too many requests"
+                )
+              ){
+
+                errorText =
+                  "Demasiados intentos. Espera unos minutos y vuelve a intentarlo.";
+
+              }
+
+            }
 
 
             loginMessage.textContent =
-              "La recuperación de contraseña se puede configurar desde aquí próximamente.";
+              errorText;
 
 
             loginMessage.classList.add(
               "show"
             );
 
+
+            /*
+              Restaurar botón.
+            */
+
+            loginButton.disabled =
+              false;
+
+            loginButton.textContent =
+              "Entrar a mi cuenta";
+
           }
-        );
 
-      }
+        }
+      );
 
-    });
+    }
+
+
+    /* =====================================================
+       OLVIDÉ MI CONTRASEÑA
+    ===================================================== */
+
+    const forgotPassword =
+      document.getElementById(
+        "forgot-password"
+      );
+
+
+    if(forgotPassword){
+
+      forgotPassword.addEventListener(
+        "click",
+        function(e){
+
+          e.preventDefault();
+
+
+          loginMessage.textContent =
+            "La recuperación de contraseña se puede configurar desde aquí próximamente.";
+
+
+          loginMessage.classList.add(
+            "show"
+          );
+
+        }
+      );
+
+    }
 
 
     /* =====================================================
@@ -1369,8 +1422,9 @@
       /*
         ENTRADA
 
-        El HTML comienza ligeramente
-        desplazado y transparente.
+        La página comienza ligeramente desplazada
+        y transparente y vuelve suavemente a su
+        posición original.
       */
 
       document.body.classList.add(
@@ -1398,8 +1452,9 @@
       /*
         SALIDA
 
-        Interceptamos únicamente enlaces
-        internos normales.
+        Interceptamos únicamente enlaces internos.
+        Los enlaces externos, anclas y Ctrl/Cmd + clic
+        mantienen su comportamiento normal.
       */
 
       document.addEventListener(
@@ -1429,36 +1484,30 @@
 
 
           /*
-            No interferir con:
-
-            - enlaces #
-            - javascript
-            - nuevas pestañas
-            - Ctrl + clic
-            - Cmd + clic
-            - Shift + clic
-            - Alt + clic
-            - enlaces externos
+            No animar anclas de la misma página.
           */
 
           if(
-
             href.startsWith("#") ||
+            href.startsWith("javascript:")
+          ){
 
-            href.startsWith(
-              "javascript:"
-            ) ||
+            return;
 
+          }
+
+
+          /*
+            Mantener comportamiento normal
+            para abrir en pestaña nueva.
+          */
+
+          if(
             link.target === "_blank" ||
-
             event.ctrlKey ||
-
             event.metaKey ||
-
             event.shiftKey ||
-
             event.altKey
-
           ){
 
             return;
@@ -1467,6 +1516,7 @@
 
 
           let url;
+
 
           try{
 
@@ -1477,7 +1527,6 @@
               );
 
           }
-
           catch{
 
             return;
@@ -1500,14 +1549,14 @@
 
 
           /*
-            Dejamos funcionar normalmente
-            enlaces que apuntan exactamente
-            a la página actual con un hash.
+            No interceptar enlaces a la misma
+            página con exactamente la misma URL.
           */
 
           if(
             url.pathname ===
-              window.location.pathname &&
+              window.location.pathname
+            &&
             url.search ===
               window.location.search
           ){
@@ -1517,13 +1566,12 @@
           }
 
 
-          /*
-            Cancelamos temporalmente la
-            navegación para mostrar la salida.
-          */
-
           event.preventDefault();
 
+
+          /*
+            Aplicar animación de salida.
+          */
 
           document.body.classList.add(
             "page-transition-out"
@@ -1531,7 +1579,8 @@
 
 
           /*
-            380 ms = 0,38 segundos.
+            Esperar exactamente 0,38 s
+            antes de cambiar de página.
           */
 
           setTimeout(
