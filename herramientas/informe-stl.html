@@ -10,11 +10,13 @@
   <style>
     :root{ --bg:#f6f7f4; --card:#fff; --ink:#0d1110; --muted:#5e6661; --line:#dfe4df; --accent:#b8ff3d; --dark:#111715; --max:1200px; --error:#9e3223; --warning:#c47100;}
     *{box-sizing:border-box}html{scroll-behavior:smooth}
-    body{margin:0; background:var(--bg); color:var(--ink); font-family:"Plus Jakarta Sans", sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased;}
+    body{margin:0; background:var(--bg); color:var(--ink); font-family:"Plus Jakarta Sans", sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased; opacity:1; transform:translateY(0); transition: opacity .38s ease, transform .38s ease;}
+    body.page-transition-in{ opacity:0; transform:translateY(10px); }
+    body.page-transition-out{ opacity:0; transform:translateY(-10px); }
     a{color:inherit;text-decoration:none}
     .wrap{max-width:var(--max);margin:auto;padding:0 40px}
     
-    /* CABECERA Y NAVEGACIÓN HAMBURGUESA */
+    /* CABECERA */
     .top{position:sticky;top:0;z-index:100;background:rgba(246,247,244,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
     nav{min-height:95px;display:flex;align-items:center;justify-content:space-between;}
     .header-left{display:flex; align-items:center; gap:24px;}
@@ -23,53 +25,23 @@
     
     .menu-dropdown { position: relative; display: inline-block; }
     .hamburger { background: none; border: none; cursor: pointer; padding: 10px; display: flex; flex-direction: column; gap: 5px; outline:none; }
-    .hamburger span { display: block; width: 26px; height: 3px; background: var(--ink); border-radius: 2px; transition: 0.3s; }
-    .hamburger:hover span { background: var(--muted); }
-    
+    .hamburger span { display: block; width: 26px; height: 3px; background: var(--ink); border-radius: 2px; }
     .dropdown-content { display: none; position: absolute; top: 110%; left: 0; background-color: var(--card); min-width: 240px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); border: 1.5px solid var(--line); border-radius: 16px; z-index: 200; flex-direction: column; padding: 12px 0; }
     .dropdown-content.show { display: flex; animation: slideDown 0.2s ease; }
-    .dropdown-content a { padding: 14px 24px; color: var(--muted); font-weight: 700; font-size:15px; transition: 0.15s; }
-    .dropdown-content a:hover { color: var(--ink); background: rgba(0,0,0,0.03); }
+    .dropdown-content a { padding: 14px 24px; color: var(--muted); font-weight: 700; font-size:15px; }
     .dropdown-content a.active { color: var(--ink); background: #f0f4f0; border-left: 4px solid var(--accent); padding-left: 20px; }
 
     .auth-buttons { display:flex; gap:12px; align-items:center; }
-    .btn-auth { display: inline-flex; align-items: center; justify-content: center; padding: 12px 24px; border-radius: 9999px; font-weight: 800; font-size: 14px; cursor: pointer; transition: .2s ease; text-decoration: none; border: 2px solid var(--ink); }
+    .btn-auth { display: inline-flex; align-items: center; justify-content: center; padding: 12px 24px; border-radius: 9999px; font-weight: 800; font-size: 14px; border: 2px solid var(--ink); cursor: pointer; }
     .btn-auth.light { background: #fff; color: var(--ink); box-shadow: 0 3px 0px var(--ink); }
-    .btn-auth.light:hover { transform: translateY(-1px); box-shadow: 0 4px 0px var(--ink); }
-    .btn-auth.light:active { transform: translateY(2px); box-shadow: 0 1px 0px var(--ink); }
     .btn-auth.green { background: var(--accent); color: var(--ink); box-shadow: 0 3px 0px var(--ink); }
-    .btn-auth.green:hover { transform: translateY(-1px); box-shadow: 0 4px 0px var(--ink); }
-    .btn-auth.green:active { transform: translateY(2px); box-shadow: 0 1px 0px var(--ink); }
-    
-    @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
 
-    /* ESTILOS DEL INFORME */
     .report-grid{display:grid; grid-template-columns: 1fr 1.1fr; gap:40px; padding:40px 0 60px;}
     
-    /* 3D / Isometric Comparison Container */
-    .mesh-comparison{
-      background:var(--dark); 
-      border-radius:24px; 
-      padding:32px; 
-      color:#fff;
-      display:flex; 
-      flex-direction:column; 
-      gap:24px;
-      box-shadow:0 15px 35px rgba(0,0,0,0.15);
-    }
+    .mesh-comparison{background:var(--dark); border-radius:24px; padding:32px; color:#fff; display:flex; flex-direction:column; gap:24px; box-shadow:0 15px 35px rgba(0,0,0,0.15);}
     .mesh-view-header{display:flex; justify-content:space-between; align-items:center;}
     .mesh-title{font-size:14px; text-transform:uppercase; letter-spacing:1px; font-weight:800; color:#b8c0bb;}
-    .mesh-canvas{
-      background:#161d1a; 
-      border-radius:16px; 
-      height:380px; 
-      display:flex; 
-      align-items:center; 
-      justify-content:center;
-      border:1px dashed #2e3a35;
-      position:relative;
-      overflow:hidden;
-    }
+    .mesh-canvas{background:#161d1a; border-radius:16px; height:380px; display:flex; align-items:center; justify-content:center; border:1px dashed #2e3a35; position:relative; overflow:hidden;}
     .mesh-overlay-tag{position:absolute; top:12px; right:12px; background:rgba(0,0,0,0.6); padding:4px 10px; border-radius:6px; font-size:11px; font-weight:700; z-index: 50;}
 
     /* Score Box */
@@ -78,7 +50,7 @@
     .score-value{font-size:48px; font-weight:800; line-height:1; color:var(--ink); margin:0 0 10px;}
     .score-value span{font-size:24px; color:var(--muted);}
 
-    /* Problem Cards (La Lógica Principal) */
+    /* Problem Cards */
     .problem-list{display:flex; flex-direction:column; gap:20px;}
     .prob-card{background:var(--card); border:1.5px solid var(--error); border-left:6px solid var(--error); border-radius:16px; padding:24px;}
     .prob-card.warn{border-color:var(--warning); border-left-color:var(--warning);}
@@ -98,76 +70,34 @@
     .solution-text{font-size:15px; margin:8px 0; font-weight:700;}
     .benefit-text{font-size:14px; color:var(--muted); margin:0;}
 
-    /* Panel de descargas (Desbloqueado por defecto) */
-    .download-panel{
-      background:var(--card); 
-      border:1.5px solid var(--line); 
-      border-radius:24px; 
-      padding:36px; 
-      margin-top:32px;
-      position:relative;
-      overflow:hidden;
-    }
-
-    .btn-download-stl{
-      display:inline-flex; 
-      align-items:center; 
-      justify-content:center; 
-      gap:10px;
-      width:100%; 
-      padding:16px; 
-      background:var(--ink); 
-      color:#fff; 
-      border:2px solid var(--ink);
-      border-radius:12px; 
-      font-weight:800; 
-      font-size:15px;
-      cursor:pointer;
-      transition:0.2s;
-    }
+    .download-panel{background:var(--card); border:1.5px solid var(--line); border-radius:24px; padding:36px; margin-top:32px; position:relative; overflow:hidden;}
+    .btn-download-stl{display:inline-flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:16px; background:var(--ink); color:#fff; border:2px solid var(--ink); border-radius:12px; font-weight:800; font-size:15px; cursor:pointer; transition:0.2s;}
     .btn-download-stl:hover{transform:translateY(-2px); box-shadow:0 4px 0 var(--accent);}
 
-    /* Disclaimer */
     .disclaimer{font-size:12px; color:var(--muted); background:var(--bg); padding:16px; border-radius:12px; margin-top:40px; border:1px solid var(--line);}
 
-    /* FOOTER MEJORADO Y CENTRADO */
+    /* FOOTER */
     .footer { background: var(--bg); border-top: 1px solid var(--line); padding: 80px 0 40px; color: var(--muted); font-size: 14px; line-height: 1.6; }
     .footergrid { display: grid; grid-template-columns: 1.3fr 0.85fr 0.85fr; gap: 60px; margin-bottom: 48px; }
-    .footer-col h3 { font-size: 16px; font-weight: 800; color: var(--ink); margin: 0 0 20px; letter-spacing: -0.3px; }
-    .footer-col p { margin: 0 0 16px; color: var(--muted); }
-    .footer-secondary-text { font-size: 12.5px; line-height: 1.5; color: #7d8782; margin-top: 12px; }
+    .footer-col h3 { font-size: 16px; font-weight: 800; color: var(--ink); margin: 0 0 20px; }
     .footer-links { display: flex; flex-direction: column; gap: 10px; }
-    .footer-links a { color: var(--muted); transition: color 0.15s ease, transform 0.15s ease; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
-    .footer-links a:hover { color: var(--ink); transform: translateX(2px); }
-    .footer-links a span.arrow { transition: color 0.15s ease; }
-    .footer-links a:hover span.arrow { color: var(--accent); }
-    
+    .footer-links a { color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
+    .footer-links a:hover { color: var(--ink); }
     .footer-bottom { border-top: 1px solid var(--line); padding-top: 24px; display:flex; justify-content:center; align-items:center; text-align:center; font-size: 13px; color: #7d8782;}
 
-    @media(max-width:1250px){
-      .wrap{padding:0 40px}
-    }
-    @media(max-width:992px){
-      .report-grid{grid-template-columns: 1fr;}
-    }
-    @media(max-width: 768px) {
-      .header-left { gap: 10px; }
-      .btn-auth { padding: 10px 16px; font-size:13px; }
-      .brand { font-size:22px; }
-      .auth-buttons { display: none; }
-      .footergrid { grid-template-columns: 1fr; gap: 36px; }
-    }
+    @media(max-width:1250px){ .wrap{padding:0 40px} }
+    @media(max-width:992px){ .report-grid{grid-template-columns: 1fr;} }
+    @media(max-width: 768px) { .header-left { gap: 10px; } .btn-auth { padding: 10px 16px; font-size:13px; } .brand { font-size:22px; } .auth-buttons { display: none; } .footergrid { grid-template-columns: 1fr; gap: 36px; } }
   </style>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../assets/js/auth-helper.js"></script>
 
-  <!-- Importar de forma oficial la librería generadora de informes PDF y Three.js -->
+  <!-- Importar librerías PDF y 3D -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/STLLoader.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/controls/OrbitControls.js"></script>
-
 </head>
 <body>
 
@@ -191,7 +121,6 @@
           </div>
           <a class="brand" href="../index.html#portada" title="Volver al inicio">PRINT<span>LAB</span></a>
         </div>
-
         <div class="auth-buttons">
           <a href="login.html" class="btn-auth light">Cerrar Sesión</a>
           <a href="precios.html" class="btn-auth green">Comprar Créditos</a>
@@ -203,19 +132,16 @@
   <main class="wrap">
     <div class="report-grid">
       
-      <!-- LADO IZQUIERDO: VISOR 3D INTELIGENTE CON ILUMINACIÓN DE BASE -->
+      <!-- LADO IZQUIERDO: VISOR 3D REAL CON BASE DETECTADA -->
       <div>
         <div class="mesh-comparison">
           <div class="mesh-view-header">
             <span class="mesh-title" id="reportFileName">1. Modelo STL Cargado</span>
-            <span style="color:var(--accent); font-weight:800; font-size:12px;">✓ Cara base detectada</span>
+            <span style="color:var(--accent); font-weight:800; font-size:12px;">✓ Base óptima identificada</span>
           </div>
-
-          <!-- LIENZO INTERACTIVO 3D REAL CON THREE.JS -->
           <div class="mesh-canvas" id="canvas3dContainer">
-            <span class="mesh-overlay-tag" style="background:rgba(184,255,61,0.25); border:1px solid var(--accent); color:var(--accent)">Base recomendada (Verde neón)</span>
+            <span class="mesh-overlay-tag" style="background:rgba(184,255,61,0.25); border:1px solid var(--accent); color:var(--accent)">Superficie de contacto (Verde neón)</span>
           </div>
-
         </div>
 
         <div style="margin-top:24px; padding:24px; background:var(--card); border:1.5px solid var(--line); border-radius:20px; font-size:14.5px;">
@@ -223,13 +149,13 @@
           <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px dashed var(--line); padding-bottom:6px;"><span>Volumen Sólido:</span> <strong id="reportVolume">... cm³</strong></div>
           <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px dashed var(--line); padding-bottom:6px;"><span>Dimensiones límites:</span> <strong id="reportDimensions">... mm</strong></div>
           <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px dashed var(--line); padding-bottom:6px;"><span>Tecnología idónea:</span> <strong>FDM (Extrusión termoplástica)</strong></div>
-          <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px dashed var(--line); padding-bottom:6px;"><span>Material base propuesto:</span> <strong style="color:#2a694b" id="reportMaterial">PETG (Alta cohesión)</strong></div>
-          <div style="display:flex; justify-content:space-between; border-bottom:1px dashed var(--line); padding-bottom:6px;"><span>Temperatura de boquilla:</span> <strong id="reportTemp">240 ºC</strong></div>
-          <div style="display:flex; justify-content:space-between;"><span>Temperatura de cama:</span> <strong id="reportBed">80 ºC</strong></div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px dashed var(--line); padding-bottom:6px;"><span>Material base propuesto:</span> <strong style="color:#2a694b" id="reportMaterial">...</strong></div>
+          <div style="display:flex; justify-content:space-between; border-bottom:1px dashed var(--line); padding-bottom:6px;"><span>Temperatura de boquilla:</span> <strong id="reportTemp">... ºC</strong></div>
+          <div style="display:flex; justify-content:space-between;"><span>Temperatura de cama:</span> <strong id="reportBed">... ºC</strong></div>
         </div>
       </div>
 
-      <!-- LADO DERECHO: LA LÓGICA DE VALOR (PROBLEMA -> SOLUCIÓN) -->
+      <!-- LADO DERECHO: EVALUACIÓN DE RESPUESTAS E INFORME ADAPTATIVO -->
       <div>
         <div class="score-card">
           <p class="score-title">Printability Score</p>
@@ -238,11 +164,11 @@
         </div>
 
         <div class="problem-list" id="problemListContainer">
-          <!-- Las tarjetas de problemas y recomendaciones se generarán aquí de forma 100% dinámica -->
+          <!-- Las tarjetas de problemas y recomendaciones se generarán aquí dinámicamente -->
         </div>
 
-        <!-- MATRIZ DE OPTIMIZACIÓN FIABLE BASADA EN VELOCIDAD, RESISTENCIA Y SOPORTE -->
-        <div class="score-card" style="margin-top: 24px; padding: 24px;">
+        <!-- MATRIZ DE OPTIMIZACIÓN FIABLE -->
+        <div class="score-card" style="margin-top: 24px; padding: 24px;" id="matrixContainer">
           <p class="score-title" style="color:var(--ink)">Matriz de Optimización de Manufactura</p>
           <div style="overflow-x: auto; margin-top:14px;">
             <table style="width:100%; border-collapse:collapse; font-size:13px; text-align:left;">
@@ -260,7 +186,7 @@
                   <td style="padding:12px 6px; color:var(--muted)">Rápido (Prototipo)</td>
                   <td style="padding:12px 6px;">150 mm/s</td>
                   <td style="padding:12px 6px; color:var(--error);">Baja (2 Perímetros)</td>
-                  <td style="padding:12px 6px;">Orgánicos (Mínimo)</td>
+                  <td style="padding:12px 6px;">Mínimo</td>
                   <td style="padding:12px 6px;">PLA (210 ºC)</td>
                 </tr>
                 <tr style="border-bottom: 1px solid var(--line); background:#f0f5ee;">
@@ -282,21 +208,19 @@
           </div>
         </div>
 
-        <!-- PANEL DE DESCARGA (DESBLOQUEADO POR DEFECTO TRAS COBRO SEGURO EN ANALIZADOR) -->
+        <!-- PANEL DE DESCARGA -->
         <div class="download-panel">
           <h4 style="margin:0 0 20px; font-weight:800; font-size:16px; color:var(--ink);">Descarga de Resultados</h4>
-          
           <button class="btn-download-stl" id="downloadStlBtn" style="margin-bottom:12px; background:var(--accent); color:var(--ink); border-color:var(--ink);">
             Descargar pieza optimizada (.STL)
           </button>
-          
           <button class="btn-download-stl" id="downloadPdfBtn" style="background:#fff; color:var(--ink);">
             Descargar Informe de Ingeniería (.PDF)
           </button>
         </div>
 
         <div class="disclaimer">
-          Los resultados mostrados se basan de forma exclusiva en el archivo de mallas STL suministrado y las reglas de diseño para fabricación aditiva (DfAM). El archivo corregido se genera de forma algorítmica para cumplir de forma robusta con las tolerancias físicas recomendadas por fabricantes.
+          Los resultados mostrados se basan en el archivo de mallas STL y las reglas de diseño para fabricación aditiva (DfAM). El modelo corregido se genera de forma algorítmica para cumplir tolerancias físicas recomendadas.
         </div>
       </div>
 
@@ -308,60 +232,21 @@
       <div class="footergrid">
         <div class="footer-col">
           <h3>PrintLab — Ingeniería 3D</h3>
-          <p>Plataforma profesional de análisis y optimización STL mediante Inteligencia Artificial y simuladores paramétricos. Transformamos modelos 3D con problemas en geometrías perfectas listas para fabricar, ahorrando tiempo, material y costes en entornos industriales.</p>
-          <p class="footer-secondary-text">Desarrollado bajo principios de Privacy by Design. Los datos y archivos STL se procesan con estricta confidencialidad.</p>
-        </div>
-        
-        <div class="footer-col">
-          <h3>Recursos y Herramientas</h3>
-          <div class="footer-links">
-            <a href="../index.html#analizador"><span class="arrow">→</span> Analizador STL IA</a>
-            <a href="../index.html#simulador"><span class="arrow">→</span> Simulador de Extrusión</a>
-            <a href="../herramientas/calculadora-coste.html"><span class="arrow">→</span> Calculadoras de Coste y Masa</a>
-            <a href="../index.html#guias"><span>→</span> Base de Conocimiento</a>
-            <a href="../materiales/index.html"><span class="arrow">→</span> Atlas de Materiales</a>
-          </div>
-        </div>
-        
-        <div class="footer-col">
-          <h3>Soporte y Legal</h3>
-          <div class="footer-links">
-            <a href="../herramientas/precios.html"><span class="arrow">→</span> Precios y Suscripciones</a>
-            <a href="../herramientas/contacto.html"><span class="arrow">→</span> Contacto y Soporte</a>
-            <a href="../condiciones-compra.html"><span class="arrow">→</span> Condiciones de Compra</a>
-            <a href="../terminos.html"><span class="arrow">→</span> Términos y Condiciones</a>
-            <a href="../privacidad.html"><span class="arrow">→</span> Política de Privacidad</a>
-            <a href="../cookies.html"><span class="arrow">→</span> Política de Cookies</a>
-          </div>
+          <p>Plataforma profesional de análisis y optimización STL mediante Inteligencia Artificial y simuladores paramétricos.</p>
         </div>
       </div>
-      
-      <div class="footer-bottom">
-        <div class="footer-bottom-text">© 2026 PrintLab.</div>
-      </div>
+      <div class="footer-bottom">© 2026 PrintLab. All rights reserved.</div>
     </div>
   </footer>
 
-  <script>
-    window.onclick = function(event) {
-      if (!event.target.closest('.menu-dropdown')) {
-        var dropdowns = document.getElementsByClassName("dropdown-content");
-        for (var i = 0; i < dropdowns.length; i++) {
-          if (dropdowns[i].classList.contains('show')) { dropdowns[i].classList.remove('show'); }
-        }
-      }
-    }
-  </script>
-
   <!-- =====================================================
-       LÓGICA DEL VISOR 3D CON ILUMINACIÓN DE CARA BASE (THREE.JS)
+       LÓGICA DEL VISOR 3D (THREE.JS)
   ===================================================== -->
   <script>
-    function init3DViewer(containerId, stlUrl, criticalPoints) {
+    function init3DViewer(containerId, stlUrl) {
       const container = document.getElementById(containerId);
       if (!container) return;
 
-      // 1. Configuración de la escena 3D de Three.js
       const scene = new THREE.Scene();
       scene.background = new THREE.Color(0x161d1a);
 
@@ -372,7 +257,6 @@
       renderer.setSize(container.clientWidth, container.clientHeight);
       container.appendChild(renderer.domElement);
 
-      // 2. Luces del entorno
       const light1 = new THREE.DirectionalLight(0xffffff, 1.2);
       light1.position.set(1, 1, 1).normalize();
       scene.add(light1);
@@ -382,35 +266,28 @@
 
       const controls = new THREE.OrbitControls(camera, renderer.domElement);
 
-      // 3. Carga e iluminación algorítmica de la cara inferior (Base)
       const loader = new THREE.STLLoader();
       loader.load(stlUrl, function (geometry) {
         
-        // Calcular la caja de límites (bounding box) para hallar la base
         geometry.computeBoundingBox();
         const minZ = geometry.boundingBox.min.z;
         const maxZ = geometry.boundingBox.max.z;
-        const threshold = (maxZ - minZ) * 0.05; // El 5% inferior de la altura de la pieza es la base
+        const threshold = (maxZ - minZ) * 0.05; // 5% inferior
         
         const position = geometry.attributes.position;
         const colors = [];
 
-        // Colorear de verde neón los vértices que tocan el suelo y el resto de verde oscuro
         for (let i = 0; i < position.count; i++) {
           const z = position.getZ(i);
           if (z < minZ + threshold) {
-            // Color de la base: Verde neón (#b8ff3d)
-            colors.push(0.72, 1.0, 0.24);
+            colors.push(0.72, 1.0, 0.24); // Verde neón base
           } else {
-            // Color del cuerpo: Verde oliva oscuro de PrintLab
-            colors.push(0.12, 0.38, 0.25);
+            colors.push(0.12, 0.38, 0.25); // Cuerpo verde oscuro
           }
         }
 
-        // Asignar el atributo de color a la geometría
         geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
 
-        // Material sensible al color por vértices
         const material = new THREE.MeshPhongMaterial({ 
           vertexColors: true, 
           specular: 0x111111, 
@@ -421,7 +298,6 @@
         geometry.center();
         scene.add(mesh);
 
-        // Encuadrar la pieza en el visor
         const box = new THREE.Box3().setFromObject(mesh);
         const size = box.getSize(new THREE.Vector3()).length();
         camera.position.set(0, 0, size * 1.5);
@@ -429,7 +305,6 @@
 
       }, undefined, function (err) {
         console.warn("No se pudo cargar el archivo STL en el visor.", err);
-        // Caja de advertencia por defecto
         const geom = new THREE.BoxGeometry(20, 20, 20);
         const mat = new THREE.MeshPhongMaterial({ color: 0x2e3a35 });
         const mesh = new THREE.Mesh(geom, mat);
@@ -452,126 +327,116 @@
   </script>
 
   <!-- =====================================================
-       LÓGICA GENERADORA DEL PDF DE INGENIERÍA REAL
+       GENERADOR DE INFORME PDF DE ALTA FIDELIDAD
   ===================================================== -->
   <script>
     async function generatePDFReport(analysis) {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
       
-      // 1. Cabecera corporativa oscura de PrintLab
+      const s = analysis.slicer_settings;
+      const q = analysis.user_questionnaire;
+      
       doc.setFillColor(17, 23, 21); // #111715
       doc.rect(0, 0, 210, 40, 'F');
       
-      doc.setTextColor(184, 255, 61); // #b8ff3d (Verde neón)
+      doc.setTextColor(184, 255, 61); // #b8ff3d
       doc.setFont("helvetica", "bold");
       doc.setFontSize(26);
       doc.text("PRINTLAB", 15, 20);
       
       doc.setFontSize(9);
-      doc.text("INGENIERÍA 3D & OPTIMIZACIÓN GEOMÉTRICA", 15, 27);
+      doc.text("INGENIERÍA 3D & OPTIMIZACIÓN PARAMÉTRICA", 15, 27);
       
       doc.setTextColor(255, 255, 255);
       doc.setFontSize(10);
       doc.text("INFORME TÉCNICO DE FABRICACIÓN", 132, 23);
       
-      // 2. Título de la sección
-      doc.setTextColor(13, 17, 16); // #0d1110 (Texto oscuro)
+      doc.setTextColor(13, 17, 16);
       doc.setFontSize(16);
-      doc.text("Análisis Geométrico y Parametrización Slicer", 15, 55);
-      
-      doc.setDrawColor(223, 228, 223); // #dfe4df
+      doc.text("Análisis Geométrico y Solicitaciones", 15, 55);
+      doc.setDrawColor(223, 228, 223);
       doc.setLineWidth(0.5);
       doc.line(15, 58, 195, 58);
       
-      // 3. Bloque de Datos reales del archivo procesados por Python
       doc.setFontSize(11);
       doc.setFont("helvetica", "normal");
       doc.text("Nombre del archivo:", 15, 70);
       doc.setFont("helvetica", "bold");
-      doc.text(`${analysis.file_name}`, 65, 70);
+      doc.text(`${analysis.file_name}`, 75, 70);
       
       doc.setFont("helvetica", "normal");
       doc.text("Volumen del sólido:", 15, 78);
       doc.setFont("helvetica", "bold");
-      doc.text(`${analysis.volume} cm3`, 65, 78);
+      doc.text(`${analysis.volume} cm3`, 75, 78);
       
       doc.setFont("helvetica", "normal");
-      doc.text("Dimensiones límite (Bounding Box):", 15, 86);
+      doc.text("Dimensiones (Bounding Box):", 15, 86);
       doc.setFont("helvetica", "bold");
-      doc.text(`${analysis.dimensions}`, 65, 86);
+      doc.text(`${analysis.dimensions}`, 75, 86);
       
       doc.setFont("helvetica", "normal");
-      doc.text("Material base óptimo:", 15, 94);
+      doc.text("Tipo de componente:", 15, 94);
       doc.setFont("helvetica", "bold");
-      doc.text("PETG (Poliéster Glicolizado)", 65, 94);
+      doc.text(`${q.partType.toUpperCase()}`, 75, 94);
 
-      // 4. Parámetros del Slicer recomendados
+      doc.setFont("helvetica", "normal");
+      doc.text("Función de la pieza:", 15, 102);
+      doc.setFont("helvetica", "bold");
+      doc.text(`${q.purpose}`, 75, 102);
+
       doc.setFontSize(14);
       doc.setTextColor(13, 17, 16);
-      doc.text("Ajustes de Laminación Recomendados", 15, 110);
-      doc.line(15, 113, 195, 113);
+      doc.text("Parámetros del Slicer Calculados", 15, 120);
+      doc.line(15, 123, 195, 123);
       
       doc.setFontSize(11);
       doc.setFont("helvetica", "normal");
-      doc.text("1. Perímetros de pared:", 15, 123);
+      doc.text("1. Material óptimo:", 15, 133);
       doc.setFont("helvetica", "bold");
-      doc.text("4 a 5 perímetros de pared (Mínimo)", 70, 123);
+      doc.text(`${s.material} (${s.material_status})`, 75, 133);
       
       doc.setFont("helvetica", "normal");
-      doc.text("2. Densidad e Infill:", 15, 131);
+      doc.text("2. Perímetros de pared:", 15, 141);
       doc.setFont("helvetica", "bold");
-      doc.text("20% - 25% (Patrón Giroide)", 70, 131);
+      doc.text(`${s.perimeters} perímetros de pared`, 75, 141);
       
       doc.setFont("helvetica", "normal");
-      doc.text("3. Generación de soportes:", 15, 139);
+      doc.text("3. Densidad de Relleno:", 15, 149);
       doc.setFont("helvetica", "bold");
-      doc.text("Soportes Orgánicos (Árbol) - Solo plataforma", 70, 139);
+      doc.text(`${s.infill_density}% (Patrón: ${s.infill_pattern})`, 75, 149);
       
       doc.setFont("helvetica", "normal");
-      doc.text("4. Temperatura del fusor:", 15, 147);
+      doc.text("4. Temperatura del fusor:", 15, 157);
       doc.setFont("helvetica", "bold");
-      doc.text("240 ºC / Cama caliente: 80 ºC", 70, 147);
+      doc.text(`${s.nozzle_temp} ºC / Cama: ${s.bed_temp} ºC`, 75, 157);
       
       doc.setFont("helvetica", "normal");
-      doc.text("5. Distancia Z del soporte:", 15, 155);
+      doc.text("5. Velocidad recomendada:", 15, 165);
       doc.setFont("helvetica", "bold");
-      doc.text("0.25 mm (Desmolde mecánico limpio)", 70, 155);
+      doc.text(`${s.print_speed} mm/s`, 75, 165);
       
-      // 5. Directrices de Ingeniería
       doc.setFontSize(14);
-      doc.text("Directrices de Fabricación del Ingeniero", 15, 175);
-      doc.line(15, 178, 195, 178);
+      doc.text("Justificación de Ingeniería", 15, 185);
+      doc.line(15, 188, 195, 188);
       
       doc.setFontSize(10);
       doc.setFont("helvetica", "normal");
-      doc.setTextColor(94, 102, 97); // #5e6661
+      doc.setTextColor(94, 102, 97);
       
-      const notes = [
-        "- Imprimir la pieza plana sobre su base circular para maximizar la tracción mecánica en la cama.",
-        "- Los perímetros aumentados a 4 bucles eliminan la fatiga mecánica en las ranuras de encaje.",
-        "- Deshidratar de forma activa el filamento PETG a 65 ºC durante 8 horas previas para evitar hilos.",
-        "- Utilizar laca protectora como agente desmoldante si se imprime sobre base de cristal liso."
-      ];
+      const lines = doc.splitTextToSize(s.material_reason, 180);
+      doc.text(lines, 15, 198);
       
-      let y = 188;
-      notes.forEach(note => {
-        doc.text(note, 15, y);
-        y += 8;
-      });
-      
-      // Pie de página
       doc.setFontSize(8);
       doc.text("Este informe es un análisis geométrico computacional real emitido por PrintLab PRO.", 15, 275);
       doc.text("© 2026 PrintLab. Todos los derechos reservados.", 15, 280);
       
-      // Descargar el PDF
       doc.save(`reporte_printlab_${analysis.file_name.replace(".stl", "")}.pdf`);
     }
   </script>
 
   <!-- =====================================================
-       LÓGICA DE CARGA DE DATOS Y CONEXIÓN DE BOTONES
+       LÓGICA ADAPTATIVA DE INTERFAZ Y CONEXIÓN
   ===================================================== -->
   <script>
     document.addEventListener("DOMContentLoaded", async () => {
@@ -589,92 +454,105 @@
 
       const problemListContainer = document.getElementById("problemListContainer");
 
-      // 1. Leer los datos reales de la memoria del navegador
+      // 1. Leer los datos reales del SessionStorage
       const storedAnalysis = sessionStorage.getItem("printlab_analysis");
 
       if (storedAnalysis) {
         const analysis = JSON.parse(storedAnalysis);
-        
-        // Actualizar datos de texto de forma dinámica
+        const s = analysis.slicer_settings; // Parámetros adaptativos del backend
+        const q = analysis.user_questionnaire; // Respuestas del cuestionario
+
         reportFileName.textContent = "📄 " + analysis.file_name;
         reportVolume.textContent = `${analysis.volume} cm³`;
         reportDimensions.textContent = analysis.dimensions;
-        
-        const score = analysis.watertight ? (analysis.critical_points.length > 10 ? 72 : 94) : 45;
-        reportScore.innerHTML = `${score}<span>/100</span>`;
 
-        if (score >= 85) {
+        // Actualizar material óptimo calculado por Python
+        reportMaterial.textContent = `${s.material} (${s.material_status})`;
+        reportTemp.textContent = `${s.nozzle_temp} ºC`;
+        reportBed.textContent = `${s.bed_temp} ºC`;
+
+        // Calcular Score dinámico
+        const baseScore = analysis.watertight ? 98 : 45;
+        let scorePenalty = analysis.critical_points.length * 1.5;
+        if (s.material_status === "no_adecuado") scorePenalty += 20;
+
+        const finalScore = Math.max(30, Math.round(baseScore - scorePenalty));
+        reportScore.innerHTML = `${finalScore}<span>/100</span>`;
+
+        if (finalScore >= 85) {
           reportScore.style.color = "var(--muted)";
-          reportScoreDesc.textContent = "El modelo dispone de una excelente estabilidad y está listo para ser laminado directamente.";
-        } else if (score >= 55) {
+          reportScoreDesc.textContent = "El modelo dispone de una excelente estabilidad bajo los criterios mecánicos indicados.";
+        } else if (finalScore >= 55) {
           reportScore.style.color = "var(--warning)";
-          reportScoreDesc.textContent = "El modelo presenta riesgos térmicos altos de desprendimiento de capas y voladizos inestables en el aire.";
+          reportScoreDesc.textContent = "Se detectan riesgos estructurales o de degradación térmica moderada bajo las condiciones de funcionamiento dadas.";
         } else {
           reportScore.style.color = "var(--error)";
-          reportScoreDesc.textContent = "¡Modelo crítico! Riesgo de warping inminente, delaminación y vaciado geométrico defectuoso.";
+          reportScoreDesc.textContent = "Modelo crítico. Se recomienda un cambio inmediato de material o de espesores debido al alto esfuerzo o temperatura.";
         }
 
-        // 2. GENERADOR DINÁMICO DE TARJETAS TÉCNICAS (Slicer)
+        // 2. GENERADOR DE TARJETAS TÉCNICAS ADAPTATIVAS
         let htmlCards = "";
 
-        // Tarjeta 1: Voladizos críticos (Si Python los detectó)
-        if (analysis.critical_points && analysis.critical_points.length > 0) {
+        // Tarjeta de Material y Entorno
+        htmlCards += `
+          <div class="prob-card ${s.material_status === 'no_adecuado' ? '' : 'success-card'}">
+            <div class="prob-header">
+              <h3 class="prob-title">Idoneidad del Material</h3>
+              <span class="prob-badge" style="background:${s.material_status === 'no_adecuado' ? '#fcebe8' : '#eef2ee'}; color:${s.material_status === 'no_adecuado' ? '#b42318' : 'var(--muted)'};">
+                ${s.material_status === 'no_adecuado' ? 'CRÍTICO' : 'CONFIRMADO'}
+              </span>
+            </div>
+            <div class="prob-data">
+              <div class="data-item"><span>Material Deseado</span><strong>${q.material === 'no_se' ? 'No definido' : q.material}</strong></div>
+              <div class="data-item"><span>Material Propuesto</span><strong>${s.material}</strong></div>
+            </div>
+            <div class="solution-box">
+              <strong>Evaluación de condiciones</strong>
+              <p class="solution-text">${s.material_reason}</p>
+              <p class="benefit-text">Condiciones de trabajo: Temperatura de ${q.operatingTemp || '25'}ºC en entorno ${q.environment.join(', ')}.</p>
+            </div>
+          </div>
+        `;
+
+        // Tarjeta de Laminación Dinámica (Estructural/Esfuerzos)
+        htmlCards += `
+          <div class="prob-card success-card">
+            <div class="prob-header">
+              <h3 class="prob-title">Configuración Estructural Adaptativa</h3>
+              <span class="prob-badge" style="background:#eef2ee; color:var(--muted);">Slicer</span>
+            </div>
+            <div class="prob-data">
+              <div class="data-item"><span>Perímetros Recomendados</span><strong>${s.perimeters} perímetros</strong></div>
+              <div class="data-item"><span>Densidad de Infill</span><strong>${s.infill_density}% (${s.infill_pattern})</strong></div>
+            </div>
+            <div class="solution-box">
+              <strong>Estrategia según prioridad: ${q.priority}</strong>
+              <p class="solution-text">Se ha calibrado la densidad de relleno y perímetros para soportar cargas dinámicas de ${q.forces.join(', ')} con un peso de ${q.loadWeight || '0'} kg.</p>
+              <p class="benefit-text">Velocidad de impresión recomendada: ${s.print_speed} mm/s.</p>
+            </div>
+          </div>
+        `;
+
+        // Tarjeta de Soportes (Voladizos)
+        if (s.requires_support) {
           htmlCards += `
-            <div class="prob-card">
+            <div class="prob-card warn">
               <div class="prob-header">
-                <h3 class="prob-title">Geometría en el aire</h3>
-                <span class="prob-badge">Crítico</span>
+                <h3 class="prob-title">Voladizos bajo carga</h3>
+                <span class="prob-badge" style="background:#fef3e6; color:var(--warning);">Soportes</span>
               </div>
               <div class="prob-data">
-                <div class="data-item"><span>Voladizos Medidos</span><strong>${analysis.critical_points.length} puntos</strong></div>
-                <div class="data-item"><span>Soporte Recomendado</span><strong>Soportes Orgánicos (Árbol)</strong></div>
+                <div class="data-item"><span>Zonas Inestables</span><strong>${analysis.critical_points.length} puntos</strong></div>
+                <div class="data-item"><span>Tipo de Soporte</span><strong>Soportes Orgánicos (Árbol)</strong></div>
               </div>
               <div class="solution-box">
-                <strong>Configuración en laminador</strong>
-                <p class="solution-text">Activar Soportes Tipo Árbol con el parámetro "Solo en la plataforma de construcción" (Build plate only).</p>
-                <p class="benefit-text">Beneficio: Las ramas solo sujetarán las pestañas externas del cilindro sin meter soportes en las ranuras internas.</p>
+                <strong>Configuración en Slicer</strong>
+                <p class="solution-text">Configurar soportes de tipo Árbol posicionados exclusivamente "Solo en la plataforma de construcción".</p>
+                <p class="benefit-text">Beneficio: Las ramas solo sujetarán las pestañas externas del cilindro sin meter soportes en las cavidades cilíndricas.</p>
               </div>
             </div>
           `;
         }
-
-        // Tarjeta 2: Perímetros mecánicos (Recomendación estructural real para conector)
-        htmlCards += `
-          <div class="prob-card success-card">
-            <div class="prob-header">
-              <h3 class="prob-title">Rigidez torsional en pestañas</h3>
-              <span class="prob-badge" style="background:#eef2ee; color:var(--muted);">Recomendación</span>
-            </div>
-            <div class="prob-data">
-              <div class="data-item"><span>Perímetros Estándar</span><strong>2 perímetros</strong></div>
-              <div class="data-item"><span>Perímetros Propuestos</span><strong>4 o 5 perímetros</strong></div>
-            </div>
-            <div class="solution-box">
-              <strong>Configuración en laminador</strong>
-              <p class="solution-text">Aumentar el número de bucles de pared (Wall loops) a 4 perímetros en lugar de subir el porcentaje de infill.</p>
-              <p class="benefit-text">Beneficio: El torque mecánico se concentra en las paredes exteriores de la pieza circular. Esto multiplicará por tres la vida útil de las ranuras de encaje.</p>
-            </div>
-          </div>
-        `;
-
-        // Tarjeta 3: Patrón de relleno Giroide
-        htmlCards += `
-          <div class="prob-card success-card">
-            <div class="prob-header">
-              <h3 class="prob-title">Vaciado elástico y relleno</h3>
-              <span class="prob-badge" style="background:#eef2ee; color:var(--muted);">Optimización</span>
-            </div>
-            <div class="prob-data">
-              <div class="data-item"><span>Porcentaje Infill</span><strong>20% de densidad</strong></div>
-              <div class="data-item"><span>Patrón de Infill</span><strong>Giroide (Gyroid)</strong></div>
-            </div>
-            <div class="solution-box">
-              <strong>Configuración en laminador</strong>
-              <p class="solution-text">Cambiar el patrón por defecto (Grid/Rejilla) por Giroide (Gyroid) o Cúbico.</p>
-              <p class="benefit-text">Beneficio: Evita que la boquilla choque lateralmente al cruzar las líneas de plástico ya depositadas a alta velocidad.</p>
-            </div>
-          </div>
-        `;
 
         problemListContainer.innerHTML = htmlCards;
 
@@ -689,10 +567,10 @@
           const blob = new Blob([byteArray], { type: "model/stl" });
           const stlLocalUrl = URL.createObjectURL(blob);
 
-          // Inicializar el visor 3D real con la pieza y sus coordenadas rojas
-          init3DViewer("canvas3dContainer", stlLocalUrl, analysis.critical_points);
+          // Inicializar el visor 3D real con la pieza y su base iluminada de verde neón
+          init3DViewer("canvas3dContainer", stlLocalUrl);
 
-          // Configurar el botón de descarga física real y gratuita
+          // Configurar los botones de descarga
           downloadStlBtn.addEventListener("click", () => {
             const a = document.createElement("a");
             a.href = stlLocalUrl;
@@ -702,16 +580,15 @@
             document.body.removeChild(a);
           });
 
-          // Configurar la descarga del informe PDF real y estructurado
           downloadPdfBtn.addEventListener("click", () => {
             generatePDFReport(analysis);
           });
-
         } else {
           init3DViewer("canvas3dContainer", "", []);
         }
       } else {
         init3DViewer("canvas3dContainer", "", []);
+        reportScoreDesc.textContent = "Cargue un archivo STL desde el analizador de forma previa.";
       }
     });
   </script>
