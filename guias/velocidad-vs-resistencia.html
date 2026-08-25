@@ -50,7 +50,7 @@
     
     .dropdown-content { display: none; position: absolute; top: 110%; left: 0; background-color: var(--card); min-width: 240px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); border: 1.5px solid var(--line); border-radius: 16px; z-index: 200; flex-direction: column; padding: 12px 0; }
     .dropdown-content.show { display: flex; animation: slideDown 0.2s ease; }
-    .dropdown-content a { padding: 14px 24px; color: var(--muted); font-weight: 700; font-size:15px; transition: 0.15s; }
+    .dropdown-content a { padding: 14px 24px; color: var(--muted); font-weight: 700; font-size: 15px; transition: 0.15s; }
     .dropdown-content a:hover { color: var(--ink); background: rgba(0,0,0,0.03); }
     .dropdown-content a.active { color: var(--ink); background: #f0f4f0; border-left: 4px solid var(--accent); padding-left: 20px; }
 
@@ -183,7 +183,50 @@
         align-items: flex-start;
       }
     }
+
+    /* REGLA FORZADA PARA EL INDICADOR DE CRÉDITOS (Alineado simétrico y redondeado perfecto) */
+    #authHeaderContainer span[style*="background" i],
+    #authHeaderContainer span[style*="accent" i],
+    #authHeaderContainer span:nth-child(2),
+    #authHeaderContainer div span:nth-child(2) {
+      background: var(--accent) !important;
+      background-color: var(--accent) !important;
+      color: var(--ink) !important;
+      padding: 8px 18px !important;
+      border-radius: 9999px !important;
+      font-weight: 800 !important;
+      font-size: 15px !important;
+      border: none !important;
+      border-width: 0px !important;
+      box-shadow: none !important;
+      display: inline-flex !important;
+      align-items: center !important;  
+      justify-content: center !important; 
+      align-self: center !important;
+      line-height: 1 !important; 
+      height: auto !important;
+      min-height: 0 !important;
+      max-height: 38px !important;
+      margin: auto 0 !important;
+      white-space: nowrap !important;
+    }
+
+    /* REGLA FORZADA PARA EL SALUDO DE USUARIO (Impide alteraciones de tamaño) */
+    #authHeaderContainer .user-greeting,
+    #authHeaderContainer span:nth-child(1),
+    #authHeaderContainer div span:nth-child(1),
+    #authHeaderContainer span:first-child,
+    #authHeaderContainer div span:first-child {
+      font-weight: 700 !important;
+      font-size: 15px !important;
+      color: var(--ink) !important;
+      display: inline-block !important;
+      margin: auto 0 !important;
+      white-space: nowrap !important;
+    }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../assets/js/auth-helper.js"></script>
 </head>
 <body>
 
@@ -209,7 +252,7 @@
           <a class="brand" href="../index.html#portada" title="Volver al inicio">PRINT<span>LAB</span></a>
         </div>
 
-        <div class="auth-buttons">
+        <div class="auth-buttons" id="authHeaderContainer" style="opacity: 0; visibility: hidden; transition: opacity 0.15s ease, visibility 0.15s ease;">
           <a href="../herramientas/login.html" class="btn-auth light">Iniciar Sesión</a>
           <a href="../herramientas/registro.html" class="btn-auth green">Registrarse</a>
         </div>
@@ -383,7 +426,7 @@
             <li><strong>SDS / Safety Data Sheets (Fichas de Datos de Seguridad):</strong> Documento obligatorio para cada material que expone su nivel de toxicidad, medidas de barrera (EPIs), riesgos térmicos y directrices de primeros auxilios.</li>
             <li><strong>GHS (Sistema Globalmente Armonizado):</strong> Define los pictogramas de peligro impresos en las botellas de resinas (como irritación cutánea o peligro acuático).</li>
             <li><strong>Reglamento CLP (Unión Europea):</strong> Rige la clasificación, etiquetado y envasado de mezclas químicas y polímeros reactivos.</li>
-            <li><strong>REACH (Unión Europea):</strong> Regula el registro y restricción de sustancias químicas nocivas para proteger la salud humana y el medio ambiente de forma activa.</li>
+            <li><strong>Reglamento REACH (Unión Europea):</strong> Regula el registro y restricción de sustancias químicas nocivas para proteger la salud humana y el medio ambiente de forma activa.</li>
             <li><strong>OSHA / HCS (Estados Unidos):</strong> El estándar de comunicación de peligros (HCS) garantiza que los riesgos químicos de los filamentos que liberan estireno (ABS/ASA) sean transmitidos de forma clara al operario.</li>
           </ul>
         </div>
@@ -391,7 +434,7 @@
         <!-- SECCIÓN 6: Organismos internacionales -->
         <div>
           <h4 style="font-size: 16px; font-weight: 800; color: var(--ink); margin-bottom: 12px; border-bottom: 1px solid var(--line); padding-bottom: 6px;">6. Organismos de Normalización y Referencia Técnica</h4>
-          <p style="color: var(--muted); margin-bottom: 12px;">Nuestra base de datos técnica interactiva se sincroniza y alinea con los criterios establecidos por las institutions líderes en metrología y ciencia de materiales:</p>
+          <p style="color: var(--muted); margin-bottom: 12px;">Our base de datos técnica interactiva se sincroniza y alinea con los criterios establecidos por las institutions líderes en metrología y ciencia de materiales:</p>
           <ul style="padding-left: 20px; color: var(--muted); line-height: 1.8;">
             <li><strong>ISO:</strong> International Organization for Standardization</li>
             <li><strong>ASTM:</strong> American Society for Testing and Materials</li>
