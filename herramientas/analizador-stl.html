@@ -502,6 +502,12 @@
       background:#fafbfa;
     }
 
+    .upload-container.drag-over{
+      border-color:var(--ink);
+      background:#f0f5ed;
+      transform:scale(1.01);
+    }
+
 
     .upload-icon{
       font-size:48px;
@@ -566,6 +572,39 @@
       transform:translateY(3px);
 
       box-shadow:0 1px 0 var(--ink);
+    }
+
+    .selected-file{
+      display:none;
+      margin:24px auto 0;
+      max-width:600px;
+      padding:14px 18px;
+      background:#f0f4f0;
+      border:1px solid var(--line);
+      border-radius:12px;
+      text-align:left;
+    }
+
+    .selected-file.show{
+      display:block;
+    }
+
+    .selected-file-name{
+      font-weight:800;
+      word-break:break-word;
+    }
+
+    .selected-file-size{
+      color:var(--muted);
+      font-size:13px;
+      margin-top:3px;
+    }
+
+    .drag-help{
+      margin-top:18px;
+      color:var(--muted);
+      font-size:13px;
+      font-weight:600;
     }
 
 
@@ -940,6 +979,7 @@
           <a
             href="login.html"
             class="btn-auth light"
+            id="headerLogin"
           >
             Iniciar Sesión
           </a>
@@ -947,6 +987,7 @@
           <a
             href="registro.html"
             class="btn-auth green"
+            id="headerRegister"
           >
             Registrarse
           </a>
@@ -1017,7 +1058,7 @@
            ZONA DE SUBIDA
       ================================================= -->
 
-      <div class="upload-container">
+      <div class="upload-container" id="uploadContainer">
 
         <div class="upload-icon">
           📁
@@ -1034,18 +1075,35 @@
         </p>
 
 
-        <!--
-          Si el usuario no está autenticado,
-          el login se encargará de devolverlo
-          posteriormente al analizador.
-        -->
+        <!-- Input real de tipo archivo oculto para el sistema -->
+        <input
+          type="file"
+          id="stlFile"
+          accept=".stl,model/stl,application/sla"
+          hidden
+        >
 
-        <a
-          href="login.html?redirect=analizador-stl.html"
+        <!-- Botón de control dinámico del analizador -->
+        <button
+          type="button"
           class="btn-green"
+          id="analyzerAccessButton"
+          style="font-family: inherit;"
         >
           Inicia sesión para subir archivos
-        </a>
+        </button>
+
+
+        <!-- Cuadro con datos del archivo seleccionado -->
+        <div class="selected-file" id="selectedFile">
+          <div class="selected-file-name" id="selectedFileName"></div>
+          <div class="selected-file-size" id="selectedFileSize"></div>
+        </div>
+
+
+        <div class="drag-help" style="margin-top:18px; color:var(--muted); font-size:13px; font-weight:600;">
+          También puedes arrastrar y soltar aquí tu archivo STL.
+        </div>
 
 
         <div style="display:block;">
@@ -1584,6 +1642,224 @@
 
   </script>
 
+  <!-- =====================================================
+       LÓGICA DEL ANALIZADOR STL (SUPABASE & CRÉDITOS)
+  ===================================================== -->
+  <script>
+    document.addEventListener("DOMContentLoaded", async function () {
+      const accessButton = document.getElementById("analyzerAccessButton");
+      const fileInput = document.getElementById("stlFile");
+      const uploadContainer = document.getElementById("uploadContainer");
+      const selectedFile = document.getElementById("selectedFile");
+      const selectedFileName = document.getElementById("selectedFileName");
+      const selectedFileSize = document.getElementById("selectedFileSize");
+
+      // Validar que Supabase esté inicializado
+      const client = window.supabaseClient || (typeof supabaseClient !== "undefined" ? supabaseClient : null);
+
+      if (!client) {
+        console.error("Supabase no está disponible en este momento.");
+        return;
+      }
+
+      // Obtener sesión activa
+      async function getCurrentSession() {
+        try {
+          const { data, error } = await client.auth.getSession();
+          if (error) throw error;
+          return data?.session || null;
+        } catch (e) {
+          console.warn("No se pudo leer la sesión activa:", e);
+          return null;
+        }
+      }
+
+      // Actualizar el estado del botón principal según el estado
+      async function updateButtonState() {
+        const session = await getCurrentSession();
+
+        if (!session) {
+          accessButton.textContent = "Inicia sesión para subir archivos";
+          accessButton.dataset.state = "logged-out";
+          selectedFile.classList.remove("show");
+          window.selectedSTLFile = null;
+        } else {
+          if (window.selectedSTLFile) {
+            accessButton.textContent = "Iniciar análisis (1 crédito)";
+            accessButton.dataset.state = "has-file";
+          } else {
+            accessButton.textContent = "Seleccionar archivo STL";
+            accessButton.dataset.state = "logged-in-no-file";
+            selectedFile.classList.remove("show");
+          }
+        }
+      }
+
+      await updateButtonState();
+
+      // Escuchar cambios de autenticación
+      if (client.auth && typeof client.auth.onAuthStateChange === "function") {
+        client.auth.onAuthStateChange(() => {
+          updateButtonState();
+        });
+      }
+
+      // Formatear tamaño del archivo en una unidad legible
+      function formatSize(bytes) {
+        if (bytes < 1024) return bytes + " B";
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+        return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+      }
+
+      // Procesar la selección de archivos
+      function handleFile(file) {
+        if (!file) return;
+
+        // Comprobar extensión STL
+        const name = file.name.toLowerCase();
+        if (!name.endsWith(".stl")) {
+          alert("Por favor, sube un archivo geométrico con formato .stl válido.");
+          return;
+        }
+
+        // Límite de 100 MB
+        if (file.size > 100 * 1024 * 1024) {
+          alert("El tamaño del archivo excede el límite máximo de 100 MB.");
+          return;
+        }
+
+        window.selectedSTLFile = file;
+        selectedFileName.textContent = "📄 " + file.name;
+        selectedFileSize.innerHTML = `
+          ${formatSize(file.size)}
+          <span id="removeFileLink" style="color:var(--muted); text-decoration:underline; cursor:pointer; margin-left:12px; font-weight:700;">Cambiar archivo</span>
+        `;
+
+        selectedFile.classList.add("show");
+
+        document.getElementById("removeFileLink").addEventListener("click", (e) => {
+          e.stopPropagation();
+          window.selectedSTLFile = null;
+          fileInput.value = "";
+          updateButtonState();
+        });
+
+        updateButtonState();
+      }
+
+      // Escuchar cambios en el input oculto
+      fileInput.addEventListener("change", () => {
+        if (fileInput.files.length > 0) {
+          handleFile(fileInput.files[0]);
+        }
+      });
+
+      // Acción del botón principal
+      accessButton.addEventListener("click", async (e) => {
+        e.preventDefault();
+        const session = await getCurrentSession();
+
+        // Caso 1: No logueado -> Ir a iniciar sesión
+        if (!session) {
+          // Provocar la salida de transición elegante antes de ir al login
+          document.body.classList.add("page-transition-out");
+          setTimeout(() => {
+            window.location.href = "login.html?redirect=analizador-stl.html";
+          }, 380);
+          return;
+        }
+
+        const state = accessButton.dataset.state;
+
+        // Caso 2: Logueado pero sin archivo -> Abrir selector de archivos
+        if (state === "logged-in-no-file") {
+          fileInput.click();
+          return;
+        }
+
+        // Caso 3: Logueado y con archivo listo -> Comprobar créditos y descontar
+        if (state === "has-file") {
+          accessButton.disabled = true;
+          accessButton.textContent = "Comprobando créditos...";
+
+          try {
+            // 1. Obtener créditos reales en tiempo real del perfil del usuario
+            const { data: profile, error: profileError } = await client
+              .from("profiles")
+              .select("credits")
+              .eq("id", session.user.id)
+              .single();
+
+            if (profileError) throw profileError;
+
+            // Si no tiene créditos suficientes, denegar el paso
+            if (!profile || profile.credits < 1) {
+              alert("Tu saldo de créditos es insuficiente para procesar el análisis. Redirigiendo a la sección de planes...");
+              document.body.classList.add("page-transition-out");
+              setTimeout(() => {
+                window.location.href = "precios.html";
+              }, 380);
+              return;
+            }
+
+            accessButton.textContent = "Procesando geometría...";
+
+            // 2. Ejecutar la llamada RPC a Supabase para descontar de forma segura 1 crédito
+            const { data: success, error: rpcError } = await client.rpc("deduct_analysis_credit");
+
+            if (rpcError || !success) {
+              throw new Error(rpcError?.message || "Ocurrió una inconsistencia en el cobro de créditos.");
+            }
+
+            // 3. Informar y redirigir con éxito
+            alert("Análisis autorizado de forma segura. Se ha descontado 1 crédito de tu perfil.");
+            document.body.classList.add("page-transition-out");
+            setTimeout(() => {
+              window.location.href = "informe-stl.html";
+            }, 380);
+
+          } catch (err) {
+            console.error("Error procesando créditos:", err);
+            alert("No se ha podido procesar el análisis: " + (err.message || "Error desconocido de base de datos."));
+            accessButton.disabled = false;
+            updateButtonState();
+          }
+        }
+      });
+
+      /* =====================================================
+         ARRANQUE DE SOPORTE DRAG & DROP
+      ===================================================== */
+      uploadContainer.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        uploadContainer.classList.add("drag-over");
+      });
+
+      uploadContainer.addEventListener("dragleave", (e) => {
+        if (e.relatedTarget && uploadContainer.contains(e.relatedTarget)) return;
+        uploadContainer.classList.remove("drag-over");
+      });
+
+      uploadContainer.addEventListener("drop", async (e) => {
+        e.preventDefault();
+        uploadContainer.classList.remove("drag-over");
+
+        const session = await getCurrentSession();
+
+        if (!session) {
+          document.body.classList.add("page-transition-out");
+          setTimeout(() => {
+            window.location.href = "login.html?redirect=analizador-stl.html";
+          }, 380);
+          return;
+        }
+
+        if (e.dataTransfer.files.length > 0) {
+          handleFile(e.dataTransfer.files[0]);
+        }
+      });
+    });
+  </script>
 
 </body>
 
