@@ -3,14 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-
   <title>Analizador y Optimizador STL con IA — PrintLab PRO</title>
-
+  <meta name="description" content="El primer motor de diagnóstico geométrico asistido por IA para FDM y SLA. Sube tu diseño de ingeniería y evita impresiones fallidas antes de laminar.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
-
   <style>
     :root{
       --bg:#f6f7f4;
@@ -47,7 +44,6 @@
     }
 
     /* CABECERA Y NAVEGACIÓN HAMBURGUESA */
-
     .top{
       position:sticky;
       top:0;
@@ -136,9 +132,8 @@
     @keyframes slideDown{
       from{
         opacity:0;
-        transform:translateY(-15px)
+        transform:translateY(-10px)
       }
-
       to{
         opacity:1;
         transform:translateY(0)
@@ -375,550 +370,205 @@
       margin:0;
     }
 
-    /* FOOTER */
-
-    .footer{
-      background:var(--bg);
-      border-top:1px solid var(--line);
-      padding:80px 0 40px;
-      color:var(--muted);
-      font-size:14px;
-      line-height:1.6;
-    }
-
-    .footergrid{
-      display:grid;
-      grid-template-columns:1.3fr 0.85fr 0.85fr;
-      gap:60px;
-      margin-bottom:48px;
-    }
-
-    .footer-col h3{
-      font-size:16px;
-      font-weight:800;
-      color:var(--ink);
-      margin:0 0 20px;
-      letter-spacing:-0.3px;
-    }
-
-    .footer-col p{
-      margin:0 0 16px;
-      color:var(--muted);
-    }
-
-    .footer-secondary-text{
-      font-size:12.5px;
-      line-height:1.5;
-      color:#7d8782;
-      margin-top:12px;
-    }
-
-    .footer-links{
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-    }
-
-    .footer-links a{
-      color:var(--muted);
-      transition:color 0.15s ease, transform 0.15s ease;
-      cursor:pointer;
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-      text-decoration:none;
-    }
-
-    .footer-links a:hover{
-      color:var(--ink);
-      transform:translateX(2px);
-    }
-
-    .footer-links a span.arrow{
-      transition:color 0.15s ease;
-    }
-
-    .footer-links a:hover span.arrow{
-      color:var(--accent);
-    }
-
-    .footer-bottom{
-      border-top:1px solid var(--line);
-      padding-top:24px;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      text-align:center;
-      font-size:13px;
-      color:#7d8782;
-    }
+    /* PIE DE PÁGINA COPIADO EXACTAMENTE DE CALCULADORA-HOLGURAS */
+    .footer { background: var(--bg); border-top: 1px solid var(--line); padding: 80px 0 40px; color: var(--muted); font-size: 14px; line-height: 1.6; }
+    .footergrid { display: grid; grid-template-columns: 1.3fr 0.85fr 0.85fr; gap: 60px; margin-bottom: 48px; }
+    .footer-col h3 { font-size: 16px; font-weight: 800; color: var(--ink); margin: 0 0 20px; letter-spacing: -0.3px; }
+    .footer-col p { margin: 0 0 16px; color: var(--muted); }
+    .footer-secondary-text { font-size: 12.5px; line-height: 1.5; color: #7d8782; margin-top: 12px; }
+    .footer-links { display: flex; flex-direction: column; gap: 10px; }
+    .footer-links a { color: var(--muted); transition: color 0.15s ease, transform 0.15s ease; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+    .footer-links a:hover { color: var(--ink); transform: translateX(2px); }
+    .footer-links a span.arrow { transition: color 0.15s ease; }
+    .footer-links a:hover span.arrow { color: var(--accent); }
+    .footer-bottom { border-top: 1px solid var(--line); padding-top: 24px; display:flex; justify-content:center; align-items:center; text-align:center; font-size: 13px; color: #7d8782;}
 
     @media(max-width:992px){
-
       .footergrid{
         grid-template-columns:1.2fr 1fr;
         gap:40px;
       }
-
       .features{
         grid-template-columns:1fr;
         gap:20px;
       }
-
     }
 
     @media(max-width:750px){
-
       .wrap{
         padding:0 24px
       }
-
       .auth-buttons{
         flex-direction:column;
         width:100%;
         display:none;
       }
-
     }
 
     @media(max-width:768px){
-
       .hero h1{
         font-size:38px
       }
-
       .header-left{
         gap:10px;
       }
-
       .btn-auth{
         padding:10px 16px;
         font-size:13px;
       }
-
       .brand{
         font-size:22px;
       }
-
       .footergrid{
         grid-template-columns:1fr;
         gap:36px;
       }
-
       .footer-bottom{
         flex-direction:column;
         align-items:flex-start;
       }
-
     }
-
   </style>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../assets/js/auth-helper.js"></script>
 
 </head>
-
 <body>
 
   <!-- CABECERA -->
-
   <header class="top">
-
     <div class="wrap">
-
       <nav>
-
         <div class="header-left">
-
           <div class="menu-dropdown">
-
-            <button
-              class="hamburger"
-              onclick="toggleMenu()"
-              aria-label="Abrir menú"
-            >
+            <button class="hamburger" onclick="toggleMenu()" aria-label="Abrir menú" type="button">
               <span></span>
               <span></span>
               <span></span>
             </button>
-
             <div class="dropdown-content" id="mainMenu">
-
-              <a href="../index.html#portada">
-                Inicio
-              </a>
-
-              <a
-                href="../index.html#analizador"
-                class="active"
-              >
-                Analizador IA
-              </a>
-
-              <a href="../index.html#simulador">
-                Simulador
-              </a>
-
-              <a href="../index.html#herramientas">
-                Herramientas
-              </a>
-
-              <a href="../index.html#guias">
-                Guías
-              </a>
-
+              <a href="../index.html#portada">Inicio</a>
+              <a href="analizador-stl.html" class="active">Analizador STL</a>
+              <a href="../index.html#simulador">Simulador</a>
+              <a href="../index.html#herramientas">Herramientas</a>
+              <a href="../index.html#guias">Guías</a>
             </div>
-
           </div>
-
-          <a
-            class="brand"
-            href="../index.html#portada"
-            title="Volver al inicio"
-          >
-            PRINT<span>LAB</span>
-          </a>
-
+          <a class="brand" href="../index.html#portada" title="Volver al inicio">PRINT<span>LAB</span></a>
         </div>
 
-
-        <div class="auth-buttons">
-
-          <a
-            href="login.html"
-            class="btn-auth light"
-          >
-            Iniciar Sesión
-          </a>
-
-          <a
-            href="registro.html"
-            class="btn-auth green"
-          >
-            Registrarse
-          </a>
-
+        <div class="auth-buttons" id="authHeaderContainer">
+          <!-- Inyectado de forma dinámica mediante auth-helper.js -->
         </div>
-
       </nav>
-
     </div>
-
   </header>
-
 
   <main class="wrap">
 
     <section class="hero">
-
-      <h1>
-        Detectamos los problemas y proponemos cómo resolverlos.
-      </h1>
-
-      <p>
-        El primer motor de diagnóstico geométrico asistido por IA
-        para FDM y SLA. Sube tu diseño de ingeniería y evita
-        impresiones fallidas antes de laminar.
-      </p>
-
+      <h1>Detectamos los problemas y proponemos cómo resolverlos.</h1>
+      <p>El primer motor de diagnóstico geométrico asistido por IA para FDM y SLA. Sube tu diseño de ingeniería y evita impresiones fallidas antes de laminar.</p>
 
       <div class="logic-flow">
-
-        <div class="flow-step">
-          1. Sube tu STL
-        </div>
-
-        <div class="flow-arrow">
-          →
-        </div>
-
-        <div class="flow-step">
-          2. Descubre qué está mal
-        </div>
-
-        <div class="flow-arrow">
-          →
-        </div>
-
-        <div class="flow-step highlight">
-          3. Recibe la solución exacta
-        </div>
-
-        <div class="flow-arrow">
-          →
-        </div>
-
-        <div class="flow-step">
-          4. Mejora tu modelo
-        </div>
-
+        <div class="flow-step">1. Sube tu STL</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">2. Descubre qué está mal</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step highlight">3. Recibe la solución exacta</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">4. Mejora tu modelo</div>
       </div>
-
 
       <div class="upload-container">
-
-        <div class="upload-icon">
-          📁
-        </div>
-
-        <h3 class="upload-title">
-          Analizar nuevo modelo STL
-        </h3>
-
-        <p class="upload-desc">
-          Soporte para FDM, SLA/MSLA y SLS.
-          Límite: 100MB por archivo.
-        </p>
-
-        <a
-          href="login.html"
-          class="btn-green"
-        >
-          Inicia sesión para subir archivos
-        </a>
-
+        <div class="upload-icon">📁</div>
+        <h3 class="upload-title">Analizar nuevo modelo STL</h3>
+        <p class="upload-desc">Soporte para FDM, SLA/MSLA y SLS. Límite: 500MB por archivo.</p>
+        
+        <button type="button" class="btn-green" id="analyzerAccessButton">Inicia sesión para subir archivos</button>
 
         <div style="display:block;">
-
           <div class="privacy-badge">
-
-            <span>
-              🔒 Privacidad por Diseño
-            </span>
-
-            Archivos cifrados.
-            No entrenamos IAs con tus prototipos.
-
+            <span>🔒 Privacidad por Diseño</span>
+            Archivos cifrados. No entrenamos IAs con tus prototipos.
           </div>
-
         </div>
-
       </div>
-
     </section>
 
-
     <section class="features">
-
       <div class="feat-card">
-
-        <h4>
-          Cálculo Estructural Real
-        </h4>
-
-        <p>
-          No inventamos datos. Nuestro motor C++ calcula espesores,
-          volúmenes y geometrías non-manifold. La IA solo interpreta
-          e identifica la gravedad del problema.
-        </p>
-
+        <h4>Cálculo Estructural Real</h4>
+        <p>No inventamos datos. Nuestro motor C++ calcula espesores, volúmenes y geometrías non-manifold. La IA solo interpreta e identifica la gravedad del problema.</p>
       </div>
 
-
       <div class="feat-card">
-
-        <h4>
-          Puntuación Printability
-        </h4>
-
-        <p>
-          Obtén un "Score" de 0 a 100 basado en criterios empíricos
-          objetivos. Conoce exactamente tus riesgos de warping,
-          colapso de puentes o fallos de succión en resina.
-        </p>
-
+        <h4>Puntuación Printability</h4>
+        <p>Obtén un "Score" de 0 a 100 basado en criterios empíricos objetivos. Conoce exactamente tus riesgos de warping, colapso de puentes o fallos de succión en resina.</p>
       </div>
 
-
       <div class="feat-card">
-
-        <h4>
-          Control de Costes
-        </h4>
-
-        <p>
-          Cada análisis se guarda en tu historial seguro.
-          Optimiza iteraciones reduciendo soportes innecesarios,
-          ahorrando tiempo de máquina y filamento.
-        </p>
-
+        <h4>Control de Costes</h4>
+        <p>Cada análisis se guarda en tu historial seguro. Optimiza iteraciones reduciendo soportes innecesarios, ahorrando tiempo de máquina y filamento.</p>
       </div>
-
     </section>
 
   </main>
 
-    <!-- FOOTER -->
-
+  <!-- PIE DE PÁGINA UNIFICADO -->
   <footer class="footer">
-
     <div class="wrap">
-
       <div class="footergrid">
-
-        <!-- COLUMNA 1 -->
-
         <div class="footer-col">
-
-          <h3>
-            PrintLab
-          </h3>
-
-          <p>
-            Herramientas técnicas para impresión 3D,
-            diseñadas para ayudarte a entender,
-            analizar y mejorar tus piezas.
-          </p>
-
-          <p class="footer-secondary-text">
-            Información técnica orientativa.
-            Los resultados pueden variar según la impresora,
-            material, configuración y condiciones de fabricación.
-          </p>
-
+          <h3>PrintLab — Ingeniería 3D</h3>
+          <p>Plataforma profesional de análisis y optimización STL mediante Inteligencia Artificial y simuladores paramétricos. Transformamos modelos 3D con problemas en geometrías perfectas listas para fabricar, ahorrando tiempo, material y costes en entornos industriales.</p>
+          <p class="footer-secondary-text">Desarrollado bajo principios de Privacy by Design. Los datos y archivos STL se procesan con estricta confidencialidad.</p>
         </div>
-
-
-        <!-- COLUMNA 2 -->
-
+        
         <div class="footer-col">
-
-          <h3>
-            Producto
-          </h3>
-
+          <h3>Recursos y Herramientas</h3>
           <div class="footer-links">
-
-            <a href="../index.html#analizador">
-              Analizador IA
-              <span class="arrow">→</span>
-            </a>
-
-            <a href="../index.html#simulador">
-              Simulador
-              <span class="arrow">→</span>
-            </a>
-
-            <a href="../index.html#herramientas">
-              Herramientas
-              <span class="arrow">→</span>
-            </a>
-
-            <a href="../index.html#guias">
-              Guías
-              <span class="arrow">→</span>
-            </a>
-
+            <a href="../index.html#analizador"><span class="arrow">→</span> Analizador STL IA</a>
+            <a href="../index.html#simulador"><span class="arrow">→</span> Simulador de Extrusión</a>
+            <a href="calculadora-coste.html"><span class="arrow">→</span> Calculadoras de Coste y Masa</a>
+            <a href="../index.html#guias"><span class="arrow">→</span> Base de Conocimiento</a>
+            <a href="../materiales/index.html"><span class="arrow">→</span> Atlas de Materiales</a>
           </div>
-
         </div>
-
-
-        <!-- COLUMNA 3 -->
-
+        
         <div class="footer-col">
-
-          <h3>
-            Legal
-          </h3>
-
+          <h3>Soporte y Legal</h3>
           <div class="footer-links">
-
-            <a href="../legal/aviso-legal.html">
-              Aviso legal
-              <span class="arrow">→</span>
-            </a>
-
-            <a href="../legal/privacidad.html">
-              Política de privacidad
-              <span class="arrow">→</span>
-            </a>
-
-            <a href="../legal/cookies.html">
-              Política de cookies
-              <span class="arrow">→</span>
-            </a>
-
-            <a href="../legal/terminos.html">
-              Términos de servicio
-              <span class="arrow">→</span>
-            </a>
-
+            <a href="precios.html"><span class="arrow">→</span> Precios y Suscripciones</a>
+            <a href="contacto.html"><span class="arrow">→</span> Contacto y Soporte</a>
+            <a href="../condiciones-compra.html"><span class="arrow">→</span> Condiciones de Compra</a>
+            <a href="../terminos.html"><span class="arrow">→</span> Términos y Condiciones</a>
+            <a href="../privacidad.html"><span class="arrow">→</span> Política de Privacidad</a>
+            <a href="../cookies.html"><span class="arrow">→</span> Política de Cookies</a>
           </div>
-
         </div>
-
       </div>
-
-
+      
       <div class="footer-bottom">
-
-        <span>
-          © 2026 PrintLab. Todos los derechos reservados.
-        </span>
-
+        <div class="footer-bottom-text">© 2026 PrintLab.</div>
       </div>
-
     </div>
-
   </footer>
 
-
   <script>
-
-    function toggleMenu(){
-
-      const menu =
-        document.getElementById("mainMenu");
-
-      menu.classList.toggle("show");
-
+    function toggleMenu() {
+      document.getElementById('mainMenu').classList.toggle('show');
     }
 
-
-    document.addEventListener(
-      "click",
-      function(event){
-
-        const dropdown =
-          document.querySelector(".menu-dropdown");
-
-        const menu =
-          document.getElementById("mainMenu");
-
-        if(
-          dropdown &&
-          !dropdown.contains(event.target)
-        ){
-
-          menu.classList.remove("show");
-
+    window.onclick = function(event) {
+      if (!event.target.closest('.menu-dropdown') && !event.target.closest('.hamburger')) {
+        var dropdowns = document.getElementsByClassName("dropdown-content");
+        for (var i = 0; i < dropdowns.length; i++) {
+          if (dropdowns[i].classList.contains('show')) dropdowns[i].classList.remove('show');
         }
-
       }
-    );
-
-
-    document.querySelectorAll(
-      ".dropdown-content a"
-    ).forEach(function(link){
-
-      link.addEventListener(
-        "click",
-        function(){
-
-          document
-            .getElementById("mainMenu")
-            .classList.remove("show");
-
-        }
-      );
-
-    });
-
+    }
   </script>
-
-
 </body>
 </html>
