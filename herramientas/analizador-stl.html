@@ -370,7 +370,7 @@
       margin:0;
     }
 
-    /* PIE DE PÁGINA COPIADO EXACTAMENTE DE CALCULADORA-HOLGURAS */
+    /* PIE DE PÁGINA UNIFICADO */
     .footer { background: var(--bg); border-top: 1px solid var(--line); padding: 80px 0 40px; color: var(--muted); font-size: 14px; line-height: 1.6; }
     .footergrid { display: grid; grid-template-columns: 1.3fr 0.85fr 0.85fr; gap: 60px; margin-bottom: 48px; }
     .footer-col h3 { font-size: 16px; font-weight: 800; color: var(--ink); margin: 0 0 20px; letter-spacing: -0.3px; }
@@ -458,8 +458,10 @@
           <a class="brand" href="../index.html#portada" title="Volver al inicio">PRINT<span>LAB</span></a>
         </div>
 
+        <!-- --- CORRECCIÓN: Botones estáticos de inicio y registro pre-renderizados con sombra 3D --- -->
         <div class="auth-buttons" id="authHeaderContainer">
-          <!-- Inyectado de forma dinámica mediante auth-helper.js -->
+          <a href="login.html" class="btn-auth light">Iniciar Sesión</a>
+          <a href="registro.html" class="btn-auth green">Registrarse</a>
         </div>
       </nav>
     </div>
@@ -486,7 +488,8 @@
         <h3 class="upload-title">Analizar nuevo modelo STL</h3>
         <p class="upload-desc">Soporte para FDM, SLA/MSLA y SLS. Límite: 500MB por archivo.</p>
         
-        <button type="button" class="btn-green" id="analyzerAccessButton">Inicia sesión para subir archivos</button>
+        <!-- El botón hereda el evento dinámico y se sincronizará según la sesión -->
+        <button type="button" class="btn-green" id="analyzerAccessButton" data-state="logged-out">Inicia sesión para subir archivos</button>
 
         <div style="display:block;">
           <div class="privacy-badge">
@@ -530,7 +533,7 @@
           <h3>Recursos y Herramientas</h3>
           <div class="footer-links">
             <a href="../index.html#analizador"><span class="arrow">→</span> Analizador STL IA</a>
-            <a href="../index.html#simulador"><span class="arrow">→</span> Simulador de Extrusión</a>
+            <a href="#simulador"><span class="arrow">→</span> Simulador de Extrusión</a>
             <a href="calculadora-coste.html"><span class="arrow">→</span> Calculadoras de Coste y Masa</a>
             <a href="../index.html#guias"><span class="arrow">→</span> Base de Conocimiento</a>
             <a href="../materiales/index.html"><span class="arrow">→</span> Atlas de Materiales</a>
@@ -569,6 +572,40 @@
         }
       }
     }
+  </script>
+
+  <!-- LÓGICA DE ACTUALIZACIÓN DEL BOTÓN DINÁMICO DE ENTRADA -->
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      const accessButton = document.getElementById("analyzerAccessButton");
+      const client = window.supabaseClient || (typeof supabaseClient !== "undefined" ? supabaseClient : null);
+
+      if (!client) return;
+
+      async function updateHeroButton() {
+        const { data: { session } } = await client.auth.getSession();
+        if (session) {
+          accessButton.textContent = "Comenzar análisis";
+          accessButton.dataset.state = "logged-in";
+        } else {
+          accessButton.textContent = "Inicia sesión para subir archivos";
+          accessButton.dataset.state = "logged-out";
+        }
+      }
+
+      await updateHeroButton();
+
+      accessButton.addEventListener("click", async (e) => {
+        e.preventDefault();
+        const state = accessButton.dataset.state;
+        if (state === "logged-out") {
+          window.location.href = "login.html";
+        } else if (state === "logged-in") {
+          // Redirige al cuestionario del analizador-stl
+          window.location.href = "analizador-stl.html"; 
+        }
+      });
+    });
   </script>
 </body>
 </html>
