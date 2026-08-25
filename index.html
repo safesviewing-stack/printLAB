@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>PrintLab — Guías, diagnóstico y elementos mecánicos 3D</title>
+  <title>PrintLab — Centro de Soluciones, diagnóstico y guías de impresión 3D</title>
   <meta name="description" content="Decisiones técnicas de impresión 3D basadas en datos de Prusa, UltiMaker, Formlabs, Bambu Lab, ISO, ASTM, NIOSH y CDC.">
   <meta name="robots" content="index,follow">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -214,7 +214,7 @@
             </button>
             <div class="dropdown-content" id="mainMenu">
               <a href="#portada" class="active">Inicio</a>
-              <a href="#generador">Generador CAD</a>
+              <a href="#soluciones-stl">Soluciones STL</a>
               <a href="#simulador">Simulador</a>
               <a href="#herramientas">Herramientas</a>
               <a href="#guias">Guías</a>
@@ -280,8 +280,8 @@
 
     <hr class="section-divider">
 
-    <!-- SECCIÓN: GENERADOR CAD (DISEÑO BENTO BOX) -->
-    <section id="generador" class="section">
+    <!-- SECCIÓN: SOLUCIONES STL (DISEÑO BENTO BOX) -->
+    <section id="soluciones-stl" class="section">
       
       <!-- Etiqueta de aviso (movida fuera del cuadro oscuro) -->
       <div style="margin-bottom: 20px;">
@@ -293,13 +293,13 @@
         <!-- Tarjeta Principal (Izquierda) -->
         <div class="bento-card-main">
           
-          <h3 style="font-size:clamp(30px, 3.5vw, 42px); font-weight:800; line-height:1.05; margin:0 0 16px; letter-spacing:-1px;">Generador de Elementos Mecánicos</h3>
-          <p style="color:#bcc5c0; font-size:16px; line-height:1.6; margin:0 0 36px; max-width:92%;">Configura y genera piezas mecánicas estandarizadas (ISO, DIN, EN) en segundos. Visualiza en 3D en tiempo real y descarga el archivo STL listo para imprimir sin necesidad de modelar manualmente en SolidWorks o Fusion 360.</p>
+          <h3 style="font-size:clamp(30px, 3.5vw, 42px); font-weight:800; line-height:1.05; margin:0 0 16px; letter-spacing:-1px;">¿Qué necesitas hacer con tu STL?</h3>
+          <p style="color:#bcc5c0; font-size:16px; line-height:1.6; margin:0 0 36px; max-width:92%;">Sube tu archivo y elige qué problema quieres resolver: optimizar su resistencia mecánica frente a cargas, añadir insertos normalizados, dividir la pieza por planos, resolver holguras de acoplamiento o analizar costes de producción reales.</p>
           
-          <a href="herramientas/generador.html" class="btn green" style="align-self:flex-start; padding:16px 32px; font-size:15.5px; margin-bottom:16px;">Abrir Generador de Piezas</a>
+          <a href="herramientas/visor-stl.html" class="btn green" style="align-self:flex-start; padding:16px 32px; font-size:15.5px; margin-bottom:16px;">Subir STL e iniciar diagnóstico</a>
           
           <div style="font-size:13px; color:#7d8782; font-weight:700; display:flex; align-items:center; gap:6px;">
-            <span style="color:var(--accent);">⚡</span> Generación geométrica nativa por código.
+            <span style="color:var(--accent);">⚡</span> Algoritmo de computación de mallas real por código.
           </div>
         </div>
 
@@ -310,23 +310,23 @@
           <div class="bento-card">
             <div style="display:flex; align-items:center; gap:16px; margin-bottom:12px;">
               <div style="width:48px; height:48px; background:#f0f4f0; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:24px; border:1px solid var(--line); flex-shrink:0;">📐</div>
-              <h4 style="margin:0; font-size:18px; font-weight:800; letter-spacing:-0.3px;">Modelado Paramétrico ISO</h4>
+              <h4 style="margin:0; font-size:18px; font-weight:800; letter-spacing:-0.3px;">Procesamiento Físico de Malla</h4>
             </div>
-            <p style="margin:0; font-size:15px; color:var(--muted); line-height:1.5;">Generamos la pieza matemáticamente a partir de dimensiones normalizadas, evitando el uso de modelos CAD propietarios de terceros.</p>
+            <p style="margin:0; font-size:15px; color:var(--muted); line-height:1.5;">Analizamos y seccionamos tu modelo 3D usando álgebra de sólidos real, detectando interferencias de colisión y localizando concentradores de esfuerzos críticos.</p>
           </div>
 
           <!-- Tarjetas Inferiores (Grid Dividido) -->
           <div class="bento-grid-mini">
             <div class="bento-card" style="padding:28px;">
               <div style="font-size:28px; margin-bottom:14px;">🎯</div>
-              <h4 style="margin:0 0 6px; font-size:16px; font-weight:800; letter-spacing:-0.2px;">Simulación de Producción</h4>
-              <p style="margin:0; font-size:14px; color:var(--muted); line-height:1.5;">Obtén estimaciones automáticas de peso, tiempos y costes directos antes de fabricar.</p>
+              <h4 style="margin:0 0 6px; font-size:16px; font-weight:800; letter-spacing:-0.2px;">9 Canales de Solución</h4>
+              <p style="margin:0; font-size:14px; color:var(--muted); line-height:1.5;">Desde holguras de encaje y adición de insertos hasta división limpia por plano de cama.</p>
             </div>
             
             <div class="bento-card" style="padding:28px;">
               <div style="font-size:28px; margin-bottom:14px;">⚡</div>
-              <h4 style="margin:0 0 6px; font-size:16px; font-weight:800; letter-spacing:-0.2px;">Flujo de Trabajo Ágil</h4>
-              <p style="margin:0; font-size:14px; color:var(--muted); line-height:1.5;">Ahorra tiempo de modelado manual en piezas repetitivas y estandarizadas.</p>
+              <h4 style="margin:0 0 6px; font-size:16px; font-weight:800; letter-spacing:-0.2px;">Optimización y Descarga</h4>
+              <p style="margin:0; font-size:14px; color:var(--muted); line-height:1.5;">Corrige problemas estructurales en segundos y descarga el nuevo archivo STL modificado.</p>
             </div>
           </div>
 
@@ -721,7 +721,7 @@
             </li>
             <li>
               <strong>ISO/ASTM 52910 (Design requirements):</strong>
-              <p style="margin: 4px 0 0 12px; color: var(--muted);">Guía estandarizada sobre requisitos de diseño para fabricación aditiva (DfAM). Ofrece pautas para optimizar la geometría, eliminar soportes innecesarios y aprovechar la libertad de diseño.</p>
+              <p style="margin: 4px 0 0 12px; color: var(--muted);">Guía estandarizada sobre requisitos de diseño para fabricación aditiva (DfAM). Ofrece pautas para optimizar la geometría, de forma simple y aprovechando la libertad de diseño.</p>
             </li>
             <li>
               <strong>ISO/ASTM 52911 (Metal powder bed fusion):</strong>
@@ -758,7 +758,7 @@
             <li><strong>Terminología:</strong> Normalización de definiciones básicas (convergente en ISO/ASTM 52900).</li>
             <li><strong>Diseño:</strong> Métodos y directrices de optimización topológica y structures reticulares.</li>
             <li><strong>Procesos:</strong> Certificación de parámetros de extrusión, fotopolimerización y sinterizado de metales.</li>
-            <li><strong>Materiales:</strong> Especificaciones técnicas de polvos metálicos, resinas fotosensibles y termoplásticos.</li>
+            <li><strong>Materiales:</strong> Especialidades y especificaciones técnicas de polvos metálicos, resinas fotosensibles y termoplásticos.</li>
             <li><strong>Propiedades y rendimiento:</strong> Ensayos físicos para medir anisotropía mecánica y fatiga bajo cargas cíclicas.</li>
             <li><strong>Seguridad:</strong> Mitigación del riesgo de exposición a polvos y emisiones de COVs.</li>
             <li><strong>Sistemas de fabricación:</strong> Criterios de validación y repetibilidad operativa de máquinas de impresión.</li>
@@ -817,7 +817,7 @@
             <li><strong>BIPM:</strong> Oficina Internacional de Pesas y Medidas</li>
             <li><strong>CEN / CENELEC:</strong> Comité Europeo de Normalización Electrotécnica</li>
             <li><strong>UNE:</strong> Asociación Española de Normalización (Normas UNE)</li>
-            <li><strong>DIN:</strong> Deutsches Institut für Ingenieure (Alemania)</li>
+            <li><strong>DIN:</strong> Deutsches Institut für Normung (Alemania)</li>
             <li><strong>ANSI:</strong> American National Standards Institute</li>
             <li><strong>OSHA:</strong> Occupational Safety and Health Administration (USA)</li>
             <li><strong>ECHA:</strong> European Chemicals Agency</li>
@@ -840,7 +840,7 @@
         <div class="footer-col">
           <h3>Recursos y Herramientas</h3>
           <div class="footer-links">
-            <a href="#generador"><span class="arrow">→</span> Generador Paramétrico CAD</a>
+            <a href="#soluciones-stl"><span class="arrow">→</span> Centro de Soluciones STL</a>
             <a href="#simulador"><span class="arrow">→</span> Simulador de Extrusión</a>
             <a href="herramientas/calculadora-coste.html"><span class="arrow">→</span> Calculadoras de Coste y Masa</a>
             <a href="#guias"><span class="arrow">→</span> Base de Conocimiento</a>
@@ -981,7 +981,7 @@
         let title = text;
         let type = "Sección";
         
-        if (el.id === 'simulador' || el.id === 'generador' || el.tagName === 'H2') {
+        if (el.id === 'simulador' || el.id === 'soluciones-stl' || el.tagName === 'H2') {
           type = "Categoría Principal";
           title = text;
         } else if (el.tagName === 'H3') {
@@ -1185,7 +1185,7 @@
         if (speed > maxOptSpeed) textWarnSpeed = `⚠️ Velocidad alta para ABS: el enfriamiento rápido debilita la fusión.`;
       } else if (material === 'TPU') {
         minOptTemp = 215; maxOptTemp = 235; minOptBed = 30; maxOptBed = 60; maxOptSpeed = 50;
-        if (temp < minOptTemp) textWarnTemp = `⚠️ Temperatura baja para TPU: riesgo alto de acople o atasco.`;
+        if (temp < minOptTemp) textWarnTemp = `⚠️ Temperatura baja para TPU: riesgo de extrusión deficiente o atasco.`;
         if (speed > maxOptSpeed) textWarnSpeed = `⚠️ Velocidad excesiva para TPU: el filamento flexible se doblará en los engranajes.`;
       } else if (material === 'PC') {
         minOptTemp = 260; maxOptTemp = 295; minOptBed = 100; maxOptBed = 120; maxOptSpeed = 90;
@@ -1258,7 +1258,7 @@
 
       let baseEase = 50;
       if (material === 'PLA') baseEase = 95;
-      else if (material === 'PETG') baseEase = 75;
+      else if (material === 'PETG', baseEase = 75);
       else if (material === 'ABS') baseEase = 40;
       else if (material === 'TPU') baseEase = 50;
       else if (material === 'PC') baseEase = 30;
@@ -1298,7 +1298,7 @@
       } else if (material === 'ABS') {
         recText = "¡Atención! El ABS requiere cama caliente (>95ºC) y se recomienda imprimir sin ventilador de capa en un habitáculo cerrado.";
       } else if (material === 'TPU') {
-        recText = "TPU flexible. Imprescindible extrusor de tracción directa. Desactiva retracciones para evitar que el filamento se enrolle.";
+        recText = "TPU flexible. Imprescindible extrusor de tracción directa. Desactiva retracciones para evitar atascos en la garganta.";
       } else if (material === 'PC') {
         recText = "PC de alta ingeniería. Aplica laca adhesiva estructural sobre la cama y de forma obligatoria asegura temperaturas de extrusión elevadas (>275ºC).";
       }
@@ -1387,5 +1387,3 @@
   </script>
 </body>
 </html>
-
---- END OF FILE index - 2026-08-25T171803.497.html ---
