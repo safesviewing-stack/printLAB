@@ -91,22 +91,30 @@
     @media(max-width:768px){.wrap{padding:0 20px}.footergrid{grid-template-columns:1fr; gap:36px}}
     @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
 
-    /* REGLA FORZADA PARA EL INDICADOR DE CRÉDITOS (Alineado simétrico y redondeado perfecto) */
+    /* REGLA FORZADA PARA EL INDICADOR DE CRÉDITOS (Bloquea alteraciones por scripts externos) */
+    #authHeaderContainer span[style*="background" i],
+    #authHeaderContainer span[style*="accent" i],
     #authHeaderContainer span:nth-child(2),
     #authHeaderContainer div span:nth-child(2) {
       background: var(--accent) !important;
+      background-color: var(--accent) !important;
       color: var(--ink) !important;
-      padding: 6px 14px !important;
-      border-radius: 9999px !important; /* Bordes de cápsula perfecta */
+      padding: 4px 12px !important;
+      border-radius: 9999px !important; /* Fuerza cápsula perfecta */
       font-weight: 800 !important;
       font-size: 15px !important;
       border: none !important;
+      border-width: 0px !important;
       box-shadow: none !important;
-      display: inline-flex !important; /* Permite alineación vertical exacta */
-      align-items: center !important;  /* Centra el texto verticalmente */
-      justify-content: center !important; /* Centra el texto horizontalmente */
-      align-self: center !important; /* Evita que se estire con la altura del botón */
-      line-height: 1 !important; /* Bloquea cualquier variación de espacio */
+      display: inline-flex !important; /* Centrado vertical interno */
+      align-items: center !important;  
+      justify-content: center !important; 
+      align-self: center !important; /* Impide estiramiento vertical */
+      line-height: 1 !important; 
+      height: auto !important;
+      min-height: 0 !important;
+      max-height: 32px !important; /* Límite estricto de altura */
+      margin: auto 0 !important;
       white-space: nowrap !important;
     }
   </style>
@@ -606,6 +614,42 @@
       } catch { return null; }
     }
 
+    // Función para forzar el estilo de la insignia de créditos y corregir lo que inyecte auth-helper.js
+    function forceCreditsStyle() {
+      const container = document.getElementById("authHeaderContainer");
+      if (!container) return;
+      const spans = container.getElementsByTagName("span");
+      for (let span of spans) {
+        if (span.textContent.includes("Créditos:")) {
+          span.style.setProperty("background", "var(--accent)", "important");
+          span.style.setProperty("background-color", "var(--accent)", "important");
+          span.style.setProperty("color", "var(--ink)", "important");
+          span.style.setProperty("padding", "4px 12px", "important");
+          span.style.setProperty("border-radius", "9999px", "important");
+          span.style.setProperty("font-weight", "800", "important");
+          span.style.setProperty("font-size", "15px", "important");
+          span.style.setProperty("border", "none", "important");
+          span.style.setProperty("border-width", "0px", "important");
+          span.style.setProperty("box-shadow", "none", "important");
+          span.style.setProperty("display", "inline-flex", "important");
+          span.style.setProperty("align-items", "center", "important");
+          span.style.setProperty("justify-content", "center", "important");
+          span.style.setProperty("align-self", "center", "important");
+          span.style.setProperty("line-height", "1", "important");
+          span.style.setProperty("height", "auto", "important");
+          span.style.setProperty("min-height", "0", "important");
+          span.style.setProperty("max-height", "32px", "important");
+          span.style.setProperty("margin", "auto 0", "important");
+          span.style.setProperty("white-space", "nowrap", "important");
+        }
+      }
+    }
+
+    // Observador en tiempo real para evitar que cambios de auth-helper.js alteren el diseño
+    const observer = new MutationObserver(() => {
+      forceCreditsStyle();
+    });
+
     async function initHeaderSession() {
       if (!client) return;
       const { data: { session } } = await client.auth.getSession();
@@ -628,6 +672,7 @@
             <button onclick="handleLogout()" class="btn-auth light" style="font-weight:800; font-size:14px; padding:10px 20px; border-radius:9999px; border:2px solid var(--ink); box-shadow:0 3px 0 var(--ink); cursor:pointer;">Cerrar Sesión</button>
           </div>
         `;
+        forceCreditsStyle();
       } else {
         authContainer.innerHTML = `
           <a href="login.html" class="btn-auth light">Iniciar Sesión</a>
@@ -663,13 +708,21 @@
     }
 
     document.addEventListener("DOMContentLoaded", async function () {
+      // Activar observación sobre el contenedor de cabecera antes de inicializar la sesión
+      const targetNode = document.getElementById("authHeaderContainer");
+      if (targetNode) {
+        observer.observe(targetNode, { childList: true, subtree: true });
+      }
+
       await updateButtonState();
       await initHeaderSession();
+      forceCreditsStyle();
 
       if (client && client.auth && typeof client.auth.onAuthStateChange === "function") {
         client.auth.onAuthStateChange(() => { 
           updateButtonState(); 
           initHeaderSession();
+          forceCreditsStyle();
         });
       }
 
