@@ -122,17 +122,15 @@
 
   <main class="wrap" style="min-height:85vh; padding-top:40px;">
     
-    <!-- CONTENEDOR PRINCIPAL DEL ASISTENTE MULTIPASO -->
     <div class="upload-container" id="uploadContainer">
       
-      <!-- BARRA DE PROGRESO DEL CUESTIONARIO -->
       <div class="progress-container" id="progressContainer" style="display:none;">
         <div class="progress-bar" id="progressBar"></div>
       </div>
 
       <!-- PASO 0: SUBIDA DEL STL -->
       <div class="wizard-step active" id="step-upload">
-        <div class="upload-icon">📁</div>
+        <div class="upload-icon" style="font-size: 48px; margin-bottom: 10px;">📁</div>
         <h3 class="upload-title" style="text-align:center;">Analizar nuevo modelo STL</h3>
         <p class="upload-desc" style="text-align:center;">Soporte para FDM, SLA/MSLA y SLS. Límite ampliado: 100MB por archivo.</p>
         
@@ -332,7 +330,6 @@
       }
     };
 
-    /* LÓGICA DE TRANSICIÓN DE ENTRADA */
     (function(){
       const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       if(reduceMotion){ return; }
@@ -345,11 +342,7 @@
     })();
   </script>
 
-  <!-- =====================================================
-       LÓGICA DEL ANALIZADOR MULTIPASO REAL
-  ===================================================== -->
   <script>
-    // Variables globales del formulario
     const answers = {
       partType: "",
       purpose: "",
@@ -365,7 +358,6 @@
       layerHeight: ""
     };
 
-    // Identificación de pasos de preguntas progresivas
     const steps = [
       "step-upload",
       "step-part-type",
@@ -379,7 +371,6 @@
     ];
     let currentStepIdx = 0;
 
-    // Manejar selección de tarjetas de opción única
     function selectCard(cardElement, field) {
       const parent = cardElement.parentNode;
       parent.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
@@ -388,7 +379,6 @@
       validateCurrentStep();
     }
 
-    // Manejar tarjetas de selección múltiple
     function toggleCard(cardElement, field) {
       cardElement.classList.toggle('selected');
       const val = cardElement.dataset.val;
@@ -415,7 +405,6 @@
         answers[field] = answers[field].filter(v => v !== val);
       }
 
-      // Condicional de Temperatura
       if (field === "environment") {
         const tempGroup = document.getElementById("temp-conditional-group");
         if (answers.environment.includes("temp_alta")) {
@@ -430,7 +419,6 @@
       validateCurrentStep();
     }
 
-    // Validar si el paso actual cumple los requisitos obligatorios
     function validateCurrentStep() {
       const nextBtn = document.getElementById("nextBtn");
       let isValid = true;
@@ -465,7 +453,6 @@
       nextBtn.disabled = !isValid;
     }
 
-    // Navegar de forma progresiva por el formulario
     function navigateStep(direction) {
       if (currentStepIdx === 2 && direction === 1) {
         answers.purpose = document.getElementById("q-purpose").value.trim();
@@ -481,11 +468,9 @@
       currentStepIdx += direction;
       document.getElementById(steps[currentStepIdx]).classList.add("active");
 
-      // Actualizar Barra de Progreso
       const progressPercent = (currentStepIdx / (steps.length - 1)) * 100;
       document.getElementById("progressBar").style.width = `${progressPercent}%`;
 
-      // Visibilidad de botones de navegación
       const prevBtn = document.getElementById("prevBtn");
       const nextBtn = document.getElementById("nextBtn");
 
@@ -512,7 +497,6 @@
       const wizardNav = document.getElementById("wizardNavigation");
       const progressContainer = document.getElementById("progressContainer");
 
-      // Vincular eventos de inputs de texto dinámicos
       document.getElementById("q-purpose").addEventListener("input", validateCurrentStep);
       document.getElementById("q-load-weight").addEventListener("input", validateCurrentStep);
       document.getElementById("q-operating-temp").addEventListener("input", validateCurrentStep);
@@ -581,7 +565,6 @@
         if (fileInput.files.length > 0) handleFile(fileInput.files[0]);
       });
 
-      // Acción del botón de acceso / inicio del wizard
       accessButton.addEventListener("click", async (e) => {
         e.preventDefault();
         const session = await getCurrentSession();
@@ -596,26 +579,22 @@
         if (state === "logged-in-no-file") {
           fileInput.click();
         } else if (state === "has-file") {
-          // Ocultar zona de subida e iniciar el Wizard Cuestionario progresivo
           document.querySelector(".upload-icon").style.display = "none";
           document.querySelector(".upload-title").style.display = "none";
           document.querySelector(".upload-desc").style.display = "none";
           accessButton.style.display = "none";
           document.querySelector(".drag-help").style.display = "none";
-          document.querySelector(".privacy-badge").style.display = "none";
 
           progressContainer.style.display = "block";
           wizardNav.style.display = "flex";
-          navigateStep(1); // Ir al paso 1
+          navigateStep(1);
         }
       });
 
-      // GESTIÓN FINAL DE ENVÍO DE DATOS Y COBRO DE CRÉDITOS
       const nextBtn = document.getElementById("nextBtn");
       nextBtn.addEventListener("click", async () => {
-        if (currentStepIdx < steps.length - 1) return; // Si no es el último paso, ignorar clic
+        if (currentStepIdx < steps.length - 1) return;
 
-        // Protección de doble clic de uso real
         nextBtn.disabled = true;
         nextBtn.textContent = "Procesando...";
 
@@ -626,7 +605,6 @@
         }
 
         try {
-          // 1. Validar crédito
           const { data: profile, error: profileError } = await client
             .from("profiles")
             .select("credits")
@@ -641,7 +619,6 @@
             return;
           }
 
-          // 2. Almacenar STL en Supabase Storage
           nextBtn.textContent = "Almacenando archivo...";
           const fileExt = window.selectedSTLFile.name.split('.').pop();
           const fileName = `${session.user.id}/${Date.now()}.${fileExt}`;
@@ -658,7 +635,6 @@
             publicUrl = publicUrlData?.publicUrl || "";
           }
 
-          // 3. Llamar al backend de Python pasándole el STL y el cuestionario estructurado
           nextBtn.textContent = "Analizando geometría...";
           const formData = new FormData();
           formData.append("file", window.selectedSTLFile);
@@ -674,7 +650,6 @@
             throw new Error(analysisData?.error || "Error de cálculo geométrico paramétrico en el backend.");
           }
 
-          // 4. Decodificar la malla ligera de optimización
           nextBtn.textContent = "Guardando resultados...";
           const sliceSize = 1024;
           const byteCharacters = atob(analysisData.optimized_mesh_base64);
@@ -705,7 +680,6 @@
             optimizedPublicUrl = optPublicUrlData?.publicUrl || "";
           }
 
-          // Guardar de forma robusta la combinación en SessionStorage para informe-stl.html
           sessionStorage.setItem("printlab_analysis", JSON.stringify({
             volume: analysisData.volume_cm3,
             dimensions: analysisData.dimensions,
@@ -713,18 +687,18 @@
             critical_points: analysisData.critical_points,
             file_name: window.selectedSTLFile.name,
             optimized_base64: analysisData.optimized_mesh_base64,
-            slicer_settings: analysisData.slicer_settings, // Parámetros calculados dinámicamente por Python
-            user_questionnaire: answers
+            slicer_settings: analysisData.slicer_settings,
+            user_questionnaire: answers,
+            scenarios: analysisData.scenarios,
+            recommended_orientation: analysisData.recommended_orientation
           }));
 
-          // 5. Restar 1 crédito de forma segura en la base de datos
           nextBtn.textContent = "Confirmando créditos...";
           const { data: success, error: rpcError } = await client.rpc("deduct_analysis_credit");
           if (rpcError || !success) {
             throw new Error("Transacción denegada. Compruebe su saldo.");
           }
 
-          // 6. Redirección suave
           document.body.classList.add("page-transition-out");
           setTimeout(() => { window.location.href = "informe-stl.html"; }, 380);
 
@@ -736,7 +710,6 @@
         }
       });
 
-      // DRAG & DROP EVENTS
       uploadContainer.addEventListener("dragover", (e) => {
         e.preventDefault();
         uploadContainer.classList.add("drag-over");
