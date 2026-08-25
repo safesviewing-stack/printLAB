@@ -1,0 +1,1581 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+  <title>Registro — PrintLab PRO</title>
+
+  <meta
+    name="description"
+    content="Crea tu cuenta profesional en PrintLab y accede al motor de análisis geométrico IA."
+  >
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap"
+    rel="stylesheet"
+  >
+
+  <style>
+
+    :root{
+      --bg:#f6f7f4;
+      --card:#fff;
+      --ink:#0d1110;
+      --muted:#5e6661;
+      --line:#dfe4df;
+      --accent:#b8ff3d;
+      --dark:#111715;
+      --max:1200px;
+    }
+
+    *{
+      box-sizing:border-box;
+    }
+
+    html{
+      scroll-behavior:smooth;
+    }
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--ink);
+      font-family:"Plus Jakarta Sans",sans-serif;
+      line-height:1.6;
+      -webkit-font-smoothing:antialiased;
+    }
+
+    a{
+      color:inherit;
+      text-decoration:none;
+    }
+
+    .wrap{
+      max-width:var(--max);
+      margin:auto;
+      padding:0 40px;
+    }
+
+    /* =================================================
+       HEADER
+    ================================================= */
+
+    .top{
+      position:sticky;
+      top:0;
+      z-index:100;
+      background:rgba(246,247,244,.9);
+      backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--line);
+    }
+
+    nav{
+      min-height:95px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+    }
+
+    .header-left{
+      display:flex;
+      align-items:center;
+      gap:24px;
+    }
+
+    .brand{
+      font-size:26px;
+      font-weight:800;
+      letter-spacing:-1px;
+    }
+
+    .brand span{
+      background:var(--accent);
+      padding:5px 12px;
+      border-radius:10px;
+      margin-left:6px;
+      color:var(--ink);
+    }
+
+    .menu-dropdown{
+      position:relative;
+      display:inline-block;
+    }
+
+    .hamburger{
+      background:none;
+      border:none;
+      cursor:pointer;
+      padding:10px;
+      display:flex;
+      flex-direction:column;
+      gap:5px;
+      outline:none;
+    }
+
+    .hamburger span{
+      display:block;
+      width:26px;
+      height:3px;
+      background:var(--ink);
+      border-radius:2px;
+      transition:.3s;
+    }
+
+    .dropdown-content{
+      display:none;
+      position:absolute;
+      top:110%;
+      left:0;
+      background-color:var(--card);
+      min-width:240px;
+      box-shadow:0 20px 40px rgba(0,0,0,.1);
+      border:1.5px solid var(--line);
+      border-radius:16px;
+      z-index:200;
+      flex-direction:column;
+      padding:12px 0;
+    }
+
+    .dropdown-content.show{
+      display:flex;
+      animation:slideDown .2s ease;
+    }
+
+    .dropdown-content a{
+      padding:14px 24px;
+      color:var(--muted);
+      font-weight:700;
+      font-size:15px;
+      transition:.15s;
+    }
+
+    .dropdown-content a:hover{
+      color:var(--ink);
+      background:rgba(0,0,0,.03);
+    }
+
+    .auth-buttons{
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+
+    .btn-auth{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:12px 24px;
+      border-radius:9999px;
+      font-weight:800;
+      font-size:14px;
+      cursor:pointer;
+      transition:.2s ease;
+      text-decoration:none;
+      border:2px solid var(--ink);
+    }
+
+    .btn-auth.light{
+      background:#fff;
+      color:var(--ink);
+      box-shadow:0 3px 0 var(--ink);
+    }
+
+    .btn-auth.green{
+      background:var(--accent);
+      color:var(--ink);
+      box-shadow:0 3px 0 var(--ink);
+    }
+
+    @keyframes slideDown{
+      from{
+        opacity:0;
+        transform:translateY(-10px);
+      }
+
+      to{
+        opacity:1;
+        transform:translateY(0);
+      }
+    }
+
+    /* =================================================
+       REGISTRO
+    ================================================= */
+
+    .auth-container{
+      max-width:480px;
+      margin:60px auto;
+      background:var(--card);
+      padding:50px 40px;
+      border-radius:24px;
+      border:1px solid var(--line);
+      box-shadow:0 20px 40px rgba(0,0,0,.03);
+    }
+
+    .auth-header{
+      text-align:center;
+      margin-bottom:32px;
+    }
+
+    .auth-header h1{
+      font-size:28px;
+      font-weight:800;
+      margin:0 0 8px;
+      letter-spacing:-.5px;
+    }
+
+    .auth-header p{
+      color:var(--muted);
+      font-size:15px;
+      margin:0;
+    }
+
+    .form-group{
+      margin-bottom:20px;
+    }
+
+    .form-group label{
+      display:block;
+      font-size:13px;
+      font-weight:800;
+      margin-bottom:8px;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group input[type="password"]{
+      width:100%;
+      padding:14px;
+      border:1.5px solid var(--line);
+      border-radius:12px;
+      font-size:15px;
+      outline:none;
+      transition:.2s;
+      background:var(--bg);
+      font-family:inherit;
+    }
+
+    .form-group input:focus{
+      border-color:var(--ink);
+      background:#fff;
+    }
+
+    .checkbox-group{
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+      margin-bottom:16px;
+      font-size:13.5px;
+      color:var(--muted);
+    }
+
+    .checkbox-group input{
+      margin-top:4px;
+      width:16px;
+      height:16px;
+      accent-color:var(--ink);
+      cursor:pointer;
+      flex-shrink:0;
+    }
+
+    .checkbox-group label a{
+      color:var(--ink);
+      font-weight:800;
+      text-decoration:underline;
+    }
+
+    /* =================================================
+       MENSAJES
+    ================================================= */
+
+    .form-message{
+      display:none;
+      margin:18px 0 8px;
+      padding:14px 16px;
+      border-radius:12px;
+      font-size:14px;
+      font-weight:700;
+      line-height:1.5;
+    }
+
+    .form-message.error{
+      display:block;
+      color:#b42318;
+      background:#fff1f0;
+      border:1px solid #f1c4c0;
+    }
+
+    .form-message.success{
+      display:block;
+      color:#246b27;
+      background:#f0faee;
+      border:1px solid #c7e5c2;
+    }
+
+    .form-message.info{
+      display:block;
+      color:#45504a;
+      background:#f2f4f2;
+      border:1px solid var(--line);
+    }
+
+    .btn-submit{
+      width:100%;
+      background:var(--ink);
+      color:#fff;
+      padding:16px;
+      border:none;
+      border-radius:12px;
+      font-weight:800;
+      font-size:16px;
+      cursor:pointer;
+      transition:.2s;
+      margin-top:10px;
+      border:2px solid var(--ink);
+      font-family:inherit;
+    }
+
+    .btn-submit:hover{
+      background:var(--dark);
+      box-shadow:0 4px 0 var(--accent);
+      transform:translateY(-2px);
+    }
+
+    .btn-submit:disabled{
+      opacity:.7;
+      cursor:not-allowed;
+      transform:none;
+      box-shadow:none;
+    }
+
+    .switch-auth{
+      text-align:center;
+      margin-top:24px;
+      font-size:14px;
+      color:var(--muted);
+    }
+
+    .switch-auth a{
+      color:var(--ink);
+      font-weight:800;
+      text-decoration:underline;
+    }
+
+    /* =================================================
+       FOOTER
+    ================================================= */
+
+    .footer{
+      background:var(--bg);
+      border-top:1px solid var(--line);
+      padding:80px 0 40px;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.6;
+    }
+
+    .footergrid{
+      display:grid;
+      grid-template-columns:1.3fr .85fr .85fr;
+      gap:60px;
+      margin-bottom:48px;
+    }
+
+    .footer-col h3{
+      font-size:16px;
+      font-weight:800;
+      color:var(--ink);
+      margin:0 0 20px;
+    }
+
+    .footer-col p{
+      margin:0 0 16px;
+    }
+
+    .footer-secondary-text{
+      font-size:12.5px;
+      color:#7d8782;
+      margin-top:12px;
+    }
+
+    .footer-links{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    .footer-links a{
+      color:var(--muted);
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+    }
+
+    .footer-links a:hover{
+      color:var(--ink);
+    }
+
+    .footer-bottom{
+      border-top:1px solid var(--line);
+      padding-top:24px;
+      display:flex;
+      justify-content:center;
+      text-align:center;
+      font-size:13px;
+      color:#7d8782;
+    }
+
+    /* =================================================
+       RESPONSIVE
+    ================================================= */
+
+    @media(max-width:992px){
+
+      .footergrid{
+        grid-template-columns:1.2fr 1fr;
+        gap:40px;
+      }
+
+    }
+
+    @media(max-width:768px){
+
+      .wrap{
+        padding:0 20px;
+      }
+
+      .auth-container{
+        padding:30px 24px;
+        margin:30px auto;
+      }
+
+      .header-left{
+        gap:10px;
+      }
+
+      .brand{
+        font-size:22px;
+      }
+
+      .auth-buttons{
+        display:none;
+      }
+
+      .footergrid{
+        grid-template-columns:1fr;
+        gap:36px;
+      }
+
+    }
+
+  </style>
+
+  <!-- SUPABASE -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+</head>
+
+
+<body>
+
+
+<header class="top">
+
+  <div class="wrap">
+
+    <nav>
+
+      <div class="header-left">
+
+        <div class="menu-dropdown">
+
+          <button
+            class="hamburger"
+            id="menu-button"
+            type="button"
+            aria-label="Abrir menú"
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+
+          <div
+            class="dropdown-content"
+            id="mainMenu"
+          >
+
+            <a href="../index.html#portada">
+              Inicio
+            </a>
+
+            <a href="../index.html#analizador">
+              Analizador IA
+            </a>
+
+            <a href="../index.html#simulador">
+              Simulador
+            </a>
+
+            <a href="../index.html#herramientas">
+              Herramientas
+            </a>
+
+            <a href="../index.html#guias">
+              Guías
+            </a>
+
+          </div>
+
+        </div>
+
+
+        <a
+          class="brand"
+          href="../index.html#portada"
+        >
+          PRINT<span>LAB</span>
+        </a>
+
+      </div>
+
+
+      <div class="auth-buttons">
+
+        <a
+          href="login.html"
+          class="btn-auth light"
+        >
+          Iniciar Sesión
+        </a>
+
+        <a
+          href="registro.html"
+          class="btn-auth green"
+        >
+          Registrarse
+        </a>
+
+      </div>
+
+    </nav>
+
+  </div>
+
+</header>
+
+
+
+<main
+  class="wrap"
+  style="
+    min-height:75vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+  "
+>
+
+
+  <div class="auth-container">
+
+
+    <div class="auth-header">
+
+      <h1>
+        Crear cuenta profesional
+      </h1>
+
+      <p>
+        Accede al motor de análisis geométrico IA.
+      </p>
+
+    </div>
+
+
+
+    <form
+      id="register-form"
+      novalidate
+    >
+
+
+      <div class="form-group">
+
+        <label for="register-name">
+          Nombre o Razón Social
+        </label>
+
+        <input
+          id="register-name"
+          type="text"
+          placeholder="Ej: Estudio de Ingeniería S.L."
+          autocomplete="name"
+          required
+        >
+
+      </div>
+
+
+
+      <div class="form-group">
+
+        <label for="register-email">
+          Email profesional
+        </label>
+
+        <input
+          id="register-email"
+          type="email"
+          placeholder="tu@empresa.com"
+          autocomplete="email"
+          required
+        >
+
+      </div>
+
+
+
+      <div class="form-group">
+
+        <label for="register-password">
+          Contraseña
+        </label>
+
+        <input
+          id="register-password"
+          type="password"
+          placeholder="Mínimo 8 caracteres"
+          minlength="8"
+          autocomplete="new-password"
+          required
+        >
+
+      </div>
+
+
+
+      <div
+        style="
+          height:1px;
+          background:var(--line);
+          margin:24px 0;
+        "
+      ></div>
+
+
+
+      <div class="checkbox-group">
+
+        <input
+          type="checkbox"
+          id="legal_privacidad"
+          required
+        >
+
+        <label for="legal_privacidad">
+
+          He leído y acepto la
+
+          <a href="../privacidad.html">
+            Política de Privacidad
+          </a>
+
+          respecto al tratamiento de mis datos y archivos STL
+          (Requerido).
+
+        </label>
+
+      </div>
+
+
+
+      <div class="checkbox-group">
+
+        <input
+          type="checkbox"
+          id="legal_terminos"
+          required
+        >
+
+        <label for="legal_terminos">
+
+          Acepto los
+
+          <a href="../terminos.html">
+            Términos y Condiciones
+          </a>
+
+          del servicio de análisis
+          (Requerido).
+
+        </label>
+
+      </div>
+
+
+
+      <div class="checkbox-group">
+
+        <input
+          type="checkbox"
+          id="legal_marketing"
+        >
+
+        <label for="legal_marketing">
+
+          Quiero recibir comunicaciones comerciales y promociones
+          sobre nuevos servicios (Opcional).
+
+        </label>
+
+      </div>
+
+
+
+      <div
+        id="register-message"
+        class="form-message"
+        role="alert"
+      ></div>
+
+
+
+      <button
+        type="submit"
+        class="btn-submit"
+        id="register-button"
+      >
+        Registrarme de forma segura
+      </button>
+
+
+    </form>
+
+
+
+    <div class="switch-auth">
+
+      ¿Ya tienes cuenta?
+
+      <a href="login.html">
+        Inicia sesión aquí
+      </a>
+
+    </div>
+
+
+  </div>
+
+
+
+  <div
+    style="
+      text-align:center;
+      padding-bottom:40px;
+      font-size:13px;
+      color:var(--muted);
+    "
+  >
+
+    🔒 Protegido contra fuerza bruta.
+    Las contraseñas se almacenan mediante hashing seguro
+    unidireccional.
+
+  </div>
+
+
+</main>
+
+
+
+<footer class="footer">
+
+  <div class="wrap">
+
+    <div class="footergrid">
+
+
+      <div class="footer-col">
+
+        <h3>
+          PrintLab — Ingeniería 3D
+        </h3>
+
+        <p>
+          Plataforma profesional de análisis y optimización STL
+          mediante Inteligencia Artificial y simuladores
+          paramétricos.
+        </p>
+
+        <p class="footer-secondary-text">
+          Desarrollado bajo principios de Privacy by Design.
+          Los datos y archivos STL se procesan con estricta
+          confidencialidad.
+        </p>
+
+      </div>
+
+
+
+      <div class="footer-col">
+
+        <h3>
+          Recursos y Herramientas
+        </h3>
+
+        <div class="footer-links">
+
+          <a href="../index.html#analizador">
+            <span>→</span>
+            Analizador STL IA
+          </a>
+
+          <a href="../index.html#simulador">
+            <span>→</span>
+            Simulador de Extrusión
+          </a>
+
+          <a href="../herramientas/calculadora-coste.html">
+            <span>→</span>
+            Calculadoras de Coste y Masa
+          </a>
+
+          <a href="../index.html#guias">
+            <span>→</span>
+            Base de Conocimiento
+          </a>
+
+          <a href="../materiales/index.html">
+            <span>→</span>
+            Atlas de Materiales
+          </a>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="footer-col">
+
+        <h3>
+          Soporte y Legal
+        </h3>
+
+        <div class="footer-links">
+
+          <a href="../herramientas/precios.html">
+            <span>→</span>
+            Precios y Suscripciones
+          </a>
+
+          <a href="../herramientas/contacto.html">
+            <span>→</span>
+            Contacto y Soporte
+          </a>
+
+          <a href="../condiciones-compra.html">
+            <span>→</span>
+            Condiciones de Compra
+          </a>
+
+          <a href="../terminos.html">
+            <span>→</span>
+            Términos y Condiciones
+          </a>
+
+          <a href="../privacidad.html">
+            <span>→</span>
+            Política de Privacidad
+          </a>
+
+          <a href="../cookies.html">
+            <span>→</span>
+            Política de Cookies
+          </a>
+
+        </div>
+
+      </div>
+
+
+    </div>
+
+
+    <div class="footer-bottom">
+
+      © 2026 PrintLab.
+
+    </div>
+
+  </div>
+
+</footer>
+
+
+
+<script>
+
+/* =====================================================
+   SUPABASE
+===================================================== */
+
+const SUPABASE_URL =
+  "https://jmwprzgfdkphbxryjbnr.supabase.co";
+
+const SUPABASE_ANON_KEY =
+  "sb_publishable_kelRYJ3Fa56DXY3GhxWLHQ_YiLJzStR";
+
+const supabaseClient =
+  supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+  );
+
+
+/* =====================================================
+   MENÚ
+===================================================== */
+
+const menuButton =
+  document.getElementById(
+    "menu-button"
+  );
+
+const mainMenu =
+  document.getElementById(
+    "mainMenu"
+  );
+
+
+menuButton.addEventListener(
+  "click",
+  function(e){
+
+    e.stopPropagation();
+
+    mainMenu.classList.toggle(
+      "show"
+    );
+
+  }
+);
+
+
+document.addEventListener(
+  "click",
+  function(e){
+
+    if(
+      !e.target.closest(
+        ".menu-dropdown"
+      )
+    ){
+
+      mainMenu.classList.remove(
+        "show"
+      );
+
+    }
+
+  }
+);
+
+
+/* =====================================================
+   DESTINO ORIGINAL
+===================================================== */
+
+/*
+ * Si el usuario llegó aquí desde el analizador:
+ *
+ * registro.html?redirect=analizador-stl.html
+ *
+ * guardamos ese destino.
+ *
+ * Si llegó desde Registrarse del inicio:
+ *
+ * registro.html
+ *
+ * el destino será index.html.
+ */
+
+const params =
+  new URLSearchParams(
+    window.location.search
+  );
+
+
+let redirectTarget =
+  params.get("redirect");
+
+
+if(!redirectTarget){
+
+  redirectTarget =
+    "../index.html";
+
+}
+
+
+/*
+ * Seguridad:
+ * impedir que alguien pueda utilizar una URL
+ * externa como destino.
+ */
+
+if(
+  redirectTarget.startsWith(
+    "http://"
+  ) ||
+  redirectTarget.startsWith(
+    "https://"
+  ) ||
+  redirectTarget.startsWith(
+    "//"
+  )
+){
+
+  redirectTarget =
+    "../index.html";
+
+}
+
+
+/*
+ * Guardamos el destino en sessionStorage.
+ *
+ * Esto permite conservarlo incluso cuando
+ * pasemos a verificar-correo.html.
+ */
+
+sessionStorage.setItem(
+  "printlab_redirect_after_auth",
+  redirectTarget
+);
+
+
+/* =====================================================
+   FORMULARIO
+===================================================== */
+
+const registerForm =
+  document.getElementById(
+    "register-form"
+  );
+
+const registerButton =
+  document.getElementById(
+    "register-button"
+  );
+
+const registerMessage =
+  document.getElementById(
+    "register-message"
+  );
+
+
+function showMessage(
+  message,
+  type = "error"
+){
+
+  registerMessage.textContent =
+    message;
+
+  registerMessage.className =
+    "form-message " +
+    type;
+
+  registerMessage.style.display =
+    "block";
+
+}
+
+
+function clearMessage(){
+
+  registerMessage.textContent =
+    "";
+
+  registerMessage.className =
+    "form-message";
+
+  registerMessage.style.display =
+    "none";
+
+}
+
+
+/* =====================================================
+   REGISTRO
+===================================================== */
+
+registerForm.addEventListener(
+  "submit",
+  async function(e){
+
+    e.preventDefault();
+
+    clearMessage();
+
+
+    const name =
+      document
+        .getElementById(
+          "register-name"
+        )
+        .value
+        .trim();
+
+
+    const email =
+      document
+        .getElementById(
+          "register-email"
+        )
+        .value
+        .trim()
+        .toLowerCase();
+
+
+    const password =
+      document
+        .getElementById(
+          "register-password"
+        )
+        .value;
+
+
+    const acceptPrivacy =
+      document
+        .getElementById(
+          "legal_privacidad"
+        )
+        .checked;
+
+
+    const acceptTerms =
+      document
+        .getElementById(
+          "legal_terminos"
+        )
+        .checked;
+
+
+    const marketing =
+      document
+        .getElementById(
+          "legal_marketing"
+        )
+        .checked;
+
+
+    /* =================================================
+       VALIDACIONES
+    ================================================= */
+
+    if(!name){
+
+      showMessage(
+        "Introduce tu nombre o razón social."
+      );
+
+      return;
+
+    }
+
+
+    if(!email){
+
+      showMessage(
+        "Introduce tu correo electrónico."
+      );
+
+      return;
+
+    }
+
+
+    if(password.length < 8){
+
+      showMessage(
+        "La contraseña debe tener al menos 8 caracteres."
+      );
+
+      return;
+
+    }
+
+
+    if(!acceptPrivacy){
+
+      showMessage(
+        "Debes aceptar la Política de Privacidad."
+      );
+
+      return;
+
+    }
+
+
+    if(!acceptTerms){
+
+      showMessage(
+        "Debes aceptar los Términos y Condiciones."
+      );
+
+      return;
+
+    }
+
+
+    /* =================================================
+       BLOQUEAR BOTÓN
+    ================================================= */
+
+    registerButton.disabled =
+      true;
+
+    registerButton.textContent =
+      "Creando cuenta...";
+
+
+    try{
+
+
+      /* =================================================
+         REGISTRO SUPABASE
+      ================================================= */
+
+      const {
+        data,
+        error
+      } =
+        await supabaseClient.auth.signUp({
+
+          email:
+            email,
+
+          password:
+            password,
+
+          options:{
+
+            data:{
+
+              full_name:
+                name,
+
+              marketing_consent:
+                marketing
+
+            },
+
+            /*
+             * IMPORTANTE:
+             *
+             * El correo NO vuelve directamente al login.
+             *
+             * Primero vuelve a verificar-correo.html.
+             *
+             * Esa página recuperará el destino original
+             * y decidirá si debe llevar al inicio o al
+             * analizador.
+             */
+
+            emailRedirectTo:
+              window.location.origin +
+              "/printLAB/herramientas/verificar-correo.html"
+
+          }
+
+        });
+
+
+      /* =================================================
+         ERROR
+      ================================================= */
+
+      if(error){
+
+        console.error(
+          "ERROR SUPABASE:",
+          error
+        );
+
+
+        const message =
+          (
+            error.message ||
+            ""
+          ).toLowerCase();
+
+
+        /* -----------------------------------------------
+           CUENTA YA EXISTENTE
+        ----------------------------------------------- */
+
+        if(
+          message.includes(
+            "already registered"
+          ) ||
+          message.includes(
+            "user already exists"
+          ) ||
+          message.includes(
+            "already been registered"
+          ) ||
+          message.includes(
+            "duplicate"
+          )
+        ){
+
+          showMessage(
+
+            "Ya tienes una cuenta con este correo. Inicia sesión para continuar."
+
+          );
+
+          registerButton.disabled =
+            false;
+
+          registerButton.textContent =
+            "Registrarme de forma segura";
+
+          return;
+
+        }
+
+
+        /* -----------------------------------------------
+           EMAIL INVÁLIDO
+        ----------------------------------------------- */
+
+        if(
+          message.includes(
+            "invalid email"
+          )
+        ){
+
+          showMessage(
+            "El correo electrónico introducido no es válido."
+          );
+
+        }
+
+        /* -----------------------------------------------
+           CONTRASEÑA
+        ----------------------------------------------- */
+
+        else if(
+          message.includes(
+            "password"
+          )
+        ){
+
+          showMessage(
+            "La contraseña no cumple los requisitos de seguridad."
+          );
+
+        }
+
+        /* -----------------------------------------------
+           ERROR DE ENVÍO DE EMAIL
+        ----------------------------------------------- */
+
+        else if(
+          message.includes(
+            "sending confirmation"
+          ) ||
+          message.includes(
+            "email"
+          )
+        ){
+
+          showMessage(
+
+            "La cuenta no ha podido terminar de registrarse porque no se ha podido enviar el correo de confirmación."
+
+          );
+
+        }
+
+        /* -----------------------------------------------
+           ERROR GENERAL
+        ----------------------------------------------- */
+
+        else{
+
+          showMessage(
+
+            "No se ha podido crear la cuenta: " +
+            error.message
+
+          );
+
+        }
+
+
+        registerButton.disabled =
+          false;
+
+        registerButton.textContent =
+          "Registrarme de forma segura";
+
+        return;
+
+      }
+
+
+      /* =================================================
+         DETECTAR CUENTA EXISTENTE
+      ================================================= */
+
+      if(
+        data &&
+        data.user &&
+        Array.isArray(
+          data.user.identities
+        ) &&
+        data.user.identities.length === 0
+      ){
+
+        showMessage(
+
+          "Ya tienes una cuenta con este correo. Inicia sesión para continuar."
+
+        );
+
+
+        registerButton.disabled =
+          false;
+
+        registerButton.textContent =
+          "Registrarme de forma segura";
+
+        return;
+
+      }
+
+
+      /* =================================================
+         REGISTRO CORRECTO
+      ================================================= */
+
+      if(
+        data &&
+        data.user
+      ){
+
+        /*
+         * Guardar información temporal.
+         */
+
+        sessionStorage.setItem(
+          "printlab_pending_name",
+          name
+        );
+
+
+        sessionStorage.setItem(
+          "printlab_pending_email",
+          email
+        );
+
+
+        /*
+         * Guardar también el destino.
+         */
+
+        sessionStorage.setItem(
+          "printlab_redirect_after_auth",
+          redirectTarget
+        );
+
+
+        /*
+         * Espera de 500 ms.
+         */
+
+        registerButton.textContent =
+          "Cuenta creada ✓";
+
+
+        showMessage(
+          "Cuenta creada. Revisa tu correo para verificarla.",
+          "success"
+        );
+
+
+        setTimeout(
+          function(){
+
+            window.location.href =
+              "verificar-correo.html";
+
+          },
+          500
+        );
+
+
+        return;
+
+      }
+
+
+      /* =================================================
+         RESPUESTA INESPERADA
+      ================================================= */
+
+      showMessage(
+        "No se ha podido completar el registro. Inténtalo de nuevo."
+      );
+
+
+      registerButton.disabled =
+        false;
+
+      registerButton.textContent =
+        "Registrarme de forma segura";
+
+
+    }catch(error){
+
+      console.error(
+        "ERROR COMPLETO:",
+        error
+      );
+
+
+      showMessage(
+
+        "Error al crear la cuenta: " +
+        (
+          error?.message ||
+          "Error desconocido."
+        )
+
+      );
+
+
+      registerButton.disabled =
+        false;
+
+      registerButton.textContent =
+        "Registrarme de forma segura";
+
+    }
+
+  }
+);
+
+</script>
+
+</body>
+</html>
