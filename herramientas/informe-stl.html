@@ -98,7 +98,7 @@
   <main class="wrap">
     <div class="report-grid">
       
-      <!-- LADO IZQUIERDO: VISOR 3D (BASE AMARILLA + ESFERAS VINCULADAS) -->
+      <!-- LADO IZQUIERDO: VISOR 3D (BASE AMARILLA INTELIGENTE + PUNTOS VINCULADOS) -->
       <div>
         <div class="mesh-comparison">
           <div class="mesh-view-header">
@@ -106,8 +106,7 @@
             <span style="color:var(--accent); font-weight:800; font-size:12px;">✓ Diagnóstico Realizado</span>
           </div>
           <div class="mesh-canvas" id="canvas3dContainer">
-            <!-- Actualizada la etiqueta para indicar apoyo crítico/amarillo -->
-            <span class="mesh-overlay-tag" style="background:rgba(255,180,0,0.2); border:1px solid #ffb400; color:#ffb400">Apoyo Crítico (Amarillo) | Tensión (Rojo)</span>
+            <span class="mesh-overlay-tag" style="background:rgba(255,180,0,0.2); border:1px solid #ffb400; color:#ffb400">Apoyo Recomendado (Amarillo) | Tensión (Rojo)</span>
           </div>
         </div>
 
@@ -149,7 +148,7 @@
   <script>
     let scene, camera, renderer, controls, activeMesh;
 
-    function init3DViewer(containerId, stlUrl, criticalPoints) {
+    function init3DViewer(containerId, stlUrl, criticalPoints, recommendedRotMatrix) {
       const container = document.getElementById(containerId);
       if (!container) return;
 
@@ -173,22 +172,43 @@
       controls = new THREE.OrbitControls(camera, renderer.domElement);
       controls.enableDamping = true;
 
+      // Generar matriz matemática de rotación idónea para proyecciones
+      const mat = new THREE.Matrix4();
+      if (recommendedRotMatrix) {
+        const flatMatrix = recommendedRotMatrix.flat();
+        mat.fromArray(flatMatrix).transpose(); // Transponer de Row-Major (NumPy) a Column-Major (WebGL)
+      } else {
+        mat.identity();
+      }
+
       const loader = new THREE.STLLoader();
       loader.load(stlUrl, function (geometry) {
-        
-        geometry.computeBoundingBox();
-        const minZ = geometry.boundingBox.min.z;
-        const maxZ = geometry.boundingBox.max.z;
-        const threshold = (maxZ - minZ) * 0.05; // 5% inferior para base
         
         const position = geometry.attributes.position;
         const colors = [];
 
+        // 1. --- CÁLCULO DE LA SUPERFICIE DE APOYO IDÓNEA SEGÚN CUESTIONARIO ---
+        let minRotatedZ = Infinity;
+        let maxRotatedZ = -Infinity;
+
+        // Proyectamos matemáticamente las coordenadas al plano de impresión virtual
         for (let i = 0; i < position.count; i++) {
-          const z = position.getZ(i);
-          if (z < minZ + threshold) {
-            // --- CORRECCIÓN: Sustituir el verde por amarillo de advertencia ---
-            colors.push(1.0, 0.82, 0.0); // Amarillo de advertencia (#ffb400)
+          const v = new THREE.Vector3(position.getX(i), position.getY(i), position.getZ(i));
+          v.applyMatrix4(mat); // Transformamos el vértice
+          if (v.z < minRotatedZ) minRotatedZ = v.z;
+          if (v.z > maxRotatedZ) maxRotatedZ = v.z;
+        }
+
+        // Establecer el 5% inferior de la orientación óptima como base
+        const threshold = minRotatedZ + (maxRotatedZ - minRotatedZ) * 0.05;
+
+        // Pintamos el modelo
+        for (let i = 0; i < position.count; i++) {
+          const v = new THREE.Vector3(position.getX(i), position.getY(i), position.getZ(i));
+          v.applyMatrix4(mat);
+          
+          if (v.z < threshold) {
+            colors.push(1.0, 0.82, 0.0); // Amarillo de advertencia/apoyo idóneo (#ffb400)
           } else {
             colors.push(0.12, 0.38, 0.25); // Cuerpo verde oscuro
           }
@@ -205,14 +225,14 @@
         activeMesh = new THREE.Mesh(geometry, material);
         scene.add(activeMesh);
 
-        // --- CORRECCIÓN CLAVE: Vincular las marcas a las coordenadas absolutas de la malla ---
+        // 2. --- CORRECCIÓN CLAVE: Vincular marcas rojas a las coordenadas absolutas de la malla ---
         if (criticalPoints && criticalPoints.length > 0) {
           criticalPoints.forEach(pt => {
             const sphereGeo = new THREE.SphereGeometry(1.5, 16, 16);
             const sphereMat = new THREE.MeshBasicMaterial({ color: 0xd9432f }); // Rojo
             const sphere = new THREE.Mesh(sphereGeo, sphereMat);
             
-            // Usamos las coordenadas absolutas pt.x, pt.y, pt.z ya que no modificamos el origen geométrico de la malla
+            // Usamos las coordenadas de origen absolutas pt.x, pt.y, pt.z ya que la geometría está en coordenadas de origen absoluto
             sphere.position.set(pt.x, pt.y, pt.z);
             activeMesh.add(sphere);
           });
@@ -221,7 +241,7 @@
         geometry.computeBoundingBox();
         const center = new THREE.Vector3();
         geometry.boundingBox.getCenter(center);
-        controls.target.copy(center); // Enfocar la cámara en el centro de masa visual
+        controls.target.copy(center); // Centrar la rotación de cámara en el modelo
 
         const size = geometry.boundingBox.getSize(new THREE.Vector3()).length();
         camera.position.set(center.x + size * 0.8, center.y + size * 0.8, center.z + size * 0.8);
@@ -313,8 +333,8 @@
           const blob = new Blob([byteArray], { type: "model/stl" });
           const stlLocalUrl = URL.createObjectURL(blob);
 
-          // Inicializar el visor pasando las coordenadas absolutas de los puntos críticos
-          init3DViewer("canvas3dContainer", stlLocalUrl, analysis.critical_points);
+          // Inicializar el visor pasando las coordenadas absolutas y la matriz de orientación idónea
+          init3DViewer("canvas3dContainer", stlLocalUrl, analysis.critical_points, s.recommended_rot_matrix);
 
           downloadStlBtn.addEventListener("click", () => {
             const a = document.createElement("a");
