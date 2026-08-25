@@ -11,82 +11,138 @@
     :root{ --bg:#f6f7f4; --card:#fff; --ink:#0d1110; --muted:#5e6661; --line:#dfe4df; --accent:#b8ff3d; --max:1200px; }
     *{box-sizing:border-box}html{scroll-behavior:smooth}
     body{margin:0; background:var(--bg); color:var(--ink); font-family:"Plus Jakarta Sans", sans-serif;}
-    .wrap{max-width:var(--max);margin:auto;padding:40px}
+    .wrap{max-width:var(--max);margin:auto;padding:0 40px}
     
-    .grid-report{display:grid; grid-template-columns: 1fr 1fr; gap:40px;}
-    .panel{background:var(--card); border:1.5px solid var(--line); border-radius:24px; padding:36px; margin-bottom:24px;}
+    /* CABECERA */
+    .top{position:sticky;top:0;z-index:100;background:rgba(246,247,244,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+    nav{min-height:95px;display:flex;align-items:center;justify-content:space-between;}
+    .brand{font-size:26px;font-weight:800;letter-spacing:-1px}
+    .brand span{background:var(--accent);padding:5px 12px;border-radius:10px;margin-left:6px;color:var(--ink)}
+
+    .menu-dropdown { position: relative; display: inline-block; }
+    .hamburger { background: none; border: none; cursor: pointer; padding: 10px; display: flex; flex-direction: column; gap: 5px; outline:none; }
+    .hamburger span { display: block; width: 26px; height: 3px; background: var(--ink); border-radius: 2px; transition: 0.3s; }
+    .hamburger:hover span { background: var(--muted); }
+    .dropdown-content { display: none; position: absolute; top: 110%; left: 0; background-color: var(--card); min-width: 240px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); border: 1.5px solid var(--line); border-radius: 16px; z-index: 200; flex-direction: column; padding: 12px 0; }
+    .dropdown-content.show { display: flex; animation: slideDown 0.2s ease; }
+    .dropdown-content a { padding: 14px 24px; color: var(--muted); font-weight: 700; font-size:15px; }
+
+    .tool-header{padding:60px 0 30px; border-bottom:1px solid var(--line); margin-bottom: 40px;}
+    .tool-header h1{font-size:clamp(42px, 6vw, 68px); letter-spacing:-2.5px; line-height:1; margin:0 0 16px; font-weight:800}
+
+    .calc-layout{display:grid; grid-template-columns: 1fr 1fr; gap:30px; align-items:stretch;}
+    .panel{background:var(--card); border:1.5px solid var(--line); border-radius:22px; padding:32px;}
     
     .technical-drawings-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:16px;}
     .drawing-box{background:#fdfdfd; border:1px solid var(--line); border-radius:12px; padding:12px; text-align:center;}
     .drawing-canvas{width:100%; max-height:160px; background:#fff;}
     .drawing-title{font-size:12px; font-weight:800; color:var(--muted); text-transform:uppercase;}
 
-    .btn-action{display:block; width:100%; text-align:center; background:var(--accent); color:var(--ink); border:2px solid var(--ink); box-shadow:0 4px 0 var(--ink); padding:16px; border-radius:12px; font-weight:800; font-size:15px; cursor:pointer; text-decoration: none;}
-    .btn-action:hover{transform:translateY(-1px); box-shadow:0 6px 0 var(--ink);}
+    .btn-action-main{
+      display:block; width:100%; text-align:center; background:var(--accent); color:var(--ink); border:2px solid var(--ink); box-shadow:0 4px 0 var(--ink); padding:16px; border-radius:12px; font-weight:800; font-size:15px; cursor:pointer; text-decoration: none;
+    }
+    .btn-action-main:hover{transform:translateY(-1px); box-shadow:0 6px 0 var(--ink);}
+
+    .footer { background: var(--bg); border-top: 1px solid var(--line); padding: 80px 0 40px; color: var(--muted); font-size: 14px; line-height: 1.6; }
+    .footergrid { display: grid; grid-template-columns: 1.3fr 0.85fr 0.85fr; gap: 60px; margin-bottom: 48px; }
+    .footer-col h3 { font-size: 16px; font-weight: 800; color: var(--ink); margin: 0 0 20px; }
+    .footer-bottom { border-top: 1px solid var(--line); padding-top: 24px; text-align:center; color: #7d8782;}
+
+    @media(max-width:992px){ .calc-layout{grid-template-columns: 1fr;} }
+    @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
   </style>
 </head>
 <body>
 
-  <div class="wrap">
-    <div style="margin-bottom:40px;">
-      <span style="font-weight:800; color:var(--muted); text-transform:uppercase; font-size:13px;">Informe Técnico y Descargas</span>
-      <h1 style="margin:6px 0 0; font-weight:800; font-size:32px; letter-spacing:-1px;" id="reportTitle">Análisis Técnico STL</h1>
-    </div>
-
-    <div class="grid-report">
-      
-      <!-- COLUMNA IZQUIERDA: PLANOS TÉCNICOS CALCULADOS -->
-      <div>
-        <div class="panel">
-          <h2 style="margin:0 0 24px; font-weight:800; font-size:18px;">Vistas de Ingeniería Normalizadas</h2>
-          <div class="technical-drawings-grid">
-            <div class="drawing-box">
-              <span class="drawing-title">Alzado (Frontal)</span>
-              <canvas id="frontCanvas" class="drawing-canvas" width="200" height="150"></canvas>
-            </div>
-            <div class="drawing-box">
-              <span class="drawing-title">Perfil (Lateral)</span>
-              <canvas id="sideCanvas" class="drawing-canvas" width="200" height="150"></canvas>
-            </div>
-            <div class="drawing-box">
-              <span class="drawing-title">Planta (Superior)</span>
-              <canvas id="topCanvas" class="drawing-canvas" width="200" height="150"></canvas>
+  <header class="top">
+    <div class="wrap">
+      <nav>
+        <div class="header-left">
+          <div class="menu-dropdown">
+            <button class="hamburger" onclick="document.getElementById('mainMenu').classList.toggle('show');" aria-label="Abrir menú">
+              <span></span>
+              <span></span>
+              <span></span>
+            </button>
+            <div class="dropdown-content" id="mainMenu">
+              <a href="../index.html#portada">Inicio</a>
+              <a href="visor-stl.html" class="active">Soluciones STL</a>
+              <a href="../index.html#simulador">Simulador</a>
+              <a href="../index.html#herramientas">Herramientas</a>
+              <a href="../index.html#guias">Guías</a>
             </div>
           </div>
-          <p style="font-size:12px; color:var(--muted); margin-top:16px;">Plano simplificado para la verificación de tolerancias mecánicas dimensionales.</p>
+          <a class="brand" href="../index.html#portada">PRINT<span>LAB</span></a>
         </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="tool-header">
+      <h1 id="reportTitle">Especificaciones del Informe</h1>
+    </div>
+
+    <div class="calc-layout">
+      
+      <!-- COLUMNA IZQUIERDA: PLANOS TÉCNICOS -->
+      <div class="panel">
+        <h2 style="margin:0 0 24px; font-weight:800; font-size:18px; border-bottom: 1.5px solid var(--line); padding-bottom:10px;">Proyecciones Ortogonales</h2>
+        <div class="technical-drawings-grid">
+          <div class="drawing-box">
+            <span class="drawing-title">Vista Alzado</span>
+            <canvas id="frontCanvas" class="drawing-canvas" width="200" height="150"></canvas>
+          </div>
+          <div class="drawing-box">
+            <span class="drawing-title">Vista Perfil</span>
+            <canvas id="sideCanvas" class="drawing-canvas" width="200" height="150"></canvas>
+          </div>
+          <div class="drawing-box">
+            <span class="drawing-title">Vista Planta</span>
+            <canvas id="topCanvas" class="drawing-canvas" width="200" height="150"></canvas>
+          </div>
+        </div>
+        <p style="font-size:12px; color:var(--muted); margin-top:16px; line-height:1.4;">Proyecciones 2D simplificadas generadas automáticamente según el contorno dimensional de la pieza.</p>
       </div>
 
-      <!-- COLUMNA DERECHA: DESCARGA DE SUB-PIEZAS DIVIDIDAS -->
-      <div>
-        <div class="panel" id="downloadPartsPanel" style="display:none;">
-          <h2 style="margin:0 0 16px; font-weight:800; font-size:18px;">Sub-piezas físicas generadas (Corte limpio)</h2>
-          <p style="font-size:14px; color:var(--muted); margin-bottom:24px;">La pieza ha sido dividida siguiendo el plano de sección óptimo calculado por el servidor.</p>
-          
-          <button class="btn-action" style="margin-bottom:12px;" onclick="downloadPart('a')">Descargar Sub-pieza A (.STL)</button>
-          <button class="btn-action" style="background:#111715; color:#fff;" onclick="downloadPart('b')">Descargar Sub-pieza B (.STL)</button>
-        </div>
-
-        <div style="text-align:center; margin-top:20px;">
-          <a href="visor-stl.html" style="font-weight:800; font-size:14px; text-decoration:underline;">← Volver al Visor de Soluciones</a>
-        </div>
+      <!-- COLUMNA DERECHA: DESCARGA DE PIEZAS -->
+      <div class="panel" id="downloadPartsPanel" style="display:none;">
+        <h2 style="margin:0 0 16px; font-weight:800; font-size:18px; border-bottom: 1.5px solid var(--line); padding-bottom:10px;">Descarga de Mallas Seccionadas</h2>
+        <p style="font-size:14px; color:var(--muted); margin-bottom:24px; line-height:1.5;">Se han generado dos archivos estancos que dividen el volumen por su eje longitudinal medio para facilitar la impresión.</p>
+        
+        <button class="btn-action-main" style="margin-bottom:12px;" onclick="downloadPart('a')">Descargar Sub-pieza A (.STL)</button>
+        <button class="btn-action-main" style="background:#111715; color:#fff;" onclick="downloadPart('b')">Descargar Sub-pieza B (.STL)</button>
       </div>
 
     </div>
-  </div>
+
+    <div style="text-align:center; margin-top:30px; margin-bottom: 40px;">
+      <a href="visor-stl.html" style="font-weight:800; font-size:14px; text-decoration:underline;">← Volver al Centro de Soluciones</a>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <div class="footergrid">
+        <div class="footer-col">
+          <h3>PrintLab — Ingeniería 3D</h3>
+          <p>Módulo de informe y planos técnicos de fabricación aditiva.</p>
+        </div>
+      </div>
+      <div class="footer-bottom">© 2026 PrintLab.</div>
+    </div>
+  </footer>
 
   <script>
-    // Recuperar datos de corte y archivos del SessionStorage
     const partABase64 = sessionStorage.getItem("split_part_a");
     const partBBase64 = sessionStorage.getItem("split_part_b");
     const filename = sessionStorage.getItem("printlab_analysis_filename") || "pieza";
 
     if (partABase64 && partBBase64) {
       document.getElementById("downloadPartsPanel").style.display = "block";
-      document.getElementById("reportTitle").textContent = "Informe de Partición: " + filename;
+      document.getElementById("reportTitle").textContent = "Partición Realizada: " + filename;
     }
 
-    // Dibujo en lienzo simulando un alzado y plano general
     function drawNormalizedPlanes() {
       const front = document.getElementById("frontCanvas").getContext("2d");
       const side = document.getElementById("sideCanvas").getContext("2d");
@@ -98,7 +154,6 @@
         ctx.strokeStyle = "#0d1110";
       });
 
-      // Dibujar plano genérico de revolución cilíndrica acotada
       front.strokeRect(60, 45, 80, 60);
       side.strokeRect(60, 45, 80, 60);
       
@@ -124,6 +179,15 @@
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
+    }
+
+    window.onclick = function(event) {
+      if (!event.target.closest('.menu-dropdown')) {
+        var dropdowns = document.getElementsByClassName("dropdown-content");
+        for (var i = 0; i < dropdowns.length; i++) {
+          if (dropdowns[i].classList.contains('show')) dropdowns[i].classList.remove('show');
+        }
+      }
     }
 
     window.onload = () => {
