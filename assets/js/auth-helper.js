@@ -240,6 +240,23 @@ async function initAuth() {
 
 
   // ===================================================
+  // DETECTOR DE RUTAS JERÁRQUICAS (Previene errores 404)
+  // ===================================================
+
+  const currentPathname = window.location.pathname.toLowerCase();
+  let pathPrefix = "";
+
+  if (currentPathname.includes("/herramientas/")) {
+    pathPrefix = "";
+  } else if (currentPathname.includes("/guias/") || currentPathname.includes("/materiales/")) {
+    pathPrefix = "../herramientas/";
+  } else {
+    // Si no está en ninguna carpeta, asume que está en el directorio raíz (index.html)
+    pathPrefix = "herramientas/";
+  }
+
+
+  // ===================================================
   // USUARIO LOGUEADO
   // ===================================================
 
@@ -446,7 +463,7 @@ async function initAuth() {
 
 
   // ===================================================
-  // USUARIO SIN SESIÓN
+  // USUARIO SIN SESIÓN (Se resuelven las rutas según la carpeta)
   // ===================================================
 
   const currentPage =
@@ -458,8 +475,8 @@ async function initAuth() {
 
   if (authButtons) {
     authButtons.innerHTML = `
-      <a href="login.html" class="btn-auth light">Iniciar Sesión</a>
-      <a href="registro.html" id="header-register-link" class="btn-auth green">Registrarse</a>
+      <a href="${pathPrefix}login.html" class="btn-auth light">Iniciar Sesión</a>
+      <a href="${pathPrefix}registro.html" id="header-register-link" class="btn-auth green">Registrarse</a>
     `;
 
     // Si estamos en login o registro, ajustar el enlace dinámico de la cabecera
@@ -467,7 +484,7 @@ async function initAuth() {
     if (headerRegLink) {
       const loginParams = new URLSearchParams(window.location.search);
       let redir = loginParams.get("redirect") || sessionStorage.getItem("printlab_auth_redirect") || "../index.html";
-      headerRegLink.href = `registro.html?redirect=${encodeURIComponent(redir)}`;
+      headerRegLink.href = `${pathPrefix}registro.html?redirect=${encodeURIComponent(redir)}`;
     }
 
     // Hace visible la cabecera en el estado deslogueado
@@ -492,7 +509,7 @@ async function initAuth() {
 
 
     window.location.href =
-      "login.html?redirect=" +
+      pathPrefix + "login.html?redirect=" +
       redirect;
 
   }
