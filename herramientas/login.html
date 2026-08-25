@@ -524,10 +524,22 @@
 
   </style>
 
-  <!-- SUPABASE -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+ <!-- SUPABASE -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- CONFIGURACIÓN DE AUTENTICACIÓN -->
+<script>
+  const SUPABASE_URL =
+    "https://jmwprzgfdkphbxryjbnr.supabase.co";
+
+  const SUPABASE_ANON_KEY =
+    "sb_publishable_kelRYJ3Fa56DXY3GhxWLHQ_YiLJzStR";
+
+  const supabaseClient =
+    supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_ANON_KEY
+    );
+</script>
 
 </head>
 
