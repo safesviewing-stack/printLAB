@@ -32,6 +32,12 @@ const authHeaderStyles =
 
 authHeaderStyles.textContent = `
 
+  .auth-buttons {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.15s ease, visibility 0.15s ease;
+  }
+
   .user-header-info{
     display:flex;
     align-items:center;
@@ -403,6 +409,10 @@ async function initAuth() {
 
       }
 
+      // Hace visible la cabecera una vez determinado el estado de la sesión
+      authButtons.style.opacity = "1";
+      authButtons.style.visibility = "visible";
+
     }
 
 
@@ -444,6 +454,26 @@ async function initAuth() {
       .split("/")
       .pop()
       .toLowerCase();
+
+
+  if (authButtons) {
+    authButtons.innerHTML = `
+      <a href="login.html" class="btn-auth light">Iniciar Sesión</a>
+      <a href="registro.html" id="header-register-link" class="btn-auth green">Registrarse</a>
+    `;
+
+    // Si estamos en login o registro, ajustar el enlace dinámico de la cabecera
+    const headerRegLink = document.getElementById("header-register-link");
+    if (headerRegLink) {
+      const loginParams = new URLSearchParams(window.location.search);
+      let redir = loginParams.get("redirect") || sessionStorage.getItem("printlab_auth_redirect") || "../index.html";
+      headerRegLink.href = `registro.html?redirect=${encodeURIComponent(redir)}`;
+    }
+
+    // Hace visible la cabecera en el estado deslogueado
+    authButtons.style.opacity = "1";
+    authButtons.style.visibility = "visible";
+  }
 
 
   // ===================================================
