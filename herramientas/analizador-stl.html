@@ -1775,7 +1775,7 @@
           return;
         }
 
-        // Caso 3: Logueado y con archivo listo -> Comprobar créditos y descontar de forma segura
+        // Caso 3: Logueado y con archivo listo -> Comprobar créditos, subir a storage, analizar y descontar
         if (state === "has-file") {
           accessButton.disabled = true;
           accessButton.textContent = "Comprobando créditos...";
@@ -1799,16 +1799,62 @@
               return;
             }
 
-            accessButton.textContent = "Procesando geometría...";
+            // 2. Subir el archivo de mallas al Storage de Supabase en el bucket 'stls'
+            accessButton.textContent = "Almacenando archivo...";
+            const fileExt = window.selectedSTLFile.name.split('.').pop();
+            const fileName = `${session.user.id}/${Date.now()}.${fileExt}`;
+            const filePath = `uploads/${fileName}`;
 
-            // 2. Ejecutar la llamada RPC a Supabase para descontar de forma segura 1 crédito
+            const { data: uploadData, error: uploadError } = await client
+              .storage
+              .from('stls')
+              .upload(filePath, window.selectedSTLFile, {
+                cacheControl: '3600',
+                upsert: true
+              });
+
+            let publicUrl = "";
+            if (!uploadError && uploadData) {
+              const { data: publicUrlData } = client.storage.from('stls').getPublicUrl(filePath);
+              publicUrl = publicUrlData?.publicUrl || "";
+            }
+
+            // 3. Enviar el archivo real al backend de Python en Render para el análisis geométrico real
+            accessButton.textContent = "Analizando geometría...";
+            const formData = new FormData();
+            formData.append("file", window.selectedSTLFile);
+
+            const apiResponse = await fetch("https://printlab-backend-dy7v.onrender.com/analyze", {
+              method: "POST",
+              body: formData
+            });
+
+            const analysisData = await apiResponse.json();
+            
+            if (!analysisData || !analysisData.success) {
+              throw new Error(analysisData?.error || "Error de cálculo geométrico en el servidor de Python.");
+            }
+
+            // Guardar los datos reales del análisis y el enlace en SessionStorage
+            sessionStorage.setItem("printlab_analysis", JSON.stringify({
+              volume: analysisData.volume_cm3,
+              dimensions: analysisData.dimensions,
+              watertight: analysisData.is_watertight,
+              critical_points: analysisData.critical_points,
+              file_name: window.selectedSTLFile.name,
+              file_url: publicUrl
+            }));
+
+            accessButton.textContent = "Descontando crédito...";
+
+            // 4. Ejecutar la llamada RPC a Supabase para descontar de forma segura 1 crédito
             const { data: success, error: rpcError } = await client.rpc("deduct_analysis_credit");
 
             if (rpcError || !success) {
               throw new Error(rpcError?.message || "Ocurrió una inconsistencia en el cobro de créditos.");
             }
 
-            // 3. Redirigir directamente al informe con la animación fluida de PrintLab
+            // 5. Redirigir directamente al informe con la animación fluida de PrintLab
             document.body.classList.add("page-transition-out");
             setTimeout(() => {
               window.location.href = "informe-stl.html";
