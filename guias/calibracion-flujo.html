@@ -1,224 +1,1407 @@
 <!doctype html>
 <html lang="es">
+
 <head>
+
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Calibración de Flujo (Extrusion Multiplier) — PrintLab</title>
-  <meta name="description" content="Evita la sobre-extrusión o sub-extrusión. Pruebas de pared simple (vase mode) para medir con calibre y calcular la fórmula matemática exacta.">
-  <meta name="robots" content="index,follow">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  >
+
+  <title>
+    Calibración de Flujo (Extrusion Multiplier) — PrintLab
+  </title>
+
+  <meta
+    name="description"
+    content="Evita la sobre-extrusión o sub-extrusión. Pruebas de pared simple (vase mode) para medir con calibre y calcular la fórmula matemática exacta."
+  >
+
+  <meta
+    name="robots"
+    content="index,follow"
+  >
+
+  <link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+  >
+
+  <link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+  >
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap"
+    rel="stylesheet"
+  >
+
   <style>
-    :root{ --bg:#f6f7f4; --card:#fff; --ink:#0d1110; --muted:#5e6661; --line:#dfe4df; --accent:#b8ff3d; --dark:#111715; --max:1200px; }
-    *{box-sizing:border-box}html{scroll-behavior:smooth}
-    body{margin:0; background:var(--bg); color:var(--ink); font-family:"Plus Jakarta Sans", sans-serif; line-height:1.7; -webkit-font-smoothing:antialiased;}
-    a{color:inherit;text-decoration:none}
-    .wrap{max-width:var(--max);margin:auto;padding:0 40px}
-    
-    /* CABECERA Y NAVEGACIÓN HAMBURGUESA */
-    .top{position:sticky;top:0;z-index:100;background:rgba(246,247,244,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
-    nav{min-height:95px;display:flex;align-items:center;justify-content:space-between;}
-    .header-left{display:flex; align-items:center; gap:24px;}
-    .brand{font-size:26px;font-weight:800;letter-spacing:-1px}
-    .brand span{background:var(--accent);padding:5px 12px;border-radius:10px;margin-left:6px;color:var(--ink)}
-    
-    .menu-dropdown { position: relative; display: inline-block; }
-    .hamburger { background: none; border: none; cursor: pointer; padding: 10px; display: flex; flex-direction: column; gap: 5px; outline:none; }
-    .hamburger span { display: block; width: 26px; height: 3px; background: var(--ink); border-radius: 2px; transition: 0.3s; }
-    .hamburger:hover span { background: var(--muted); }
-    
-    .dropdown-content { display: none; position: absolute; top: 110%; left: 0; background-color: var(--card); min-width: 240px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); border: 1.5px solid var(--line); border-radius: 16px; z-index: 200; flex-direction: column; padding: 12px 0; }
-    .dropdown-content.show { display: flex; animation: slideDown 0.2s ease; }
-    .dropdown-content a { padding: 14px 24px; color: var(--muted); font-weight: 700; font-size:15px; transition: 0.15s; }
-    .dropdown-content a:hover { color: var(--ink); background: rgba(0,0,0,0.03); }
-    .dropdown-content a.active { color: var(--ink); background: #f0f4f0; border-left: 4px solid var(--accent); padding-left: 20px; }
 
-    .auth-buttons { display:flex; gap:12px; align-items:center; }
-    .btn-auth { display: inline-flex; align-items: center; justify-content: center; padding: 12px 24px; border-radius: 9999px; font-weight: 800; font-size: 14px; cursor: pointer; transition: .2s ease; text-decoration: none; border: 2px solid var(--ink); }
-    .btn-auth.light { background: #fff; color: var(--ink); box-shadow: 0 3px 0px var(--ink); }
-    .btn-auth.light:hover { transform: translateY(-1px); box-shadow: 0 4px 0px var(--ink); }
-    .btn-auth.light:active { transform: translateY(2px); box-shadow: 0 1px 0px var(--ink); }
-    .btn-auth.green { background: var(--accent); color: var(--ink); box-shadow: 0 3px 0px var(--ink); }
-    .btn-auth.green:hover { transform: translateY(-1px); box-shadow: 0 4px 0px var(--ink); }
-    .btn-auth.green:active { transform: translateY(2px); box-shadow: 0 1px 0px var(--ink); }
-    
-    @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+    :root{
+      --bg:#f6f7f4;
+      --card:#fff;
+      --ink:#0d1110;
+      --muted:#5e6661;
+      --line:#dfe4df;
+      --accent:#b8ff3d;
+      --dark:#111715;
+      --max:1200px;
+    }
 
-    /* LAYOUT GUÍA */
-    .article-header{padding:80px 0 40px; border-bottom:1px solid var(--line); margin-bottom:40px}
-    .tag{display:inline-flex; padding:6px 14px; border-radius:9999px; background:rgba(0,0,0,0.04); font-size:11px; text-transform:uppercase; letter-spacing:1px; font-weight:800; color:var(--muted); margin-bottom:20px;}
-    .article-header h1{font-size:clamp(40px, 5vw, 56px); line-height:1.05; letter-spacing:-0.03em; margin:0 0 20px; font-weight:800;}
-    .article-header p{font-size:22px; color:var(--muted); margin:0}
-    
-    .content{font-size:18px; color:var(--ink); max-width:800px; margin:0 auto 100px}
-    .content h2{font-size:30px; font-weight:800; margin:50px 0 20px; border-bottom:1.5px solid var(--line); padding-bottom:8px; color:var(--ink); letter-spacing:-0.5px}
-    .content h3{font-size:22px; font-weight:800; margin:30px 0 15px; color:var(--ink)}
-    .content p{margin-bottom:24px}
-    .content ul, .content ol{padding-left:20px; margin-bottom:24px}
-    .content li{margin-bottom:10px}
-    
-    /* CAJAS INFORMATIVAS */
-    .alert{background:var(--card); border-left:5px solid var(--ink); padding:24px; border-radius:0 16px 16px 0; margin:36px 0; border: 1px solid var(--line); border-left-width: 5px; border-left-color: var(--ink);}
-    .alert.formula{border-left-color:var(--accent); background:var(--dark); color:#fff}
-    .alert strong{display:block; font-size:14px; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; font-weight:800}
 
-    /* FOOTER MEJORADO Y CENTRADO */
-    .footer { background: var(--bg); border-top: 1px solid var(--line); padding: 80px 0 40px; color: var(--muted); font-size: 14px; line-height: 1.6; }
-    .footergrid { display: grid; grid-template-columns: 1.3fr 0.85fr 0.85fr; gap: 60px; margin-bottom: 48px; }
-    .footer-col h3 { font-size: 16px; font-weight: 800; color: var(--ink); margin: 0 0 20px; letter-spacing: -0.3px; }
-    .footer-col p { margin: 0 0 16px; color: var(--muted); }
-    .footer-secondary-text { font-size: 12.5px; line-height: 1.5; color: #7d8782; margin-top: 12px; }
-    .footer-links { display: flex; flex-direction: column; gap: 10px; }
-    .footer-links a { color: var(--muted); transition: color 0.15s ease, transform 0.15s ease; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
-    .footer-links a:hover { color: var(--ink); transform: translateX(2px); }
-    .footer-links a span.arrow { transition: color 0.15s ease; }
-    .footer-links a:hover span.arrow { color: var(--accent); }
-    
-    .footer-bottom { border-top: 1px solid var(--line); padding-top: 24px; display:flex; justify-content:center; align-items:center; text-align:center; font-size: 13px; color: #7d8782;}
+    *{
+      box-sizing:border-box;
+    }
+
+
+    html{
+      scroll-behavior:smooth;
+    }
+
+
+    body{
+      margin:0;
+
+      background:var(--bg);
+
+      color:var(--ink);
+
+      font-family:"Plus Jakarta Sans",sans-serif;
+
+      line-height:1.7;
+
+      -webkit-font-smoothing:antialiased;
+
+
+      /* =====================================================
+         TRANSICIÓN ENTRE PÁGINAS — PRINTLAB
+         0,38 s ENTRADA / 0,38 s SALIDA
+      ===================================================== */
+
+      opacity:1;
+
+      transform:translateY(0);
+
+      transition:
+        opacity .38s cubic-bezier(.22,1,.36,1),
+        transform .38s cubic-bezier(.22,1,.36,1);
+    }
+
+
+    body.page-transition-in{
+      opacity:0;
+
+      transform:translateY(10px);
+    }
+
+
+    body.page-transition-out{
+      opacity:0;
+
+      transform:translateY(-10px);
+    }
+
+
+    @media(prefers-reduced-motion:reduce){
+
+      body{
+        transition:none !important;
+      }
+
+      body.page-transition-in,
+      body.page-transition-out{
+        opacity:1;
+
+        transform:none;
+      }
+
+    }
+
+
+    a{
+      color:inherit;
+
+      text-decoration:none;
+    }
+
+
+    .wrap{
+      max-width:var(--max);
+
+      margin:auto;
+
+      padding:0 40px;
+    }
+
+
+    /* =====================================================
+       CABECERA Y NAVEGACIÓN HAMBURGUESA
+    ===================================================== */
+
+    .top{
+      position:sticky;
+
+      top:0;
+
+      z-index:100;
+
+      background:rgba(246,247,244,.9);
+
+      backdrop-filter:blur(16px);
+
+      border-bottom:1px solid var(--line);
+    }
+
+
+    nav{
+      min-height:95px;
+
+      display:flex;
+
+      align-items:center;
+
+      justify-content:space-between;
+    }
+
+
+    .header-left{
+      display:flex;
+
+      align-items:center;
+
+      gap:24px;
+    }
+
+
+    .brand{
+      font-size:26px;
+
+      font-weight:800;
+
+      letter-spacing:-1px;
+    }
+
+
+    .brand span{
+      background:var(--accent);
+
+      padding:5px 12px;
+
+      border-radius:10px;
+
+      margin-left:6px;
+
+      color:var(--ink);
+    }
+
+
+    .menu-dropdown{
+      position:relative;
+
+      display:inline-block;
+    }
+
+
+    .hamburger{
+      background:none;
+
+      border:none;
+
+      cursor:pointer;
+
+      padding:10px;
+
+      display:flex;
+
+      flex-direction:column;
+
+      gap:5px;
+
+      outline:none;
+    }
+
+
+    .hamburger span{
+      display:block;
+
+      width:26px;
+
+      height:3px;
+
+      background:var(--ink);
+
+      border-radius:2px;
+
+      transition:.3s;
+    }
+
+
+    .hamburger:hover span{
+      background:var(--muted);
+    }
+
+
+    .dropdown-content{
+      display:none;
+
+      position:absolute;
+
+      top:110%;
+
+      left:0;
+
+      background-color:var(--card);
+
+      min-width:240px;
+
+      box-shadow:0 20px 40px rgba(0,0,0,.1);
+
+      border:1.5px solid var(--line);
+
+      border-radius:16px;
+
+      z-index:200;
+
+      flex-direction:column;
+
+      padding:12px 0;
+    }
+
+
+    .dropdown-content.show{
+      display:flex;
+
+      animation:slideDown .2s ease;
+    }
+
+
+    .dropdown-content a{
+      padding:14px 24px;
+
+      color:var(--muted);
+
+      font-weight:700;
+
+      font-size:15px;
+
+      transition:.15s;
+    }
+
+
+    .dropdown-content a:hover{
+      color:var(--ink);
+
+      background:rgba(0,0,0,.03);
+    }
+
+
+    .dropdown-content a.active{
+      color:var(--ink);
+
+      background:#f0f4f0;
+
+      border-left:4px solid var(--accent);
+
+      padding-left:20px;
+    }
+
+
+    @keyframes slideDown{
+
+      from{
+        opacity:0;
+
+        transform:translateY(-10px);
+      }
+
+      to{
+        opacity:1;
+
+        transform:translateY(0);
+      }
+
+    }
+
+
+    /* =====================================================
+       AUTENTICACIÓN
+    ===================================================== */
+
+    .auth-buttons{
+      display:flex;
+
+      gap:12px;
+
+      align-items:center;
+    }
+
+
+    .btn-auth{
+      display:inline-flex;
+
+      align-items:center;
+
+      justify-content:center;
+
+      padding:12px 24px;
+
+      border-radius:9999px;
+
+      font-weight:800;
+
+      font-size:14px;
+
+      cursor:pointer;
+
+      transition:.2s ease;
+
+      text-decoration:none;
+
+      border:2px solid var(--ink);
+    }
+
+
+    .btn-auth.light{
+      background:#fff;
+
+      color:var(--ink);
+
+      box-shadow:0 3px 0 var(--ink);
+    }
+
+
+    .btn-auth.light:hover{
+      transform:translateY(-1px);
+
+      box-shadow:0 4px 0 var(--ink);
+    }
+
+
+    .btn-auth.light:active{
+      transform:translateY(2px);
+
+      box-shadow:0 1px 0 var(--ink);
+    }
+
+
+    .btn-auth.green{
+      background:var(--accent);
+
+      color:var(--ink);
+
+      box-shadow:0 3px 0 var(--ink);
+    }
+
+
+    .btn-auth.green:hover{
+      transform:translateY(-1px);
+
+      box-shadow:0 4px 0 var(--ink);
+    }
+
+
+    .btn-auth.green:active{
+      transform:translateY(2px);
+
+      box-shadow:0 1px 0 var(--ink);
+    }
+
+
+    /* =====================================================
+       LAYOUT GUÍA
+    ===================================================== */
+
+    .article-header{
+      padding:80px 0 40px;
+
+      border-bottom:1px solid var(--line);
+
+      margin-bottom:40px;
+    }
+
+
+    .tag{
+      display:inline-flex;
+
+      padding:6px 14px;
+
+      border-radius:9999px;
+
+      background:rgba(0,0,0,.04);
+
+      font-size:11px;
+
+      text-transform:uppercase;
+
+      letter-spacing:1px;
+
+      font-weight:800;
+
+      color:var(--muted);
+
+      margin-bottom:20px;
+    }
+
+
+    .article-header h1{
+      font-size:clamp(40px,5vw,56px);
+
+      line-height:1.05;
+
+      letter-spacing:-.03em;
+
+      margin:0 0 20px;
+
+      font-weight:800;
+    }
+
+
+    .article-header p{
+      font-size:22px;
+
+      color:var(--muted);
+
+      margin:0;
+    }
+
+
+    .content{
+      font-size:18px;
+
+      color:var(--ink);
+
+      max-width:800px;
+
+      margin:0 auto 100px;
+    }
+
+
+    .content h2{
+      font-size:30px;
+
+      font-weight:800;
+
+      margin:50px 0 20px;
+
+      border-bottom:1.5px solid var(--line);
+
+      padding-bottom:8px;
+
+      color:var(--ink);
+
+      letter-spacing:-.5px;
+    }
+
+
+    .content h3{
+      font-size:22px;
+
+      font-weight:800;
+
+      margin:30px 0 15px;
+
+      color:var(--ink);
+    }
+
+
+    .content p{
+      margin-bottom:24px;
+    }
+
+
+    .content ul,
+    .content ol{
+      padding-left:20px;
+
+      margin-bottom:24px;
+    }
+
+
+    .content li{
+      margin-bottom:10px;
+    }
+
+
+    /* =====================================================
+       CAJAS INFORMATIVAS
+    ===================================================== */
+
+    .alert{
+      background:var(--card);
+
+      border-left:5px solid var(--ink);
+
+      padding:24px;
+
+      border-radius:0 16px 16px 0;
+
+      margin:36px 0;
+
+      border:1px solid var(--line);
+
+      border-left-width:5px;
+
+      border-left-color:var(--ink);
+    }
+
+
+    .alert.formula{
+      border-left-color:var(--accent);
+
+      background:var(--dark);
+
+      color:#fff;
+    }
+
+
+    .alert strong{
+      display:block;
+
+      font-size:14px;
+
+      text-transform:uppercase;
+
+      letter-spacing:1px;
+
+      margin-bottom:8px;
+
+      font-weight:800;
+    }
+
+
+    /* =====================================================
+       FOOTER
+    ===================================================== */
+
+    .footer{
+      background:var(--bg);
+
+      border-top:1px solid var(--line);
+
+      padding:80px 0 40px;
+
+      color:var(--muted);
+
+      font-size:14px;
+
+      line-height:1.6;
+    }
+
+
+    .footergrid{
+      display:grid;
+
+      grid-template-columns:1.3fr .85fr .85fr;
+
+      gap:60px;
+
+      margin-bottom:48px;
+    }
+
+
+    .footer-col h3{
+      font-size:16px;
+
+      font-weight:800;
+
+      color:var(--ink);
+
+      margin:0 0 20px;
+
+      letter-spacing:-.3px;
+    }
+
+
+    .footer-col p{
+      margin:0 0 16px;
+
+      color:var(--muted);
+    }
+
+
+    .footer-secondary-text{
+      font-size:12.5px;
+
+      line-height:1.5;
+
+      color:#7d8782;
+
+      margin-top:12px;
+    }
+
+
+    .footer-links{
+      display:flex;
+
+      flex-direction:column;
+
+      gap:10px;
+    }
+
+
+    .footer-links a{
+      color:var(--muted);
+
+      transition:
+        color .15s ease,
+        transform .15s ease;
+
+      cursor:pointer;
+
+      display:inline-flex;
+
+      align-items:center;
+
+      gap:6px;
+
+      text-decoration:none;
+    }
+
+
+    .footer-links a:hover{
+      color:var(--ink);
+
+      transform:translateX(2px);
+    }
+
+
+    .footer-links a span.arrow{
+      transition:color .15s ease;
+    }
+
+
+    .footer-links a:hover span.arrow{
+      color:var(--accent);
+    }
+
+
+    .footer-bottom{
+      border-top:1px solid var(--line);
+
+      padding-top:24px;
+
+      display:flex;
+
+      justify-content:center;
+
+      align-items:center;
+
+      text-align:center;
+
+      font-size:13px;
+
+      color:#7d8782;
+    }
+
+
+    /* =====================================================
+       RESPONSIVE
+    ===================================================== */
 
     @media(max-width:1250px){
-      .wrap{padding:0 40px}
+
+      .wrap{
+        padding:0 40px;
+      }
+
     }
-    @media(max-width: 992px) {
-      .footergrid { grid-template-columns: 1.2fr 1fr; gap: 40px; }
+
+
+    @media(max-width:992px){
+
+      .footergrid{
+        grid-template-columns:1.2fr 1fr;
+
+        gap:40px;
+      }
+
     }
+
+
     @media(max-width:750px){
-      .wrap{padding:0 24px}
+
+      .wrap{
+        padding:0 24px;
+      }
+
     }
-    @media(max-width: 768px) {
-      .header-left { gap: 10px; }
-      .btn-auth { padding: 10px 16px; font-size:13px; }
-      .brand { font-size:22px; }
-      .auth-buttons { display: none; }
-      .footergrid { grid-template-columns: 1fr; gap: 36px; }
+
+
+    @media(max-width:768px){
+
+      .header-left{
+        gap:10px;
+      }
+
+
+      .btn-auth{
+        padding:10px 16px;
+
+        font-size:13px;
+      }
+
+
+      .brand{
+        font-size:22px;
+      }
+
+
+      .auth-buttons{
+        display:none;
+      }
+
+
+      .footergrid{
+        grid-template-columns:1fr;
+
+        gap:36px;
+      }
+
     }
+
   </style>
+
 </head>
+
+
 <body>
 
   <header class="top">
+
     <div class="wrap">
+
       <nav>
+
         <div class="header-left">
+
           <div class="menu-dropdown">
-            <button class="hamburger" onclick="document.getElementById('mainMenu').classList.toggle('show');" aria-label="Abrir menú">
+
+            <button
+              class="hamburger"
+              onclick="document.getElementById('mainMenu').classList.toggle('show');"
+              aria-label="Abrir menú"
+              type="button"
+            >
+
               <span></span>
               <span></span>
               <span></span>
+
             </button>
-            <div class="dropdown-content" id="mainMenu">
-              <a href="../index.html#portada">Inicio</a>
-              <a href="../index.html#analizador">Analizador IA</a>
-              <a href="../index.html#simulador">Simulador</a>
-              <a href="../index.html#herramientas">Herramientas</a>
-              <a href="../index.html#guias" class="active">Guías</a>
+
+
+            <div
+              class="dropdown-content"
+              id="mainMenu"
+            >
+
+              <a href="../index.html#portada">
+                Inicio
+              </a>
+
+              <a href="../index.html#analizador">
+                Analizador IA
+              </a>
+
+              <a href="../index.html#simulador">
+                Simulador
+              </a>
+
+              <a href="../index.html#herramientas">
+                Herramientas
+              </a>
+
+              <a
+                href="../index.html#guias"
+                class="active"
+              >
+                Guías
+              </a>
+
             </div>
+
           </div>
-          <a class="brand" href="../index.html#portada" title="Volver al inicio">PRINT<span>LAB</span></a>
+
+
+          <a
+            class="brand"
+            href="../index.html#portada"
+            title="Volver al inicio"
+          >
+            PRINT<span>LAB</span>
+          </a>
+
         </div>
+
 
         <div class="auth-buttons">
-          <a href="../herramientas/login.html" class="btn-auth light">Iniciar Sesión</a>
-          <a href="../herramientas/registro.html" class="btn-auth green">Registrarse</a>
+
+          <a
+            href="../herramientas/login.html"
+            class="btn-auth light"
+          >
+            Iniciar Sesión
+          </a>
+
+
+          <a
+            href="../herramientas/registro.html"
+            class="btn-auth green"
+          >
+            Registrarse
+          </a>
+
         </div>
+
       </nav>
+
     </div>
+
   </header>
 
+
   <main class="wrap">
+
     <header class="article-header content">
-      <span class="tag">Calibración de Precisión</span>
-      <h1>Calibración de Flujo (Extrusion Multiplier)</h1>
-      <p>El paso definitivo para que las piezas encajen. La fórmula matemática para medir y ajustar la tolerancia dimensional de tu impresora FDM.</p>
+
+      <span class="tag">
+        Calibración de Precisión
+      </span>
+
+
+      <h1>
+        Calibración de Flujo (Extrusion Multiplier)
+      </h1>
+
+
+      <p>
+        El paso definitivo para que las piezas encajen. La fórmula matemática para medir y ajustar la tolerancia dimensional de tu impresora FDM.
+      </p>
+
     </header>
 
-    <article class="content">
-      <p>Si alguna vez has intentado imprimir un tornillo y una tuerca y no encajan, o si las superficies horizontales planas (*top layers*) de tus piezas presentan una textura rasposa y con surcos visibles, el culpable casi siempre es una desviación de <b>Flujo (Extrusion Multiplier)</b>. Cada lote y marca de filamento posee características de viscosidad y densidad ligeramente diferentes, por lo que el volumen real de empuje no siempre coincide con lo estimado por el laminador.</p>
 
-      <h2>El test del "Vase Mode" (Cubo de pared simple)</h2>
-      <p>Para medir el flujo real, debemos extruir una geometría de la que conozcamos su grosor nominal teórico exacto. Sigue estos pasos para la prueba:</p>
-      
+    <article class="content">
+
+      <p>
+        Si alguna vez has intentado imprimir un tornillo y una tuerca y no encajan, o si las superficies horizontales planas (<i>top layers</i>) de tus piezas presentan una textura rasposa y con surcos visibles, el culpable casi siempre es una desviación de <b>Flujo (Extrusion Multiplier)</b>. Cada lote y marca de filamento posee características de viscosidad y densidad ligeramente diferentes, por lo que el volumen real de empuje no siempre coincide con lo estimado por el laminador.
+      </p>
+
+
+      <h2>
+        El test del "Vase Mode" (Cubo de pared simple)
+      </h2>
+
+
+      <p>
+        Para medir el flujo real, debemos extruir una geometría de la que conozcamos su grosor nominal teórico exacto. Sigue estos pasos para la prueba:
+      </p>
+
+
       <ol>
-        <li>Carga un cubo tridimensional simple (ej: de 20x20 mm) en tu laminador.</li>
-        <li>Activa la opción <b>Modo Vaso</b> (Vase Mode / Spiralize Outer Contour). Esta configuración forzará a la impresora a trazar un perímetro continuo único en espiral, eliminando rellenos e hilos.</li>
-        <li>Anota de forma precisa tu <b>Ancho de Extrusión (Line Width)</b> configurado para los perímetros en el slicer. Para un nozzle estándar de 0.4 mm, lo habitual es que el software lo fije en <b>0.45 mm</b> (este valor representará tu <i>Grosor Esperado</i>).</li>
-        <li>Imprime la muestra.</li>
+
+        <li>
+          Carga un cubo tridimensional simple (ej: de 20x20 mm) en tu laminador.
+        </li>
+
+        <li>
+          Activa la opción <b>Modo Vaso</b> (Vase Mode / Spiralize Outer Contour). Esta configuración forzará a la impresora a trazar un perímetro continuo único en espiral, eliminando rellenos e hilos.
+        </li>
+
+        <li>
+          Anota de forma precisa tu <b>Ancho de Extrusión (Line Width)</b> configurado para los perímetros en el slicer. Para un nozzle estándar de 0.4 mm, lo habitual es que el software lo fije en <b>0.45 mm</b> (este valor representará tu <i>Grosor Esperado</i>).
+        </li>
+
+        <li>
+          Imprime la muestra.
+        </li>
+
       </ol>
 
+
       <div class="alert">
-        <strong>⚙️ Medición con Calibre (Pie de Rey)</strong>
+
+        <strong>
+          ⚙️ Medición con Calibre (Pie de Rey)
+        </strong>
+
         Una vez enfriado el cubo, emplea un calibre digital para medir el espesor de la pared en la zona media de cada una de las 4 caras (evita medir los extremos y esquinas, ya que acumulan sobre-espesor por el cambio de inercia del cabezal). Calcula la media aritmética exacta de estas 4 mediciones.
+
       </div>
 
-      <h2>La Fórmula Matemática de Corrección</h2>
-      <p>Supongamos que tu <i>Grosor Esperado</i> es de 0.45 mm, pero tu calibre indica un espesor real medio de 0.49 mm (lo que indica sobre-extrusión). Para corregir este multiplicador en el laminador, aplica la siguiente fórmula:</p>
+
+      <h2>
+        La Fórmula Matemática de Corrección
+      </h2>
+
+
+      <p>
+        Supongamos que tu <i>Grosor Esperado</i> es de 0.45 mm, pero tu calibre indica un espesor real medio de 0.49 mm (lo que indica sobre-extrusión). Para corregir este multiplicador en el laminador, aplica la siguiente fórmula:
+      </p>
+
 
       <div class="alert formula">
-        <strong style="color:var(--accent)">Fórmula de Calibración:</strong>
-        <p style="font-family:monospace; font-size:20px; margin:10px 0">(Grosor Esperado / Medición Real) × Multiplicador Actual = Nuevo Multiplicador</p>
+
+        <strong style="color:var(--accent)">
+          Fórmula de Calibración:
+        </strong>
+
+
+        <p
+          style="font-family:monospace;font-size:20px;margin:10px 0"
+        >
+          (Grosor Esperado / Medición Real) × Multiplicador Actual = Nuevo Multiplicador
+        </p>
+
       </div>
 
-      <p>Ejemplo de aplicación práctica:</p>
+              <p>
+          Si el multiplicador actual es 1.00:
+        </p>
+
+
+        <p
+          style="font-family:monospace;font-size:18px;margin:10px 0"
+        >
+          (0.45 / 0.49) × 1.00 = 0.918
+        </p>
+
+
+        <p>
+          Por tanto, tu nuevo Multiplicador de Extrusión debería ser aproximadamente <b>0.92</b>.
+        </p>
+
+      </div>
+
+
+      <h3>
+        ¿Qué ocurre si el resultado es inferior?
+      </h3>
+
+
+      <p>
+        Si la medición real fuese de 0.42 mm, tendríamos una sub-extrusión. En ese caso:
+      </p>
+
+
+      <div class="alert formula">
+
+        <p
+          style="font-family:monospace;font-size:18px;margin:10px 0"
+        >
+          (0.45 / 0.42) × 1.00 = 1.071
+        </p>
+
+
+        <p>
+          El nuevo multiplicador sería aproximadamente <b>1.07</b>.
+        </p>
+
+      </div>
+
+
+      <h2>
+        Recomendaciones finales
+      </h2>
+
+
       <ul>
-        <li>Grosor Esperado = <b>0.45 mm</b></li>
-        <li>Medición Real = <b>0.49 mm</b></li>
-        <li>Multiplicador Actual en el slicer = <b>1.00</b> (100%)</li>
-        <li>Cálculo: (0.45 / 0.49) × 1.00 = <b>0.918</b></li>
+
+        <li>
+          Realiza esta calibración para cada tipo y marca de filamento que utilices.
+        </li>
+
+        <li>
+          Mantén constantes la temperatura, velocidad y ancho de línea durante la prueba.
+        </li>
+
+        <li>
+          No modifiques simultáneamente otros parámetros del flujo mientras realizas esta calibración.
+        </li>
+
+        <li>
+          Una vez obtenido el valor correcto, guarda el multiplicador dentro del perfil específico del material.
+        </li>
+
       </ul>
-      
-      <p>Introduce este nuevo valor (<b>0.92</b> o 92% de Flujo) en la pestaña de configuración del filamento en tu laminador. Las dimensiones de tus futuras fabricaciones se ajustarán ahora con precisión nominal.</p>
+
+
+      <div class="alert">
+
+        <strong>
+          💡 Consejo PrintLab
+        </strong>
+
+        Una calibración correcta del flujo no solo mejora el acabado superficial. También puede mejorar la precisión dimensional, la unión entre capas y la resistencia mecánica de las piezas.
+
+      </div>
+
+
     </article>
+
   </main>
 
+
+  <!-- =====================================================
+       FOOTER
+  ===================================================== -->
+
   <footer class="footer">
+
     <div class="wrap">
+
       <div class="footergrid">
+
+
         <div class="footer-col">
-          <h3>PrintLab — Ingeniería 3D</h3>
-          <p>Plataforma profesional de análisis y optimización STL mediante Inteligencia Artificial y simuladores paramétricos. Transformamos modelos 3D con problemas en geometrías perfectas listas para fabricar, ahorrando tiempo, material y costes en entornos industriales.</p>
-          <p class="footer-secondary-text">Desarrollado bajo principios de Privacy by Design. Los datos y archivos STL se procesan con estricta confidencialidad.</p>
+
+          <h3>
+            PrintLab — Ingeniería 3D
+          </h3>
+
+
+          <p>
+            Plataforma profesional de análisis y optimización STL mediante Inteligencia Artificial y simuladores paramétricos. Transformamos modelos 3D con problemas en geometrías perfectas listas para fabricar, ahorrando tiempo, material y costes en entornos industriales.
+          </p>
+
+
+          <p class="footer-secondary-text">
+            Desarrollado bajo principios de Privacy by Design. Los datos y archivos STL se procesan con estricta confidencialidad.
+          </p>
+
         </div>
-        
+
+
         <div class="footer-col">
-          <h3>Recursos y Herramientas</h3>
+
+          <h3>
+            Recursos y Herramientas
+          </h3>
+
+
           <div class="footer-links">
-            <a href="../index.html#analizador"><span class="arrow">→</span> Analizador STL IA</a>
-            <a href="../index.html#simulador"><span class="arrow">→</span> Simulador de Extrusión</a>
-            <a href="../index.html#herramientas"><span class="arrow">→</span> Calculadoras de Coste y Masa</a>
-            <a href="../index.html#guias"><span class="arrow">→</span> Base de Conocimiento</a>
-            <a href="../materiales/index.html"><span class="arrow">→</span> Atlas de Materiales</a>
+
+            <a href="../index.html#analizador">
+              <span class="arrow">→</span>
+              Analizador STL IA
+            </a>
+
+            <a href="../index.html#simulador">
+              <span class="arrow">→</span>
+              Simulador de Extrusión
+            </a>
+
+            <a href="../index.html#herramientas">
+              <span class="arrow">→</span>
+              Calculadoras de Coste y Masa
+            </a>
+
+            <a href="../index.html#guias">
+              <span class="arrow">→</span>
+              Base de Conocimiento
+            </a>
+
+            <a href="../materiales/index.html">
+              <span class="arrow">→</span>
+              Atlas de Materiales
+            </a>
+
           </div>
+
         </div>
-        
+
+
         <div class="footer-col">
-          <h3>Soporte y Legal</h3>
+
+          <h3>
+            Soporte y Legal
+          </h3>
+
+
           <div class="footer-links">
-            <a href="../herramientas/precios.html"><span class="arrow">→</span> Precios y Suscripciones</a>
-            <a href="../herramientas/contacto.html"><span class="arrow">→</span> Contacto y Soporte</a>
-            <a href="../condiciones-compra.html"><span class="arrow">→</span> Condiciones de Compra</a>
-            <a href="../terminos.html"><span class="arrow">→</span> Términos y Condiciones</a>
-            <a href="../privacidad.html"><span class="arrow">→</span> Política de Privacidad</a>
-            <a href="../cookies.html"><span class="arrow">→</span> Política de Cookies</a>
+
+            <a href="../herramientas/precios.html">
+              <span class="arrow">→</span>
+              Precios y Suscripciones
+            </a>
+
+            <a href="../herramientas/contacto.html">
+              <span class="arrow">→</span>
+              Contacto y Soporte
+            </a>
+
+            <a href="../condiciones-compra.html">
+              <span class="arrow">→</span>
+              Condiciones de Compra
+            </a>
+
+            <a href="../terminos.html">
+              <span class="arrow">→</span>
+              Términos y Condiciones
+            </a>
+
+            <a href="../privacidad.html">
+              <span class="arrow">→</span>
+              Política de Privacidad
+            </a>
+
+            <a href="../cookies.html">
+              <span class="arrow">→</span>
+              Política de Cookies
+            </a>
+
           </div>
+
         </div>
+
+
       </div>
-      
+
+
       <div class="footer-bottom">
-        <div class="footer-bottom-text">© 2026 PrintLab</div>
+
+        <div class="footer-bottom-text">
+          © 2026 PrintLab
+        </div>
+
       </div>
+
     </div>
+
   </footer>
 
+
   <script>
+
+
+    /* =====================================================
+       MENÚ HAMBURGUESA
+    ===================================================== */
+
     window.onclick = function(event) {
+
       if (!event.target.closest('.menu-dropdown')) {
-        var dropdowns = document.getElementsByClassName("dropdown-content");
-        for (var i = 0; i < dropdowns.length; i++) {
-          if (dropdowns[i].classList.contains('show')) { dropdowns[i].classList.remove('show'); }
+
+        var dropdowns =
+          document.getElementsByClassName(
+            "dropdown-content"
+          );
+
+
+        for (
+          var i = 0;
+          i < dropdowns.length;
+          i++
+        ) {
+
+          if (
+            dropdowns[i]
+              .classList
+              .contains('show')
+          ) {
+
+            dropdowns[i]
+              .classList
+              .remove('show');
+
+          }
+
         }
+
       }
-    }
+
+    };
+
+
+    /* =====================================================
+       TRANSICIÓN ENTRE PÁGINAS — PRINTLAB
+       0,38 s ENTRADA / 0,38 s SALIDA
+    ===================================================== */
+
+    (function(){
+
+      const reduceMotion =
+        window.matchMedia(
+          "(prefers-reduced-motion: reduce)"
+        ).matches;
+
+
+      if (reduceMotion) {
+        return;
+      }
+
+
+      /*
+        ANIMACIÓN DE ENTRADA
+      */
+
+      document.body.classList.add(
+        "page-transition-in"
+      );
+
+
+      requestAnimationFrame(function(){
+
+        requestAnimationFrame(function(){
+
+          document.body.classList.remove(
+            "page-transition-in"
+          );
+
+        });
+
+      });
+
+
+      /*
+        ANIMACIÓN DE SALIDA
+      */
+
+      document.addEventListener(
+        "click",
+        function(event){
+
+          const link =
+            event.target.closest("a");
+
+
+          if (!link) {
+            return;
+          }
+
+
+          const href =
+            link.getAttribute("href");
+
+
+          if (!href) {
+            return;
+          }
+
+
+          /*
+            No interferir con enlaces internos
+            de la misma página.
+          */
+
+          if (
+            href.startsWith("#") ||
+            href.startsWith("javascript:")
+          ) {
+
+            return;
+
+          }
+
+
+          /*
+            No interferir con nuevas pestañas.
+          */
+
+          if (
+            link.target === "_blank" ||
+            event.ctrlKey ||
+            event.metaKey ||
+            event.shiftKey ||
+            event.altKey
+          ) {
+
+            return;
+
+          }
+
+
+          let url;
+
+
+          try {
+
+            url =
+              new URL(
+                href,
+                window.location.href
+              );
+
+          } catch {
+
+            return;
+
+          }
+
+
+          /*
+            Solo aplicar la transición
+            a páginas del mismo dominio.
+          */
+
+          if (
+            url.origin !==
+            window.location.origin
+          ) {
+
+            return;
+
+          }
+
+
+          /*
+            Si el enlace apunta exactamente
+            a la página actual, no hacemos nada.
+          */
+
+          if (
+            url.pathname ===
+              window.location.pathname &&
+            url.search ===
+              window.location.search
+          ) {
+
+            return;
+
+          }
+
+
+          event.preventDefault();
+
+
+          /*
+            Activar salida.
+          */
+
+          document.body.classList.add(
+            "page-transition-out"
+          );
+
+
+          /*
+            Esperar exactamente 380 ms
+            antes de cambiar de página.
+          */
+
+          setTimeout(
+            function(){
+
+              window.location.href =
+                url.href;
+
+            },
+            380
+          );
+
+        },
+        true
+      );
+
+    })();
+
   </script>
+
+
 </body>
+
 </html>
