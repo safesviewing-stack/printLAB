@@ -3,54 +3,71 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Plano de Ingeniería e Informe — PrintLab</title>
+  <title>Informe de Análisis STL — PrintLab PRO</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
   <style>
-    :root{ --bg:#f6f7f4; --card:#fff; --ink:#0d1110; --muted:#5e6661; --line:#dfe4df; --accent:#b8ff3d; --max:1200px; }
+    :root{ --bg:#f6f7f4; --card:#fff; --ink:#0d1110; --muted:#5e6661; --line:#dfe4df; --accent:#b8ff3d; --dark:#111715; --max:1200px; --error:#9e3223; --warning:#c47100;}
     *{box-sizing:border-box}html{scroll-behavior:smooth}
-    body{margin:0; background:var(--bg); color:var(--ink); font-family:"Plus Jakarta Sans", sans-serif;}
+    body{margin:0; background:var(--bg); color:var(--ink); font-family:"Plus Jakarta Sans", sans-serif; -webkit-font-smoothing:antialiased;}
     .wrap{max-width:var(--max);margin:auto;padding:0 40px}
     
     /* CABECERA */
     .top{position:sticky;top:0;z-index:100;background:rgba(246,247,244,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
     nav{min-height:95px;display:flex;align-items:center;justify-content:space-between;}
+    .header-left{display:flex; align-items:center; gap:24px;}
     .brand{font-size:26px;font-weight:800;letter-spacing:-1px}
     .brand span{background:var(--accent);padding:5px 12px;border-radius:10px;margin-left:6px;color:var(--ink)}
 
     .menu-dropdown { position: relative; display: inline-block; }
     .hamburger { background: none; border: none; cursor: pointer; padding: 10px; display: flex; flex-direction: column; gap: 5px; outline:none; }
-    .hamburger span { display: block; width: 26px; height: 3px; background: var(--ink); border-radius: 2px; transition: 0.3s; }
-    .hamburger:hover span { background: var(--muted); }
+    .hamburger span { display: block; width: 26px; height: 3px; background: var(--ink); border-radius: 2px; }
     .dropdown-content { display: none; position: absolute; top: 110%; left: 0; background-color: var(--card); min-width: 240px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); border: 1.5px solid var(--line); border-radius: 16px; z-index: 200; flex-direction: column; padding: 12px 0; }
     .dropdown-content.show { display: flex; animation: slideDown 0.2s ease; }
     .dropdown-content a { padding: 14px 24px; color: var(--muted); font-weight: 700; font-size:15px; }
 
-    .tool-header{padding:60px 0 30px; border-bottom:1px solid var(--line); margin-bottom: 40px;}
-    .tool-header h1{font-size:clamp(42px, 6vw, 68px); letter-spacing:-2.5px; line-height:1; margin:0 0 16px; font-weight:800}
-
-    .calc-layout{display:grid; grid-template-columns: 1fr 1fr; gap:30px; align-items:stretch;}
-    .panel{background:var(--card); border:1.5px solid var(--line); border-radius:22px; padding:32px;}
+    .report-grid{display:grid; grid-template-columns: 1fr 1.1fr; gap:40px; padding:40px 0 60px;}
     
-    .technical-drawings-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:16px;}
-    .drawing-box{background:#fdfdfd; border:1px solid var(--line); border-radius:12px; padding:12px; text-align:center;}
-    .drawing-canvas{width:100%; max-height:160px; background:#fff;}
-    .drawing-title{font-size:12px; font-weight:800; color:var(--muted); text-transform:uppercase;}
+    .mesh-comparison{background:var(--dark); border-radius:24px; padding:32px; color:#fff; display:flex; flex-direction:column; gap:24px; box-shadow:0 15px 35px rgba(0,0,0,0.15);}
+    .mesh-canvas{background:#161d1a; border-radius:16px; height:380px; display:flex; align-items:center; justify-content:center; border:1px dashed #2e3a35; position:relative; overflow:hidden;}
+    .mesh-overlay-tag{position:absolute; top:12px; right:12px; background:rgba(0,0,0,0.6); padding:4px 10px; border-radius:6px; font-size:11px; font-weight:700; z-index: 50;}
 
-    .btn-action-main{
-      display:block; width:100%; text-align:center; background:var(--accent); color:var(--ink); border:2px solid var(--ink); box-shadow:0 4px 0 var(--ink); padding:16px; border-radius:12px; font-weight:800; font-size:15px; cursor:pointer; text-decoration: none;
-    }
-    .btn-action-main:hover{transform:translateY(-1px); box-shadow:0 6px 0 var(--ink);}
+    /* Score Box */
+    .score-card{background:var(--card); border:1.5px solid var(--line); border-radius:20px; padding:30px; margin-bottom:24px;}
+    .score-title{font-size:14px; text-transform:uppercase; font-weight:800; color:var(--muted); margin:0 0 10px;}
+    .score-value{font-size:48px; font-weight:800; line-height:1; color:var(--ink); margin:0 0 10px;}
+    .score-value span{font-size:24px; color:var(--muted);}
 
-    .footer { background: var(--bg); border-top: 1px solid var(--line); padding: 80px 0 40px; color: var(--muted); font-size: 14px; line-height: 1.6; }
-    .footergrid { display: grid; grid-template-columns: 1.3fr 0.85fr 0.85fr; gap: 60px; margin-bottom: 48px; }
-    .footer-col h3 { font-size: 16px; font-weight: 800; color: var(--ink); margin: 0 0 20px; }
-    .footer-bottom { border-top: 1px solid var(--line); padding-top: 24px; text-align:center; color: #7d8782;}
+    /* Problem Cards */
+    .problem-list{display:flex; flex-direction:column; gap:20px;}
+    .prob-card{background:var(--card); border:1.5px solid var(--error); border-left:6px solid var(--error); border-radius:16px; padding:24px;}
+    .prob-card.warn{border-color:var(--warning); border-left-color:var(--warning);}
+    .prob-card.success-card{border-color:var(--muted); border-left-color:var(--muted);}
+    
+    .prob-header{display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;}
+    .prob-title{font-size:18px; font-weight:800; margin:0;}
+    .prob-badge{background:#fcebe8; color:#b42318; font-size:11px; font-weight:800; padding:4px 10px; border-radius:6px; text-transform:uppercase;}
+    
+    .prob-data{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; background:var(--bg); padding:16px; border-radius:12px;}
+    .data-item{display:flex; flex-direction:column;}
+    .data-item span{font-size:12px; color:var(--muted); font-weight:700; text-transform:uppercase;}
+    .data-item strong{font-size:15px; font-weight:800;}
+    
+    .solution-box{border-top:1px dashed var(--line); padding-top:16px;}
+    .solution-box strong{color:var(--accent); background:var(--dark); padding:2px 8px; border-radius:4px; font-size:12px; text-transform:uppercase;}
+    .solution-text{font-size:15px; margin:8px 0; font-weight:700;}
+    .benefit-text{font-size:14px; color:var(--muted); margin:0;}
 
-    @media(max-width:992px){ .calc-layout{grid-template-columns: 1fr;} }
+    .download-panel{background:var(--card); border:1.5px solid var(--line); border-radius:24px; padding:36px; margin-top:32px;}
+    .btn-download-stl{display:inline-flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:16px; background:var(--ink); color:#fff; border:2px solid var(--ink); border-radius:12px; font-weight:800; font-size:15px; cursor:pointer;}
+
     @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
   </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/STLLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/controls/OrbitControls.js"></script>
 </head>
 <body>
 
@@ -66,7 +83,7 @@
             </button>
             <div class="dropdown-content" id="mainMenu">
               <a href="../index.html#portada">Inicio</a>
-              <a href="visor-stl.html" class="active">Soluciones STL</a>
+              <a href="analizador-stl.html" class="active">Analizador STL</a>
               <a href="../index.html#simulador">Simulador</a>
               <a href="../index.html#herramientas">Herramientas</a>
               <a href="../index.html#guias">Guías</a>
@@ -79,120 +96,235 @@
   </header>
 
   <main class="wrap">
-    <div class="tool-header">
-      <h1 id="reportTitle">Especificaciones del Informe</h1>
-    </div>
-
-    <div class="calc-layout">
+    <div class="report-grid">
       
-      <!-- COLUMNA IZQUIERDA: PLANOS TÉCNICOS -->
-      <div class="panel">
-        <h2 style="margin:0 0 24px; font-weight:800; font-size:18px; border-bottom: 1.5px solid var(--line); padding-bottom:10px;">Proyecciones Ortogonales</h2>
-        <div class="technical-drawings-grid">
-          <div class="drawing-box">
-            <span class="drawing-title">Vista Alzado</span>
-            <canvas id="frontCanvas" class="drawing-canvas" width="200" height="150"></canvas>
+      <!-- LADO IZQUIERDO: VISOR 3D (BASE + ESFERAS VINCULADAS) -->
+      <div>
+        <div class="mesh-comparison">
+          <div class="mesh-view-header">
+            <span class="mesh-title" id="reportFileName">Cargando pieza...</span>
+            <span style="color:var(--accent); font-weight:800; font-size:12px;">✓ Diagnóstico Realizado</span>
           </div>
-          <div class="drawing-box">
-            <span class="drawing-title">Vista Perfil</span>
-            <canvas id="sideCanvas" class="drawing-canvas" width="200" height="150"></canvas>
-          </div>
-          <div class="drawing-box">
-            <span class="drawing-title">Vista Planta</span>
-            <canvas id="topCanvas" class="drawing-canvas" width="200" height="150"></canvas>
+          <div class="mesh-canvas" id="canvas3dContainer">
+            <span class="mesh-overlay-tag" style="background:rgba(184,255,61,0.25); border:1px solid var(--accent); color:var(--accent)">Base (Verde) | Tensión (Rojo)</span>
           </div>
         </div>
-        <p style="font-size:12px; color:var(--muted); margin-top:16px; line-height:1.4;">Proyecciones 2D simplificadas generadas automáticamente según el contorno dimensional de la pieza.</p>
+
+        <div style="margin-top:24px; padding:24px; background:var(--card); border:1.5px solid var(--line); border-radius:20px; font-size:14.5px;">
+          <h4 style="margin:0 0 16px; font-weight:800; font-size:16px;">Datos Técnicos Estructurados</h4>
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px dashed var(--line); padding-bottom:6px;"><span>Volumen Sólido:</span> <strong id="reportVolume">... cm³</strong></div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px dashed var(--line); padding-bottom:6px;"><span>Dimensiones límites:</span> <strong id="reportDimensions">... mm</strong></div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px dashed var(--line); padding-bottom:6px;"><span>Tecnología idónea:</span> <strong>FDM (Extrusión termoplástica)</strong></div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px dashed var(--line); padding-bottom:6px;"><span>Material base propuesto:</span> <strong style="color:#2a694b" id="reportMaterial">...</strong></div>
+          <div style="display:flex; justify-content:space-between; border-bottom:1px dashed var(--line); padding-bottom:6px;"><span>Temperatura de boquilla:</span> <strong id="reportTemp">... ºC</strong></div>
+          <div style="display:flex; justify-content:space-between;"><span>Temperatura de cama:</span> <strong id="reportBed">... ºC</strong></div>
+        </div>
       </div>
 
-      <!-- COLUMNA DERECHA: DESCARGA DE PIEZAS -->
-      <div class="panel" id="downloadPartsPanel" style="display:none;">
-        <h2 style="margin:0 0 16px; font-weight:800; font-size:18px; border-bottom: 1.5px solid var(--line); padding-bottom:10px;">Descarga de Mallas Seccionadas</h2>
-        <p style="font-size:14px; color:var(--muted); margin-bottom:24px; line-height:1.5;">Se han generado dos archivos estancos que dividen el volumen por su eje longitudinal medio para facilitar la impresión.</p>
-        
-        <button class="btn-action-main" style="margin-bottom:12px;" onclick="downloadPart('a')">Descargar Sub-pieza A (.STL)</button>
-        <button class="btn-action-main" style="background:#111715; color:#fff;" onclick="downloadPart('b')">Descargar Sub-pieza B (.STL)</button>
+      <!-- LADO DERECHO: DIAGNÓSTICO Y RECOMENDACIÓN DE SLICER -->
+      <div>
+        <div class="score-card">
+          <p class="score-title">Printability Score</p>
+          <p class="score-value" style="color:var(--warning)" id="reportScore">...<span>/100</span></p>
+          <p style="margin:0; color:var(--muted); font-size:15px; line-height:1.5;" id="reportScoreDesc">Procesando evaluación estructural...</p>
+        </div>
+
+        <div class="problem-list" id="problemListContainer"></div>
+
+        <div class="download-panel">
+          <h4 style="margin:0 0 20px; font-weight:800; font-size:16px;">Descarga de Resultados</h4>
+          <button class="btn-download-stl" id="downloadStlBtn" style="margin-bottom:12px; background:var(--accent); color:var(--ink); border-color:var(--ink);">
+            Descargar pieza optimizada (.STL)
+          </button>
+          <button class="btn-download-stl" id="downloadPdfBtn" style="background:#fff; color:var(--ink);">
+            Descargar Informe de Ingeniería (.PDF)
+          </button>
+        </div>
       </div>
 
-    </div>
-
-    <div style="text-align:center; margin-top:30px; margin-bottom: 40px;">
-      <a href="visor-stl.html" style="font-weight:800; font-size:14px; text-decoration:underline;">← Volver al Centro de Soluciones</a>
     </div>
   </main>
 
-  <footer class="footer">
-    <div class="wrap">
-      <div class="footergrid">
-        <div class="footer-col">
-          <h3>PrintLab — Ingeniería 3D</h3>
-          <p>Módulo de informe y planos técnicos de fabricación aditiva.</p>
-        </div>
-      </div>
-      <div class="footer-bottom">© 2026 PrintLab.</div>
-    </div>
-  </footer>
-
   <script>
-    const partABase64 = sessionStorage.getItem("split_part_a");
-    const partBBase64 = sessionStorage.getItem("split_part_b");
-    const filename = sessionStorage.getItem("printlab_analysis_filename") || "pieza";
+    let scene, camera, renderer, controls, activeMesh;
 
-    if (partABase64 && partBBase64) {
-      document.getElementById("downloadPartsPanel").style.display = "block";
-      document.getElementById("reportTitle").textContent = "Partición Realizada: " + filename;
-    }
+    function init3DViewer(containerId, stlUrl, criticalPoints) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
 
-    function drawNormalizedPlanes() {
-      const front = document.getElementById("frontCanvas").getContext("2d");
-      const side = document.getElementById("sideCanvas").getContext("2d");
-      const top = document.getElementById("topCanvas").getContext("2d");
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x161d1a);
 
-      [front, side, top].forEach(ctx => {
-        ctx.clearRect(0, 0, 200, 150);
-        ctx.lineWidth = 1.5;
-        ctx.strokeStyle = "#0d1110";
+      camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+      camera.position.set(0, 0, 100);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(container.clientWidth, container.clientHeight);
+      container.appendChild(renderer.domElement);
+
+      const light1 = new THREE.DirectionalLight(0xffffff, 1.2);
+      light1.position.set(1, 1, 1).normalize();
+      scene.add(light1);
+
+      const light2 = new THREE.AmbientLight(0x404040);
+      scene.add(light2);
+
+      controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+
+      const loader = new THREE.STLLoader();
+      loader.load(stlUrl, function (geometry) {
+        
+        geometry.computeBoundingBox();
+        const minZ = geometry.boundingBox.min.z;
+        const maxZ = geometry.boundingBox.max.z;
+        const threshold = (maxZ - minZ) * 0.05; // 5% inferior para base
+        
+        const position = geometry.attributes.position;
+        const colors = [];
+
+        for (let i = 0; i < position.count; i++) {
+          const z = position.getZ(i);
+          if (z < minZ + threshold) {
+            colors.push(0.72, 1.0, 0.24); // Verde base
+          } else {
+            colors.push(0.12, 0.38, 0.25); // Cuerpo verde oscuro
+          }
+        }
+
+        geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+        const material = new THREE.MeshPhongMaterial({ 
+          vertexColors: true, 
+          specular: 0x111111, 
+          shininess: 90 
+        });
+
+        activeMesh = new THREE.Mesh(geometry, material);
+        scene.add(activeMesh);
+
+        // --- CORRECCIÓN CLAVE: Vincular las marcas de tensión al activeMesh ---
+        if (criticalPoints && criticalPoints.length > 0) {
+          criticalPoints.forEach(pt => {
+            const sphereGeo = new THREE.SphereGeometry(1.5, 16, 16);
+            const sphereMat = new THREE.MeshBasicMaterial({ color: 0xd9432f }); // Esferas rojas
+            const sphere = new THREE.Mesh(sphereGeo, sphereMat);
+            
+            // Posicionamos en el espacio local absoluto de la pieza
+            sphere.position.set(pt.cx, pt.cy, pt.cz);
+            activeMesh.add(sphere);
+          });
+        }
+
+        geometry.computeBoundingBox();
+        const center = new THREE.Vector3();
+        geometry.boundingBox.getCenter(center);
+        controls.target.copy(center);
+
+        const size = geometry.boundingBox.getSize(new THREE.Vector3()).length();
+        camera.position.set(center.x + size * 0.8, center.y + size * 0.8, center.z + size * 0.8);
+        controls.update();
+
       });
 
-      front.strokeRect(60, 45, 80, 60);
-      side.strokeRect(60, 45, 80, 60);
-      
-      top.beginPath();
-      top.arc(100, 75, 30, 0, Math.PI * 2);
-      top.stroke();
-    }
-
-    function downloadPart(partKey) {
-      const base64Data = partKey === 'a' ? partABase64 : partBBase64;
-      if (!base64Data) return;
-
-      const binaryStr = atob(base64Data);
-      const bytes = new Uint8Array(binaryStr.length);
-      for (let i = 0; i < binaryStr.length; i++) {
-        bytes[i] = binaryStr.charCodeAt(i);
+      function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
       }
-
-      const blob = new Blob([bytes.buffer], { type: "model/stl" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = `${filename.replace(".stl", "")}_parte_${partKey.toUpperCase()}.stl`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      animate();
     }
+  </script>
 
-    window.onclick = function(event) {
-      if (!event.target.closest('.menu-dropdown')) {
-        var dropdowns = document.getElementsByClassName("dropdown-content");
-        for (var i = 0; i < dropdowns.length; i++) {
-          if (dropdowns[i].classList.contains('show')) dropdowns[i].classList.remove('show');
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const downloadStlBtn = document.getElementById("downloadStlBtn");
+      const downloadPdfBtn = document.getElementById("downloadPdfBtn");
+
+      const reportFileName = document.getElementById("reportFileName");
+      const reportVolume = document.getElementById("reportVolume");
+      const reportDimensions = document.getElementById("reportDimensions");
+      const reportScore = document.getElementById("reportScore");
+      const reportScoreDesc = document.getElementById("reportScoreDesc");
+      const reportMaterial = document.getElementById("reportMaterial");
+      const reportTemp = document.getElementById("reportTemp");
+      const reportBed = document.getElementById("reportBed");
+
+      const problemListContainer = document.getElementById("problemListContainer");
+
+      const storedAnalysis = sessionStorage.getItem("printlab_analysis");
+
+      if (storedAnalysis) {
+        const analysis = JSON.parse(storedAnalysis);
+        const s = analysis.slicer_settings;
+        const q = analysis.user_questionnaire;
+
+        reportFileName.textContent = "📄 " + analysis.file_name;
+        reportVolume.textContent = `${analysis.volume} cm³`;
+        reportDimensions.textContent = analysis.dimensions;
+
+        reportMaterial.textContent = `${s.material} (${s.material_status})`;
+        reportTemp.textContent = `${s.nozzle_temp} ºC`;
+        reportBed.textContent = `${s.bed_temp} ºC`;
+
+        const baseScore = analysis.watertight ? 98 : 45;
+        let scorePenalty = analysis.critical_points.length * 1.5;
+        if (s.material_status === "no_adecuado") scorePenalty += 20;
+
+        const finalScore = Math.max(30, Math.round(baseScore - scorePenalty));
+        reportScore.innerHTML = `${finalScore}<span>/100</span>`;
+
+        if (finalScore >= 85) {
+          reportScore.style.color = "var(--muted)";
+          reportScoreDesc.textContent = "El modelo dispone de una excelente estabilidad bajo los criterios mecánicos indicados.";
+        } else if (finalScore >= 55) {
+          reportScore.style.color = "var(--warning)";
+          reportScoreDesc.textContent = "Se detectan riesgos estructurales o de degradación térmica moderada bajo las condiciones de funcionamiento dadas.";
+        } else {
+          reportScore.style.color = "var(--error)";
+          reportScoreDesc.textContent = "Modelo crítico. Se recomienda un cambio inmediato de material o de espesores debido al alto esfuerzo o temperatura.";
+        }
+
+        let htmlCards = `
+          <div class="prob-card ${s.material_status === 'no_adecuado' ? '' : 'success-card'}">
+            <div class="prob-header">
+              <h3 class="prob-title">Idoneidad del Material</h3>
+              <span class="prob-badge" style="background:${s.material_status === 'no_adecuado' ? '#fcebe8' : '#eef2ee'}; color:${s.material_status === 'no_adecuado' ? '#b42318' : 'var(--muted)'};">
+                ${s.material_status === 'no_adecuado' ? 'CRÍTICO' : 'CONFIRMADO'}
+              </span>
+            </div>
+            <div class="solution-box">
+              <p class="solution-text">${s.material_reason}</p>
+            </div>
+          </div>
+        `;
+
+        problemListContainer.innerHTML = htmlCards;
+
+        if (analysis.optimized_base64) {
+          const byteCharacters = atob(analysis.optimized_base64);
+          const byteNumbers = new Array(byteCharacters.length);
+          for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+          }
+          const byteArray = new Uint8Array(byteNumbers);
+          const blob = new Blob([byteArray], { type: "model/stl" });
+          const stlLocalUrl = URL.createObjectURL(blob);
+
+          // Inicializar el visor pasando las coordenadas locales de los puntos críticos
+          init3DViewer("canvas3dContainer", stlLocalUrl, analysis.critical_points);
+
+          downloadStlBtn.addEventListener("click", () => {
+            const a = document.createElement("a");
+            a.href = stlLocalUrl;
+            a.download = "optimized_" + (analysis.file_name || "piece.stl");
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+          });
         }
       }
-    }
-
-    window.onload = () => {
-      drawNormalizedPlanes();
-    };
+    });
   </script>
 </body>
 </html>
