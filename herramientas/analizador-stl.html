@@ -158,7 +158,9 @@
           </div>
           <a class="brand" href="../index.html#portada">PRINT<span>LAB</span></a>
         </div>
-        <div class="auth-buttons" id="authHeaderContainer">
+        
+        <!-- Ocultación inicial por estilos inline para prevenir destellos -->
+        <div class="auth-buttons" id="authHeaderContainer" style="opacity: 0; visibility: hidden; transition: opacity 0.15s ease, visibility 0.15s ease;">
           <a href="login.html" class="btn-auth light">Iniciar Sesión</a>
           <a href="registro.html" class="btn-auth green">Registrarse</a>
         </div>
@@ -182,7 +184,7 @@
         <input type="file" id="stlFile" accept=".stl" hidden>
         
         <div style="text-align:center; margin-bottom:20px;">
-          <button type="button" class="btn-green" id="analyzerAccessButton">Inicia sesión para subir archivos</button>
+          <button type="button" class="btn-green" id="analyzerAccessButton">Seleccionar archivo STL</button>
         </div>
 
         <div class="selected-file" id="selectedFile">
@@ -713,8 +715,8 @@
     async function updateButtonState() {
       const session = await getCurrentSession();
       if (!session) {
-        accessButton.textContent = "Inicia sesión para subir archivos";
-        accessButton.dataset.state = "logged-out";
+        accessButton.textContent = "Seleccionar archivo STL";
+        accessButton.dataset.state = "logged-in-no-file";
         selectedFile.classList.remove("show");
         window.selectedSTLFile = null;
       } else {
@@ -730,6 +732,13 @@
     }
 
     document.addEventListener("DOMContentLoaded", async function () {
+      // Redirección inmediata preventiva si no hay sesión activa
+      const session = await getCurrentSession();
+      if (!session) {
+        window.location.href = "login.html?redirect=analizador-stl.html";
+        return;
+      }
+
       // Activar observación sobre el contenedor de cabecera antes de inicializar la sesión
       const targetNode = document.getElementById("authHeaderContainer");
       if (targetNode) {
@@ -741,7 +750,11 @@
       forceCreditsStyle();
 
       if (client && client.auth && typeof client.auth.onAuthStateChange === "function") {
-        client.auth.onAuthStateChange(() => { 
+        client.auth.onAuthStateChange((event, session) => { 
+          if (!session) {
+            window.location.href = "login.html?redirect=analizador-stl.html";
+            return;
+          }
           updateButtonState(); 
           initHeaderSession();
           forceCreditsStyle();
@@ -784,7 +797,7 @@
           const { data: uploadData, error: uploadError } = await client
             .storage
             .from('stls')
-            .upload(filePath, window.selectedSTLFile, { cacheControl: '3600', upsert: true });
+            .upload(filePath, window.selectedSTLFile, { cacheControl: '3600', 'upsert': true });
 
           nextBtn.textContent = "Analizando geometría...";
           const formData = new FormData();
