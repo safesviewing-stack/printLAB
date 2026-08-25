@@ -62,14 +62,15 @@
     .mesh-canvas{
       background:#161d1a; 
       border-radius:16px; 
-      height:250px; 
+      height:380px; 
       display:flex; 
       align-items:center; 
       justify-content:center;
       border:1px dashed #2e3a35;
       position:relative;
+      overflow:hidden;
     }
-    .mesh-overlay-tag{position:absolute; top:12px; right:12px; background:rgba(0,0,0,0.6); padding:4px 10px; border-radius:6px; font-size:11px; font-weight:700;}
+    .mesh-overlay-tag{position:absolute; top:12px; right:12px; background:rgba(0,0,0,0.6); padding:4px 10px; border-radius:6px; font-size:11px; font-weight:700; z-index: 50;}
 
     /* Score Box */
     .score-card{background:var(--card); border:1.5px solid var(--line); border-radius:20px; padding:30px; margin-bottom:24px;}
@@ -84,7 +85,7 @@
     
     .prob-header{display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;}
     .prob-title{font-size:18px; font-weight:800; margin:0;}
-    .prob-badge{background:#fcebe8; color:var(--error); font-size:11px; font-weight:800; padding:4px 10px; border-radius:6px; text-transform:uppercase;}
+    .prob-badge{background:#fcebe8; color:#b42318; font-size:11px; font-weight:800; padding:4px 10px; border-radius:6px; text-transform:uppercase;}
     
     .prob-data{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px; background:var(--bg); padding:16px; border-radius:12px;}
     .data-item{display:flex; flex-direction:column;}
@@ -172,8 +173,15 @@
       .footergrid { grid-template-columns: 1fr; gap: 36px; }
     }
   </style>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../assets/js/auth-helper.js"></script>
+
+  <!-- Importar Three.js y el lector de archivos de forma oficial -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/STLLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/controls/OrbitControls.js"></script>
+
 </head>
 <body>
 
@@ -213,39 +221,21 @@
       <div>
         <div class="mesh-comparison">
           <div class="mesh-view-header">
-            <span class="mesh-title">1. Pieza Original</span>
-            <span style="color:#ffa294; font-weight:800; font-size:12px;">⚠️ Voladizo y muros críticos</span>
-          </div>
-          <div class="mesh-canvas">
-            <span class="mesh-overlay-tag" style="background:rgba(158,50,35,0.4); border:1px solid #9e3223; color:#ff9c8c">Grosor: 0.72 mm</span>
-            <!-- Representación CAD de pieza original con fallas -->
-            <svg width="140" height="140" viewBox="0 0 24 24" fill="none" stroke="#ffa294" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-              <!-- Puntos críticos marcados en rojo -->
-              <circle cx="12" cy="11" r="2" fill="#9e3223" stroke="#ff3e24" stroke-width="1" />
-              <circle cx="8" cy="15" r="2" fill="#9e3223" stroke="#ff3e24" stroke-width="1" />
-            </svg>
+            <span class="mesh-title" id="reportFileName">1. Modelo STL Cargado</span>
+            <span style="color:#ffa294; font-weight:800; font-size:12px;">⚠️ Voladizos Críticos</span>
           </div>
 
-          <div class="mesh-view-header" style="margin-top:16px;">
-            <span class="mesh-title" style="color:var(--accent);">2. Propuesta Optimizada</span>
-            <span style="color:var(--accent); font-weight:800; font-size:12px;">✓ Tolerancias resueltas</span>
+          <!-- LIENZO INTERACTIVO 3D REAL CON THREE.JS -->
+          <div class="mesh-canvas" id="canvas3dContainer">
+            <span class="mesh-overlay-tag" style="background:rgba(158,50,35,0.4); border:1px solid #9e3223; color:#ff9c8c">Ángulo de colapso >45º</span>
           </div>
-          <div class="mesh-canvas" style="background:#131c15; border-color:#2a442d;">
-            <span class="mesh-overlay-tag" style="background:rgba(30,105,75,0.4); border:1px solid #1e694b; color:var(--accent);">Grosor: 1.20 mm</span>
-            <!-- Representación CAD de pieza optimizada -->
-            <svg width="140" height="140" viewBox="0 0 24 24" fill="none" stroke="#b8ff3d" stroke-width="1.8">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-              <!-- Zonas reforzadas redondeadas (fillets) en verde -->
-              <circle cx="12" cy="11" r="2.5" fill="#1e694b" stroke="#b8ff3d" stroke-width="1" />
-            </svg>
-          </div>
+
         </div>
 
         <div style="margin-top:24px; padding:24px; background:var(--card); border:1.5px solid var(--line); border-radius:20px; font-size:14.5px;">
           <h4 style="margin:0 0 16px; font-weight:800; font-size:16px; letter-spacing:-0.3px;">Datos Técnicos de Fabricación (Estructurados)</h4>
-          <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px dashed var(--line); padding-bottom:6px;"><span>Volumen Sólido:</span> <strong>14.2 cm³</strong></div>
-          <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px dashed var(--line); padding-bottom:6px;"><span>Dimensiones límites:</span> <strong>45 x 60 x 32 mm</strong></div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px dashed var(--line); padding-bottom:6px;"><span>Volumen Sólido:</span> <strong id="reportVolume">14.2 cm³</strong></div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px dashed var(--line); padding-bottom:6px;"><span>Dimensiones límites:</span> <strong id="reportDimensions">45 x 60 x 32 mm</strong></div>
           <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px dashed var(--line); padding-bottom:6px;"><span>Tecnología idónea:</span> <strong>FDM (Extrusión termoplástica)</strong></div>
           <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px dashed var(--line); padding-bottom:6px;"><span>Material base propuesto:</span> <strong style="color:#2a694b">PETG (Alta cohesión)</strong></div>
           <div style="display:flex; justify-content:space-between;"><span>Temperatura recomendada:</span> <strong>240 ºC / Cama 80 ºC</strong></div>
@@ -256,7 +246,7 @@
       <div>
         <div class="score-card">
           <p class="score-title">Printability Score</p>
-          <p class="score-value" style="color:var(--warning)">67<span>/100</span></p>
+          <p class="score-value" style="color:var(--warning)" id="reportScore">67<span>/100</span></p>
           <p style="margin:0; color:var(--muted); font-size:15px; line-height:1.5;">El modelo presenta riesgos térmicos altos de desprendimiento de capas y sub-extrusión estructural en paredes verticales finas.</p>
         </div>
 
@@ -316,7 +306,7 @@
           <!-- Estructura de descargas interna (Se desbloqueará dinámicamente) -->
           <h4 style="margin:0 0 20px; font-weight:800; font-size:16px;">Descarga de Resultados</h4>
           
-          <button class="btn-download-stl" style="margin-bottom:12px;">
+          <button class="btn-download-stl" id="downloadStlBtn" style="margin-bottom:12px;">
             Descargar pieza optimizada (.STL)
           </button>
           
@@ -348,7 +338,7 @@
             <a href="../index.html#analizador"><span class="arrow">→</span> Analizador STL IA</a>
             <a href="../index.html#simulador"><span class="arrow">→</span> Simulador de Extrusión</a>
             <a href="../herramientas/calculadora-coste.html"><span class="arrow">→</span> Calculadoras de Coste y Masa</a>
-            <a href="../index.html#guias"><span class="arrow">→</span> Base de Conocimiento</a>
+            <a href="../index.html#guias"><span>→</span> Base de Conocimiento</a>
             <a href="../materiales/index.html"><span class="arrow">→</span> Atlas de Materiales</a>
           </div>
         </div>
@@ -372,38 +362,136 @@
     </div>
   </footer>
 
+  <!-- =====================================================
+       LÓGICA DEL VISOR 3D (THREE.JS)
+  ===================================================== -->
   <script>
-    window.onclick = function(event) {
-      if (!event.target.closest('.menu-dropdown')) {
-        var dropdowns = document.getElementsByClassName("dropdown-content");
-        for (var i = 0; i < dropdowns.length; i++) {
-          if (dropdowns[i].classList.contains('show')) { dropdowns[i].classList.remove('show'); }
+    // Inicializar el visor interactivo de forma segura
+    function init3DViewer(containerId, stlUrl, criticalPoints) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+
+      // 1. Configuración básica de Three.js
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x161d1a);
+
+      const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+      camera.position.set(0, 0, 100);
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+      renderer.setSize(container.clientWidth, container.clientHeight);
+      container.appendChild(renderer.domElement);
+
+      // 2. Luces
+      const light1 = new THREE.DirectionalLight(0xffffff, 1.2);
+      light1.position.set(1, 1, 1).normalize();
+      scene.add(light1);
+
+      const light2 = new THREE.AmbientLight(0x505050);
+      scene.add(light2);
+
+      // Controles orbitales
+      const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+      // 3. Lector STL
+      const loader = new THREE.STLLoader();
+      loader.load(stlUrl, function (geometry) {
+        const material = new THREE.MeshPhongMaterial({ color: 0x90a095, specular: 0x111111, shininess: 100 });
+        const mesh = new THREE.Mesh(geometry, material);
+
+        geometry.center();
+        scene.add(mesh);
+
+        // Encuadrar la cámara
+        const box = new THREE.Box3().setFromObject(mesh);
+        const size = box.getSize(new THREE.Vector3()).length();
+        camera.position.set(0, 0, size * 1.5);
+        controls.update();
+
+        // 4. Pintar marcadores rojos de colapso en 3D
+        if (criticalPoints && criticalPoints.length > 0) {
+          const sphereGeom = new THREE.SphereGeometry(size * 0.015, 8, 8);
+          const sphereMat = new THREE.MeshBasicMaterial({ color: 0xff3e24 });
+
+          criticalPoints.forEach(pt => {
+            const marker = new THREE.Mesh(sphereGeom, sphereMat);
+            marker.position.set(pt.x, pt.y, pt.z);
+            scene.add(marker);
+          });
         }
+      }, undefined, function (err) {
+        console.warn("Cargando modelo por defecto (sin archivo cargado):", err);
+        // Si no hay archivo real, renderizamos un cubo de marcador de posición
+        const geom = new THREE.BoxGeometry(20, 20, 20);
+        const mat = new THREE.MeshPhongMaterial({ color: 0x2e3a35 });
+        const mesh = new THREE.Mesh(geom, mat);
+        scene.add(mesh);
+      });
+
+      function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
       }
+      animate();
+
+      window.addEventListener('resize', () => {
+        camera.aspect = container.clientWidth / container.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(container.clientWidth, container.clientHeight);
+      });
     }
   </script>
 
   <!-- =====================================================
-       LÓGICA DE DESBLOQUEO REAL DE RESULTADOS
+       LÓGICA DE CONEXIÓN, DATOS Y DESBLOQUEO REAL
   ===================================================== -->
   <script>
     document.addEventListener("DOMContentLoaded", async () => {
       const lockOverlay = document.getElementById("downloadLockOverlay");
       const unlockBtn = document.getElementById("unlockDownloadBtn");
+      const downloadStlBtn = document.getElementById("downloadStlBtn");
+
+      const reportFileName = document.getElementById("reportFileName");
+      const reportVolume = document.getElementById("reportVolume");
+      const reportDimensions = document.getElementById("reportDimensions");
+      const reportScore = document.getElementById("reportScore");
 
       // Validar Supabase
       const client = window.supabaseClient || (typeof supabaseClient !== "undefined" ? supabaseClient : null);
 
       if (!client) {
-        console.error("Supabase no inicializado en el informe.");
+        console.error("Supabase no inicializado.");
         return;
       }
 
-      // Comprobar estado de créditos al entrar a la página
-      async function checkCurrentCredits() {
+      // 1. Leer los datos reales del SessionStorage procesados por Python
+      const storedAnalysis = sessionStorage.getItem("printlab_analysis");
+      let analysis = null;
+
+      if (storedAnalysis) {
+        analysis = JSON.parse(storedAnalysis);
+        
+        // Actualizar datos estructurados reales en la interfaz
+        reportFileName.textContent = "📄 " + analysis.file_name;
+        reportVolume.textContent = `${analysis.volume} cm³`;
+        reportDimensions.textContent = analysis.dimensions;
+        
+        // Calcular un Printability Score dinámico
+        const score = analysis.watertight ? (analysis.critical_points.length > 10 ? 72 : 94) : 45;
+        reportScore.innerHTML = `${score}<span>/100</span>`;
+        
+        // Inicializar el visor 3D real con la pieza y sus coordenadas rojas
+        init3DViewer("canvas3dContainer", analysis.file_url, analysis.critical_points);
+      } else {
+        // Inicializar visor vacío/demo si no hay análisis previo
+        init3DViewer("canvas3dContainer", "", []);
+      }
+
+      // 2. Controlar estado de créditos del usuario
+      async function checkCreditsAndUnlock() {
         const { data: { user } } = await client.auth.getUser();
         if (!user) {
-          // Si no está logueado, forzar bloqueo redireccionando al login
           unlockBtn.textContent = "Inicia sesión para desbloquear";
           unlockBtn.addEventListener("click", () => {
             window.location.href = "login.html?redirect=informe-stl.html";
@@ -411,17 +499,14 @@
           return;
         }
 
-        // Consultar perfil para saber créditos disponibles
         const { data: profile } = await client
           .from("profiles")
           .select("credits")
           .eq("id", user.id)
           .single();
 
-        // Si ya compró y quiere desbloquear
         unlockBtn.addEventListener("click", async () => {
           if (!profile || profile.credits < 1) {
-            // No tiene saldo -> Redirigir suavemente a precios.html
             document.body.classList.add("page-transition-out");
             setTimeout(() => {
               window.location.href = "precios.html";
@@ -433,16 +518,20 @@
           unlockBtn.textContent = "Desbloqueando...";
 
           try {
-            // Descontar 1 crédito de forma segura con la función RPC
+            // Descontar crédito de forma segura
             const { data: success, error: rpcError } = await client.rpc("deduct_analysis_credit");
 
-            if (rpcError || !success) {
-              throw new Error(rpcError?.message || "Error procesando el saldo.");
-            }
+            if (rpcError || !success) throw new Error(rpcError?.message || "Error procesando el saldo.");
 
-            // Ocultar capa de bloqueo de forma definitiva
             lockOverlay.style.display = "none";
-            alert("Descarga autorizada con éxito. Tus archivos optimizados ya están listos.");
+            alert("Descarga desbloqueada con éxito.");
+
+            // Habilitar descarga física real
+            if (analysis && analysis.file_url) {
+              downloadStlBtn.addEventListener("click", () => {
+                window.open(analysis.file_url, "_blank");
+              });
+            }
 
           } catch (err) {
             console.error(err);
@@ -453,7 +542,7 @@
         });
       }
 
-      await checkCurrentCredits();
+      await checkCreditsAndUnlock();
     });
   </script>
 </body>
