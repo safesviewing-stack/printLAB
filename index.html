@@ -673,7 +673,7 @@
         <a class="card" href="guias/pla-vs-petg.html">
           <span class="tag">Decisión de diseño</span>
           <h3>PLA vs PETG: La Comparativa</h3>
-          <p>Análisis de resistencia mecánica, módulo elástico, impacto, facilidad de impresión, resistencia a la humedad y aplicaciones reales.</p>
+          <p>Análisis de resistencia mecánica, módulo elástico, impacto, facilidad de impresión, resistencia a la humedad and aplicaciones reales.</p>
           <span class="btn-action">Comparar PLA y PETG</span>
         </a>
 
@@ -1299,27 +1299,6 @@
         }
       }
     });
-  </script>
-  <!-- INTEGRACIÓN CON SUPABASE -->
-  <script>
-    async function updateDashboardGreeting() {
-      const { data: { user } } = await supabaseClient.auth.getUser();
-      if (user) {
-        const { data: profile } = await supabaseClient
-          .from('profiles')
-          .select('full_name, credits')
-          .eq('id', user.id)
-          .single();
-        
-        const welcomeDiv = document.querySelector('.eyebrow');
-        if (welcomeDiv && profile) {
-          welcomeDiv.innerHTML = `Hola, ${profile.full_name} | Dispones de ${profile.credits} créditos`;
-          welcomeDiv.style.background = "rgba(184, 255, 61, 0.2)";
-          welcomeDiv.style.color = "var(--ink)";
-        }
-      }
-    }
-    document.addEventListener('DOMContentLoaded', updateDashboardGreeting);
   </script>
 </body>
 </html>
