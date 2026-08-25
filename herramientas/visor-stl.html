@@ -190,11 +190,17 @@
             <button type="button" class="btn-action-main" onclick="triggerScale()">Generar y descargar STL escalado (1 crédito)</button>
           </div>
 
-          <!-- FORMULARIO 4: RESISTENCIA -->
+          <!-- FORMULARIO 4: RESISTENCIA Y REFUERZOS EN CALIENTE -->
           <div class="form-box" id="flow-resistente" style="display:none; margin-top:20px;">
-            <h3 style="margin:0 0 16px; font-size:16px; font-weight:800;">🧱 Identificación de Zonas Críticas</h3>
-            <p style="font-size:12.5px; color:var(--muted); margin-bottom:16px;">El motor buscará concentradores de tensión geométricos.</p>
-            <button type="button" class="btn-action-main" onclick="triggerResistanceAnalysis()">Ejecutar Análisis Estructural</button>
+            <h3 style="margin:0 0 16px; font-size:16px; font-weight:800;">🧱 Identificación y Refuerzo de Zonas Críticas</h3>
+            <p style="font-size:12.5px; color:var(--muted); margin-bottom:16px;">El motor buscará concentradores de tensión y aplicará redondeos estructurales.</p>
+            
+            <button type="button" class="btn-action-main" onclick="triggerResistanceAnalysis()" style="margin-bottom: 12px;">Ejecutar Análisis Estructural</button>
+            
+            <!-- Botón de reparación oculto que aparece tras el análisis -->
+            <button type="button" class="btn-action-main" id="btnApplyReinforcement" style="display:none; background:#111715; color:#fff;" onclick="triggerReinforceMesh()">
+              🔨 Aplicar Redondeos y Refuerzos (Consume 1 crédito)
+            </button>
           </div>
 
           <!-- FORMULARIO 5: DIVIDIRLA -->
@@ -286,7 +292,6 @@
         const loader = new THREE.STLLoader();
         const geometry = loader.parse(e.target.result);
         
-        // Limpiar mallas y esferas anteriores antes de cargar la nueva
         cleanSceneComponents();
         
         const material = new THREE.MeshPhongMaterial({ color: 0x90a4ae, flatShading: true });
@@ -295,7 +300,6 @@
         // --- CORRECCIÓN: Mantener coordenadas absolutas para sincronizar con Python ---
         scene.add(activeMesh);
 
-        // Centrar controles y cámara en la caja delimitadora del modelo original
         geometry.computeBoundingBox();
         const center = new THREE.Vector3();
         geometry.boundingBox.getCenter(center);
@@ -306,6 +310,33 @@
         controls.update();
       };
       reader.readAsArrayBuffer(file);
+    }
+
+    // Carga de malla directamente desde una cadena binaria (Base64) devuelta por Python
+    function loadStlMeshFromBase64(base64Data) {
+      const binaryStr = atob(base64Data);
+      const bytes = new Uint8Array(binaryStr.length);
+      for (let i = 0; i < binaryStr.length; i++) {
+        bytes[i] = binaryStr.charCodeAt(i);
+      }
+
+      const loader = new THREE.STLLoader();
+      const geometry = loader.parse(bytes.buffer);
+      
+      cleanSceneComponents();
+      
+      const material = new THREE.MeshPhongMaterial({ color: 0x90a4ae, flatShading: true });
+      activeMesh = new THREE.Mesh(geometry, material);
+      scene.add(activeMesh);
+
+      geometry.computeBoundingBox();
+      const center = new THREE.Vector3();
+      geometry.boundingBox.getCenter(center);
+      controls.target.copy(center);
+      
+      const size = geometry.boundingBox.getSize(new THREE.Vector3()).length();
+      camera.position.set(center.x + size * 0.8, center.y + size * 0.8, center.z + size * 0.8);
+      controls.update();
     }
 
     function cleanSceneComponents() {
@@ -395,7 +426,7 @@
     function triggerResistanceAnalysis() {
       if (!analysisData || !analysisData.critical_points || !activeMesh) return;
 
-      // Limpiar marcas previas que estuvieran dentro de la malla activa
+      // Limpiar marcas previas
       for (let i = activeMesh.children.length - 1; i >= 0; i--) {
         const child = activeMesh.children[i];
         if (child instanceof THREE.Mesh) {
@@ -403,20 +434,54 @@
         }
       }
 
-      // Dibujar esferas rojas utilizando coordenadas locales/absolutas directamente como hijos del modelo
+      // Dibujar esferas rojas utilizando coordenadas absolutas directamente como hijos del modelo
       analysisData.critical_points.forEach(pt => {
         const sphereGeo = new THREE.SphereGeometry(1.5, 16, 16);
         const sphereMat = new THREE.MeshBasicMaterial({ color: 0xd9432f });
         const sphere = new THREE.Mesh(sphereGeo, sphereMat);
         
-        // --- CORRECCIÓN CLAVE: Posicionar en el espacio local de la malla ---
+        // --- VINCULACIÓN AL MODELO: Las esferas siguen al activeMesh de forma nativa ---
         sphere.position.set(pt.x, pt.y, pt.z);
-        
-        // Añadir como hijo de la malla activa para que sigan rotaciones/desplazamientos
         activeMesh.add(sphere);
       });
 
+      // Revelar el botón de refuerzo estructural
+      document.getElementById("btnApplyReinforcement").style.display = "block";
       alert("Zonas críticas de tensión localizadas físicamente y vinculadas al modelo.");
+    }
+
+    // --- NUEVO FLUJO REAL: ENVIAR GEOMETRÍA CONCENTRADA PARA REFORZARLA ---
+    async function triggerReinforceMesh() {
+      if (!uploadedFileBlob || !analysisData || !analysisData.critical_points) return;
+
+      const formData = new FormData();
+      formData.append("file", uploadedFileBlob);
+      // Enviamos las coordenadas de los concentradores de esfuerzos calculados
+      formData.append("critical_points_json", JSON.stringify(analysisData.critical_points));
+      formData.append("fillet_radius", 2.0); // Radio de redondeo predeterminado de 2mm
+
+      try {
+        document.getElementById("buildStatus").textContent = "🔨 Reforzando...";
+        const response = await fetch("https://printlab-backend-dy7v.onrender.com/reinforce-stl", {
+          method: "POST",
+          body: formData
+        });
+        const res = await response.json();
+        
+        if (res.success) {
+          // Cargamos la nueva malla física corregida y suavizada en el visor
+          loadStlMeshFromBase64(res.reinforced_stl_base64);
+          
+          document.getElementById("buildStatus").textContent = "✓ Pieza Corregida";
+          alert("Algoritmo de entalla finalizado. El modelo se ha reforzado y suavizado localmente.");
+          
+          // Permitir la descarga del modelo reparado
+          downloadFileFromBase64(res.reinforced_stl_base64, `${uploadedFileBlob.name.replace(".stl","")}_reforzado.stl`);
+        }
+      } catch (err) {
+        alert("Fallo al procesar el suavizado mecánico de la pieza.");
+        document.getElementById("buildStatus").textContent = "✓ Sincronizado";
+      }
     }
 
     // --- ACCIÓN REAL 5: DIVIDIR STL ---
