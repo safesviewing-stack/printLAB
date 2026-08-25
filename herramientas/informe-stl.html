@@ -16,7 +16,6 @@
     .grid-report{display:grid; grid-template-columns: 1fr 1fr; gap:40px;}
     .panel{background:var(--card); border:1.5px solid var(--line); border-radius:24px; padding:36px; margin-bottom:24px;}
     
-    /* VISTAS DIBUJADAS DINÁMICAMENTE EN CANVAS */
     .technical-drawings-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:16px;}
     .drawing-box{background:#fdfdfd; border:1px solid var(--line); border-radius:12px; padding:12px; text-align:center;}
     .drawing-canvas{width:100%; max-height:160px; background:#fff;}
@@ -88,9 +87,6 @@
     </div>
   </div>
 
-  <!-- ==========================================
-       LÓGICA DEL PLANO TÉCNICO E INFORME
-  ========================================== -->
   <script>
     const data = JSON.parse(sessionStorage.getItem("printlab_generator_part"));
 
@@ -99,74 +95,83 @@
       window.location.href = "generador.html";
     }
 
-    // --- ALGORITMOS DE DIBUJO VECTORIAL (Canvas CAD) ---
+    // --- ALGORITMOS DE DIBUJO VECTORIAL (Canvas CAD de las piezas Fase 1) ---
     function drawTechnicalViews() {
       const front = document.getElementById("frontCanvas").getContext("2d");
       const side = document.getElementById("sideCanvas").getContext("2d");
       const top = document.getElementById("topCanvas").getContext("2d");
 
-      // Limpieza de lienzos
       [front, side, top].forEach(ctx => {
         ctx.clearRect(0,0,200,150);
         ctx.lineWidth = 1.5;
         ctx.strokeStyle = "#0d1110";
       });
 
-      if (data.part_type === "cylinder" || data.part_type === "tube") {
+      const t = data.part_type;
+
+      if (t === "cylinder" || t === "shaft" || t === "pin" || t === "tube" || t === "bushing" || t === "washer" || t === "separator") {
         const outerR = Math.min(data.outer_diameter * 1.5, 55);
         const innerR = Math.min(data.inner_diameter * 1.5, 45);
         const len = Math.min(data.length * 1.5, 90);
 
-        // --- Vista Alzado (Rectángulo) ---
+        // Alzado (Vista lateral cilíndrica)
         front.strokeRect(100 - len/2, 75 - outerR, len, outerR * 2);
-        if (data.part_type === "tube") {
-          // Línea oculta de pared interna
+        if (t === "tube" || t === "bushing" || t === "washer" || t === "separator") {
           front.setLineDash([4, 4]);
           front.strokeRect(100 - len/2, 75 - innerR, len, innerR * 2);
         }
 
-        // --- Vista Perfil (Rectángulo igual) ---
+        // Perfil
+        side.setLineDash([]);
         side.strokeRect(100 - len/2, 75 - outerR, len, outerR * 2);
 
-        // --- Vista Planta (Círculos concéntricos) ---
-        top.setLineDash([]);
+        // Planta (Sección transversal circular)
         top.beginPath();
         top.arc(100, 75, outerR, 0, Math.PI * 2);
         top.stroke();
-        if (data.part_type === "tube") {
+        if (t === "tube" || t === "bushing" || t === "washer" || t === "separator") {
           top.beginPath();
           top.arc(100, 75, innerR, 0, Math.PI * 2);
           top.stroke();
         }
-      } else if (data.part_type === "plate_holes") {
-        const w = Math.min(data.width * 1.5, 120);
-        const h = Math.min(data.length * 1.5, 80);
-        const t = Math.min(data.thickness * 1.5, 20);
+      } else if (t === "plate_holes") {
+        const w = Math.min(data.width * 1.3, 110);
+        const l = Math.min(data.length * 1.3, 80);
+        const th = Math.min(data.thickness * 1.5, 25);
 
-        // --- Alzado (Placa vista frontal) ---
-        front.strokeRect(100 - w/2, 75 - h/2, w, h);
-        
-        // --- Perfil (Espesor de la placa) ---
-        side.strokeRect(100 - t/2, 75 - h/2, t, h);
-        
-        // --- Planta (Espesor visto superior) ---
-        top.strokeRect(100 - w/2, 75 - t/2, w, t);
-      } else if (data.part_type === "bracket_l") {
-        const w = Math.min(data.width * 1.5, 80);
-        const l = Math.min(data.length * 1.5, 70);
-        const h = Math.min(data.height * 1.5, 70);
-        const t = Math.min(data.thickness * 1.5, 15);
+        front.strokeRect(100 - w/2, 75 - l/2, w, l);
+        side.strokeRect(100 - th/2, 75 - l/2, th, l);
+        top.strokeRect(100 - w/2, 75 - th/2, w, th);
+      } else if (t === "bracket_l") {
+        const w = Math.min(data.width * 1.3, 80);
+        const l = Math.min(data.length * 1.3, 60);
+        const h = Math.min(data.height * 1.3, 60);
+        const th = Math.min(data.thickness * 1.5, 20);
 
-        // --- Alzado ---
+        // Perfil de la escuadra en L
         front.beginPath();
-        front.moveTo(100 - w/2, 75 + h/2);
-        front.lineTo(100 + w/2, 75 + h/2);
-        front.lineTo(100 + w/2, 75 - h/2);
+        front.moveTo(100 - l/2, 75 - h/2);
+        front.lineTo(100 - l/2, 75 + h/2);
+        front.lineTo(100 + l/2, 75 + h/2);
+        front.lineTo(100 + l/2, 75 + h/2 - th);
+        front.lineTo(100 - l/2 + th, 75 + h/2 - th);
+        front.lineTo(100 - l/2 + th, 75 - h/2);
+        front.closePath();
         front.stroke();
+
+        side.strokeRect(100 - w/2, 75 - h/2, w, h);
+        top.strokeRect(100 - l/2, 75 - w/2, l, w);
+      } else if (t === "profile_rect" || t === "profile_u" || t === "profile_t") {
+        const w = Math.min(data.width * 1.3, 80);
+        const h = Math.min(data.height * 1.3, 80);
+        const len = Math.min(data.length * 1.3, 90);
+
+        front.strokeRect(100 - len/2, 75 - h/2, len, h);
+        side.strokeRect(100 - w/2, 75 - h/2, w, h);
+        top.strokeRect(100 - len/2, 75 - w/2, len, w);
       }
     }
 
-    // --- INTEGRACIÓN CON API DE ESTIMACIÓN ---
     async function requestEstimation() {
       try {
         const response = await fetch("https://printlab-backend-dy7v.onrender.com/estimate", {
@@ -188,7 +193,6 @@
       }
     }
 
-    // --- DESCARGA DEL STL DE INGENIERÍA ---
     document.getElementById("btnDownloadStl").addEventListener("click", () => {
       if (!data.stl_base64) return;
       
@@ -210,7 +214,7 @@
     window.onload = () => {
       document.getElementById("valDimensions").textContent = data.dimensions;
       document.getElementById("valVolume").textContent = data.volume_cm3.toFixed(3) + " cm³";
-      document.getElementById("valNorma").textContent = data.part_type === "bracket_l" ? "ISO EN 10025-2" : "ISO 286-2";
+      document.getElementById("valNorma").textContent = data.part_type.startsWith("profile") ? "ISO EN 10219" : "ISO 286-2";
       
       drawTechnicalViews();
       requestEstimation();
