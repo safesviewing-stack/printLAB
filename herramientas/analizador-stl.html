@@ -979,7 +979,6 @@
           <a
             href="login.html"
             class="btn-auth light"
-            id="headerLogin"
           >
             Iniciar Sesión
           </a>
@@ -987,7 +986,6 @@
           <a
             href="registro.html"
             class="btn-auth green"
-            id="headerRegister"
           >
             Registrarse
           </a>
@@ -1777,7 +1775,7 @@
           return;
         }
 
-        // Caso 3: Logueado y con archivo listo -> Comprobar créditos y descontar
+        // Caso 3: Logueado y con archivo listo -> Comprobar créditos y descontar de forma segura
         if (state === "has-file") {
           accessButton.disabled = true;
           accessButton.textContent = "Comprobando créditos...";
@@ -1792,9 +1790,8 @@
 
             if (profileError) throw profileError;
 
-            // Si no tiene créditos suficientes, denegar el paso
+            // Si no tiene créditos suficientes, denegar el paso de forma inmediata
             if (!profile || profile.credits < 1) {
-              alert("Tu saldo de créditos es insuficiente para procesar el análisis. Redirigiendo a la sección de planes...");
               document.body.classList.add("page-transition-out");
               setTimeout(() => {
                 window.location.href = "precios.html";
@@ -1811,8 +1808,7 @@
               throw new Error(rpcError?.message || "Ocurrió una inconsistencia en el cobro de créditos.");
             }
 
-            // 3. Informar y redirigir con éxito
-            alert("Análisis autorizado de forma segura. Se ha descontado 1 crédito de tu perfil.");
+            // 3. Redirigir directamente al informe con la animación fluida de PrintLab
             document.body.classList.add("page-transition-out");
             setTimeout(() => {
               window.location.href = "informe-stl.html";
@@ -1820,7 +1816,7 @@
 
           } catch (err) {
             console.error("Error procesando créditos:", err);
-            alert("No se ha podido procesar el análisis: " + (err.message || "Error desconocido de base de datos."));
+            alert("No se ha podido procesar el análisis: " + (err.message || "Error de base de datos."));
             accessButton.disabled = false;
             updateButtonState();
           }
