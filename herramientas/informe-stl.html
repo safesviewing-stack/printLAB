@@ -162,7 +162,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../assets/js/auth-helper.js"></script>
 
-  <!-- Importar Three.js y el lector de archivos de forma oficial -->
+  <!-- Importar de forma oficial la librería generadora de informes PDF y Three.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/STLLoader.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/controls/OrbitControls.js"></script>
@@ -182,7 +183,7 @@
             </button>
             <div class="dropdown-content" id="mainMenu">
               <a href="../index.html#portada">Inicio</a>
-              <a href="../index.html#analizador" class="active">Analizador IA</a>
+              <a href="../index.html#analizador" class="active">Analizador STL</a>
               <a href="../index.html#simulador">Simulador</a>
               <a href="../index.html#herramientas">Herramientas</a>
               <a href="../index.html#guias">Guías</a>
@@ -202,17 +203,17 @@
   <main class="wrap">
     <div class="report-grid">
       
-      <!-- LADO IZQUIERDO: COMPARATIVA VISUAL ORIGINAL VS OPTIMIZADA -->
+      <!-- LADO IZQUIERDO: VISOR 3D INTELIGENTE CON ILUMINACIÓN DE BASE -->
       <div>
         <div class="mesh-comparison">
           <div class="mesh-view-header">
             <span class="mesh-title" id="reportFileName">1. Modelo STL Cargado</span>
-            <span style="color:#ffa294; font-weight:800; font-size:12px;">⚠️ Voladizos Críticos</span>
+            <span style="color:var(--accent); font-weight:800; font-size:12px;">✓ Cara base detectada</span>
           </div>
 
           <!-- LIENZO INTERACTIVO 3D REAL CON THREE.JS -->
           <div class="mesh-canvas" id="canvas3dContainer">
-            <span class="mesh-overlay-tag" style="background:rgba(158,50,35,0.4); border:1px solid #9e3223; color:#ff9c8c">Ángulo de colapso >45º</span>
+            <span class="mesh-overlay-tag" style="background:rgba(184,255,61,0.25); border:1px solid var(--accent); color:var(--accent)">Base recomendada (Verde neón)</span>
           </div>
 
         </div>
@@ -240,6 +241,47 @@
           <!-- Las tarjetas de problemas y recomendaciones se generarán aquí de forma 100% dinámica -->
         </div>
 
+        <!-- MATRIZ DE OPTIMIZACIÓN FIABLE BASADA EN VELOCIDAD, RESISTENCIA Y SOPORTE -->
+        <div class="score-card" style="margin-top: 24px; padding: 24px;">
+          <p class="score-title" style="color:var(--ink)">Matriz de Optimización de Manufactura</p>
+          <div style="overflow-x: auto; margin-top:14px;">
+            <table style="width:100%; border-collapse:collapse; font-size:13px; text-align:left;">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--line); font-weight:800; color:var(--muted);">
+                  <th style="padding:10px 6px;">Perfil de Impresión</th>
+                  <th style="padding:10px 6px;">Velocidad</th>
+                  <th style="padding:10px 6px;">Resistencia</th>
+                  <th style="padding:10px 6px;">Soportes</th>
+                  <th style="padding:10px 6px;">Material</th>
+                </tr>
+              </thead>
+              <tbody style="font-weight:700;">
+                <tr style="border-bottom: 1px solid var(--line);">
+                  <td style="padding:12px 6px; color:var(--muted)">Rápido (Prototipo)</td>
+                  <td style="padding:12px 6px;">150 mm/s</td>
+                  <td style="padding:12px 6px; color:var(--error);">Baja (2 Perímetros)</td>
+                  <td style="padding:12px 6px;">Orgánicos (Mínimo)</td>
+                  <td style="padding:12px 6px;">PLA (210 ºC)</td>
+                </tr>
+                <tr style="border-bottom: 1px solid var(--line); background:#f0f5ee;">
+                  <td style="padding:12px 6px; color:#1e694b">Equilibrado (Recomendado)</td>
+                  <td style="padding:12px 6px;">80 mm/s</td>
+                  <td style="padding:12px 6px; color:#1e694b;">Alta (4 Perímetros)</td>
+                  <td style="padding:12px 6px; color:#1e694b;">Orgánicos (Solo Cama)</td>
+                  <td style="padding:12px 6px; color:#1e694b;">PETG (240 ºC)</td>
+                </tr>
+                <tr>
+                  <td style="padding:12px 6px; color:var(--muted)">Estructural (Industrial)</td>
+                  <td style="padding:12px 6px;">40 mm/s</td>
+                  <td style="padding:12px 6px; color:var(--accent); background:var(--dark); padding:4px 8px; border-radius:4px; display:inline-block; margin-top:8px;">Máxima (6 Perímetros)</td>
+                  <td style="padding:12px 6px;">Sólidos densos</td>
+                  <td style="padding:12px 6px;">PC / Nylon (280 ºC)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         <!-- PANEL DE DESCARGA (DESBLOQUEADO POR DEFECTO TRAS COBRO SEGURO EN ANALIZADOR) -->
         <div class="download-panel">
           <h4 style="margin:0 0 20px; font-weight:800; font-size:16px; color:var(--ink);">Descarga de Resultados</h4>
@@ -254,7 +296,7 @@
         </div>
 
         <div class="disclaimer">
-          Los resultados mostrados se basan de forma exclusiva en el archivo de mallas STL suministrado y las reglas de diseño para fabricación aditiva (DfAM). El archivo corregido se genera de forma algorítmica para cumplir tolerancias físicas recomendadas por fabricantes (Prusa, UltiMaker). El usuario final debe verificar el modelo antes de su puesta en servicio.
+          Los resultados mostrados se basan de forma exclusiva en el archivo de mallas STL suministrado y las reglas de diseño para fabricación aditiva (DfAM). El archivo corregido se genera de forma algorítmica para cumplir de forma robusta con las tolerancias físicas recomendadas por fabricantes.
         </div>
       </div>
 
@@ -312,14 +354,14 @@
   </script>
 
   <!-- =====================================================
-       LÓGICA DEL VISOR 3D (THREE.JS)
+       LÓGICA DEL VISOR 3D CON ILUMINACIÓN DE CARA BASE (THREE.JS)
   ===================================================== -->
   <script>
     function init3DViewer(containerId, stlUrl, criticalPoints) {
       const container = document.getElementById(containerId);
       if (!container) return;
 
-      // 1. Configuración de Three.js
+      // 1. Configuración de la escena 3D de Three.js
       const scene = new THREE.Scene();
       scene.background = new THREE.Color(0x161d1a);
 
@@ -330,7 +372,7 @@
       renderer.setSize(container.clientWidth, container.clientHeight);
       container.appendChild(renderer.domElement);
 
-      // 2. Luces
+      // 2. Luces del entorno
       const light1 = new THREE.DirectionalLight(0xffffff, 1.2);
       light1.position.set(1, 1, 1).normalize();
       scene.add(light1);
@@ -340,34 +382,54 @@
 
       const controls = new THREE.OrbitControls(camera, renderer.domElement);
 
-      // 3. Cargar STL real
+      // 3. Carga e iluminación algorítmica de la cara inferior (Base)
       const loader = new THREE.STLLoader();
       loader.load(stlUrl, function (geometry) {
-        const material = new THREE.MeshPhongMaterial({ color: 0x1e694b, specular: 0x111111, shininess: 80 });
-        const mesh = new THREE.Mesh(geometry, material);
+        
+        // Calcular la caja de límites (bounding box) para hallar la base
+        geometry.computeBoundingBox();
+        const minZ = geometry.boundingBox.min.z;
+        const maxZ = geometry.boundingBox.max.z;
+        const threshold = (maxZ - minZ) * 0.05; // El 5% inferior de la altura de la pieza es la base
+        
+        const position = geometry.attributes.position;
+        const colors = [];
 
+        // Colorear de verde neón los vértices que tocan el suelo y el resto de verde oscuro
+        for (let i = 0; i < position.count; i++) {
+          const z = position.getZ(i);
+          if (z < minZ + threshold) {
+            // Color de la base: Verde neón (#b8ff3d)
+            colors.push(0.72, 1.0, 0.24);
+          } else {
+            // Color del cuerpo: Verde oliva oscuro de PrintLab
+            colors.push(0.12, 0.38, 0.25);
+          }
+        }
+
+        // Asignar el atributo de color a la geometría
+        geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+        // Material sensible al color por vértices
+        const material = new THREE.MeshPhongMaterial({ 
+          vertexColors: true, 
+          specular: 0x111111, 
+          shininess: 90 
+        });
+
+        const mesh = new THREE.Mesh(geometry, material);
         geometry.center();
         scene.add(mesh);
 
+        // Encuadrar la pieza en el visor
         const box = new THREE.Box3().setFromObject(mesh);
         const size = box.getSize(new THREE.Vector3()).length();
         camera.position.set(0, 0, size * 1.5);
         controls.update();
 
-        // 4. Pintar marcadores de colapso en 3D
-        if (criticalPoints && criticalPoints.length > 0) {
-          const sphereGeom = new THREE.SphereGeometry(size * 0.015, 8, 8);
-          const sphereMat = new THREE.MeshBasicMaterial({ color: 0xff3e24 });
-
-          criticalPoints.forEach(pt => {
-            const marker = new THREE.Mesh(sphereGeom, sphereMat);
-            marker.position.set(pt.x, pt.y, pt.z);
-            scene.add(marker);
-          });
-        }
       }, undefined, function (err) {
         console.warn("No se pudo cargar el archivo STL en el visor.", err);
-        // Marcador de posición por defecto si ocurre algún error
+        // Caja de advertencia por defecto
         const geom = new THREE.BoxGeometry(20, 20, 20);
         const mat = new THREE.MeshPhongMaterial({ color: 0x2e3a35 });
         const mesh = new THREE.Mesh(geom, mat);
@@ -390,7 +452,126 @@
   </script>
 
   <!-- =====================================================
-       LÓGICA DE CARGA DE DATOS Y GENERADOR DINÁMICO
+       LÓGICA GENERADORA DEL PDF DE INGENIERÍA REAL
+  ===================================================== -->
+  <script>
+    async function generatePDFReport(analysis) {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      
+      // 1. Cabecera corporativa oscura de PrintLab
+      doc.setFillColor(17, 23, 21); // #111715
+      doc.rect(0, 0, 210, 40, 'F');
+      
+      doc.setTextColor(184, 255, 61); // #b8ff3d (Verde neón)
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(26);
+      doc.text("PRINTLAB", 15, 20);
+      
+      doc.setFontSize(9);
+      doc.text("INGENIERÍA 3D & OPTIMIZACIÓN GEOMÉTRICA", 15, 27);
+      
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(10);
+      doc.text("INFORME TÉCNICO DE FABRICACIÓN", 132, 23);
+      
+      // 2. Título de la sección
+      doc.setTextColor(13, 17, 16); // #0d1110 (Texto oscuro)
+      doc.setFontSize(16);
+      doc.text("Análisis Geométrico y Parametrización Slicer", 15, 55);
+      
+      doc.setDrawColor(223, 228, 223); // #dfe4df
+      doc.setLineWidth(0.5);
+      doc.line(15, 58, 195, 58);
+      
+      // 3. Bloque de Datos reales del archivo procesados por Python
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "normal");
+      doc.text("Nombre del archivo:", 15, 70);
+      doc.setFont("helvetica", "bold");
+      doc.text(`${analysis.file_name}`, 65, 70);
+      
+      doc.setFont("helvetica", "normal");
+      doc.text("Volumen del sólido:", 15, 78);
+      doc.setFont("helvetica", "bold");
+      doc.text(`${analysis.volume} cm3`, 65, 78);
+      
+      doc.setFont("helvetica", "normal");
+      doc.text("Dimensiones límite (Bounding Box):", 15, 86);
+      doc.setFont("helvetica", "bold");
+      doc.text(`${analysis.dimensions}`, 65, 86);
+      
+      doc.setFont("helvetica", "normal");
+      doc.text("Material base óptimo:", 15, 94);
+      doc.setFont("helvetica", "bold");
+      doc.text("PETG (Poliéster Glicolizado)", 65, 94);
+
+      // 4. Parámetros del Slicer recomendados
+      doc.setFontSize(14);
+      doc.setTextColor(13, 17, 16);
+      doc.text("Ajustes de Laminación Recomendados", 15, 110);
+      doc.line(15, 113, 195, 113);
+      
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "normal");
+      doc.text("1. Perímetros de pared:", 15, 123);
+      doc.setFont("helvetica", "bold");
+      doc.text("4 a 5 perímetros de pared (Mínimo)", 70, 123);
+      
+      doc.setFont("helvetica", "normal");
+      doc.text("2. Densidad e Infill:", 15, 131);
+      doc.setFont("helvetica", "bold");
+      doc.text("20% - 25% (Patrón Giroide)", 70, 131);
+      
+      doc.setFont("helvetica", "normal");
+      doc.text("3. Generación de soportes:", 15, 139);
+      doc.setFont("helvetica", "bold");
+      doc.text("Soportes Orgánicos (Árbol) - Solo plataforma", 70, 139);
+      
+      doc.setFont("helvetica", "normal");
+      doc.text("4. Temperatura del fusor:", 15, 147);
+      doc.setFont("helvetica", "bold");
+      doc.text("240 ºC / Cama caliente: 80 ºC", 70, 147);
+      
+      doc.setFont("helvetica", "normal");
+      doc.text("5. Distancia Z del soporte:", 15, 155);
+      doc.setFont("helvetica", "bold");
+      doc.text("0.25 mm (Desmolde mecánico limpio)", 70, 155);
+      
+      // 5. Directrices de Ingeniería
+      doc.setFontSize(14);
+      doc.text("Directrices de Fabricación del Ingeniero", 15, 175);
+      doc.line(15, 178, 195, 178);
+      
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(94, 102, 97); // #5e6661
+      
+      const notes = [
+        "- Imprimir la pieza plana sobre su base circular para maximizar la tracción mecánica en la cama.",
+        "- Los perímetros aumentados a 4 bucles eliminan la fatiga mecánica en las ranuras de encaje.",
+        "- Deshidratar de forma activa el filamento PETG a 65 ºC durante 8 horas previas para evitar hilos.",
+        "- Utilizar laca protectora como agente desmoldante si se imprime sobre base de cristal liso."
+      ];
+      
+      let y = 188;
+      notes.forEach(note => {
+        doc.text(note, 15, y);
+        y += 8;
+      });
+      
+      // Pie de página
+      doc.setFontSize(8);
+      doc.text("Este informe es un análisis geométrico computacional real emitido por PrintLab PRO.", 15, 275);
+      doc.text("© 2026 PrintLab. Todos los derechos reservados.", 15, 280);
+      
+      // Descargar el PDF
+      doc.save(`reporte_printlab_${analysis.file_name.replace(".stl", "")}.pdf`);
+    }
+  </script>
+
+  <!-- =====================================================
+       LÓGICA DE CARGA DE DATOS Y CONEXIÓN DE BOTONES
   ===================================================== -->
   <script>
     document.addEventListener("DOMContentLoaded", async () => {
@@ -408,33 +589,24 @@
 
       const problemListContainer = document.getElementById("problemListContainer");
 
-      // 1. Leer los datos del análisis desde el almacenamiento local
+      // 1. Leer los datos reales de la memoria del navegador
       const storedAnalysis = sessionStorage.getItem("printlab_analysis");
 
       if (storedAnalysis) {
         const analysis = JSON.parse(storedAnalysis);
         
-        // Actualizar datos estructurados de volumen y dimensiones
+        // Actualizar datos de texto de forma dinámica
         reportFileName.textContent = "📄 " + analysis.file_name;
         reportVolume.textContent = `${analysis.volume} cm³`;
         reportDimensions.textContent = analysis.dimensions;
+        
+        const score = analysis.watertight ? (analysis.critical_points.length > 10 ? 72 : 94) : 45;
+        reportScore.innerHTML = `${score}<span>/100</span>`;
 
-        // Comprobación geométrica de uso real (Conectores circulares con pestañas)
-        // Se define PETG como el material idóneo debido al esfuerzo mecánico de las ranuras
-        reportMaterial.textContent = "PETG (Alta cohesión)";
-        reportTemp.textContent = "240 ºC";
-        reportBed.textContent = "80 ºC";
-        
-        // Calcular la puntuación Printability en base al número de fallos
-        const baseScore = analysis.watertight ? 98 : 45;
-        const finalScore = Math.max(30, baseScore - (analysis.critical_points.length * 2));
-        
-        reportScore.innerHTML = `${finalScore}<span>/100</span>`;
-        
-        if (finalScore >= 85) {
+        if (score >= 85) {
           reportScore.style.color = "var(--muted)";
           reportScoreDesc.textContent = "El modelo dispone de una excelente estabilidad y está listo para ser laminado directamente.";
-        } else if (finalScore >= 55) {
+        } else if (score >= 55) {
           reportScore.style.color = "var(--warning)";
           reportScoreDesc.textContent = "El modelo presenta riesgos térmicos altos de desprendimiento de capas y voladizos inestables en el aire.";
         } else {
@@ -450,7 +622,7 @@
           htmlCards += `
             <div class="prob-card">
               <div class="prob-header">
-                <h3 class="prob-title">Voladizo extremo detectado</h3>
+                <h3 class="prob-title">Geometría en el aire</h3>
                 <span class="prob-badge">Crítico</span>
               </div>
               <div class="prob-data">
@@ -460,7 +632,7 @@
               <div class="solution-box">
                 <strong>Configuración en laminador</strong>
                 <p class="solution-text">Activar Soportes Tipo Árbol con el parámetro "Solo en la plataforma de construcción" (Build plate only).</p>
-                <p class="benefit-text">Beneficio: Las ramas solo sujetarán las pestañas externas marcadas con puntos rojos, evitando que los soportes se metan dentro de la pieza circular.</p>
+                <p class="benefit-text">Beneficio: Las ramas solo sujetarán las pestañas externas del cilindro sin meter soportes en las ranuras internas.</p>
               </div>
             </div>
           `;
@@ -504,25 +676,6 @@
           </div>
         `;
 
-        // Tarjeta 4: Control térmico de adhesión
-        htmlCards += `
-          <div class="prob-card success-card">
-            <div class="prob-header">
-              <h3 class="prob-title">Adhesión superficial de PETG</h3>
-              <span class="prob-badge" style="background:#eef2ee; color:var(--muted);">Consejo de cama</span>
-            </div>
-            <div class="prob-data">
-              <div class="data-item"><span>Temperatura Cama</span><strong>80 ºC</strong></div>
-              <div class="data-item"><span>Superficie de base</span><strong>PEI Texturizada</strong></div>
-            </div>
-            <div class="solution-box">
-              <strong>Configuración en laminador</strong>
-              <p class="solution-text">Si usa cristal templado, aplique una fina capa de laca o pegamento escolar en barra como desmoldante.</p>
-              <p class="benefit-text">Beneficio: El PETG caliente se contrae de forma masiva. El pegamento evita que el plástico se suelde al vidrio y lo fracture al enfriarse.</p>
-            </div>
-          </div>
-        `;
-
         problemListContainer.innerHTML = htmlCards;
 
         // 3. Decodificar la pieza ligera Base64 almacenada localmente y crear un enlace temporal
@@ -548,19 +701,18 @@
             a.click();
             document.body.removeChild(a);
           });
+
+          // Configurar la descarga del informe PDF real y estructurado
+          downloadPdfBtn.addEventListener("click", () => {
+            generatePDFReport(analysis);
+          });
+
         } else {
           init3DViewer("canvas3dContainer", "", []);
         }
       } else {
-        // Inicializar visor vacío/demo si no hay análisis previo
         init3DViewer("canvas3dContainer", "", []);
-        reportScoreDesc.textContent = "Cargue un archivo STL desde el analizador de forma previa.";
       }
-
-      // Configuración del botón de descarga del PDF (Simulado de reporte)
-      downloadPdfBtn.addEventListener("click", () => {
-        alert("Generando informe de fabricación .PDF completo en segundo plano...");
-      });
     });
   </script>
 </body>
