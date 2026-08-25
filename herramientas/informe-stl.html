@@ -98,7 +98,7 @@
   <main class="wrap">
     <div class="report-grid">
       
-      <!-- LADO IZQUIERDO: VISOR 3D (BASE + ESFERAS VINCULADAS) -->
+      <!-- LADO IZQUIERDO: VISOR 3D (BASE AMARILLA + ESFERAS VINCULADAS) -->
       <div>
         <div class="mesh-comparison">
           <div class="mesh-view-header">
@@ -106,7 +106,8 @@
             <span style="color:var(--accent); font-weight:800; font-size:12px;">✓ Diagnóstico Realizado</span>
           </div>
           <div class="mesh-canvas" id="canvas3dContainer">
-            <span class="mesh-overlay-tag" style="background:rgba(184,255,61,0.25); border:1px solid var(--accent); color:var(--accent)">Base (Verde) | Tensión (Rojo)</span>
+            <!-- Actualizada la etiqueta para indicar apoyo crítico/amarillo -->
+            <span class="mesh-overlay-tag" style="background:rgba(255,180,0,0.2); border:1px solid #ffb400; color:#ffb400">Apoyo Crítico (Amarillo) | Tensión (Rojo)</span>
           </div>
         </div>
 
@@ -186,7 +187,8 @@
         for (let i = 0; i < position.count; i++) {
           const z = position.getZ(i);
           if (z < minZ + threshold) {
-            colors.push(0.72, 1.0, 0.24); // Verde base
+            // --- CORRECCIÓN: Sustituir el verde por amarillo de advertencia ---
+            colors.push(1.0, 0.82, 0.0); // Amarillo de advertencia (#ffb400)
           } else {
             colors.push(0.12, 0.38, 0.25); // Cuerpo verde oscuro
           }
@@ -203,15 +205,15 @@
         activeMesh = new THREE.Mesh(geometry, material);
         scene.add(activeMesh);
 
-        // --- CORRECCIÓN CLAVE: Vincular las marcas de tensión al activeMesh ---
+        // --- CORRECCIÓN CLAVE: Vincular las marcas a las coordenadas absolutas de la malla ---
         if (criticalPoints && criticalPoints.length > 0) {
           criticalPoints.forEach(pt => {
             const sphereGeo = new THREE.SphereGeometry(1.5, 16, 16);
-            const sphereMat = new THREE.MeshBasicMaterial({ color: 0xd9432f }); // Esferas rojas
+            const sphereMat = new THREE.MeshBasicMaterial({ color: 0xd9432f }); // Rojo
             const sphere = new THREE.Mesh(sphereGeo, sphereMat);
             
-            // Posicionamos en el espacio local absoluto de la pieza
-            sphere.position.set(pt.cx, pt.cy, pt.cz);
+            // Usamos las coordenadas absolutas pt.x, pt.y, pt.z ya que no modificamos el origen geométrico de la malla
+            sphere.position.set(pt.x, pt.y, pt.z);
             activeMesh.add(sphere);
           });
         }
@@ -219,7 +221,7 @@
         geometry.computeBoundingBox();
         const center = new THREE.Vector3();
         geometry.boundingBox.getCenter(center);
-        controls.target.copy(center);
+        controls.target.copy(center); // Enfocar la cámara en el centro de masa visual
 
         const size = geometry.boundingBox.getSize(new THREE.Vector3()).length();
         camera.position.set(center.x + size * 0.8, center.y + size * 0.8, center.z + size * 0.8);
@@ -311,7 +313,7 @@
           const blob = new Blob([byteArray], { type: "model/stl" });
           const stlLocalUrl = URL.createObjectURL(blob);
 
-          // Inicializar el visor pasando las coordenadas locales de los puntos críticos
+          // Inicializar el visor pasando las coordenadas absolutas de los puntos críticos
           init3DViewer("canvas3dContainer", stlLocalUrl, analysis.critical_points);
 
           downloadStlBtn.addEventListener("click", () => {
