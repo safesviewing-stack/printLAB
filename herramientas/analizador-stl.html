@@ -99,7 +99,7 @@
       background: var(--accent) !important;
       background-color: var(--accent) !important;
       color: var(--ink) !important;
-      padding: 4px 12px !important;
+      padding: 8px 18px !important; /* Ajustado para dar más altura y ancho */
       border-radius: 9999px !important; /* Fuerza cápsula perfecta */
       font-weight: 800 !important;
       font-size: 15px !important;
@@ -113,7 +113,7 @@
       line-height: 1 !important; 
       height: auto !important;
       min-height: 0 !important;
-      max-height: 32px !important; /* Límite estricto de altura */
+      max-height: 38px !important; /* Límite de altura ajustado para el nuevo padding */
       margin: auto 0 !important;
       white-space: nowrap !important;
     }
@@ -646,7 +646,7 @@
           span.style.setProperty("background", "var(--accent)", "important");
           span.style.setProperty("background-color", "var(--accent)", "important");
           span.style.setProperty("color", "var(--ink)", "important");
-          span.style.setProperty("padding", "4px 12px", "important");
+          span.style.setProperty("padding", "8px 18px", "important");
           span.style.setProperty("border-radius", "9999px", "important");
           span.style.setProperty("font-weight", "800", "important");
           span.style.setProperty("font-size", "15px", "important");
@@ -660,7 +660,7 @@
           span.style.setProperty("line-height", "1", "important");
           span.style.setProperty("height", "auto", "important");
           span.style.setProperty("min-height", "0", "important");
-          span.style.setProperty("max-height", "32px", "important");
+          span.style.setProperty("max-height", "38px", "important");
           span.style.setProperty("margin", "auto 0", "important");
           span.style.setProperty("white-space", "nowrap", "important");
         }
@@ -690,7 +690,7 @@
         authContainer.innerHTML = `
           <div style="display:flex; align-items:center; gap:16px;">
             <span style="font-weight:700; font-size:15px; color:var(--ink);">Hola, ${name}</span>
-            <span style="background:var(--accent); color:var(--ink); padding:6px 14px; border-radius:9999px; font-weight:800; font-size:15px; border: none; display: inline-flex; align-items: center; justify-content: center; align-self: center; line-height: 1; white-space: nowrap;">Créditos: ${credits}</span>
+            <span style="background:var(--accent); color:var(--ink); padding:8px 18px; border-radius:9999px; font-weight:800; font-size:15px; border: none; display: inline-flex; align-items: center; justify-content: center; align-self: center; line-height: 1; white-space: nowrap;">Créditos: ${credits}</span>
             <button onclick="handleLogout()" class="btn-auth light" style="font-weight:800; font-size:14px; padding:10px 20px; border-radius:9999px; border:2px solid var(--ink); box-shadow:0 3px 0 var(--ink); cursor:pointer;">Cerrar Sesión</button>
           </div>
         `;
