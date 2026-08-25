@@ -574,30 +574,53 @@
       box-shadow:0 1px 0 var(--ink);
     }
 
+    /* Caja de visualización del archivo seleccionado */
     .selected-file{
       display:none;
       margin:24px auto 0;
       max-width:600px;
-      padding:14px 18px;
-      background:#f0f4f0;
-      border:1px solid var(--line);
-      border-radius:12px;
+      padding:16px 20px;
+      background:#f0f5ee;
+      border:1.5px solid rgba(184, 255, 61, 0.4);
+      border-radius:14px;
+      align-items:center;
+      justify-content:space-between;
       text-align:left;
     }
 
     .selected-file.show{
-      display:block;
+      display:flex;
     }
 
     .selected-file-name{
       font-weight:800;
-      word-break:break-word;
+      word-break:break-all;
     }
 
     .selected-file-size{
       color:var(--muted);
       font-size:13px;
-      margin-top:3px;
+      margin-top:2px;
+    }
+
+    .btn-remove-file{
+      background:none;
+      border:none;
+      color:#d9432f;
+      font-size:22px;
+      font-weight:800;
+      cursor:pointer;
+      outline:none;
+      padding:8px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      transition:0.2s ease;
+    }
+
+    .btn-remove-file:hover{
+      color:#b42318;
+      transform:scale(1.15);
     }
 
     .drag-help{
@@ -1092,10 +1115,16 @@
         </button>
 
 
-        <!-- Cuadro con datos del archivo seleccionado -->
+        <!-- Cuadro con datos del archivo seleccionado con botón de borrado en "X" -->
         <div class="selected-file" id="selectedFile">
-          <div class="selected-file-name" id="selectedFileName"></div>
-          <div class="selected-file-size" id="selectedFileSize"></div>
+          <div style="display:flex; align-items:center; gap:12px; text-align:left;">
+            <div style="font-size:24px;">📄</div>
+            <div>
+              <div class="selected-file-name" id="selectedFileName"></div>
+              <div class="selected-file-size" id="selectedFileSize"></div>
+            </div>
+          </div>
+          <button type="button" class="btn-remove-file" id="removeFileBtn" title="Eliminar archivo">✕</button>
         </div>
 
 
@@ -1651,6 +1680,7 @@
       const selectedFile = document.getElementById("selectedFile");
       const selectedFileName = document.getElementById("selectedFileName");
       const selectedFileSize = document.getElementById("selectedFileSize");
+      const removeFileBtn = document.getElementById("removeFileBtn");
 
       // Validar que Supabase esté inicializado de forma global
       const client = window.supabaseClient || (typeof supabaseClient !== "undefined" ? supabaseClient : null);
@@ -1727,23 +1757,21 @@
         }
 
         window.selectedSTLFile = file;
-        selectedFileName.textContent = "📄 " + file.name;
-        selectedFileSize.innerHTML = `
-          ${formatSize(file.size)}
-          <span id="removeFileLink" style="color:var(--muted); text-decoration:underline; cursor:pointer; margin-left:12px; font-weight:700;">Cambiar archivo</span>
-        `;
+        selectedFileName.textContent = file.name;
+        selectedFileSize.textContent = formatSize(file.size);
 
         selectedFile.classList.add("show");
 
-        document.getElementById("removeFileLink").addEventListener("click", (e) => {
-          e.stopPropagation();
-          window.selectedSTLFile = null;
-          fileInput.value = "";
-          updateButtonState();
-        });
-
         updateButtonState();
       }
+
+      // Escuchar clic en el botón de borrar "✕" de color rojo
+      removeFileBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        window.selectedSTLFile = null;
+        fileInput.value = "";
+        updateButtonState();
+      });
 
       // Escuchar cambios en el input oculto
       fileInput.addEventListener("change", () => {
@@ -1759,7 +1787,7 @@
 
         // Caso 1: No logueado -> Ir a iniciar sesión
         if (!session) {
-          // Provocar la salida de transición elegante antes de ir al login
+          // Provocar la salida de transición de PrintLab antes de ir al login
           document.body.classList.add("page-transition-out");
           setTimeout(() => {
             window.location.href = "login.html?redirect=analizador-stl.html";
@@ -1775,7 +1803,7 @@
           return;
         }
 
-        // Caso 3: Logueado y con archivo listo -> Comprobar créditos, subir a storage, analizar y descontar
+        // Caso 3: Logueado y con archivo listo -> Comprobar créditos, procesar y descontar
         if (state === "has-file") {
           accessButton.disabled = true;
           accessButton.textContent = "Comprobando créditos...";
@@ -1799,27 +1827,7 @@
               return;
             }
 
-            // 2. Subir el archivo de mallas al Storage de Supabase en el bucket 'stls'
-            accessButton.textContent = "Almacenando archivo...";
-            const fileExt = window.selectedSTLFile.name.split('.').pop();
-            const fileName = `${session.user.id}/${Date.now()}.${fileExt}`;
-            const filePath = `uploads/${fileName}`;
-
-            const { data: uploadData, error: uploadError } = await client
-              .storage
-              .from('stls')
-              .upload(filePath, window.selectedSTLFile, {
-                cacheControl: '3600',
-                upsert: true
-              });
-
-            let publicUrl = "";
-            if (!uploadError && uploadData) {
-              const { data: publicUrlData } = client.storage.from('stls').getPublicUrl(filePath);
-              publicUrl = publicUrlData?.publicUrl || "";
-            }
-
-            // 3. Enviar el archivo real al backend de Python en Render para el análisis geométrico real
+            // 2. Enviar el archivo real al backend de Python en Render para el análisis geométrico real
             accessButton.textContent = "Analizando geometría...";
             const formData = new FormData();
             formData.append("file", window.selectedSTLFile);
@@ -1835,62 +1843,26 @@
               throw new Error(analysisData?.error || "Error de cálculo geométrico en el servidor de Python.");
             }
 
-            // 4. Decodificar la pieza ligera recibida del servidor (Base64 -> archivo binario)
-            accessButton.textContent = "Guardando pieza optimizada...";
-            const sliceSize = 1024;
-            const byteCharacters = atob(analysisData.optimized_mesh_base64);
-            const byteArrays = [];
-
-            for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-              const slice = byteCharacters.slice(offset, offset + sliceSize);
-              const byteNumbers = new Array(slice.length);
-              for (let i = 0; i < slice.length; i++) {
-                byteNumbers[i] = slice.charCodeAt(i);
-              }
-              const byteArray = new Uint8Array(byteNumbers);
-              byteArrays.push(byteArray);
-            }
-
-            const optimizedFileBlob = new Blob(byteArrays, { type: "model/stl" });
-
-            // 5. Subir únicamente el archivo ligero de 400 KB a Supabase Storage
-            const optimizedFileName = `${session.user.id}/${Date.now()}_optimized.stl`;
-            const optimizedFilePath = `uploads/${optimizedFileName}`;
-
-            const { data: optUploadData, error: optUploadError } = await client
-              .storage
-              .from('stls')
-              .upload(optimizedFilePath, optimizedFileBlob, {
-                cacheControl: '3600',
-                upsert: true
-              });
-
-            let optimizedPublicUrl = "";
-            if (!optUploadError && optUploadData) {
-              const { data: optPublicUrlData } = client.storage.from('stls').getPublicUrl(optimizedFilePath);
-              optimizedPublicUrl = optPublicUrlData?.publicUrl || "";
-            }
-
-            // Guardar los datos reales del análisis y el enlace en SessionStorage
+            // Guardar los datos reales del análisis y la pieza optimizada Base64 en SessionStorage de forma limpia
             sessionStorage.setItem("printlab_analysis", JSON.stringify({
               volume: analysisData.volume_cm3,
               dimensions: analysisData.dimensions,
               watertight: analysisData.is_watertight,
               critical_points: analysisData.critical_points,
               file_name: window.selectedSTLFile.name,
-              file_url: optimizedPublicUrl // Esta URL apuntará ahora a la pieza optimizada súper ligera
+              optimized_base64: analysisData.optimized_mesh_base64 // El STL ligero simplificado viaja de forma local
             }));
 
             accessButton.textContent = "Descontando crédito...";
 
-            // 6. Ejecutar la llamada RPC a Supabase para descontar de forma segura 1 crédito
+            // 3. Ejecutar la llamada RPC a Supabase para descontar de forma segura 1 crédito
             const { data: success, error: rpcError } = await client.rpc("deduct_analysis_credit");
 
             if (rpcError || !success) {
               throw new Error(rpcError?.message || "Ocurrió una inconsistencia en el cobro de créditos.");
             }
 
-            // 7. Redirigir directamente al informe con la animación fluida de PrintLab
+            // 4. Redirigir directamente al informe con la animación fluida de PrintLab
             document.body.classList.add("page-transition-out");
             setTimeout(() => {
               window.location.href = "informe-stl.html";
