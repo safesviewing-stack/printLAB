@@ -1,3 +1,4 @@
+--- START OF FILE index.html ---
 <!doctype html>
 <html lang="es">
 <head>
@@ -271,8 +272,8 @@
 
         <!-- Se añade ocultación inicial por estilos inline para prevenir destellos -->
         <div class="auth-buttons" id="authHeaderContainer" style="opacity: 0; visibility: hidden; transition: opacity 0.15s ease, visibility 0.15s ease;">
-          <a href="herramientas/login.html" class="btn-auth light">Iniciar Sesión</a>
-          <a href="herramientas/registro.html" class="btn-auth green">Registrarse</a>
+          <a href="herramientas/login.html" class="btn-auth light" onclick="sessionStorage.removeItem('printlab_recovery_mode')">Iniciar Sesión</a>
+          <a href="herramientas/registro.html" class="btn-auth green" onclick="sessionStorage.removeItem('printlab_recovery_mode')">Registrarse</a>
         </div>
       </nav>
     </div>
@@ -1304,7 +1305,7 @@
       } else if (material === 'TPU') {
         recText = "TPU flexible. Imprescindible extrusor de tracción directa. Desactiva retracciones para evitar atascos en la garganta.";
       } else if (material === 'PC') {
-        recText = "PC de alta ingeniería. Aplica laca adhesiva estructural sobre la cama y de forma obligatoria asegura temperaturas de extrusión elevadas (>275ºC).";
+        recText = "PC de alta ingeniería. Aplica laca adhesiva estructural sobre la cama and de forma obligatoria asegura temperaturas de extrusión elevadas (>275ºC).";
       }
       
       if (pattern === 'rayo' && infill > 15) {
@@ -1369,3 +1370,4 @@
   </script>
 </body>
 </html>
+--- END OF FILE index.html ---
