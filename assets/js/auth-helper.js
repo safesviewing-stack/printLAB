@@ -229,44 +229,6 @@ async function initAuth() {
 
   let user = null;
 
-
-  // ===================================================
-  // COMPROBAR SESIÓN
-  // ===================================================
-
-  try {
-
-    const {
-      data,
-      error
-    } =
-      await supabaseClient.auth.getUser();
-
-
-    if (error) {
-
-      console.warn(
-        "No se pudo obtener el usuario:",
-        error
-      );
-
-    } else {
-
-      user =
-        data?.user || null;
-
-    }
-
-  } catch (error) {
-
-    console.error(
-      "Error comprobando autenticación:",
-      error
-    );
-
-  }
-
-
   // ===================================================
   // ELEMENTOS DE LA PÁGINA
   // ===================================================
@@ -297,6 +259,96 @@ async function initAuth() {
   } else {
     // Si no está en ninguna carpeta, asume que está en el directorio raíz (index.html)
     pathPrefix = "herramientas/";
+  }
+
+
+  // ===================================================
+  // PRE-CARGA SÍNCRONA DE SESIÓN (Elimina demoras de red)
+  // ===================================================
+
+  const tokenStr = localStorage.getItem("sb-jmwprzgfdkphbxryjbnr-auth-token");
+  if (tokenStr) {
+    try {
+      const tokenData = JSON.parse(tokenStr);
+      const sessionUser = tokenData?.user;
+      if (sessionUser) {
+        user = sessionUser; // Pre-cargar el usuario síncronamente
+
+        const name = user.user_metadata?.full_name || user.email?.split("@")[0] || "Usuario";
+
+        // Pintar la cabecera síncronamente en el acto
+        if (authButtons) {
+          authButtons.innerHTML = `
+            <div class="user-header-info">
+              <span class="user-greeting">
+                Hola, ${name}
+              </span>
+              <span class="credits-badge">
+                Créditos: ...
+              </span>
+              <button
+                id="btn-logout"
+                class="btn-auth light"
+                type="button"
+                onclick="handleLogout()"
+              >
+                Cerrar Sesión
+              </button>
+            </div>
+          `;
+          authButtons.style.opacity = "1";
+          authButtons.style.visibility = "visible";
+        }
+
+        // Pintar el dashboard de bienvenida del inicio de inmediato
+        if (greetingDashboard) {
+          greetingDashboard.innerHTML = `Hola, ${name} | Cargando créditos...`;
+          greetingDashboard.style.setProperty("background", "rgba(184, 255, 61, 0.2)", "important");
+          greetingDashboard.style.setProperty("color", "var(--ink)", "important");
+        }
+      }
+    } catch (e) {
+      console.warn("Error en pre-carga de sesión:", e);
+    }
+  }
+
+
+  // ===================================================
+  // COMPROBACIÓN ASÍNCRONA REAL CON SUPABASE
+  // ===================================================
+
+  try {
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient.auth.getUser();
+
+
+    if (error) {
+
+      console.warn(
+        "No se pudo obtener el usuario:",
+        error
+      );
+      user = null; // Si da error, limpiamos el estado síncrono
+
+    } else {
+
+      user =
+        data?.user || null;
+
+    }
+
+  } catch (error) {
+
+    console.error(
+      "Error comprobando autenticación:",
+      error
+    );
+    user = null;
+
   }
 
 
@@ -361,12 +413,11 @@ async function initAuth() {
 
 
     // =================================================
-    // ACTUALIZAR HEADER
+    // ACTUALIZAR HEADER CON DATOS REALES
     // =================================================
 
     if (authButtons) {
 
-      // Se integra la llamada síncrona handleLogout() en línea en el evento onclick
       authButtons.innerHTML = `
 
         <div class="user-header-info">
@@ -429,6 +480,13 @@ async function initAuth() {
   // ===================================================
   // USUARIO SIN SESIÓN (Se resuelven las rutas según la carpeta)
   // ===================================================
+
+  const currentPage =
+    window.location.pathname
+      .split("/")
+      .pop()
+      .toLowerCase();
+
 
   if (authButtons) {
     authButtons.innerHTML = `
