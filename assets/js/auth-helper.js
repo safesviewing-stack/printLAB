@@ -24,6 +24,51 @@ window.supabaseClient = supabaseClient;
 
 
 // =====================================================
+// MÉTODO GLOBAL DE CIERRE DE SESIÓN (Inmune a demoras de carga)
+// =====================================================
+
+window.handleLogout = async function() {
+  const btn = document.getElementById("btn-logout") || document.querySelector(".user-header-info button");
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "Cerrando sesión...";
+  }
+
+  try {
+    const { error } = await supabaseClient.auth.signOut();
+
+    if (error) {
+      console.error("Error cerrando sesión:", error);
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = "Cerrar Sesión";
+      }
+      return;
+    }
+
+    // Determinar la página actual
+    const currentPathname = window.location.pathname.toLowerCase();
+    const currentPage = currentPathname.split("/").pop().toLowerCase();
+
+    // Redirección directa al inicio si estamos en el informe
+    if (currentPage === "informe-stl.html") {
+      sessionStorage.removeItem("printlab_auth_redirect");
+      window.location.href = "../index.html";
+    } else {
+      window.location.reload();
+    }
+
+  } catch (error) {
+    console.error("Error cerrando sesión:", error);
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = "Cerrar Sesión";
+    }
+  }
+};
+
+
+// =====================================================
 // ESTILOS DEL HEADER DEL USUARIO
 // =====================================================
 
@@ -322,6 +367,7 @@ async function initAuth() {
 
     if (authButtons) {
 
+      // Se integra la llamada síncrona handleLogout() en línea en el evento onclick
       authButtons.innerHTML = `
 
         <div class="user-header-info">
@@ -340,6 +386,7 @@ async function initAuth() {
             id="btn-logout"
             class="btn-auth light"
             type="button"
+            onclick="handleLogout()"
           >
             Cerrar Sesión
           </button>
@@ -347,90 +394,6 @@ async function initAuth() {
         </div>
 
       `;
-
-
-      // ===============================================
-      // BOTÓN CERRAR SESIÓN
-      // ===============================================
-
-      const logoutButton =
-        document.getElementById(
-          "btn-logout"
-        );
-
-
-      if (logoutButton) {
-
-        logoutButton.addEventListener(
-          "click",
-          async () => {
-
-            logoutButton.disabled = true;
-
-            logoutButton.textContent =
-              "Cerrando sesión...";
-
-
-            try {
-
-              const {
-                error
-              } =
-                await supabaseClient.auth.signOut();
-
-
-              if (error) {
-
-                console.error(
-                  "Error cerrando sesión:",
-                  error
-                );
-
-
-                logoutButton.disabled =
-                  false;
-
-                logoutButton.textContent =
-                  "Cerrar Sesión";
-
-                return;
-
-              }
-
-
-              // ---------------------------------------
-              // Sesión cerrada correctamente
-              // ---------------------------------------
-
-              // Si cerramos sesión desde el informe final, redirigimos a index.html (inicio) directamente
-              if (currentPage === "informe-stl.html") {
-                sessionStorage.removeItem("printlab_auth_redirect");
-                window.location.href = "../index.html";
-              } else {
-                window.location.reload();
-              }
-
-
-            } catch (error) {
-
-              console.error(
-                "Error cerrando sesión:",
-                error
-              );
-
-
-              logoutButton.disabled =
-                false;
-
-              logoutButton.textContent =
-                "Cerrar Sesión";
-
-            }
-
-          }
-        );
-
-      }
 
       // Hace visible la cabecera una vez determinado el estado de la sesión
       authButtons.style.opacity = "1";
