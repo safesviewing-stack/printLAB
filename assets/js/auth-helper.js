@@ -263,11 +263,21 @@ async function initAuth() {
 
 
   // ===================================================
+  // DETECCIÓN DE MODO DE RECUPERACIÓN (Evita falsos inicios de sesión)
+  // ===================================================
+
+  const isRecovery =
+    window.location.hash.includes("type=recovery") ||
+    window.location.hash.includes("access_token=") ||
+    window.location.search.includes("type=recovery");
+
+
+  // ===================================================
   // PRE-CARGA SÍNCRONA DE SESIÓN (Elimina demoras de red)
   // ===================================================
 
   const tokenStr = localStorage.getItem("sb-jmwprzgfdkphbxryjbnr-auth-token");
-  if (tokenStr) {
+  if (tokenStr && !isRecovery) {
     try {
       const tokenData = JSON.parse(tokenStr);
       const sessionUser = tokenData?.user;
@@ -319,26 +329,31 @@ async function initAuth() {
 
   try {
 
-    const {
-      data,
-      error
-    } =
-      await supabaseClient.auth.getUser();
-
-
-    if (error) {
-
-      console.warn(
-        "No se pudo obtener el usuario:",
-        error
-      );
-      user = null; // Si da error, limpiamos el estado síncrono
-
+    if (isRecovery) {
+      // Si estamos en flujo de recuperación, ignoramos el usuario logueado en la cabecera
+      user = null;
     } else {
+      const {
+        data,
+        error
+      } =
+        await supabaseClient.auth.getUser();
 
-      user =
-        data?.user || null;
 
+      if (error) {
+
+        console.warn(
+          "No se pudo obtener el usuario:",
+          error
+        );
+        user = null; // Si da error, limpiamos el estado síncrono
+
+      } else {
+
+        user =
+          data?.user || null;
+
+      }
     }
 
   } catch (error) {
