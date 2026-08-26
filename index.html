@@ -242,8 +242,8 @@
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- Parámetro cache-busting v=5 para forzar recarga del JS corregido -->
-  <script src="assets/js/auth-helper.js?v=5"></script>
+  <!-- Parámetro cache-busting v=6 para forzar recarga del JS corregido -->
+  <script src="assets/js/auth-helper.js?v=6"></script>
 </head>
 <body>
   
@@ -283,22 +283,39 @@
     <!-- PORTADA -->
     <section id="portada" class="hero section">
       <div>
+        <div class="eyebrow" id="dashboard-greeting">Decisiones basadas en datos técnicos</div>
         
-        <!-- INTERCEPTOR DE RENDIMIENTO DE DOM INLINE (Previene flashes del diseño de 2 líneas) -->
+        <!-- INTERCEPTOR DE RENDIMIENTO DE DOM INLINE (Previene flashes del diseño de 2 líneas de forma síncrona mediante localStorage) -->
         <script>
           (function() {
             const el = document.getElementById("dashboard-greeting");
             if (!el) return;
             
-            // Guardar descriptor original de innerHTML
-            const originalSet = Object.getOwnPropertyDescriptor(Element.prototype, "innerHTML").set;
+            // 1. Detección síncrona ultrarrápida de localStorage antes de dibujar en pantalla
+            const tokenStr = localStorage.getItem("sb-jmwprzgfdkphbxryjbnr-auth-token");
+            if (tokenStr) {
+              try {
+                const tokenData = JSON.parse(tokenStr);
+                const user = tokenData?.user;
+                if (user) {
+                  const email = user.email;
+                  const metadataName = user.user_metadata?.full_name;
+                  const name = metadataName || email.split("@")[0];
+                  
+                  // Modificación instantánea en menos de 1 milisegundo
+                  el.innerHTML = `Hola, ${name} | Cargando créditos...`;
+                  el.style.setProperty("background", "rgba(184, 255, 61, 0.2)", "important");
+                  el.style.setProperty("color", "var(--ink)", "important");
+                }
+              } catch (e) {}
+            }
             
-            // Interceptar cualquier escritura en innerHTML
+            // 2. Interceptor de DOM en tiempo real para escrituras asíncronas de scripts en caché
+            const originalSet = Object.getOwnPropertyDescriptor(Element.prototype, "innerHTML").set;
             Object.defineProperty(el, "innerHTML", {
               set: function(value) {
                 let cleanValue = value;
                 
-                // Si el valor contiene formato de dos líneas o código antiguo, se reestructura al vuelo
                 if (value.includes("<br>") || value.includes("Créditos disponibles:") || value.includes("créditos disponibles")) {
                   const nameMatch = value.match(/Hola,\s*([^<|]+)/i);
                   const creditsMatch = value.match(/(?:Créditos disponibles:|Dispones de|créditos disponibles:)\s*(?:<strong>)?(\d+)/i);
@@ -308,7 +325,6 @@
                   
                   cleanValue = `Hola, ${name} | Dispones de ${credits} créditos`;
                   
-                  // Forzar estilos inline de fondo verde para sincronía absoluta
                   this.style.setProperty("background", "rgba(184, 255, 61, 0.2)", "important");
                   this.style.setProperty("color", "var(--ink)", "important");
                 }
