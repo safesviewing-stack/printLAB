@@ -263,13 +263,22 @@ async function initAuth() {
 
 
   // ===================================================
-  // DETECCIÓN DE MODO DE RECUPERACIÓN (Evita falsos inicios de sesión)
+  // DETECCIÓN GLOBAL DE MODO DE RECUPERACIÓN (Inmune a la navegación)
   // ===================================================
 
   const isRecovery =
     window.location.hash.includes("type=recovery") ||
     window.location.hash.includes("access_token=") ||
-    window.location.search.includes("type=recovery");
+    window.location.search.includes("type=recovery") ||
+    sessionStorage.getItem("printlab_recovery_mode") === "true";
+
+  if (
+    window.location.hash.includes("type=recovery") ||
+    window.location.hash.includes("access_token=") ||
+    window.location.search.includes("type=recovery")
+  ) {
+    sessionStorage.setItem("printlab_recovery_mode", "true");
+  }
 
 
   // ===================================================
@@ -330,7 +339,7 @@ async function initAuth() {
   try {
 
     if (isRecovery) {
-      // Si estamos en flujo de recuperación, ignoramos el usuario logueado en la cabecera
+      // Bloquear cualquier comprobación de usuario si estamos en modo recuperación
       user = null;
     } else {
       const {
