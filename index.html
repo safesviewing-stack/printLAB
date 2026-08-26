@@ -242,8 +242,8 @@
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- Parámetro cache-busting v=6 para forzar recarga del JS corregido -->
-  <script src="assets/js/auth-helper.js?v=6"></script>
+  <!-- Parámetro cache-busting v=11 para forzar recarga del JS corregido globalmente -->
+  <script src="assets/js/auth-helper.js?v=11"></script>
 </head>
 <body>
   
@@ -291,8 +291,11 @@
             const el = document.getElementById("dashboard-greeting");
             if (!el) return;
             
+            // Comprobar si estamos en modo recuperación
+            const isRecovery = sessionStorage.getItem("printlab_recovery_mode") === "true";
+            
             // 1. Detección síncrona ultrarrápida de localStorage antes de dibujar en pantalla
-            const tokenStr = localStorage.getItem("sb-jmwprzgfdkphbxryjbnr-auth-token");
+            const tokenStr = isRecovery ? null : localStorage.getItem("sb-jmwprzgfdkphbxryjbnr-auth-token");
             if (tokenStr) {
               try {
                 const tokenData = JSON.parse(tokenStr);
@@ -315,6 +318,14 @@
             Object.defineProperty(el, "innerHTML", {
               set: function(value) {
                 let cleanValue = value;
+                
+                // Si está en recuperación, evitar reescribir con datos de sesión
+                if (sessionStorage.getItem("printlab_recovery_mode") === "true") {
+                  originalSet.call(this, "Decisiones basadas en datos técnicos");
+                  this.style.removeProperty("background");
+                  this.style.removeProperty("color");
+                  return;
+                }
                 
                 if (value.includes("<br>") || value.includes("Créditos disponibles:") || value.includes("créditos disponibles")) {
                   const nameMatch = value.match(/Hola,\s*([^<|]+)/i);
@@ -414,18 +425,16 @@
           </div>
 
           <!-- Tarjetas Inferiores (Grid Dividido) -->
-          <div class="bento-grid-mini">
-            <div class="bento-card" style="padding:28px;">
-              <div style="font-size:28px; margin-bottom:14px;">🎯</div>
-              <h4 style="margin:0 0 6px; font-size:16px; font-weight:800; letter-spacing:-0.2px;">Soluciones Slicer</h4>
-              <p style="margin:0; font-size:14px; color:var(--muted); line-height:1.5;">Instrucciones precisas y listas para aplicar en tu laminador.</p>
-            </div>
-            
-            <div class="bento-card" style="padding:28px;">
-              <div style="font-size:28px; margin-bottom:14px;">💶</div>
-              <h4 style="margin:0 0 6px; font-size:16px; font-weight:800; letter-spacing:-0.2px;">Ahorro de Costes</h4>
-              <p style="margin:0; font-size:14px; color:var(--muted); line-height:1.5;">Reduce material de soporte y elimina por completo los fallos de lote.</p>
-            </div>
+          <div class="bento-card" style="padding:28px;">
+            <div style="font-size:28px; margin-bottom:14px;">🎯</div>
+            <h4 style="margin:0 0 6px; font-size:16px; font-weight:800; letter-spacing:-0.2px;">Soluciones Slicer</h4>
+            <p style="margin:0; font-size:14px; color:var(--muted); line-height:1.5;">Instrucciones precisas y listas para aplicar en tu laminador.</p>
+          </div>
+          
+          <div class="bento-card" style="padding:28px;">
+            <div style="font-size:28px; margin-bottom:14px;">💶</div>
+            <h4 style="margin:0 0 6px; font-size:16px; font-weight:800; letter-spacing:-0.2px;">Ahorro de Costes</h4>
+            <p style="margin:0; font-size:14px; color:var(--muted); line-height:1.5;">Reduce material de soporte y elimina por completo los fallos de lote.</p>
           </div>
 
         </div>
