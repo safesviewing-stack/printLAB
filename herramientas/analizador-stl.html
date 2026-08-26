@@ -40,9 +40,108 @@
     .btn-auth.green{background:var(--accent); color:var(--ink); box-shadow:0 3px 0 var(--ink)}
 
     /* WIZARD */
-    .upload-container{max-width:800px; margin:80px auto; background:var(--card); border:2px dashed var(--line); border-radius:24px; padding:50px 40px; text-align:center;}
-    .upload-container.drag-over{border-color:var(--ink); background:#f0f5ed; transform:scale(1.01);}
+    .upload-container{
+      max-width:800px;
+      margin:80px auto;
+      background:var(--card);
+      border:2px dashed var(--line);
+      border-radius:24px;
+      padding:60px 40px;
+      text-align:center;
+      box-shadow: 0 20px 40px rgba(13, 17, 16, 0.025);
+      transition: border-color 0.25s ease, background-color 0.25s ease, transform 0.25s ease;
+    }
+    .upload-container:hover{
+      border-color: var(--ink);
+    }
+    .upload-container.drag-over{
+      border-color:var(--accent);
+      background:#fbfcfa;
+      transform:scale(1.015);
+    }
     
+    .upload-icon-wrapper {
+      width: 80px;
+      height: 80px;
+      background: var(--bg);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 34px;
+      border: 1.5px solid var(--line);
+      box-shadow: 0 10px 20px rgba(13, 17, 16, 0.02);
+      transition: transform 0.3s ease, background-color 0.3s ease;
+    }
+    .upload-container:hover .upload-icon-wrapper {
+      transform: translateY(-4px) scale(1.05);
+      background-color: #fff;
+    }
+
+    .upload-title {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-top: 16px;
+      margin-bottom: 8px;
+      color: var(--ink);
+    }
+    .upload-desc {
+      font-size: 15px;
+      color: var(--muted);
+      margin-bottom: 32px;
+    }
+    .drag-help {
+      font-size: 13.5px;
+      color: var(--muted);
+      margin-top: 18px;
+      font-weight: 500;
+    }
+    
+    .selected-file {
+      display: none;
+      margin: 24px auto 0;
+      max-width: 600px;
+      padding: 18px 24px;
+      background: #fbfcfa;
+      border: 1.5px solid rgba(184, 255, 61, 0.5);
+      border-radius: 16px;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 10px 25px rgba(184, 255, 61, 0.04);
+    }
+    .selected-file.show {
+      display: flex;
+      animation: slideDown 0.3s ease;
+    }
+    .selected-file-name {
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--ink);
+    }
+    .selected-file-size {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .btn-remove-file {
+      background: none;
+      border: none;
+      color: #d9432f;
+      font-size: 20px;
+      font-weight: 800;
+      cursor: pointer;
+      outline: none;
+      padding: 8px;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+      opacity: 0.8;
+    }
+    .btn-remove-file:hover {
+      transform: scale(1.15) rotate(90deg);
+      opacity: 1;
+    }
+
     .wizard-step{display:none; text-align:left; animation:fadeIn 0.3s ease-out;}
     .wizard-step.active{display:block;}
     @keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
@@ -60,10 +159,6 @@
     .form-group label{font-size:13px; font-weight:800; margin-bottom:8px; color:var(--muted);}
     .form-group input, .form-group textarea, .form-group select{padding:14px; border:1.5px solid var(--line); border-radius:12px; font-size:15px; font-weight:700; background:var(--bg); color:var(--ink); outline:none; font-family:inherit;}
     .form-group input:focus, .form-group textarea:focus, .form-group select:focus{background:#fff; border-color:var(--ink);}
-
-    .selected-file{display:none; margin:24px auto 0; max-width:600px; padding:16px 20px; background:#f0f5ee; border:1.5px solid rgba(184, 255, 61, 0.4); border-radius:14px; align-items:center; justify-content:space-between;}
-    .selected-file.show{display:flex;}
-    .btn-remove-file{background:none; border:none; color:#d9432f; font-size:22px; font-weight:800; cursor:pointer; outline:none; padding:8px;}
 
     .wizard-nav-buttons{display:flex; justify-content:space-between; margin-top:32px; border-top:1.5px solid var(--line); padding-top:24px;}
     .btn-green{display:inline-block; background:var(--accent); color:var(--ink); padding:16px 36px; border-radius:9999px; font-weight:800; font-size:15px; border:2px solid var(--ink); box-shadow:0 4px 0 var(--ink); cursor:pointer;}
@@ -177,7 +272,7 @@
 
       <!-- PASO 0: SUBIDA DEL STL -->
       <div class="wizard-step active" id="step-upload">
-        <div style="font-size:48px; margin-bottom:12px;">📁</div>
+        <div class="upload-icon-wrapper">📁</div>
         <h3 class="upload-title" style="text-align:center;">Analizar nuevo modelo STL</h3>
         <p class="upload-desc" style="text-align:center;">Soporte para FDM, SLA/MSLA y SLS. Límite: 500MB por archivo.</p>
         
@@ -568,7 +663,14 @@
 
       window.selectedSTLFile = file;
       selectedFileName.textContent = file.name;
-      selectedFileSize.textContent = (file.size / (1024 * 1024)).toFixed(1) + " MB";
+      
+      // Conversión inteligente de visualización de tamaño (KB para archivos pequeños)
+      if (file.size < 1024 * 1024) {
+        selectedFileSize.textContent = (file.size / 1024).toFixed(0) + " KB";
+      } else {
+        selectedFileSize.textContent = (file.size / (1024 * 1024)).toFixed(1) + " MB";
+      }
+      
       selectedFile.classList.add("show");
       updateButtonState();
     }
