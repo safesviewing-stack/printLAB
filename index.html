@@ -271,8 +271,8 @@
 
         <!-- Se añade ocultación inicial por estilos inline para prevenir destellos -->
         <div class="auth-buttons" id="authHeaderContainer" style="opacity: 0; visibility: hidden; transition: opacity 0.15s ease, visibility 0.15s ease;">
-          <a href="herramientas/login.html" class="btn-auth light" onclick="sessionStorage.removeItem('printlab_recovery_mode')">Iniciar Sesión</a>
-          <a href="herramientas/registro.html" class="btn-auth green" onclick="sessionStorage.removeItem('printlab_recovery_mode')">Registrarse</a>
+          <a href="herramientas/login.html" class="btn-auth light" onclick="sessionStorage.removeItem('printlab_recovery_mode'); localStorage.removeItem('sb-jmwprzgfdkphbxryjbnr-auth-token');">Iniciar Sesión</a>
+          <a href="herramientas/registro.html" class="btn-auth green" onclick="sessionStorage.removeItem('printlab_recovery_mode'); localStorage.removeItem('sb-jmwprzgfdkphbxryjbnr-auth-token');">Registrarse</a>
         </div>
       </nav>
     </div>
@@ -718,7 +718,7 @@
 
         <a class="card" href="guias/soportes-voladizos.html">
           <span class="tag">Laminado</span>
-          <h3>Soportes, puentes y voladizos</h3>
+          <h3>Soportes, puentes and voladizos</h3>
           <p>Límites de ángulos críticos, uso de soportes orgánicos/árbol frente a lineales, y cómo ajustar la distancia Z para que sean fáciles de retirar.</p>
           <span class="btn-action">Configurar soportes</span>
         </a>
