@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Precios y Créditos — PrintLab PRO</title>
+  <title>Precios y Créditos — PrintLab</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -110,12 +110,54 @@
       .auth-buttons { display: none; }
       .footergrid { grid-template-columns: 1fr; gap: 36px; }
     }
+
+    /* REGLA FORZADA PARA EL INDICADOR DE CRÉDITOS (Alineado simétrico y redondeado perfecto) */
+    #authHeaderContainer span[style*="background" i],
+    #authHeaderContainer span[style*="accent" i],
+    #authHeaderContainer span:nth-child(2),
+    #authHeaderContainer div span:nth-child(2) {
+      background: var(--accent) !important;
+      background-color: var(--accent) !important;
+      color: var(--ink) !important;
+      padding: 8px 18px !important;
+      border-radius: 9999px !important;
+      font-weight: 800 !important;
+      font-size: 15px !important;
+      border: none !important;
+      border-width: 0px !important;
+      box-shadow: none !important;
+      display: inline-flex !important;
+      align-items: center !important;  
+      justify-content: center !important; 
+      align-self: center !important;
+      line-height: 1 !important; 
+      height: auto !important;
+      min-height: 0 !important;
+      max-height: 38px !important;
+      margin: auto 0 !important;
+      white-space: nowrap !important;
+    }
+
+    /* REGLA FORZADA PARA EL SALUDO DE USUARIO (Impide alteraciones de tamaño) */
+    #authHeaderContainer .user-greeting,
+    #authHeaderContainer span:nth-child(1),
+    #authHeaderContainer div span:nth-child(1),
+    #authHeaderContainer span:first-child,
+    #authHeaderContainer div span:first-child {
+      font-weight: 700 !important;
+      font-size: 15px !important;
+      color: var(--ink) !important;
+      display: inline-block !important;
+      margin: auto 0 !important;
+      white-space: nowrap !important;
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../assets/js/auth-helper.js"></script>
 </head>
 <body>
 
+  <!-- CABECERA ADAPTADA -->
   <header class="top">
     <div class="wrap">
       <nav>
@@ -137,7 +179,8 @@
           <a class="brand" href="../index.html#portada" title="Volver al inicio">PRINT<span>LAB</span></a>
         </div>
 
-        <div class="auth-buttons">
+        <!-- Se añade ocultación inicial por estilos inline para prevenir destellos -->
+        <div class="auth-buttons" id="authHeaderContainer" style="opacity: 0; visibility: hidden; transition: opacity 0.15s ease, visibility 0.15s ease;">
           <a href="login.html" class="btn-auth light">Iniciar Sesión</a>
           <a href="registro.html" class="btn-auth green">Registrarse</a>
         </div>
@@ -259,48 +302,29 @@
 
   <script>
   async function processCheckout(planId) {
-  const { data: { user } } = await supabaseClient.auth.getUser();
-  if (!user) {
-    alert('Debes iniciar sesión para poder comprar créditos.');
-    window.location.href = 'login.html';
-    return;
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    if (!user) {
+      alert('Debes iniciar sesión para poder comprar créditos.');
+      window.location.href = 'login.html?redirect=precios.html';
+      return;
+    }
+    // Redirección dinámica al HTML de checkout con los parámetros del plan elegido
+    window.location.href = `checkout.html?plan=${planId}`;
   }
 
-  // Llamar a nuestra Edge Function de Supabase de forma segura
-  const response = await fetch(`${SUPABASE_URL}/functions/v1/stripe-checkout`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-    },
-    body: JSON.stringify({
-      planId: planId,
-      userId: user.id,
-      successUrl: window.location.origin + '/index.html',
-      cancelUrl: window.location.href
-    })
+  document.addEventListener('DOMContentLoaded', () => {
+    const planButtons = document.querySelectorAll('.plan-card a');
+    
+    // Asociar planes a la redirección dinámica
+    planButtons[0].removeAttribute('href');
+    planButtons[0].addEventListener('click', () => processCheckout('single'));
+
+    planButtons[1].removeAttribute('href');
+    planButtons[1].addEventListener('click', () => processCheckout('pro'));
+
+    planButtons[2].removeAttribute('href');
+    planButtons[2].addEventListener('click', () => processCheckout('industrial'));
   });
-
-  const session = await response.json();
-  if (session.url) {
-    window.location.href = session.url; // Redirigir a pasarela cifrada de Stripe
-  } else {
-    alert('Error en pasarela: ' + session.error);
-  }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  const planButtons = document.querySelectorAll('.plan-card a');
-  
-  // Asociar planes a la lógica real de pago
-  planButtons[0].removeAttribute('href');
-  planButtons[0].addEventListener('click', () => processCheckout('single'));
-
-  planButtons[1].removeAttribute('href');
-  planButtons[1].addEventListener('click', () => processCheckout('pro'));
-
-  planButtons[2].removeAttribute('href');
-  planButtons[2].addEventListener('click', () => processCheckout('industrial'));
-});</script>
+  </script>
 </body>
 </html>
