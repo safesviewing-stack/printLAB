@@ -1,6 +1,23 @@
 // assets/js/auth-helper.js
 
 // =====================================================
+// HOOK GLOBAL DE CONTROL DE SESIÓN (Intercepción a nivel de raíz)
+// =====================================================
+(function() {
+  const originalGetItem = localStorage.getItem;
+  localStorage.getItem = function(key) {
+    if (key && key.includes("auth-token") && sessionStorage.getItem("printlab_recovery_mode") === "true") {
+      // Permitir lectura única en login.html para que el formulario de recuperación pueda procesar updateUser
+      if (!window.location.pathname.toLowerCase().includes("login.html")) {
+        return null;
+      }
+    }
+    return originalGetItem.apply(this, arguments);
+  };
+})();
+
+
+// =====================================================
 // CONFIGURACIÓN DE SUPABASE
 // =====================================================
 
@@ -514,8 +531,8 @@ async function initAuth() {
 
   if (authButtons) {
     authButtons.innerHTML = `
-      <a href="${pathPrefix}login.html" class="btn-auth light" onclick="sessionStorage.removeItem('printlab_recovery_mode')">Iniciar Sesión</a>
-      <a href="${pathPrefix}registro.html" id="header-register-link" class="btn-auth green" onclick="sessionStorage.removeItem('printlab_recovery_mode')">Registrarse</a>
+      <a href="${pathPrefix}login.html" class="btn-auth light" onclick="sessionStorage.removeItem('printlab_recovery_mode'); localStorage.removeItem('sb-jmwprzgfdkphbxryjbnr-auth-token');">Iniciar Sesión</a>
+      <a href="${pathPrefix}registro.html" id="header-register-link" class="btn-auth green" onclick="sessionStorage.removeItem('printlab_recovery_mode'); localStorage.removeItem('sb-jmwprzgfdkphbxryjbnr-auth-token');">Registrarse</a>
     `;
 
     // Si estamos en login o registro, ajustar el enlace dinámico de la cabecera
