@@ -402,11 +402,10 @@ async function initAuth() {
               // Sesión cerrada correctamente
               // ---------------------------------------
 
-              // Si cerramos sesión desde el informe final, redirigimos a login limpio (sin redirect)
-              // para que la próxima vez que se inicie sesión vaya directamente a index.html (inicio)
+              // Si cerramos sesión desde el informe final, redirigimos a index.html (inicio) directamente
               if (currentPage === "informe-stl.html") {
                 sessionStorage.removeItem("printlab_auth_redirect");
-                window.location.href = "login.html";
+                window.location.href = "../index.html";
               } else {
                 window.location.reload();
               }
