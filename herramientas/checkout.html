@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Checkout Seguro — PrintLab PRO</title>
+  <title>Checkout Seguro — PrintLab</title>
   <meta name="description" content="Página de validación y pago seguro mediante pasarela certificada.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -94,6 +94,47 @@
       .footergrid { grid-template-columns: 1fr; gap: 36px; }
       .footer-bottom { flex-direction: column; align-items: flex-start;}
     }
+
+    /* REGLA FORZADA PARA EL INDICADOR DE CRÉDITOS (Alineado simétrico y redondeado perfecto) */
+    #authHeaderContainer span[style*="background" i],
+    #authHeaderContainer span[style*="accent" i],
+    #authHeaderContainer span:nth-child(2),
+    #authHeaderContainer div span:nth-child(2) {
+      background: var(--accent) !important;
+      background-color: var(--accent) !important;
+      color: var(--ink) !important;
+      padding: 8px 18px !important;
+      border-radius: 9999px !important;
+      font-weight: 800 !important;
+      font-size: 15px !important;
+      border: none !important;
+      border-width: 0px !important;
+      box-shadow: none !important;
+      display: inline-flex !important;
+      align-items: center !important;  
+      justify-content: center !important; 
+      align-self: center !important;
+      line-height: 1 !important; 
+      height: auto !important;
+      min-height: 0 !important;
+      max-height: 38px !important;
+      margin: auto 0 !important;
+      white-space: nowrap !important;
+    }
+
+    /* REGLA FORZADA PARA EL SALUDO DE USUARIO (Impide alteraciones de tamaño) */
+    #authHeaderContainer .user-greeting,
+    #authHeaderContainer span:nth-child(1),
+    #authHeaderContainer div span:nth-child(1),
+    #authHeaderContainer span:first-child,
+    #authHeaderContainer div span:first-child {
+      font-weight: 700 !important;
+      font-size: 15px !important;
+      color: var(--ink) !important;
+      display: inline-block !important;
+      margin: auto 0 !important;
+      white-space: nowrap !important;
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../assets/js/auth-helper.js"></script>
@@ -106,7 +147,7 @@
         <div class="header-left">
           <a class="brand" href="../index.html" title="Volver al inicio">PRINT<span>LAB</span></a>
         </div>
-        <div class="auth-buttons">
+        <div class="auth-buttons" id="authHeaderContainer" style="opacity: 0; visibility: hidden; transition: opacity 0.15s ease, visibility 0.15s ease;">
           <a href="precios.html" class="btn-auth light">← Volver a Precios</a>
         </div>
       </nav>
@@ -167,26 +208,26 @@
         </form>
       </div>
 
-      <!-- LADO DERECHO: RESUMEN -->
-      <div>
+      <!-- LADO DERECHO: RESUMEN DINÁMICO -->
+      <div id="checkoutSummaryContainer">
         <div class="summary-panel">
           <h3>Resumen del Pedido</h3>
           
           <div class="summary-item">
-            <span style="color:#fff; font-weight:700;">Pack Profesional (10 Créditos)</span>
-            <span style="color:#fff;">18.00 €</span>
+            <span style="color:#fff; font-weight:700;">Procesando plan...</span>
+            <span style="color:#fff;">0.00 €</span>
           </div>
           <div class="summary-item" style="border:none;">
             <span>IVA (21%)</span>
-            <span>3.78 €</span>
+            <span>0.00 €</span>
           </div>
           
           <div class="summary-total">
             <span>Total a Pagar</span>
-            <span>21.78 €</span>
+            <span>0.00 €</span>
           </div>
 
-          <button class="btn-pay">Pagar 21.78 € de forma segura</button>
+          <button class="btn-pay" disabled>Procesando pasarela...</button>
           
           <div class="trust-badge">
             <span>💳 Pagos procesados de forma segura por Stripe</span>
@@ -242,6 +283,121 @@
         var dropdowns = document.getElementsByClassName("dropdown-content");
         for (var i = 0; i < dropdowns.length; i++) {
           if (dropdowns[i].classList.contains('show')) { dropdowns[i].classList.remove('show'); }
+        }
+      }
+    }
+  </script>
+
+  <!-- CONTROL DE CHECKOUT DINÁMICO DE STRIPE -->
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      // 1. Verificar sesión de usuario de forma asíncrona
+      const { data: { user } } = await supabaseClient.auth.getUser();
+      if (!user) {
+        alert("Debes iniciar sesión para proceder al pago.");
+        window.location.href = "login.html?redirect=precios.html";
+        return;
+      }
+
+      // 2. Obtener plan de la URL mediante parámetros GET
+      const urlParams = new URLSearchParams(window.location.search);
+      const planId = urlParams.get("plan") || "pro"; // Por defecto 'pro' si se accede de forma directa
+
+      // 3. Matriz de precios y desgloses impositivos reales
+      const PLANS = {
+        single: {
+          name: "Análisis Único (2 Créditos)",
+          price: "2.07 €",
+          iva: "0.43 €",
+          total: "2.50 €"
+        },
+        pro: {
+          name: "Pack Profesional (10 Créditos)",
+          price: "8.26 €",
+          iva: "1.73 €",
+          total: "9.99 €"
+        },
+        industrial: {
+          name: "Pack Industrial (25 Créditos)",
+          price: "16.45 €",
+          iva: "3.45 €",
+          total: "19.90 €"
+        }
+      };
+
+      const selectedPlan = PLANS[planId] || PLANS.pro;
+
+      // 4. Modificar de forma dinámica la tarjeta del resumen de pedido
+      const summaryContainer = document.getElementById("checkoutSummaryContainer");
+      if (summaryContainer) {
+        summaryContainer.innerHTML = `
+          <div class="summary-panel">
+            <h3>Resumen del Pedido</h3>
+            
+            <div class="summary-item">
+              <span style="color:#fff; font-weight:700;">${selectedPlan.name}</span>
+              <span style="color:#fff;">${selectedPlan.price}</span>
+            </div>
+            <div class="summary-item" style="border:none;">
+              <span>IVA (21%)</span>
+              <span>${selectedPlan.iva}</span>
+            </div>
+            
+            <div class="summary-total">
+              <span>Total a Pagar</span>
+              <span>${selectedPlan.total}</span>
+            </div>
+
+            <button class="btn-pay" onclick="executeStripePayment('${planId}', '${user.id}')">
+              Pagar ${selectedPlan.total} de forma segura
+            </button>
+            
+            <div class="trust-badge">
+              <span>💳 Pagos procesados de forma segura por Stripe</span>
+            </div>
+          </div>
+        `;
+      }
+    });
+
+    // Función para invocar la pasarela de pago real de Stripe
+    async function executeStripePayment(planId, userId) {
+      const btn = document.querySelector(".btn-pay");
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = "Procesando pasarela...";
+      }
+
+      try {
+        const response = await fetch(`${SUPABASE_URL}/functions/v1/stripe-checkout`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+          },
+          body: JSON.stringify({
+            planId: planId,
+            userId: userId,
+            successUrl: window.location.origin + '/index.html',
+            cancelUrl: window.location.href
+          })
+        });
+
+        const session = await response.json();
+        if (session.url) {
+          window.location.href = session.url; // Redirigir a pasarela real cifrada de Stripe
+        } else {
+          alert('Error en pasarela: ' + session.error);
+          if (btn) {
+            btn.disabled = false;
+            btn.textContent = "Intentar de nuevo";
+          }
+        }
+      } catch (e) {
+        alert("Error de conexión con la pasarela.");
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = "Intentar de nuevo";
         }
       }
     }
