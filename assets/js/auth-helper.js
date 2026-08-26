@@ -514,8 +514,8 @@ async function initAuth() {
 
   if (authButtons) {
     authButtons.innerHTML = `
-      <a href="${pathPrefix}login.html" class="btn-auth light">Iniciar Sesión</a>
-      <a href="${pathPrefix}registro.html" id="header-register-link" class="btn-auth green">Registrarse</a>
+      <a href="${pathPrefix}login.html" class="btn-auth light" onclick="sessionStorage.removeItem('printlab_recovery_mode')">Iniciar Sesión</a>
+      <a href="${pathPrefix}registro.html" id="header-register-link" class="btn-auth green" onclick="sessionStorage.removeItem('printlab_recovery_mode')">Registrarse</a>
     `;
 
     // Si estamos en login o registro, ajustar el enlace dinámico de la cabecera
