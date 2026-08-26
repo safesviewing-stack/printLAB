@@ -20,6 +20,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
 
   <link
+    web_preconnect="https://fonts.gstatic.com"
     rel="preconnect"
     href="https://fonts.gstatic.com"
     crossorigin
@@ -1150,10 +1151,101 @@
           );
 
           loginMessage.textContent = "";
+          loginMessage.style.background = "";
+          loginMessage.style.borderColor = "";
+          loginMessage.style.color = "";
 
 
           /*
-            Obtener datos.
+            PROCESAR ACTUALIZACIÓN DE CONTRASEÑA EN MODO RECUPERACIÓN
+          */
+          if (isRecoveryMode) {
+
+            const password =
+              document
+                .getElementById("login-password")
+                .value;
+
+            if(!password || password.length < 6){
+
+              loginMessage.style.background = "#fff1f1";
+              loginMessage.style.borderColor = "#e3caca";
+              loginMessage.style.color = "#8b2929";
+              loginMessage.textContent =
+                "La contraseña debe tener al menos 6 caracteres.";
+
+              loginMessage.classList.add(
+                "show"
+              );
+
+              return;
+
+            }
+
+            loginButton.disabled = true;
+            loginButton.textContent =
+              "Actualizando contraseña...";
+
+
+            try{
+
+              const { data, error } =
+                await supabaseClient.auth.updateUser({
+                  password: password
+                });
+
+              if(error){
+                throw error;
+              }
+
+              loginMessage.style.background = "#eef9f0";
+              loginMessage.style.borderColor = "#c3e6cb";
+              loginMessage.style.color = "#155724";
+              loginMessage.textContent =
+                "¡Contraseña actualizada con éxito! Redirigiendo...";
+
+              loginMessage.classList.add(
+                "show"
+              );
+
+              setTimeout(
+                function(){
+                  window.location.href = "login.html";
+                },
+                2000
+              );
+
+            }
+            catch(error){
+
+              console.error(
+                "Error al actualizar la contraseña:",
+                error
+              );
+
+              loginMessage.style.background = "#fff1f1";
+              loginMessage.style.borderColor = "#e3caca";
+              loginMessage.style.color = "#8b2929";
+              loginMessage.textContent =
+                error.message || "No se pudo actualizar la contraseña. Inténtalo de nuevo.";
+
+              loginMessage.classList.add(
+                "show"
+              );
+
+              loginButton.disabled = false;
+              loginButton.textContent =
+                "Actualizar contraseña";
+
+            }
+
+            return;
+
+          }
+
+
+          /*
+            FLUJO NORMAL DE INICIO DE SESIÓN
           */
 
           const email =
@@ -1392,7 +1484,7 @@
 
 
     /* =====================================================
-       OLVIDÉ MI CONTRASEÑA
+       OLVIDÉ MI CONTRASEÑA (SOPORTE DE RECUPERACIÓN REAL)
     ===================================================== */
 
     const forgotPassword =
@@ -1405,20 +1497,178 @@
 
       forgotPassword.addEventListener(
         "click",
-        function(e){
+        async function(e){
 
           e.preventDefault();
 
 
-          loginMessage.textContent =
-            "La recuperación de contraseña se puede configurar desde aquí próximamente.";
+          /*
+            Ocultar mensaje anterior y restaurar estilos de error.
+          */
+          loginMessage.classList.remove("show");
+          loginMessage.textContent = "";
+          loginMessage.style.background = "";
+          loginMessage.style.borderColor = "";
+          loginMessage.style.color = "";
 
-          loginMessage.classList.add(
-            "show"
-          );
+          const emailInput = document.getElementById("login-email");
+          const email = emailInput ? emailInput.value.trim() : "";
+
+
+          /*
+            Validación de email para la recuperación.
+          */
+          if(!email){
+
+            loginMessage.textContent =
+              "Por favor, introduce tu email profesional en el campo superior para enviarte el enlace de recuperación.";
+
+            loginMessage.classList.add(
+              "show"
+            );
+
+            return;
+
+          }
+
+
+          /*
+            Estado de envío.
+          */
+          forgotPassword.style.pointerEvents = "none";
+          forgotPassword.style.opacity = "0.5";
+
+          loginMessage.style.background = "#f0f4f8";
+          loginMessage.style.borderColor = "#d0e2ff";
+          loginMessage.style.color = "#0043ce";
+          loginMessage.textContent = "Enviando enlace de recuperación...";
+          loginMessage.classList.add("show");
+
+
+          try{
+
+            const redirectUrl = window.location.origin + window.location.pathname;
+
+            const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+              redirectTo: redirectUrl,
+            });
+
+            if(error){
+              throw error;
+            }
+
+
+            /*
+              Envío correcto.
+            */
+            loginMessage.style.background = "#eef9f0";
+            loginMessage.style.borderColor = "#c3e6cb";
+            loginMessage.style.color = "#155724";
+            loginMessage.textContent = "Enlace enviado. Revisa tu correo electrónico para restablecer tu contraseña.";
+
+          }
+          catch(error){
+
+            console.error(
+              "Error al enviar email de recuperación:",
+              error
+            );
+
+            loginMessage.style.background = "#fff1f1";
+            loginMessage.style.borderColor = "#e3caca";
+            loginMessage.style.color = "#8b2929";
+
+            let errMsg = "No se pudo enviar el enlace. Inténtalo de nuevo.";
+            if (error && error.message) {
+              if (error.message.toLowerCase().includes("rate limit") || error.message.toLowerCase().includes("too many requests")) {
+                errMsg = "Demasiados intentos. Espera unos minutos y vuelve a intentarlo.";
+              } else {
+                errMsg = error.message;
+              }
+            }
+
+            loginMessage.textContent = errMsg;
+
+          }
+          finally{
+
+            forgotPassword.style.pointerEvents = "auto";
+            forgotPassword.style.opacity = "1";
+
+          }
 
         }
       );
+
+    }
+
+
+    /* =====================================================
+       DETECCIÓN Y ACTIVACIÓN DE MODO RECUPERACIÓN
+    ===================================================== */
+
+    let isRecoveryMode = false;
+
+    // Detectar si la URL contiene indicativo de recuperación (hash o query params de Supabase)
+    if (
+      window.location.hash.includes("type=recovery") ||
+      window.location.hash.includes("access_token=") ||
+      window.location.search.includes("type=recovery")
+    ) {
+      isRecoveryMode = true;
+    }
+
+    // Escuchar el evento de recuperación de Supabase
+    supabaseClient.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") {
+        isRecoveryMode = true;
+        activateRecoveryMode();
+      }
+    });
+
+    if (isRecoveryMode) {
+      activateRecoveryMode();
+    }
+
+    function activateRecoveryMode() {
+
+      isRecoveryMode = true;
+
+      // Cambiar encabezados
+      const headerTitle = document.querySelector(".auth-header h1");
+      const headerDesc = document.querySelector(".auth-header p");
+      if (headerTitle) headerTitle.textContent = "Nueva contraseña";
+      if (headerDesc) headerDesc.textContent = "Introduce tu nueva contraseña segura de acceso.";
+
+      // Ocultar campo de email
+      const emailInput = document.getElementById("login-email");
+      if (emailInput) {
+        const emailGroup = emailInput.closest(".form-group");
+        if (emailGroup) emailGroup.style.display = "none";
+        emailInput.removeAttribute("required");
+      }
+
+      // Modificar campo de contraseña
+      const passwordLabel = document.querySelector('label[for="login-password"]');
+      if (passwordLabel) {
+        passwordLabel.innerHTML = 'Nueva contraseña';
+      }
+      const passwordInput = document.getElementById("login-password");
+      if (passwordInput) {
+        passwordInput.placeholder = "Escribe tu nueva contraseña";
+        passwordInput.autocomplete = "new-password";
+      }
+
+      // Cambiar texto del botón
+      if (loginButton) {
+        loginButton.textContent = "Actualizar contraseña";
+      }
+
+      // Ocultar sección de registro
+      const switchAuth = document.querySelector(".switch-auth");
+      if (switchAuth) {
+        switchAuth.style.display = "none";
+      }
 
     }
 
