@@ -24,7 +24,7 @@ window.supabaseClient = supabaseClient;
 
 
 // =====================================================
-// MÉTODO GLOBAL DE CIERRE DE SESIÓN (Inmune a demoras de carga)
+// MÉTODO GLOBAL DE CIERRE DE SESIÓN (Inmune a demoras de carga y URLs limpias)
 // =====================================================
 
 window.handleLogout = async function() {
@@ -46,12 +46,11 @@ window.handleLogout = async function() {
       return;
     }
 
-    // Determinar la página actual
+    // Determinar la página actual de forma robusta
     const currentPathname = window.location.pathname.toLowerCase();
-    const currentPage = currentPathname.split("/").pop().toLowerCase();
 
-    // Redirección directa al inicio si estamos en el informe
-    if (currentPage === "informe-stl.html") {
+    // Redirección directa al inicio (index.html) si estamos en el informe (con o sin .html)
+    if (currentPathname.includes("informe-stl")) {
       sessionStorage.removeItem("printlab_auth_redirect");
       window.location.href = "../index.html";
     } else {
@@ -431,13 +430,6 @@ async function initAuth() {
   // USUARIO SIN SESIÓN (Se resuelven las rutas según la carpeta)
   // ===================================================
 
-  const currentPage =
-    window.location.pathname
-      .split("/")
-      .pop()
-      .toLowerCase();
-
-
   if (authButtons) {
     authButtons.innerHTML = `
       <a href="${pathPrefix}login.html" class="btn-auth light">Iniciar Sesión</a>
@@ -459,13 +451,10 @@ async function initAuth() {
 
 
   // ===================================================
-  // SOLO INFORME PRIVADO
+  // SOLO INFORME PRIVADO (Búsqueda por coincidencia de cadena)
   // ===================================================
 
-  if (
-    currentPage ===
-    "informe-stl.html"
-  ) {
+  if (currentPathname.includes("informe-stl")) {
 
     const redirect =
       encodeURIComponent(
