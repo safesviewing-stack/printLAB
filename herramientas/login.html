@@ -1198,11 +1198,17 @@
                 throw error;
               }
 
+              // Limpiar estado de recuperación en memoria del navegador
+              sessionStorage.removeItem("printlab_recovery_mode");
+
+              // Cerrar la sesión temporal para forzar al usuario a iniciar sesión con su nueva contraseña
+              await supabaseClient.auth.signOut();
+
               loginMessage.style.background = "#eef9f0";
               loginMessage.style.borderColor = "#c3e6cb";
               loginMessage.style.color = "#155724";
               loginMessage.textContent =
-                "¡Contraseña actualizada con éxito! Redirigiendo...";
+                "¡Contraseña actualizada con éxito! Redirigiendo al inicio de sesión...";
 
               loginMessage.classList.add(
                 "show"
@@ -1212,7 +1218,7 @@
                 function(){
                   window.location.href = "login.html";
                 },
-                2000
+                2500
               );
 
             }
@@ -1609,19 +1615,22 @@
 
     let isRecoveryMode = false;
 
-    // Detectar si la URL contiene indicativo de recuperación (hash o query params de Supabase)
+    // Detectar si la URL o el sessionStorage contienen indicativo de recuperación
     if (
       window.location.hash.includes("type=recovery") ||
       window.location.hash.includes("access_token=") ||
-      window.location.search.includes("type=recovery")
+      window.location.search.includes("type=recovery") ||
+      sessionStorage.getItem("printlab_recovery_mode") === "true"
     ) {
       isRecoveryMode = true;
+      sessionStorage.setItem("printlab_recovery_mode", "true");
     }
 
     // Escuchar el evento de recuperación de Supabase
     supabaseClient.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY") {
         isRecoveryMode = true;
+        sessionStorage.setItem("printlab_recovery_mode", "true");
         activateRecoveryMode();
       }
     });
