@@ -231,20 +231,18 @@
       const planId = urlParams.get("plan") || "pro";
 
       const PLANS_DETAILS = {
-        single: { name: "Análisis Único (2 Créditos)", price: "2.50 €", credits: 2 },
-        pro: { name: "Pack Profesional (10 Créditos)", price: "9.99 €", credits: 10 },
-        industrial: { name: "Pack Industrial (25 Créditos)", price: "19.90 €", credits: 25 }
+        single: { name: "Análisis Único (2 Créditos)", price: "2.50 €" },
+        pro: { name: "Pack Profesional (10 Créditos)", price: "9.99 €" },
+        industrial: { name: "Pack Industrial (25 Créditos)", price: "19.90 €" }
       };
 
       const info = PLANS_DETAILS[planId] || PLANS_DETAILS.pro;
       document.getElementById("item-name").textContent = info.name;
       document.getElementById("item-price").textContent = info.price;
 
-      const creditsToAdd = info.credits;
-
-      // 2. Obtener el saldo del usuario de Supabase o caché local
+      // 2. Obtener el saldo del usuario de Supabase o de la caché local ya actualizada por checkout.html (sin duplicar sumas)
       const { data: { user } } = await supabaseClient.auth.getUser();
-      let baseCredits = parseInt(localStorage.getItem("printlab_cached_credits") || "80");
+      let displayCredits = parseInt(localStorage.getItem("printlab_cached_credits") || "80");
 
       if (user) {
         try {
@@ -255,45 +253,22 @@
             .single();
 
           if (!error && data) {
-            baseCredits = data.credits;
+            displayCredits = data.credits;
+            // Asegurar que la caché local está perfectamente sincronizada con la base de datos
+            localStorage.setItem("printlab_cached_credits", displayCredits);
           }
         } catch (e) {
-          console.warn("Fallo al obtener créditos de Supabase:", e);
+          console.warn("Fallo al obtener créditos reales de Supabase, usando caché local:", e);
         }
       }
 
-      // 3. Realizar la suma matemática correspondiente
-      let finalCredits = baseCredits;
-      
-      // Evitar duplicar la suma de créditos si recargan la página de éxito
-      const lastSummed = sessionStorage.getItem("printlab_plan_summed_" + planId);
-      if (lastSummed !== "true") {
-        finalCredits = baseCredits + creditsToAdd;
-        sessionStorage.setItem("printlab_plan_summed_" + planId, "true");
+      // 3. Pintar el total correcto en la interfaz
+      document.getElementById("item-credits").textContent = displayCredits + " Créditos";
 
-        // Intentar actualizar de forma real en la base de datos de Supabase si RLS lo permite
-        if (user) {
-          try {
-            await supabaseClient
-              .from("profiles")
-              .update({ credits: finalCredits })
-              .eq("id", user.id);
-          } catch (dbErr) {
-            console.warn("RLS bloqueó la actualización directa de base de datos:", dbErr);
-          }
-        }
-      }
-
-      // 4. Actualizar la caché local para la cabecera (se reflejará al instante en todas partes)
-      localStorage.setItem("printlab_cached_credits", finalCredits);
-
-      // 5. Pintar el total en la interfaz
-      document.getElementById("item-credits").textContent = finalCredits + " Créditos";
-
-      // 6. Forzar la actualización del indicador de la cabecera en caliente de forma síncrona
+      // 4. Forzar la actualización del indicador de la cabecera en caliente de forma síncrona
       const headerCreditsBadge = document.querySelector(".credits-badge");
       if (headerCreditsBadge) {
-        headerCreditsBadge.textContent = "Créditos: " + finalCredits;
+        headerCreditsBadge.textContent = "Créditos: " + displayCredits;
       }
     });
   </script>
