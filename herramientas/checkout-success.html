@@ -229,6 +229,7 @@
       // 1. Obtener datos del plan adquirido por la URL
       const urlParams = new URLSearchParams(window.location.search);
       const planId = urlParams.get("plan") || "pro";
+      const isTest = urlParams.get("test") === "true";
 
       const PLANS_DETAILS = {
         single: { name: "Análisis Único (2 Créditos)", price: "2.50 €" },
@@ -241,26 +242,32 @@
       document.getElementById("item-price").textContent = info.price;
 
       // 2. Consulta síncrona asíncrona a Supabase para forzar e ilustrar el saldo actual
-      const { data: { user } } = await supabaseClient.auth.getUser();
-      if (user) {
-        try {
-          const { data, error } = await supabaseClient
-            .from("profiles")
-            .select("credits")
-            .eq("id", user.id)
-            .single();
-
-          if (data) {
-            const freshCredits = data.credits;
-            document.getElementById("item-credits").textContent = freshCredits + " Créditos";
-            // Actualizar la caché síncrona local para la cabecera
-            localStorage.setItem("printlab_cached_credits", freshCredits);
-          }
-        } catch (e) {
-          document.getElementById("item-credits").textContent = "✓ Actualizado";
-        }
+      if (isTest) {
+        // En modo de simulación de prueba, renderizar directamente el saldo acumulado en la caché local
+        const cachedCredits = localStorage.getItem("printlab_cached_credits") || "80";
+        document.getElementById("item-credits").textContent = cachedCredits + " Créditos";
       } else {
-        document.getElementById("item-credits").textContent = "✓ Confirmado";
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        if (user) {
+          try {
+            const { data, error } = await supabaseClient
+              .from("profiles")
+              .select("credits")
+              .eq("id", user.id)
+              .single();
+
+            if (data) {
+              const freshCredits = data.credits;
+              document.getElementById("item-credits").textContent = freshCredits + " Créditos";
+              // Actualizar la caché síncrona local para la cabecera
+              localStorage.setItem("printlab_cached_credits", freshCredits);
+            }
+          } catch (e) {
+            document.getElementById("item-credits").textContent = "✓ Actualizado";
+          }
+        } else {
+          document.getElementById("item-credits").textContent = "✓ Confirmado";
+        }
       }
     });
   </script>
