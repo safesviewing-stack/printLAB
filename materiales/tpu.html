@@ -1,3 +1,4 @@
+--- START OF FILE materiales/tpu.html ---
 <!doctype html>
 <html lang="es">
 <head>
@@ -25,7 +26,7 @@
     
     .menu-dropdown { position: relative; display: inline-block; }
     .hamburger { background: none; border: none; cursor: pointer; padding: 10px; display: flex; flex-direction: column; gap: 5px; outline:none; }
-    .hamburger span { display: block; width: 26px; height: 3px; background: var(--ink); border-radius: 2px; transition: 0.3s; }
+    .hamburger span { block; width: 26px; height: 3px; background: var(--ink); border-radius: 2px; transition: 0.3s; }
     .hamburger:hover span { background: var(--muted); }
     
     .dropdown-content { display: none; position: absolute; top: 110%; left: 0; background-color: var(--card); min-width: 240px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); border: 1.5px solid var(--line); border-radius: 16px; z-index: 200; flex-direction: column; padding: 12px 0; }
@@ -117,7 +118,51 @@
       .footergrid { grid-template-columns: 1fr; gap: 36px; }
       .footer-bottom { flex-direction: column; align-items: flex-start;}
     }
+    
+    /* REGLAS COMPLEMENTARIAS PARA PREVENIR DESFASES EN LA CABECERA (IDÉNTICAS AL INDEX) */
+    #authHeaderContainer span[style*="background" i],
+    #authHeaderContainer span[style*="accent" i],
+    #authHeaderContainer span:nth-child(2),
+    #authHeaderContainer div span:nth-child(2) {
+      background: var(--accent) !important;
+      background-color: var(--accent) !important;
+      color: var(--ink) !important;
+      padding: 8px 18px !important;
+      border-radius: 9999px !important;
+      font-weight: 800 !important;
+      font-size: 15px !important;
+      border: none !important;
+      border-width: 0px !important;
+      box-shadow: none !important;
+      display: inline-flex !important;
+      align-items: center !important;  
+      justify-content: center !important; 
+      align-self: center !important;
+      line-height: 1 !important; 
+      height: auto !important;
+      min-height: 0 !important;
+      max-height: 38px !important;
+      margin: auto 0 !important;
+      white-space: nowrap !important;
+    }
+
+    #authHeaderContainer .user-greeting,
+    #authHeaderContainer span:nth-child(1),
+    #authHeaderContainer div span:nth-child(1),
+    #authHeaderContainer span:first-child,
+    #authHeaderContainer div span:first-child {
+      font-weight: 700 !important;
+      font-size: 15px !important;
+      color: var(--ink) !important;
+      display: inline-block !important;
+      margin: auto 0 !important;
+      white-space: nowrap !important;
+    }
   </style>
+  <!-- SUPABASE -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Parámetro cache-busting v=11 para forzar descarga de la lógica síncrona corregida -->
+  <script src="../assets/js/auth-helper.js?v=11"></script>
 </head>
 <body>
   
@@ -142,9 +187,9 @@
           <a class="brand" href="../index.html#portada" title="Volver al inicio">PRINT<span>LAB</span></a>
         </div>
 
-        <div class="auth-buttons">
-          <a href="../herramientas/login.html" class="btn-auth light">Iniciar Sesión</a>
-          <a href="../herramientas/registro.html" class="btn-auth green">Registrarse</a>
+        <div class="auth-buttons" id="authHeaderContainer" style="opacity: 0; visibility: hidden; transition: opacity 0.15s ease, visibility 0.15s ease;">
+          <a href="../herramientas/login.html" class="btn-auth light" onclick="sessionStorage.removeItem('printlab_recovery_mode'); localStorage.removeItem('sb-jmwprzgfdkphbxryjbnr-auth-token');">Iniciar Sesión</a>
+          <a href="../herramientas/registro.html" id="header-register-link" class="btn-auth green" onclick="sessionStorage.removeItem('printlab_recovery_mode'); localStorage.removeItem('sb-jmwprzgfdkphbxryjbnr-auth-token');">Registrarse</a>
         </div>
       </nav>
     </div>
@@ -298,7 +343,7 @@
       </div>
       
       <div class="footer-bottom">
-        <div class="footer-bottom-text">© 2026 PrintLab</div>
+        <div class="footer-bottom-text">© 2026 PrintLab.</div>
       </div>
     </div>
   </footer>
@@ -318,3 +363,4 @@
   </script>
 </body>
 </html>
+--- END OF FILE materiales/tpu.html ---
