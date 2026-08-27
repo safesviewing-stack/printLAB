@@ -63,16 +63,13 @@ window.handleLogout = async function() {
       return;
     }
 
-    // Determinar la página actual de forma robusta
-    const currentPathname = window.location.pathname.toLowerCase();
+    // Limpiar caché síncrono al cerrar sesión de forma segura
+    localStorage.removeItem("printlab_cached_name");
+    localStorage.removeItem("printlab_cached_credits");
+    sessionStorage.removeItem("printlab_recovery_mode");
+    sessionStorage.removeItem("printlab_auth_redirect");
 
-    // Redirección directa al inicio (index.html) si estamos en el informe (con o sin .html)
-    if (currentPathname.includes("informe-stl")) {
-      sessionStorage.removeItem("printlab_auth_redirect");
-      window.location.href = "../index.html";
-    } else {
-      window.location.reload();
-    }
+    window.location.href = "../index.html";
 
   } catch (error) {
     console.error("Error cerrando sesión:", error);
@@ -299,7 +296,7 @@ async function initAuth() {
 
 
   // ===================================================
-  // PRE-CARGA SÍNCRONA DE SESIÓN (Elimina demoras de red)
+  // PRE-CARGA SÍNCRONA DE SESIÓN MEDIANTE CACHÉ LOCAL
   // ===================================================
 
   const tokenStr = localStorage.getItem("sb-jmwprzgfdkphbxryjbnr-auth-token");
@@ -310,17 +307,19 @@ async function initAuth() {
       if (sessionUser) {
         user = sessionUser; // Pre-cargar el usuario síncronamente
 
-        const name = user.user_metadata?.full_name || user.email?.split("@")[0] || "Usuario";
+        // Recuperar valores de caché síncronos para eliminar el parpadeo de "85"
+        const cachedName = localStorage.getItem("printlab_cached_name") || user.user_metadata?.full_name || user.email?.split("@")[0] || "Usuario";
+        const cachedCredits = localStorage.getItem("printlab_cached_credits") || "...";
 
         // Pintar la cabecera síncronamente en el acto
         if (authButtons) {
           authButtons.innerHTML = `
             <div class="user-header-info">
               <span class="user-greeting">
-                Hola, ${name}
+                Hola, ${cachedName}
               </span>
               <span class="credits-badge">
-                Créditos: ...
+                Créditos: ${cachedCredits}
               </span>
               <button
                 id="btn-logout"
@@ -336,9 +335,10 @@ async function initAuth() {
           authButtons.style.visibility = "visible";
         }
 
-        // Pintar el dashboard de bienvenida del inicio de inmediato
+        // Pintar el dashboard de bienvenida de inmediato
         if (greetingDashboard) {
-          greetingDashboard.innerHTML = `Hola, ${name} | Cargando créditos...`;
+          const creditsText = cachedCredits !== "..." ? `Dispones de ${cachedCredits} créditos` : "Cargando créditos...";
+          greetingDashboard.innerHTML = `Hola, ${cachedName} | ${creditsText}`;
           greetingDashboard.style.setProperty("background", "rgba(184, 255, 61, 0.2)", "important");
           greetingDashboard.style.setProperty("color", "var(--ink)", "important");
         }
@@ -394,7 +394,7 @@ async function initAuth() {
 
 
   // ===================================================
-  // USUARIO LOGUEADO
+  // USUARIO LOGUEADO (Actualiza la caché con los datos del servidor)
   // ===================================================
 
   if (user) {
@@ -451,6 +451,11 @@ async function initAuth() {
 
     const credits =
       profile?.credits ?? 0;
+
+
+    // Actualizar la caché local para el siguiente refresco instantáneo
+    localStorage.setItem("printlab_cached_name", name);
+    localStorage.setItem("printlab_cached_credits", credits);
 
 
     // =================================================
