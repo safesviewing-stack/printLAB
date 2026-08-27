@@ -37,7 +37,6 @@
     .btn-auth { display: inline-flex; align-items: center; justify-content: center; padding: 12px 24px; border-radius: 9999px; font-weight: 800; font-size: 14px; cursor: pointer; transition: .2s ease; text-decoration: none; border: 2px solid var(--ink); }
     .btn-auth.light { background: #fff; color: var(--ink); box-shadow: 0 3px 0px var(--ink); }
     .btn-auth.light:hover { transform: translateY(-1px); box-shadow: 0 4px 0px var(--ink); }
-    .btn-auth.light:active { transform: translateY(2px); box-shadow: 0 1px 0px var(--ink); }
     
     @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
 
@@ -180,11 +179,11 @@
       <!-- LADO IZQUIERDO: FORMULARIO -->
       <div class="checkout-panel">
         <h2>Datos de Facturación</h2>
-        <form>
+        <form id="payment-form" onsubmit="event.preventDefault();">
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
             <div class="input-group">
               <label>Nombre o Empresa</label>
-              <input type="text" placeholder="Estudio S.L." required>
+              <input type="text" id="billing-name" placeholder="Estudio S.L." required>
             </div>
             <div class="input-group">
               <label>CIF / NIF (Opcional)</label>
@@ -193,7 +192,7 @@
           </div>
           <div class="input-group">
             <label>Correo Electrónico (Envío de factura)</label>
-            <input type="email" placeholder="facturacion@empresa.com" required>
+            <input type="email" id="billing-email" placeholder="facturacion@empresa.com" required>
           </div>
 
           <h2 style="margin-top:40px;">Método de Pago</h2>
@@ -204,16 +203,16 @@
           
           <div class="input-group">
             <label>Número de Tarjeta</label>
-            <input type="text" placeholder="0000 0000 0000 0000" required>
+            <input type="text" id="card-number" placeholder="0000 0000 0000 0000" required>
           </div>
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
             <div class="input-group">
               <label>Fecha de Expiración</label>
-              <input type="text" placeholder="MM/AA" required>
+              <input type="text" id="card-expiry" placeholder="MM/AA" required>
             </div>
             <div class="input-group">
               <label>CVC</label>
-              <input type="text" placeholder="123" required>
+              <input type="text" id="card-cvc" placeholder="123" required>
             </div>
           </div>
           
@@ -379,7 +378,7 @@
       }
     });
 
-    // Función para invocar la pasarela de pago real de Stripe
+    // Función para invocar la pasarela de pago real de Stripe (o el simulador inteligente)
     async function executeStripePayment(planId, userId) {
       const btn = document.querySelector(".btn-pay");
       if (btn) {
@@ -387,6 +386,39 @@
         btn.textContent = "Procesando pasarela...";
       }
 
+      // 1. Obtener valores de tarjeta escritos en el formulario para el simulador local
+      const cardVal = document.getElementById("card-number")?.value.replace(/\s/g, "") || "";
+      const nameVal = document.getElementById("billing-name")?.value.trim() || "";
+      const emailVal = document.getElementById("billing-email")?.value.trim() || "";
+
+      // 2. SIMULACIÓN LOCAL INTELIGENTE (Permite pruebas en GitHub Pages)
+      if (cardVal === "4242424242424242") {
+        if (!nameVal || !emailVal) {
+          alert("Por favor, rellena tu nombre y correo electrónico antes de pagar.");
+          if (btn) {
+            btn.disabled = false;
+            btn.textContent = "Intentar de nuevo";
+          }
+          return;
+        }
+
+        // Simular retardo de red de 2 segundos
+        setTimeout(() => {
+          const cachedCredits = parseInt(localStorage.getItem("printlab_cached_credits") || "80");
+          let creditsToAdd = 10; // Plan pro
+          if (planId === "single") creditsToAdd = 2;
+          else if (planId === "industrial") creditsToAdd = 25;
+
+          // Cargar los créditos simulados en la caché local
+          localStorage.setItem("printlab_cached_credits", cachedCredits + creditsToAdd);
+
+          // Redirigir a la página de éxito con el plan y el parámetro de simulación test=true
+          window.location.href = `checkout-success.html?plan=${planId}&test=true`;
+        }, 2000);
+        return;
+      }
+
+      // 3. FLUJO REAL DEL BACKEND (Intento de llamada a Edge Function)
       try {
         const response = await fetch(`${SUPABASE_URL}/functions/v1/stripe-checkout`, {
           method: 'POST',
