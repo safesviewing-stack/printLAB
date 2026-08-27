@@ -40,7 +40,12 @@
     .btn-auth.green:hover { transform: translateY(-1px); box-shadow: 0 4px 0px var(--ink); }
     .btn-auth.green:active { transform: translateY(2px); box-shadow: 0 1px 0px var(--ink); }
 
-    .report-grid{display:grid; grid-template-columns: 1fr 1.1fr; gap:40px; padding:40px 0 60px;}
+    /* TÍTULO PRINCIPAL (ESTILO COMPACTO UNIFICADO) */
+    .tool-header{padding:60px 0 20px; border-bottom:1px solid var(--line); margin-bottom:20px;}
+    .tool-header h1{font-size:clamp(32px, 4.5vw, 54px); letter-spacing:-0.03em; line-height:1.05; margin:0 0 12px; font-weight:800;}
+    .tool-header p{font-size:18px; color:var(--muted); max-width:900px; margin:0; line-height:1.5;}
+
+    .report-grid{display:grid; grid-template-columns: 1fr 1.1fr; gap:40px; padding:20px 0 60px;}
     
     .mesh-comparison{background:var(--dark); border-radius:24px; padding:32px; color:#fff; display:flex; flex-direction:column; gap:24px; box-shadow:0 15px 35px rgba(0,0,0,0.15);}
     .mesh-canvas{background:#161d1a; border-radius:16px; height:380px; display:flex; align-items:center; justify-content:center; border:1px dashed #2e3a35; position:relative; overflow:hidden;}
@@ -150,8 +155,8 @@
   <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/controls/OrbitControls.js"></script>
   
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- Parámetro cache-busting v=9 para forzar descarga de la lógica de redirección directa a index.html en URLs limpias -->
-  <script src="../assets/js/auth-helper.js?v=9"></script>
+  <!-- Parámetro cache-busting v=11 para forzar descarga de la lógica de redirección directa a index.html en URLs limpias -->
+  <script src="../assets/js/auth-helper.js?v=11"></script>
 </head>
 <body>
 
@@ -179,14 +184,22 @@
         
         <!-- Ocultación inicial por estilos inline para prevenir destellos -->
         <div class="auth-buttons" id="authHeaderContainer" style="opacity: 0; visibility: hidden; transition: opacity 0.15s ease, visibility 0.15s ease;">
-          <a href="login.html" class="btn-auth light">Iniciar Sesión</a>
-          <a href="registro.html" class="btn-auth green">Registrarse</a>
+          <a href="login.html" class="btn-auth light" onclick="sessionStorage.removeItem('printlab_recovery_mode'); localStorage.removeItem('sb-jmwprzgfdkphbxryjbnr-auth-token');">Iniciar Sesión</a>
+          <a href="registro.html" class="btn-auth green" onclick="sessionStorage.removeItem('printlab_recovery_mode'); localStorage.removeItem('sb-jmwprzgfdkphbxryjbnr-auth-token');">Registrarse</a>
         </div>
       </nav>
     </div>
   </header>
 
   <main class="wrap">
+
+    <!-- CABECERA DE INFORME (ESTILO UNIFICADO COMPACTO) -->
+    <div class="tool-header">
+      <div style="display:inline-flex; align-items:center; padding:6px 14px; border-radius:9999px; background:rgba(0,0,0,0.04); font-size:11px; text-transform:uppercase; letter-spacing:1px; font-weight:800; color:var(--muted); margin-bottom:16px;">Diagnóstico técnico de malla 3D</div>
+      <h1>Informe de Optimización STL</h1>
+      <p>Evaluación de estabilidad mecánica, resistencia térmica e idoneidad del laminado para tu pieza.</p>
+    </div>
+
     <div class="report-grid">
       
       <!-- LADO IZQUIERDO: VISOR 3D (BASE AMARILLA INTELIGENTE + PUNTOS VINCULADOS) -->
