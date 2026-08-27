@@ -41,7 +41,7 @@ window.supabaseClient = supabaseClient;
 
 
 // =====================================================
-// MÉTODO GLOBAL DE CIERRE DE SESIÓN (Corrige redirección dinámica 404)
+// MÉTODO GLOBAL DE CIERRE DE SESIÓN (Restaurada la lógica original inmune a 404)
 // =====================================================
 
 window.handleLogout = async function() {
@@ -64,25 +64,19 @@ window.handleLogout = async function() {
     // 3. Ejecutar el signOut asíncrono oficial
     await supabaseClient.auth.signOut();
 
-    // Determinar la ruta de retorno al inicio según la ubicación actual de forma dinámica
+    // 4. Lógica original exacta: redirigir si es informe-stl, de lo contrario recargar en caliente
     const currentPathname = window.location.pathname.toLowerCase();
-    let indexUrl = "index.html";
 
-    if (
-      currentPathname.includes("/herramientas/") || 
-      currentPathname.includes("/materiales/") || 
-      currentPathname.includes("/guias/")
-    ) {
-      indexUrl = "../index.html";
+    if (currentPathname.includes("informe-stl")) {
+      sessionStorage.removeItem("printlab_auth_redirect");
+      window.location.href = "../index.html";
+    } else {
+      window.location.reload();
     }
 
-    window.location.href = indexUrl;
-
   } catch (error) {
-    console.error("Error cerrando sesión, redirigiendo de seguridad:", error);
-    // Redirección forzada de seguridad en caso de fallo de conexión de red
-    const currentPathname = window.location.pathname.toLowerCase();
-    window.location.href = (currentPathname.includes("/herramientas/") || currentPathname.includes("/materiales/") || currentPathname.includes("/guias/")) ? "../index.html" : "index.html";
+    console.error("Error cerrando sesión, recargando de seguridad:", error);
+    window.location.reload();
   }
 };
 
