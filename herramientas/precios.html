@@ -152,8 +152,10 @@
       white-space: nowrap !important;
     }
   </style>
+  <!-- SUPABASE -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="../assets/js/auth-helper.js"></script>
+  <!-- Parámetro cache-busting v=11 para forzar descarga de la lógica síncrona corregida -->
+  <script src="../assets/js/auth-helper.js?v=11"></script>
 </head>
 <body>
 
@@ -181,8 +183,8 @@
 
         <!-- Se añade ocultación inicial por estilos inline para prevenir destellos -->
         <div class="auth-buttons" id="authHeaderContainer" style="opacity: 0; visibility: hidden; transition: opacity 0.15s ease, visibility 0.15s ease;">
-          <a href="login.html" class="btn-auth light">Iniciar Sesión</a>
-          <a href="registro.html" class="btn-auth green">Registrarse</a>
+          <a href="login.html" class="btn-auth light" onclick="sessionStorage.removeItem('printlab_recovery_mode'); localStorage.removeItem('sb-jmwprzgfdkphbxryjbnr-auth-token');">Iniciar Sesión</a>
+          <a href="registro.html" id="header-register-link" class="btn-auth green" onclick="sessionStorage.removeItem('printlab_recovery_mode'); localStorage.removeItem('sb-jmwprzgfdkphbxryjbnr-auth-token');">Registrarse</a>
         </div>
       </nav>
     </div>
