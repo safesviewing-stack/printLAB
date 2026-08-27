@@ -41,7 +41,7 @@ window.supabaseClient = supabaseClient;
 
 
 // =====================================================
-// MÉTODO GLOBAL DE CIERRE DE SESIÓN (Inmune a demoras de carga y URLs limpias)
+// MÉTODO GLOBAL DE CIERRE DE SESIÓN (Corrige redirección dinámica 404)
 // =====================================================
 
 window.handleLogout = async function() {
@@ -69,7 +69,19 @@ window.handleLogout = async function() {
     sessionStorage.removeItem("printlab_recovery_mode");
     sessionStorage.removeItem("printlab_auth_redirect");
 
-    window.location.href = "../index.html";
+    // Determinar la ruta de retorno al inicio según la ubicación actual de forma dinámica
+    const currentPathname = window.location.pathname.toLowerCase();
+    let indexUrl = "index.html";
+
+    if (
+      currentPathname.includes("/herramientas/") || 
+      currentPathname.includes("/materiales/") || 
+      currentPathname.includes("/guias/")
+    ) {
+      indexUrl = "../index.html";
+    }
+
+    window.location.href = indexUrl;
 
   } catch (error) {
     console.error("Error cerrando sesión:", error);
