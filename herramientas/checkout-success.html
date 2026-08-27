@@ -220,25 +220,35 @@
     </div>
   </footer>
 
+  <!-- EMAILJS -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
   <script>
     function toggleMenu() {
       document.getElementById('mainMenu').classList.toggle('show');
     }
 
     document.addEventListener("DOMContentLoaded", async () => {
+      // Inicializar tu clave pública de EmailJS
+      emailjs.init({
+        publicKey: "BFZ-rc3o11RbCB7It"
+      });
+
       // 1. Obtener datos del plan de la URL
       const urlParams = new URLSearchParams(window.location.search);
       const planId = urlParams.get("plan") || "pro";
 
       const PLANS_DETAILS = {
-        single: { name: "Análisis Único (2 Créditos)", price: "2.50 €" },
-        pro: { name: "Pack Profesional (10 Créditos)", price: "9.99 €" },
-        industrial: { name: "Pack Industrial (25 Créditos)", price: "19.90 €" }
+        single: { name: "Análisis Único (2 Créditos)", price: "2.50 €", credits: 2 },
+        pro: { name: "Pack Profesional (10 Créditos)", price: "9.99 €", credits: 10 },
+        industrial: { name: "Pack Industrial (25 Créditos)", price: "19.90 €", credits: 25 }
       };
 
       const info = PLANS_DETAILS[planId] || PLANS_DETAILS.pro;
       document.getElementById("item-name").textContent = info.name;
       document.getElementById("item-price").textContent = info.price;
+
+      const creditsToAdd = info.credits;
 
       // 2. Obtener el saldo del usuario de Supabase o de la caché local ya actualizada por checkout.html (sin duplicar sumas)
       const { data: { user } } = await supabaseClient.auth.getUser();
@@ -269,6 +279,50 @@
       const headerCreditsBadge = document.querySelector(".credits-badge");
       if (headerCreditsBadge) {
         headerCreditsBadge.textContent = "Créditos: " + displayCredits;
+      }
+
+      // 5. ENVÍO AUTOMÁTICO DE EMAIL DE CONFIRMACIÓN DE COMPRA CON EMAILJS
+      if (user) {
+        // Evitar envíos repetidos de correos si el usuario refresca la página de éxito manualmente
+        const emailSentFlag = sessionStorage.getItem("printlab_purchase_email_sent_" + planId);
+        if (emailSentFlag !== "true") {
+          const cachedName = localStorage.getItem("printlab_cached_name") || user.user_metadata?.full_name || user.email?.split("@")[0] || "Usuario";
+          const userEmail = user.email;
+          const formattedTime = new Date().toLocaleString('es-ES', { dateStyle: 'full', timeStyle: 'short' });
+
+          // Construcción del desglose plano del ticket de compra para el cuerpo del mensaje
+          const emailMessage = 
+            `¡Gracias por tu compra en PrintLab!\n\n` +
+            `Hola, ${cachedName}.\n\n` +
+            `Te confirmamos que el pago de tu pedido ha sido procesado de forma correcta y los créditos han sido cargados en tu cuenta.\n\n` +
+            `DETALLES DE LA TRANSACCIÓN:\n` +
+            `=================================\n` +
+            `• Concepto: ${info.name}\n` +
+            `• Importe total: ${info.price} (Impuestos incluidos)\n` +
+            `• Créditos añadidos: +${creditsToAdd}\n` +
+            `• Nuevo saldo de créditos: ${displayCredits} Créditos\n` +
+            `• Estado de la carga: Completado ✓\n` +
+            `=================================\n\n` +
+            `Ya puedes acceder a la plataforma para analizar y optimizar tus archivos STL.\n` +
+            `Si tienes cualquier duda o necesitas una factura formal, puedes contactarnos respondiendo a este correo o escribiendo a printcontactlab@gmail.com.`;
+
+          try {
+            await emailjs.send(
+              'service_gwq515d',
+              'template_w3w3l6e',
+              {
+                name: cachedName,
+                email: userEmail,
+                message: emailMessage,
+                time: formattedTime
+              }
+            );
+            // Marcar como enviado en esta sesión para evitar duplicados al refrescar la página
+            sessionStorage.setItem("printlab_purchase_email_sent_" + planId, "true");
+          } catch (err) {
+            console.error("Error enviando email de confirmación:", err);
+          }
+        }
       }
     });
   </script>
