@@ -282,18 +282,19 @@
       }
 
       // 5. ENVÍO AUTOMÁTICO DE EMAIL DE CONFIRMACIÓN DE COMPRA CON EMAILJS
-      if (user) {
+      const billingEmail = sessionStorage.getItem("printlab_billing_email") || (user ? user.email : null);
+      const billingName = sessionStorage.getItem("printlab_billing_name") || localStorage.getItem("printlab_cached_name") || (user ? (user.user_metadata?.full_name || user.email?.split("@")[0]) : "Usuario");
+
+      if (billingEmail) {
         // Evitar envíos repetidos de correos si el usuario refresca la página de éxito manualmente
         const emailSentFlag = sessionStorage.getItem("printlab_purchase_email_sent_" + planId);
         if (emailSentFlag !== "true") {
-          const cachedName = localStorage.getItem("printlab_cached_name") || user.user_metadata?.full_name || user.email?.split("@")[0] || "Usuario";
-          const userEmail = user.email;
           const formattedTime = new Date().toLocaleString('es-ES', { dateStyle: 'full', timeStyle: 'short' });
 
           // Construcción del desglose plano del ticket de compra para el cuerpo del mensaje
           const emailMessage = 
             `¡Gracias por tu compra en PrintLab!\n\n` +
-            `Hola, ${cachedName}.\n\n` +
+            `Hola, ${billingName}.\n\n` +
             `Te confirmamos que el pago de tu pedido ha sido procesado de forma correcta y los créditos han sido cargados en tu cuenta.\n\n` +
             `DETALLES DE LA TRANSACCIÓN:\n` +
             `=================================\n` +
@@ -311,8 +312,8 @@
               'service_gwq515d',
               'template_w3w3l6e',
               {
-                name: cachedName,
-                email: userEmail,
+                name: billingName,
+                email: billingEmail,
                 message: emailMessage,
                 time: formattedTime
               }
