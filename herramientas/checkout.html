@@ -397,7 +397,8 @@
           body: JSON.stringify({
             planId: planId,
             userId: userId,
-            successUrl: window.location.origin + '/index.html',
+            // Modificación exitosa para redirigir a la pantalla de éxito con detalles
+            successUrl: window.location.origin + '/herramientas/checkout-success.html?plan=' + planId,
             cancelUrl: window.location.href
           })
         });
