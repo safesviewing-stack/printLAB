@@ -52,22 +52,17 @@ window.handleLogout = async function() {
   }
 
   try {
-    const { error } = await supabaseClient.auth.signOut();
+    // 1. Forzar destrucción síncrona inmediata del token de sesión de Supabase
+    localStorage.removeItem("sb-jmwprzgfdkphbxryjbnr-auth-token");
 
-    if (error) {
-      console.error("Error cerrando sesión:", error);
-      if (btn) {
-        btn.disabled = false;
-        btn.textContent = "Cerrar Sesión";
-      }
-      return;
-    }
-
-    // Limpiar caché síncrono al cerrar sesión de forma segura
+    // 2. Limpiar caché síncrono al cerrar sesión de forma segura
     localStorage.removeItem("printlab_cached_name");
     localStorage.removeItem("printlab_cached_credits");
     sessionStorage.removeItem("printlab_recovery_mode");
     sessionStorage.removeItem("printlab_auth_redirect");
+
+    // 3. Ejecutar el signOut asíncrono oficial
+    await supabaseClient.auth.signOut();
 
     // Determinar la ruta de retorno al inicio según la ubicación actual de forma dinámica
     const currentPathname = window.location.pathname.toLowerCase();
@@ -84,17 +79,16 @@ window.handleLogout = async function() {
     window.location.href = indexUrl;
 
   } catch (error) {
-    console.error("Error cerrando sesión:", error);
-    if (btn) {
-      btn.disabled = false;
-      btn.textContent = "Cerrar Sesión";
-    }
+    console.error("Error cerrando sesión, redirigiendo de seguridad:", error);
+    // Redirección forzada de seguridad en caso de fallo de conexión de red
+    const currentPathname = window.location.pathname.toLowerCase();
+    window.location.href = (currentPathname.includes("/herramientas/") || currentPathname.includes("/materiales/") || currentPathname.includes("/guias/")) ? "../index.html" : "index.html";
   }
 };
 
 
 // =====================================================
-// ESTILOS DEL HEADER DEL USUARIO
+// ESTILOS DEL HEADER DEL USUARIO Y BOTONES DE CABECERA
 // =====================================================
 
 const authHeaderStyles =
@@ -108,66 +102,101 @@ authHeaderStyles.textContent = `
     transition: opacity 0.15s ease, visibility 0.15s ease;
   }
 
-  .user-header-info{
-    display:flex;
-    align-items:center;
-    gap:16px;
+  /* ESTILO UNIFICADO CON SOMBREADO 3D PARA BOTONES DE LOGOUT */
+  .btn-auth {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 12px 24px !important;
+    border-radius: 9999px !important;
+    font-weight: 800 !important;
+    font-size: 14px !important;
+    cursor: pointer !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    text-decoration: none !important;
+    border: 2px solid var(--ink) !important;
   }
 
-  .user-greeting{
-    font-weight:700;
-    font-size:15px;
-    color:var(--ink);
-    white-space:nowrap;
+  .btn-auth.light {
+    background: #fff !important;
+    color: var(--ink) !important;
+    box-shadow: 0 3px 0 var(--ink) !important;
   }
 
-  .credits-badge{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-
-    background:var(--accent);
-    color:var(--ink);
-
-    padding:8px 18px;
-
-    border-radius:9999px;
-    border:none;
-
-    font-weight:800;
-    font-size:15px;
-    line-height:1;
-
-    white-space:nowrap;
+  .btn-auth.light:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 0 var(--ink) !important;
   }
 
-  .user-header-info .btn-auth.light{
-    background:#fff;
-    color:var(--ink);
-
-    cursor:pointer;
-
-    padding:10px 20px;
-
-    border-radius:9999px;
-
-    font-weight:800;
-
-    border:2px solid var(--ink);
-
-    transition:
-      transform .2s ease,
-      box-shadow .2s ease;
+  .btn-auth.light:active {
+    transform: translateY(2px) !important;
+    box-shadow: 0 1px 0 var(--ink) !important;
   }
 
-  .user-header-info .btn-auth.light:hover{
-    transform:translateY(-1px);
-    box-shadow:0 4px 0 var(--ink);
+  .btn-auth.green {
+    background: var(--accent) !important;
+    color: var(--ink) !important;
+    box-shadow: 0 3px 0 var(--ink) !important;
   }
 
-  .user-header-info .btn-auth.light:active{
-    transform:translateY(2px);
-    box-shadow:0 1px 0 var(--ink);
+  .btn-auth.green:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 0 var(--ink) !important;
+  }
+
+  .btn-auth.green:active {
+    transform: translateY(2px) !important;
+    box-shadow: 0 1px 0 var(--ink) !important;
+  }
+
+  .user-header-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .user-greeting {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+
+  .credits-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent);
+    color: var(--ink);
+    padding: 8px 18px;
+    border-radius: 9999px;
+    border: none;
+    font-weight: 800;
+    font-size: 15px;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .user-header-info .btn-auth.light {
+    background: #fff !important;
+    color: var(--ink) !important;
+    cursor: pointer !important;
+    padding: 10px 20px !important;
+    border-radius: 9999px !important;
+    font-weight: 800 !important;
+    border: 2px solid var(--ink) !important;
+    transition: transform .2s ease, box-shadow .2s ease !important;
+    box-shadow: 0 3px 0 var(--ink) !important;
+  }
+
+  .user-header-info .btn-auth.light:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 0 var(--ink) !important;
+  }
+
+  .user-header-info .btn-auth.light:active {
+    transform: translateY(2px) !important;
+    box-shadow: 0 1px 0 var(--ink) !important;
   }
 
 
@@ -185,12 +214,12 @@ authHeaderStyles.textContent = `
       padding:4px 10px;
       min-height:auto;
       font-size:13px;
-      border-radius:9999px;
+      border-radius: 9999px;
     }
 
     .user-header-info .btn-auth.light{
-      padding:8px 14px;
-      font-size:13px;
+      padding:8px 14px !important;
+      font-size:13px !important;
     }
 
   }
