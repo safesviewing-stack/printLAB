@@ -55,7 +55,7 @@
     .input-group input{width:100%; padding:14px; border:1.5px solid var(--line); border-radius:12px; font-size:15px; outline:none; transition:.2s; background:var(--bg);}
     .input-group input:focus{border-color:var(--ink); background:#fff;}
     
-    /* Cajas falsas de pago */
+    /* Cajas de pago */
     .card-mockup{border:1.5px solid var(--line); border-radius:12px; padding:16px; display:flex; align-items:center; gap:12px; background:var(--bg); margin-bottom:16px;}
     .card-mockup span{font-size:14px; font-weight:700; color:var(--muted);}
 
@@ -133,15 +133,6 @@
       white-space: nowrap !important;
     }
   </style>
-
-  <!-- Atrapador de errores silencioso para monitorización interna -->
-  <script>
-    window.onerror = function(message, source, lineno, colno, error) {
-      console.error("Fallo detectado en ejecución:", message, "Línea:", lineno);
-      return false; 
-    };
-  </script>
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../assets/js/auth-helper.js?v=11"></script>
   <!-- EMAILJS -->
@@ -207,22 +198,11 @@
           <h2 style="margin-top:40px;">Método de Pago</h2>
           <div class="card-mockup">
             <input type="radio" checked style="width:auto; margin:0;">
-            <span>Tarjeta de Crédito / Débito</span>
+            <span>Direccionamiento seguro a Stripe Checkout</span>
           </div>
           
-          <div class="input-group">
-            <label>Número de Tarjeta</label>
-            <input type="text" id="card-number" placeholder="0000 0000 0000 0000" required>
-          </div>
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
-            <div class="input-group">
-              <label>Fecha de Expiración</label>
-              <input type="text" id="card-expiry" placeholder="MM/AA" required>
-            </div>
-            <div class="input-group">
-              <label>CVC</label>
-              <input type="text" id="card-cvc" placeholder="123" required>
-            </div>
+          <div style="font-size:13px; color:var(--muted); line-height:1.5; margin-top:20px;">
+            Para garantizar tu privacidad y seguridad, no almacenamos tus datos bancarios ni números de tarjeta en nuestros servidores. Al hacer clic en pagar, te redirigiremos de forma segura a la pasarela oficial de Stripe.
           </div>
           
           <div style="font-size:12.5px; color:var(--muted); line-height:1.5; margin-top:20px;">
@@ -315,14 +295,9 @@
     }
   </script>
 
-  <!-- CONTROL DE CHECKOUT DINÁMICO -->
+  <!-- CONTROL DE CHECKOUT DINÁMICO DE STRIPE -->
   <script>
     document.addEventListener("DOMContentLoaded", async () => {
-      // Inicializar la API de EmailJS con tu clave pública
-      emailjs.init({
-        publicKey: "BzQs7T56zifGIy9Gf"
-      });
-
       // 1. Verificar sesión de usuario de forma asíncrona
       const { data: { user } } = await supabaseClient.auth.getUser();
       if (!user) {
@@ -380,7 +355,6 @@
               <span>${selectedPlan.total}</span>
             </div>
 
-            <!-- Botón de pago con ID para asociar evento de forma segura sin onclick inline -->
             <button class="btn-pay" id="btnPaySubmit">
               Pagar ${selectedPlan.total} de forma segura
             </button>
@@ -391,7 +365,7 @@
           </div>
         `;
 
-        // Vinculación segura del evento de clic
+        // Vinculación segura del evento de clic sin JS inline
         const btnPaySubmit = document.getElementById("btnPaySubmit");
         if (btnPaySubmit) {
           btnPaySubmit.addEventListener("click", () => {
@@ -401,113 +375,68 @@
       }
     });
 
-    // Función de procesamiento y envío asíncrono
+    // Función para invocar la pasarela de pago real de Stripe (Supabase Edge Function)
     async function executeStripePayment(planId, userId) {
       const form = document.getElementById("payment-form");
       const btn = document.getElementById("btnPaySubmit");
 
-      // Validar campos obligatorios del formulario antes de procesar
-      if (form) {
-        const isFormValid = form.checkValidity();
-        if (!isFormValid) {
-          form.reportValidity(); // Muestra los mensajes de aviso nativos del navegador
-          return;
-        }
+      // VALIDACIÓN GENERAL OBLIGATORIA (Fuerza avisos visuales nativos)
+      if (form && !form.reportValidity()) {
+        return; 
       }
 
       if (btn) {
         btn.disabled = true;
-        btn.textContent = "Procesando pago seguro...";
+        btn.textContent = "Conectando con Stripe...";
       }
 
-      // Obtener datos del formulario de facturación
+      // Obtener valores de texto obligatorios para el historial temporal de compra
       const nameVal = document.getElementById("billing-name")?.value.trim() || "";
       const emailVal = document.getElementById("billing-email")?.value.trim() || "";
 
       sessionStorage.setItem("printlab_billing_email", emailVal);
       sessionStorage.setItem("printlab_billing_name", nameVal);
 
-      // Determinación de créditos según el plan seleccionado
-      let creditsToAdd = 10; 
-      if (planId === "single") creditsToAdd = 2;
-      else if (planId === "industrial") creditsToAdd = 25;
-
+      // --- REDIRECCIÓN DE SEGURIDAD DEL BACKEND (STRIPE) ---
+      // Redirige al checkout oficial cifrado de Stripe generado por tu Edge Function
       try {
-        const { data: { user } } = await supabaseClient.auth.getUser();
-        if (user) {
-          const { data: profile, error: fetchError } = await supabaseClient
-            .from("profiles")
-            .select("credits")
-            .eq("id", userId)
-            .single();
+        const response = await fetch(`${window.supabaseClient.supabaseUrl}/functions/v1/stripe-checkout`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${window.supabaseClient.supabaseKey}`
+          },
+          body: JSON.stringify({
+            planId: planId,
+            userId: userId,
+            successUrl: window.location.origin + '/herramientas/checkout-success.html?plan=' + planId,
+            cancelUrl: window.location.href
+          })
+        });
 
-          if (!fetchError && profile) {
-            const currentCredits = profile.credits ?? 0;
-            const newCredits = currentCredits + creditsToAdd;
-
-            const { error: updateError } = await supabaseClient
-              .from("profiles")
-              .update({ credits: newCredits })
-              .eq("id", userId);
-
-            if (!updateError) {
-              localStorage.setItem("printlab_cached_credits", newCredits);
-            }
-          }
-        } else {
-          const cachedCredits = parseInt(localStorage.getItem("printlab_cached_credits") || "80");
-          localStorage.setItem("printlab_cached_credits", cachedCredits + creditsToAdd);
+        if (!response.ok) {
+          throw new Error("Respuesta de red no válida.");
         }
-      } catch (dbError) {
-        console.warn("Fallo al actualizar base de datos, usando caché local:", dbError);
-      }
 
-      // Preparación de variables de fecha y detalles para enviar a EmailJS
-      const formattedTime = new Date().toLocaleString('es-ES', { dateStyle: 'full', timeStyle: 'short' });
-
-      const PLANS_DETAILS = {
-        single: { name: "Análisis Duo (2 Créditos)", price: "2.50 €" },
-        pro: { name: "Pack Profesional (10 Créditos)", price: "9.90 €" },
-        industrial: { name: "Pack Industrial (25 Créditos)", price: "19.90 €" }
-      };
-
-      const info = PLANS_DETAILS[planId] || PLANS_DETAILS.pro;
-      let displayCredits = parseInt(localStorage.getItem("printlab_cached_credits") || "80");
-
-      if (btn) {
-        btn.textContent = "Confirmando transacción...";
-      }
-
-      // Detener si por algún motivo la API de EmailJS no está cargada
-      if (typeof emailjs === 'undefined') {
-        console.warn("La biblioteca global 'emailjs' no está definida.");
-        window.location.href = `checkout-success.html?plan=${planId}&test=true`;
-        return;
-      }
-
-      // Envío asíncrono y mapeado correcto de las variables en EmailJS (Claves únicas e independientes)
-      try {
-        await emailjs.send(
-          'service_gwq515d', 
-          'template_lhq20ur', 
-          {
-            user_name: nameVal,             // Mapeado a {{user_name}}
-            email: emailVal,                // Mapeado a {{email}} (usado en cabecera del destinatario de EmailJS)
-            to_email: emailVal,             // Mapeado secundario por seguridad
-            product_title: info.name,       // Mapeado a {{product_title}}
-            product_price: info.price,      // Mapeado a {{product_price}}
-            credits_qty: creditsToAdd,      // Mapeado a {{credits_qty}}
-            credits_balance: displayCredits,// Mapeado a {{credits_balance}}
-            purchase_date: formattedTime    // Mapeado a {{purchase_date}}
+        const session = await response.json();
+        if (session && session.url) {
+          // Redirigir de forma cifrada a los servidores de Stripe
+          window.location.href = session.url; 
+        } else {
+          alert('Error de pasarela: ' + (session.error || 'No se pudo generar la sesión de pago de Stripe.'));
+          if (btn) {
+            btn.disabled = false;
+            btn.textContent = "Intentar de nuevo";
           }
-        );
-        sessionStorage.setItem("printlab_purchase_email_sent_" + planId, "true");
-      } catch (err) {
-        console.error("Fallo durante el envío de confirmación:", err);
+        }
+      } catch (e) {
+        console.error("Fallo de comunicación con la pasarela:", e);
+        alert("Fallo de conexión seguro: No se pudo generar la transacción. Por favor, inténtelo de nuevo.");
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = "Intentar de nuevo";
+        }
       }
-
-      // Redirigir a la pantalla de éxito
-      window.location.href = `checkout-success.html?plan=${planId}&test=true`;
     }
   </script>
 </body>
