@@ -960,9 +960,10 @@
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
   <script>
-    // Inicializar EmailJS con tu Public Key de la imagen (100% correcta)
+    // Inicializar EmailJS con tu Public Key de la imagen de forma europea (EU)
     emailjs.init({
-      publicKey: "BzQs7T56zifGIy9Gf"
+      publicKey: "BzQs7T56zifGly9Gf",
+      host: "api-eu.emailjs.com"
     });
 
 
@@ -1052,7 +1053,7 @@
              */
 
             await emailjs.send(
-              'service_gwq515d', // <-- Comprueba que este sea tu Service ID activo en "Email Services"
+              'service_gwq515d', // <-- Tu Service ID de la pestaña "Email Services"
               'template_w3w3l6e', // Tu Template ID de la imagen (100% correcto)
               {
                 name:name,
@@ -1103,13 +1104,9 @@
               error
             );
 
-            // Alerta de diagnóstico: si hay un fallo, te dirá exactamente qué clave está mal
-            alert("Error de envío: " + (error?.text || JSON.stringify(error) || "Error desconocido"));
-
-
             /*
-             * En caso de error,
-             * el botón vuelve a estar disponible.
+             * En caso de error, el botón vuelve a estar disponible
+             * silenciosamente sin alertas emergentes molestas en pantalla.
              */
 
             if (submitButton) {
