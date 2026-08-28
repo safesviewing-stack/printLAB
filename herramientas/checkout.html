@@ -55,7 +55,7 @@
     .input-group input{width:100%; padding:14px; border:1.5px solid var(--line); border-radius:12px; font-size:15px; outline:none; transition:.2s; background:var(--bg);}
     .input-group input:focus{border-color:var(--ink); background:#fff;}
     
-    /* Cajas falsas de pago para visualización */
+    /* Cajas de pago simulado */
     .card-mockup{border:1.5px solid var(--line); border-radius:12px; padding:16px; display:flex; align-items:center; gap:12px; background:var(--bg); margin-bottom:16px;}
     .card-mockup span{font-size:14px; font-weight:700; color:var(--muted);}
 
@@ -383,15 +383,24 @@
       }
     });
 
-    // Función para invocar la simulación de pago local (añade créditos y manda el correo)
+    // Función de pago y envío de correo con alertas paso a paso
     async function executeStripePayment(planId, userId) {
+      alert("[DIAGNÓSTICO 1] Clic detectado. Iniciando procesamiento de pago...");
+
       const form = document.getElementById("payment-form");
       const btn = document.querySelector(".btn-pay");
 
-      // VALIDACIÓN GENERAL OBLIGATORIA (Fuerza avisos visuales nativos si faltan campos)
-      if (form && !form.reportValidity()) {
-        return; 
+      // Comprobar requerimientos HTML5 (si algún input con attribute 'required' se encuentra vacío)
+      if (form) {
+        const isFormValid = form.checkValidity();
+        if (!isFormValid) {
+          alert("[DIAGNÓSTICO 2] Error: El formulario está incompleto. Por favor rellena todos los campos obligatorios antes de pulsar el botón.");
+          form.reportValidity(); // Muestra el mensaje visual nativo del navegador
+          return;
+        }
       }
+
+      alert("[DIAGNÓSTICO 3] Formulario validado correctamente. Actualizando créditos en base de datos...");
 
       if (btn) {
         btn.disabled = true;
@@ -406,8 +415,7 @@
       sessionStorage.setItem("printlab_billing_email", emailVal);
       sessionStorage.setItem("printlab_billing_name", nameVal);
 
-      // --- SIMULACIÓN LOCAL INTELIGENTE ---
-      // Suma créditos en la base de datos de Supabase de manera local/asíncrona
+      // --- SIMULACIÓN LOCAL ---
       let creditsToAdd = 10; 
       if (planId === "single") creditsToAdd = 2;
       else if (planId === "industrial") creditsToAdd = 25;
@@ -439,14 +447,11 @@
           localStorage.setItem("printlab_cached_credits", cachedCredits + creditsToAdd);
         }
       } catch (dbError) {
-        console.warn("Fallo al actualizar la base de datos, usando caché local:", dbError);
-        const cachedCredits = parseInt(localStorage.getItem("printlab_cached_credits") || "80");
-        localStorage.setItem("printlab_cached_credits", cachedCredits + creditsToAdd);
+        console.warn("Fallo al actualizar base de datos, usando caché local:", dbError);
       }
 
-      // ==========================================
-      // PREPARACIÓN DE PARÁMETROS PARA EMAILJS
-      // ==========================================
+      alert("[DIAGNÓSTICO 4] Base de datos de créditos lista. Preparando conexión con EmailJS para enviar el correo a: " + emailVal);
+
       const formattedTime = new Date().toLocaleString('es-ES', { dateStyle: 'full', timeStyle: 'short' });
 
       const PLANS_DETAILS = {
@@ -501,14 +506,23 @@
         `Ya puedes acceder a la plataforma para analizar y optimizar tus archivos STL de forma profesional.\n` +
         `Si tienes cualquier duda o necesitas una factura formal de tu compra, puedes contactarnos respondiendo directamente a este correo o escribiendo a printcontactlab@gmail.com.`;
 
-      // Cambiar texto de estado en el botón
       if (btn) {
         btn.textContent = "Enviando correo de confirmación...";
       }
 
+      // Validar si la biblioteca EmailJS está presente en memoria antes de mandar
+      if (typeof emailjs === 'undefined') {
+        alert("[DIAGNÓSTICO ERROR] No se puede proceder: La variable global 'emailjs' no está definida. Es posible que el CDN no haya cargado correctamente en este navegador.");
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = "Intentar de nuevo";
+        }
+        return;
+      }
+
       // Enviar el correo y esperar confirmación del servidor de EmailJS
       try {
-        console.log("Intentando enviar correo a: " + emailVal);
+        console.log("Enviando parámetros a EmailJS...");
         
         const response = await emailjs.send(
           'service_gwq515d', // ID del Servicio EmailJS
@@ -524,23 +538,23 @@
           }
         );
 
-        console.log("¡Correo enviado con éxito!", response);
+        alert("[DIAGNÓSTICO 5] ¡CORREO ENVIADO CON ÉXITO! El servidor de EmailJS respondió correctamente: " + JSON.stringify(response));
         sessionStorage.setItem("printlab_purchase_email_sent_" + planId, "true");
         
-        // Redirigir al éxito tras confirmación de envío exitoso
+        // Redirigir al éxito tras confirmación de envío
         window.location.href = `checkout-success.html?plan=${planId}&test=true`;
 
       } catch (err) {
         console.error("Error crítico enviando correo desde checkout:", err);
         
-        // Mostrar alerta informativa con el error crudo que devuelve EmailJS en caso de fallo
+        // Alerta con el error crudo que devuelve EmailJS
         alert(
-          "Atención: Los créditos se han procesado, pero falló la conexión con EmailJS.\n\n" +
-          "Error devuelto:\n" + (err?.text || err?.message || JSON.stringify(err)) + "\n\n" +
-          "Por favor, verifica que tu ID de servicio (service_gwq515d) y tu ID de plantilla (template_lhq20ur) coincidan exactamente en tu cuenta de EmailJS."
+          "[DIAGNÓSTICO ERROR EN EMAILJS] La llamada a EmailJS falló.\n\n" +
+          "Error devuelto por el servidor:\n" + (err?.text || err?.message || JSON.stringify(err)) + "\n\n" +
+          "Comprueba en tu panel de EmailJS que el Service ID (service_gwq515d) y el Template ID (template_lhq20ur) estén activos y pertenezcan a la cuenta configurada con la clave pública BzQs7T56zifGIy9Gf."
         );
 
-        // Permitir la redirección al éxito tras cerrar la alerta de diagnóstico
+        // Continuar de todas formas tras cerrar la ventana de advertencia
         window.location.href = `checkout-success.html?plan=${planId}&test=true`;
       }
     }
