@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+  
   <style>
     :root{ --bg:#f6f7f4; --card:#fff; --ink:#0d1110; --muted:#5e6661; --line:#dfe4df; --accent:#b8ff3d; --dark:#111715; --max:1200px; }
     *{box-sizing:border-box}html{scroll-behavior:smooth}
@@ -55,7 +56,7 @@
     .input-group input{width:100%; padding:14px; border:1.5px solid var(--line); border-radius:12px; font-size:15px; outline:none; transition:.2s; background:var(--bg);}
     .input-group input:focus{border-color:var(--ink); background:#fff;}
     
-    /* Cajas de pago simulado */
+    /* Cajas falsas de pago */
     .card-mockup{border:1.5px solid var(--line); border-radius:12px; padding:16px; display:flex; align-items:center; gap:12px; background:var(--bg); margin-bottom:16px;}
     .card-mockup span{font-size:14px; font-weight:700; color:var(--muted);}
 
@@ -133,6 +134,21 @@
       white-space: nowrap !important;
     }
   </style>
+
+  <!-- ATRAPADOR DE ERRORES GLOBAL (Diagnostica cualquier fallo antes de que ocurra) -->
+  <script>
+    window.onerror = function(message, source, lineno, colno, error) {
+      alert(
+        "⚠️ ERROR DE NAVEGADOR DETECTADO ⚠️\n\n" +
+        "Mensaje: " + message + "\n" +
+        "Archivo: " + source + "\n" +
+        "Línea: " + lineno + ", Columna: " + colno + "\n" +
+        "Error: " + (error ? error.stack : 'N/A')
+      );
+      return false; 
+    };
+  </script>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../assets/js/auth-helper.js?v=11"></script>
   <!-- EMAILJS -->
@@ -371,7 +387,8 @@
               <span>${selectedPlan.total}</span>
             </div>
 
-            <button class="btn-pay" onclick="executeStripePayment('${planId}', '${user.id}')">
+            <!-- Botón de pago con ID para asociar evento de forma segura sin onclick inline -->
+            <button class="btn-pay" id="btnPaySubmit">
               Pagar ${selectedPlan.total} de forma segura
             </button>
             
@@ -380,6 +397,14 @@
             </div>
           </div>
         `;
+
+        // Vinculación moderna y robusta del evento clic inmune a políticas CSP
+        const btnPaySubmit = document.getElementById("btnPaySubmit");
+        if (btnPaySubmit) {
+          btnPaySubmit.addEventListener("click", () => {
+            executeStripePayment(planId, user.id);
+          });
+        }
       }
     });
 
@@ -388,13 +413,13 @@
       alert("[DIAGNÓSTICO 1] Clic detectado. Iniciando procesamiento de pago...");
 
       const form = document.getElementById("payment-form");
-      const btn = document.querySelector(".btn-pay");
+      const btn = document.getElementById("btnPaySubmit");
 
       // Comprobar requerimientos HTML5 (si algún input con attribute 'required' se encuentra vacío)
       if (form) {
         const isFormValid = form.checkValidity();
         if (!isFormValid) {
-          alert("[DIAGNÓSTICO 2] Error: El formulario está incompleto. Por favor rellena todos los campos obligatorios antes de pulsar el botón.");
+          alert("[DIAGNÓSTICO 2] Error: El formulario está incompleto o tiene un formato no válido. Por favor rellena todos los campos obligatorios antes de pulsar el botón.");
           form.reportValidity(); // Muestra el mensaje visual nativo del navegador
           return;
         }
@@ -487,24 +512,28 @@
       
       let displayCredits = parseInt(localStorage.getItem("printlab_cached_credits") || "80");
 
-      const emailMessage = 
-        `¡Gracias por tu compra en PrintLab!\n\n` +
-        `Hola, ${nameVal}.\n\n` +
-        `Te confirmamos que el pago de tu pedido ha sido procesado de forma correcta y los créditos han sido cargados con éxito en tu cuenta.\n\n` +
-        `DETALLES DE LA TRANSACCIÓN:\n` +
-        `=================================\n` +
-        `• Producto: ${info.name}\n` +
-        `• Importe total: ${info.price} (Impuestos incluidos)\n` +
-        `• Créditos añadidos: +${creditsToAdd}\n` +
-        `• Nuevo saldo total: ${displayCredits} Créditos\n` +
-        `• Estado: Completado ✓\n` +
-        `=================================\n\n` +
-        `¿QUÉ INCLUYE TU ADQUISICIÓN?\n` +
-        `=================================\n` +
-        `${compositionText}\n` +
-        `=================================\n\n` +
-        `Ya puedes acceder a la plataforma para analizar y optimizar tus archivos STL de forma profesional.\n` +
-        `Si tienes cualquier duda o necesitas una factura formal de tu compra, puedes contactarnos respondiendo directamente a este correo o escribiendo a printcontactlab@gmail.com.`;
+      const emailMessage = `¡Gracias por tu compra en PrintLab!
+
+Hola, ${nameVal}.
+
+Te confirmamos que el pago de tu pedido ha sido procesado de forma correcta y los créditos han sido cargados con éxito en tu cuenta.
+
+DETALLES DE LA TRANSACCIÓN:
+=================================
+• Producto: ${info.name}
+• Importe total: ${info.price} (Impuestos incluidos)
+• Créditos añadidos: +${creditsToAdd}
+• Nuevo saldo total: ${displayCredits} Créditos
+• Estado: Completado ✓
+=================================
+
+¿QUÉ INCLUYE TU ADQUISICIÓN?
+=================================
+${compositionText}
+=================================
+
+Ya puedes acceder a la plataforma para analizar y optimizar tus archivos STL de forma profesional.
+Si tienes cualquier duda o necesitas una factura formal de tu compra, puedes contactarnos respondiendo directamente a este correo o escribiendo a printcontactlab@gmail.com.`;
 
       if (btn) {
         btn.textContent = "Enviando correo de confirmación...";
