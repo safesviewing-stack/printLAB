@@ -320,20 +320,24 @@
           const billingName = sessionStorage.getItem("printlab_billing_name") || user.user_metadata?.full_name || user.email?.split("@")[0] || "Usuario";
 
           if (billingEmail) {
+            // Bloqueo de reenvío inmediato para que una recarga o conexión inestable no duplique el proceso de EmailJS
+            sessionStorage.setItem("printlab_receipt_sent", "true");
+
             const templateParams = {
               email: billingEmail,
+              to_email: billingEmail,
               user_name: billingName,
-              name: billingName,
-              plan_name: info.name,
-              plan_price: info.price
+              product_title: info.name,
+              product_price: info.price
             };
 
             emailjs.send("service_gwq515d", "template_lhq20ur", templateParams)
               .then(() => {
-                sessionStorage.setItem("printlab_receipt_sent", "true");
-                console.log("¡Confirmación de compra enviada con EmailJS!");
+                console.log("¡Confirmación de compra enviada con EmailJS a:", billingEmail);
               })
               .catch((err) => {
+                // Si falla temporalmente, removemos el flag de enviado por si el usuario decide reintentar
+                sessionStorage.removeItem("printlab_receipt_sent");
                 console.warn("Fallo al enviar correo con EmailJS:", err);
               });
           }
