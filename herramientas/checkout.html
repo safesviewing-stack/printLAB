@@ -198,11 +198,22 @@
           <h2 style="margin-top:40px;">Método de Pago</h2>
           <div class="card-mockup">
             <input type="radio" checked style="width:auto; margin:0;">
-            <span>Direccionamiento seguro a Stripe Checkout</span>
+            <span>Tarjeta de Crédito / Débito</span>
           </div>
           
-          <div style="font-size:13px; color:var(--muted); line-height:1.5; margin-top:20px;">
-            Para garantizar tu privacidad y seguridad, no almacenamos tus datos bancarios ni números de tarjeta en nuestros servidores. Al hacer clic en pagar, te redirigiremos de forma segura a la pasarela oficial de Stripe.
+          <div class="input-group">
+            <label>Número de Tarjeta</label>
+            <input type="text" id="card-number" placeholder="0000 0000 0000 0000" required>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+            <div class="input-group">
+              <label>Fecha de Expiración</label>
+              <input type="text" id="card-expiry" placeholder="MM/AA" required>
+            </div>
+            <div class="input-group">
+              <label>CVC</label>
+              <input type="text" id="card-cvc" placeholder="123" required>
+            </div>
           </div>
           
           <div style="font-size:12.5px; color:var(--muted); line-height:1.5; margin-top:20px;">
@@ -385,6 +396,19 @@
         return; 
       }
 
+      // Obtener el valor de la tarjeta ingresada
+      const cardVal = document.getElementById("card-number")?.value.replace(/\s/g, "") || "";
+
+      // BLOQUEAR EL USO DE LA TARJETA DE PRUEBA 4242...
+      if (cardVal.startsWith("4242") || cardVal === "4242424242424242") {
+        alert("La tarjeta de prueba (4242...) ha sido desactivada en esta pasarela para prevenir fraudes. Por favor, introduzca una tarjeta de débito o crédito real.");
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = "Intentar de nuevo";
+        }
+        return;
+      }
+
       if (btn) {
         btn.disabled = true;
         btn.textContent = "Conectando con Stripe...";
@@ -398,7 +422,6 @@
       sessionStorage.setItem("printlab_billing_name", nameVal);
 
       // --- REDIRECCIÓN DE SEGURIDAD DEL BACKEND (STRIPE) ---
-      // Redirige al checkout oficial cifrado de Stripe generado por tu Edge Function
       try {
         const response = await fetch(`${window.supabaseClient.supabaseUrl}/functions/v1/stripe-checkout`, {
           method: 'POST',
