@@ -204,4 +204,250 @@
       <!-- LADO DERECHO: RESUMEN DINÁMICO -->
       <div id="checkoutSummaryContainer">
         <div class="summary-panel">
-          <h3>Resumen de
+          <h3>Resumen del Pedido</h3>
+          
+          <div class="summary-item">
+            <span style="color:#fff; font-weight:700;">Procesando plan...</span>
+            <span style="color:#fff;">0.00 €</span>
+          </div>
+          <div class="summary-item" style="border:none;">
+            <span>IVA (21%)</span>
+            <span>0.00 €</span>
+          </div>
+          
+          <div class="summary-total">
+            <span>Total a Pagar</span>
+            <span>0.00 €</span>
+          </div>
+
+          <button class="btn-pay" disabled>Procesando pasarela...</button>
+          
+          <div class="trust-badge">
+            <span>💳 Pagos procesados de forma segura por Stripe</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <div class="footergrid">
+        <div class="footer-col">
+          <h3>PrintLab — Ingeniería 3D</h3>
+          <p>Plataforma profesional de análisis y optimización STL mediante Inteligencia Artificial y simuladores paramétricos. Transformamos modelos 3D con problemas en geometrías perfectas listas para fabricar, ahorrando tiempo, material y costes en entornos industriales.</p>
+          <p class="footer-secondary-text">Desarrollado bajo principios de Privacy by Design. Los datos y archivos STL se procesan con estricta confidencialidad.</p>
+        </div>
+        
+        <div class="footer-col">
+          <h3>Recursos y Herramientas</h3>
+          <div class="footer-links">
+            <a href="../index.html#analizador"><span class="arrow">→</span> Analizador STL IA</a>
+            <a href="../index.html#simulador"><span class="arrow">→</span> Simulador de Extrusión</a>
+            <a href="../herramientas/calculadora-coste.html"><span class="arrow">→</span> Calculadoras de Coste y Masa</a>
+            <a href="../index.html#guias"><span class="arrow">→</span> Base de Conocimiento</a>
+            <a href="../materiales/index.html"><span class="arrow">→</span> Atlas de Materiales</a>
+          </div>
+        </div>
+        
+        <div class="footer-col">
+          <h3>Soporte y Legal</h3>
+          <div class="footer-links">
+            <a href="../herramientas/precios.html"><span class="arrow">→</span> Precios y Suscripciones</a>
+            <a href="../herramientas/contacto.html"><span class="arrow">→</span> Contacto y Soporte</a>
+            <a href="../condiciones-compra.html"><span class="arrow">→</span> Condiciones de Compra</a>
+            <a href="../terminos.html"><span class="arrow">→</span> Términos y Condiciones</a>
+            <a href="../privacidad.html"><span class="arrow">→</span> Política de Privacidad</a>
+            <a href="../cookies.html"><span class="arrow">→</span> Política de Cookies</a>
+          </div>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <div class="footer-bottom-text">© 2026 PrintLab.</div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    function toggleMenu() {
+      document.getElementById('mainMenu').classList.toggle('show');
+    }
+
+    window.onclick = function(event) {
+      if (!event.target.closest('.menu-dropdown') && !event.target.closest('.hamburger')) {
+        var dropdowns = document.getElementsByClassName("dropdown-content");
+        for (var i = 0; i < dropdowns.length; i++) {
+          if (dropdowns[i].classList.contains('show')) { dropdowns[i].classList.remove('show'); }
+        }
+      }
+    }
+  </script>
+
+  <!-- CONTROL DE CHECKOUT DINÁMICO DE STRIPE -->
+  <script>
+    // -----------------------------------------------------
+    // INICIALIZACIÓN DE EMAILJS
+    // -----------------------------------------------------
+    emailjs.init({
+      publicKey: "BzQs7T56zifGIy9Gf", // <-- REEMPLAZA ESTO CON TU PUBLIC KEY DE EMAILJS
+    });
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      // 1. Verificar sesión de usuario de forma asíncrona
+      const { data: { user } } = await supabaseClient.auth.getUser();
+      if (!user) {
+        alert("Debes iniciar sesión para proceder al pago.");
+        window.location.href = "login.html?redirect=precios.html";
+        return;
+      }
+
+      // 2. Obtener plan de la URL mediante parámetros GET
+      const urlParams = new URLSearchParams(window.location.search);
+      const planId = urlParams.get("plan") || "pro"; 
+
+      // 3. Matriz de precios y desgloses impositivos reales
+      const PLANS = {
+        single: {
+          name: "Análisis Duo (2 Créditos)",
+          price: "2.07 €",
+          iva: "0.43 €",
+          total: "2.50 €"
+        },
+        pro: {
+          name: "Pack Profesional (10 Créditos)",
+          price: "8.18 €",
+          iva: "1.72 €",
+          total: "9.90 €"
+        },
+        industrial: {
+          name: "Pack Industrial (25 Créditos)",
+          price: "16.45 €",
+          iva: "3.45 €",
+          total: "19.90 €"
+        }
+      };
+
+      const selectedPlan = PLANS[planId] || PLANS.pro;
+
+      // 4. Modificar de forma dinámica la tarjeta del resumen de pedido
+      const summaryContainer = document.getElementById("checkoutSummaryContainer");
+      if (summaryContainer) {
+        summaryContainer.innerHTML = `
+          <div class="summary-panel">
+            <h3>Resumen del Pedido</h3>
+            
+            <div class="summary-item">
+              <span style="color:#fff; font-weight:700;">${selectedPlan.name}</span>
+              <span style="color:#fff;">${selectedPlan.price}</span>
+            </div>
+            <div class="summary-item" style="border:none;">
+              <span>IVA (21%)</span>
+              <span>${selectedPlan.iva}</span>
+            </div>
+            
+            <div class="summary-total">
+              <span>Total a Pagar</span>
+              <span>${selectedPlan.total}</span>
+            </div>
+
+            <button class="btn-pay" id="btnPaySubmit">
+              Pagar ${selectedPlan.total} de forma segura
+            </button>
+            
+            <div class="trust-badge">
+              <span>💳 Pagos procesados de forma segura por Stripe</span>
+            </div>
+          </div>
+        `;
+
+        // Vinculación segura del evento de clic sin JS inline
+        const btnPaySubmit = document.getElementById("btnPaySubmit");
+        if (btnPaySubmit) {
+          btnPaySubmit.addEventListener("click", () => {
+            executeStripePayment(planId, user.id);
+          });
+        }
+      }
+    });
+
+    // Función para invocar la pasarela de pago real de Stripe (Supabase Edge Function)
+    async function executeStripePayment(planId, userId) {
+      const form = document.getElementById("payment-form");
+      const btn = document.getElementById("btnPaySubmit");
+
+      // VALIDACIÓN GENERAL OBLIGATORIA (Fuerza avisos visuales nativos)
+      if (form && !form.reportValidity()) {
+        return; 
+      }
+
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = "Conectando con Stripe...";
+      }
+
+      // Obtener valores de texto obligatorios para el historial temporal de compra
+      const nameVal = document.getElementById("billing-name")?.value.trim() || "";
+      const emailVal = document.getElementById("billing-email")?.value.trim() || "";
+
+      sessionStorage.setItem("printlab_billing_email", emailVal);
+      sessionStorage.setItem("printlab_billing_name", nameVal);
+
+      // --- REDIRECCIÓN DE SEGURIDAD DEL BACKEND (STRIPE) ---
+      try {
+        // Usar la API oficial de Supabase para invocar Edge Functions sin lidiar con URLs ni llaves undefined
+        const { data, error } = await window.supabaseClient.functions.invoke('stripe-checkout', {
+          body: {
+            planId: planId,
+            userId: userId,
+            successUrl: window.location.origin + '/herramientas/checkout-success.html?plan=' + planId,
+            cancelUrl: window.location.href
+          }
+        });
+
+        if (error) {
+          throw error;
+        }
+
+        if (data && data.url) {
+          // --- ENVÍO DE EMAILJS AL COMPLETAR EL CHECKOUT CON ÉXITO ---
+          try {
+            const templateParams = {
+              name: nameVal,       // Se asigna a {{name}} en tu plantilla
+              email: emailVal,     // Se asigna a {{email}} en tu plantilla
+              message: `El usuario ha iniciado un proceso de compra para el plan: ${planId}. Redirigiendo a Stripe para procesar la tarjeta.` // Se asigna a {{message}}
+            };
+
+            await emailjs.send(
+              "AQUÍ_PEGA_TU_SERVICE_ID", // <-- REEMPLAZA CON TU SERVICE ID DE EMAILJS (ej: service_xxxx)
+              "template_lhq20ur",        // Tu Template ID exacto de EmailJS
+              templateParams
+            );
+            console.log("Notificación por correo de EmailJS enviada correctamente.");
+          } catch (emailErr) {
+            // No interrumpimos la redirección de compra a Stripe si falla EmailJS por un error de claves
+            console.warn("Fallo al enviar la plantilla de EmailJS:", emailErr);
+          }
+
+          // Redirigir de forma cifrada a los servidores oficiales de Stripe
+          window.location.href = data.url; 
+        } else {
+          alert('Error de pasarela: No se pudo generar la sesión de pago de Stripe.');
+          if (btn) {
+            btn.disabled = false;
+            btn.textContent = "Intentar de nuevo";
+          }
+        }
+      } catch (e) {
+        console.error("Fallo de comunicación con la pasarela:", e);
+        alert("Fallo de conexión seguro: No se pudo generar la transacción. Asegúrese de que sus credenciales de Stripe estén cargadas en la consola de Supabase.");
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = "Intentar de nuevo";
+        }
+      }
+    }
+  </script>
+</body>
+</html>
