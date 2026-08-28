@@ -8,7 +8,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
-  
   <style>
     :root{ --bg:#f6f7f4; --card:#fff; --ink:#0d1110; --muted:#5e6661; --line:#dfe4df; --accent:#b8ff3d; --dark:#111715; --max:1200px; }
     *{box-sizing:border-box}html{scroll-behavior:smooth}
@@ -135,16 +134,10 @@
     }
   </style>
 
-  <!-- ATRAPADOR DE ERRORES GLOBAL (Diagnostica cualquier fallo antes de que ocurra) -->
+  <!-- Atrapador de errores para monitorización y robustez -->
   <script>
     window.onerror = function(message, source, lineno, colno, error) {
-      alert(
-        "⚠️ ERROR DE NAVEGADOR DETECTADO ⚠️\n\n" +
-        "Mensaje: " + message + "\n" +
-        "Archivo: " + source + "\n" +
-        "Línea: " + lineno + ", Columna: " + colno + "\n" +
-        "Error: " + (error ? error.stack : 'N/A')
-      );
+      console.error("Fallo de sistema detectado:", message, "en la línea:", lineno);
       return false; 
     };
   </script>
@@ -322,10 +315,10 @@
     }
   </script>
 
-  <!-- CONTROL DE CHECKOUT DINÁMICO DE STRIPE -->
+  <!-- CONTROL DE CHECKOUT DINÁMICO -->
   <script>
     document.addEventListener("DOMContentLoaded", async () => {
-      // Inicializar clave pública de EmailJS
+      // Inicializar la API de EmailJS
       emailjs.init({
         publicKey: "BzQs7T56zifGIy9Gf"
       });
@@ -387,7 +380,7 @@
               <span>${selectedPlan.total}</span>
             </div>
 
-            <!-- Botón de pago con ID para asociar evento de forma segura sin onclick inline -->
+            <!-- Botón de pago con ID para asociar evento de forma segura -->
             <button class="btn-pay" id="btnPaySubmit">
               Pagar ${selectedPlan.total} de forma segura
             </button>
@@ -398,7 +391,7 @@
           </div>
         `;
 
-        // Vinculación moderna y robusta del evento clic inmune a políticas CSP
+        // Vinculación segura del evento de clic
         const btnPaySubmit = document.getElementById("btnPaySubmit");
         if (btnPaySubmit) {
           btnPaySubmit.addEventListener("click", () => {
@@ -408,39 +401,33 @@
       }
     });
 
-    // Función de pago y envío de correo con alertas paso a paso
+    // Función de procesamiento y envío de correo
     async function executeStripePayment(planId, userId) {
-      alert("[DIAGNÓSTICO 1] Clic detectado. Iniciando procesamiento de pago...");
-
       const form = document.getElementById("payment-form");
       const btn = document.getElementById("btnPaySubmit");
 
-      // Comprobar requerimientos HTML5 (si algún input con attribute 'required' se encuentra vacío)
+      // Validar campos obligatorios del formulario
       if (form) {
         const isFormValid = form.checkValidity();
         if (!isFormValid) {
-          alert("[DIAGNÓSTICO 2] Error: El formulario está incompleto o tiene un formato no válido. Por favor rellena todos los campos obligatorios antes de pulsar el botón.");
-          form.reportValidity(); // Muestra el mensaje visual nativo del navegador
+          form.reportValidity(); // Muestra los mensajes de aviso nativos
           return;
         }
       }
-
-      alert("[DIAGNÓSTICO 3] Formulario validado correctamente. Actualizando créditos en base de datos...");
 
       if (btn) {
         btn.disabled = true;
         btn.textContent = "Procesando pago seguro...";
       }
 
-      // Obtener valores escritos en el formulario
+      // Obtener datos del formulario
       const nameVal = document.getElementById("billing-name")?.value.trim() || "";
       const emailVal = document.getElementById("billing-email")?.value.trim() || "";
 
-      // Guardamos la información en el almacenamiento de sesión
       sessionStorage.setItem("printlab_billing_email", emailVal);
       sessionStorage.setItem("printlab_billing_name", nameVal);
 
-      // --- SIMULACIÓN LOCAL ---
+      // Determinación de créditos
       let creditsToAdd = 10; 
       if (planId === "single") creditsToAdd = 2;
       else if (planId === "industrial") creditsToAdd = 25;
@@ -475,8 +462,7 @@
         console.warn("Fallo al actualizar base de datos, usando caché local:", dbError);
       }
 
-      alert("[DIAGNÓSTICO 4] Base de datos de créditos lista. Preparando conexión con EmailJS para enviar el correo a: " + emailVal);
-
+      // Datos estructurados de la transacción
       const formattedTime = new Date().toLocaleString('es-ES', { dateStyle: 'full', timeStyle: 'short' });
 
       const PLANS_DETAILS = {
@@ -485,107 +471,42 @@
         industrial: { name: "Pack Industrial (25 Créditos)", price: "19.90 €" }
       };
 
-      const PLANS_COMPOSITION = {
-        single: [
-          "2 Créditos transferibles para realizar análisis de modelos avanzados mediante IA.",
-          "Detección geométrica completa del modelo 3D.",
-          "Informe de soluciones accionables para mejorar la fabricabilidad de tus piezas.",
-          "Acceso interactivo al visualizador 3D de errores estructurales."
-        ],
-        pro: [
-          "10 Créditos transferibles para realizar análisis de modelos avanzados mediante IA.",
-          "Importante ahorro del 21% respecto al precio de adquisición individual.",
-          "Historial completo de análisis de archivos guardado en la nube durante 30 días.",
-          "Prioridad de procesamiento estándar en nuestros servidores para un flujo ágil."
-        ],
-        industrial: [
-          "25 Créditos transferibles para realizar análisis de modelos avanzados mediante IA.",
-          "Importante ahorro del 36% respecto al precio de adquisición individual.",
-          "Historial completo de análisis de archivos guardado en la nube de forma permanente.",
-          "Máxima prioridad en la cola de procesamiento y acceso directo al soporte de ingeniería 3D."
-        ]
-      };
-
       const info = PLANS_DETAILS[planId] || PLANS_DETAILS.pro;
-      const compositionList = PLANS_COMPOSITION[planId] || PLANS_COMPOSITION.pro;
-      const compositionText = compositionList.map(item => `• ${item}`).join('\n');
-      
       let displayCredits = parseInt(localStorage.getItem("printlab_cached_credits") || "80");
 
-      const emailMessage = `¡Gracias por tu compra en PrintLab!
-
-Hola, ${nameVal}.
-
-Te confirmamos que el pago de tu pedido ha sido procesado de forma correcta y los créditos han sido cargados con éxito en tu cuenta.
-
-DETALLES DE LA TRANSACCIÓN:
-=================================
-• Producto: ${info.name}
-• Importe total: ${info.price} (Impuestos incluidos)
-• Créditos añadidos: +${creditsToAdd}
-• Nuevo saldo total: ${displayCredits} Créditos
-• Estado: Completado ✓
-=================================
-
-¿QUÉ INCLUYE TU ADQUISICIÓN?
-=================================
-${compositionText}
-=================================
-
-Ya puedes acceder a la plataforma para analizar y optimizar tus archivos STL de forma profesional.
-Si tienes cualquier duda o necesitas una factura formal de tu compra, puedes contactarnos respondiendo directamente a este correo o escribiendo a printcontactlab@gmail.com.`;
-
       if (btn) {
-        btn.textContent = "Enviando correo de confirmación...";
+        btn.textContent = "Enviando confirmación...";
       }
 
-      // Validar si la biblioteca EmailJS está presente en memoria antes de mandar
       if (typeof emailjs === 'undefined') {
-        alert("[DIAGNÓSTICO ERROR] No se puede proceder: La variable global 'emailjs' no está definida. Es posible que el CDN no haya cargado correctamente en este navegador.");
-        if (btn) {
-          btn.disabled = false;
-          btn.textContent = "Intentar de nuevo";
-        }
+        console.warn("La variable global 'emailjs' no está definida.");
+        window.location.href = `checkout-success.html?plan=${planId}&test=true`;
         return;
       }
 
-      // Enviar el correo y esperar confirmación del servidor de EmailJS
+      // Envío asíncrono del correo informativo estructurado
       try {
-        console.log("Enviando parámetros a EmailJS...");
-        
-        const response = await emailjs.send(
-          'service_gwq515d', // ID del Servicio EmailJS
-          'template_lhq20ur', // ID de la Plantilla EmailJS
+        await emailjs.send(
+          'service_gwq515d', 
+          'template_lhq20ur', 
           {
             name: nameVal,
-            to_name: nameVal,      
             email: emailVal,
-            to_email: emailVal,    
-            user_email: emailVal,  
-            message: emailMessage,
+            to_email: emailVal,
+            product_name: info.name,
+            price: info.price,
+            credits_added: creditsToAdd,
+            total_credits: displayCredits,
             time: formattedTime
           }
         );
-
-        alert("[DIAGNÓSTICO 5] ¡CORREO ENVIADO CON ÉXITO! El servidor de EmailJS respondió correctamente: " + JSON.stringify(response));
         sessionStorage.setItem("printlab_purchase_email_sent_" + planId, "true");
-        
-        // Redirigir al éxito tras confirmación de envío
-        window.location.href = `checkout-success.html?plan=${planId}&test=true`;
-
       } catch (err) {
-        console.error("Error crítico enviando correo desde checkout:", err);
-        
-        // Alerta con el error crudo que devuelve EmailJS
-        alert(
-          "[DIAGNÓSTICO ERROR EN EMAILJS] La llamada a EmailJS falló.\n\n" +
-          "Error devuelto por el servidor:\n" + (err?.text || err?.message || JSON.stringify(err)) + "\n\n" +
-          "Comprueba en tu panel de EmailJS que el Service ID (service_gwq515d) y el Template ID (template_lhq20ur) estén activos y pertenezcan a la cuenta configurada con la clave pública BzQs7T56zifGIy9Gf."
-        );
-
-        // Continuar de todas formas tras cerrar la ventana de advertencia
-        window.location.href = `checkout-success.html?plan=${planId}&test=true`;
+        console.error("Fallo al enviar correo mediante EmailJS:", err);
       }
+
+      // Redirigir a la pantalla de éxito
+      window.location.href = `checkout-success.html?plan=${planId}&test=true`;
     }
   </script>
 </body>
