@@ -41,12 +41,12 @@
 
     /* WIZARD MÁS COMPACTO */
     .upload-container{
-      max-width:740px; /* Ajustado para ser más compacto en horizontal */
+      max-width:740px; 
       margin:60px auto;
       background:var(--card);
       border:2px dashed var(--line);
       border-radius:24px;
-      padding:40px 32px; /* Relleno optimizado */
+      padding:40px 32px; 
       text-align:center;
       box-shadow: 0 20px 40px rgba(13, 17, 16, 0.025);
       transition: border-color 0.25s ease, background-color 0.25s ease, transform 0.25s ease;
@@ -151,7 +151,7 @@
     
     .option-grid{
       display:grid; 
-      grid-template-columns:repeat(3, 1fr); /* 3 columnas estrictas para máxima compactación */
+      grid-template-columns:repeat(3, 1fr); 
       gap: 10px; 
       margin-bottom:20px;
     }
@@ -296,7 +296,6 @@
           <a class="brand" href="../index.html#portada">PRINT<span>LAB</span></a>
         </div>
         
-        <!-- Ocultación inicial por estilos inline para prevenir destellos -->
         <div class="auth-buttons" id="authHeaderContainer" style="opacity: 0; visibility: hidden; transition: opacity 0.15s ease, visibility 0.15s ease;">
           <a href="login.html" class="btn-auth light">Iniciar Sesión</a>
           <a href="registro.html" class="btn-auth green">Registrarse</a>
@@ -676,7 +675,7 @@
     }
   </script>
 
-  <!-- LÓGICA DE EVENTOS DE ENTRADA E INICIALIZACIÓN (Completamente desacoplada de Supabase) -->
+  <!-- LÓGICA DE EVENTOS DE ENTRADA E INICIALIZACIÓN -->
   <script>
     const answers = {
       partType: "",
@@ -723,6 +722,7 @@
     document.getElementById("q-operating-temp").addEventListener("input", validateCurrentStep);
     document.getElementById("q-nozzle").addEventListener("input", validateCurrentStep);
     document.getElementById("q-layer-height").addEventListener("input", validateCurrentStep);
+    document.getElementById("q-tech").addEventListener("change", validateCurrentStep);
 
     function selectCard(cardElement, field) {
       const parent = cardElement.parentNode;
@@ -809,7 +809,6 @@
     }
 
     function navigateStep(direction) {
-      // Bloqueo de avance automático si estamos en el último paso
       if (currentStepIdx === steps.length - 1 && direction === 1) {
         return;
       }
@@ -817,12 +816,10 @@
       const targetStepIdx = currentStepIdx + direction;
       
       if (targetStepIdx === 0) {
-        // Restauramos el Paso 0 (Subida del STL) completamente
         document.getElementById(steps[currentStepIdx]).classList.remove("active");
         currentStepIdx = 0;
         document.getElementById(steps[0]).classList.add("active");
         
-        // Volver a hacer visibles los elementos originales de la portada de carga
         document.querySelector(".upload-title").style.display = "block";
         document.querySelector(".upload-desc").style.display = "block";
         accessButton.style.display = "inline-block";
@@ -831,7 +828,6 @@
         progressContainer.style.display = "none";
         wizardNav.style.display = "none";
         
-        // Reiniciamos barra de progreso
         document.getElementById("progressBar").style.width = "0%";
         validateCurrentStep();
         return;
@@ -872,7 +868,6 @@
       window.selectedSTLFile = file;
       selectedFileName.textContent = file.name;
       
-      // Conversión inteligente de visualización de tamaño (KB para archivos pequeños)
       if (file.size < 1024 * 1024) {
         selectedFileSize.textContent = (file.size / 1024).toFixed(0) + " KB";
       } else {
@@ -908,7 +903,6 @@
       if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
     });
 
-    // Acción del botón verde principal (Siempre responde)
     accessButton.addEventListener("click", async (e) => {
       e.preventDefault();
       const state = accessButton.dataset.state;
@@ -929,7 +923,7 @@
       }
     });
 
-    // --- ENLACE SUPABASE (Sincronización de Sesión) ---
+    // --- ENLACE SUPABASE ---
     const client = window.supabaseClient || (typeof supabaseClient !== "undefined" ? supabaseClient : null);
 
     async function getCurrentSession() {
@@ -940,7 +934,6 @@
       } catch { return null; }
     }
 
-    // Función para forzar el estilo de la insignia de créditos y del saludo, corrigiendo lo que inyecte auth-helper.js
     function forceCreditsStyle() {
       const container = document.getElementById("authHeaderContainer");
       if (!container) return;
@@ -979,7 +972,6 @@
       }
     }
 
-    // Observador en tiempo real para evitar que cambios de auth-helper.js alteren el diseño
     const observer = new MutationObserver(() => {
       forceCreditsStyle();
     });
@@ -1042,14 +1034,12 @@
     }
 
     document.addEventListener("DOMContentLoaded", async function () {
-      // Redirección inmediata preventiva si no hay sesión activa
       const session = await getCurrentSession();
       if (!session) {
         window.location.href = "login.html?redirect=analizador-stl.html";
         return;
       }
 
-      // Activar observación sobre el contenedor de cabecera antes de inicializar la sesión
       const targetNode = document.getElementById("authHeaderContainer");
       if (targetNode) {
         observer.observe(targetNode, { childList: true, subtree: true });
@@ -1071,17 +1061,14 @@
         });
       }
 
-      // Gestión de clic única para nextBtn (Evita avance automático al Paso 8)
       const nextBtn = document.getElementById("nextBtn");
       nextBtn.addEventListener("click", async (e) => {
         e.preventDefault();
         if (nextBtn.disabled) return;
 
         if (currentStepIdx < steps.length - 1) {
-          // Si no estamos en el último paso, simplemente avanzamos de nivel
           navigateStep(1);
         } else {
-          // Si estamos en el último paso (Paso 8), iniciamos el análisis al pulsarlo físicamente
           nextBtn.disabled = true;
           nextBtn.textContent = "Procesando...";
 
