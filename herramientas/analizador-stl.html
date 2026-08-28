@@ -270,7 +270,8 @@
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../assets/js/auth-helper.js"></script>
+  <!-- Sincronización directa de la sesión de auth-helper -->
+  <script src="../assets/js/auth-helper.js?v=11"></script>
 </head>
 <body>
 
@@ -934,86 +935,6 @@
       } catch { return null; }
     }
 
-    function forceCreditsStyle() {
-      const container = document.getElementById("authHeaderContainer");
-      if (!container) return;
-      const spans = container.getElementsByTagName("span");
-      for (let span of spans) {
-        if (span.textContent.includes("Hola,")) {
-          span.style.setProperty("font-weight", "700", "important");
-          span.style.setProperty("font-size", "15px", "important");
-          span.style.setProperty("color", "var(--ink)", "important");
-          span.style.setProperty("display", "inline-block", "important");
-          span.style.setProperty("margin", "auto 0", "important");
-          span.style.setProperty("white-space", "nowrap", "important");
-        }
-        if (span.textContent.includes("Créditos:")) {
-          span.style.setProperty("background", "var(--accent)", "important");
-          span.style.setProperty("background-color", "var(--accent)", "important");
-          span.style.setProperty("color", "var(--ink)", "important");
-          span.style.setProperty("padding", "8px 18px", "important");
-          span.style.setProperty("border-radius", "9999px", "important");
-          span.style.setProperty("font-weight", "800", "important");
-          span.style.setProperty("font-size", "15px", "important");
-          span.style.setProperty("border", "none", "important");
-          span.style.setProperty("border-width", "0px", "important");
-          span.style.setProperty("box-shadow", "none", "important");
-          span.style.setProperty("display", "inline-flex", "important");
-          span.style.setProperty("align-items", "center", "important");
-          span.style.setProperty("justify-content", "center", "important");
-          span.style.setProperty("align-self", "center", "important");
-          span.style.setProperty("line-height", "1", "important");
-          span.style.setProperty("height", "auto", "important");
-          span.style.setProperty("min-height", "0", "important");
-          span.style.setProperty("max-height", "38px", "important");
-          span.style.setProperty("margin", "auto 0", "important");
-          span.style.setProperty("white-space", "nowrap", "important");
-        }
-      }
-    }
-
-    const observer = new MutationObserver(() => {
-      forceCreditsStyle();
-    });
-
-    async function initHeaderSession() {
-      if (!client) return;
-      const { data: { session } } = await client.auth.getSession();
-      const authContainer = document.getElementById("authHeaderContainer");
-      
-      if (session) {
-        const { data: profile } = await client
-          .from("profiles")
-          .select("full_name, credits")
-          .eq("id", session.user.id)
-          .single();
-          
-        const name = profile && profile.full_name ? profile.full_name : session.user.email.split("@")[0];
-        const credits = profile ? profile.credits : 0;
-        
-        authContainer.innerHTML = `
-          <div style="display:flex; align-items:center; gap:16px;">
-            <span style="font-weight:700; font-size:15px; color:var(--ink);">Hola, ${name}</span>
-            <span style="background:var(--accent); color:var(--ink); padding:8px 18px; border-radius:9999px; font-weight:800; font-size:15px; border: none; display: inline-flex; align-items: center; justify-content: center; align-self: center; line-height: 1; white-space: nowrap;">Créditos: ${credits}</span>
-            <button onclick="handleLogout()" class="btn-auth light" style="font-weight:800; font-size:14px; padding:10px 20px; border-radius:9999px; border:2px solid var(--ink); box-shadow:0 3px 0 var(--ink); cursor:pointer;">Cerrar Sesión</button>
-          </div>
-        `;
-        forceCreditsStyle();
-      } else {
-        authContainer.innerHTML = `
-          <a href="login.html" class="btn-auth light">Iniciar Sesión</a>
-          <a href="registro.html" class="btn-auth green">Registrarse</a>
-        `;
-      }
-    }
-
-    window.handleLogout = async function() {
-      if (client) {
-        await client.auth.signOut();
-        window.location.reload();
-      }
-    };
-
     async function updateButtonState() {
       const session = await getCurrentSession();
       if (!session) {
@@ -1040,14 +961,7 @@
         return;
       }
 
-      const targetNode = document.getElementById("authHeaderContainer");
-      if (targetNode) {
-        observer.observe(targetNode, { childList: true, subtree: true });
-      }
-
       await updateButtonState();
-      await initHeaderSession();
-      forceCreditsStyle();
 
       if (client && client.auth && typeof client.auth.onAuthStateChange === "function") {
         client.auth.onAuthStateChange((event, session) => { 
@@ -1056,8 +970,6 @@
             return;
           }
           updateButtonState(); 
-          initHeaderSession();
-          forceCreditsStyle();
         });
       }
 
