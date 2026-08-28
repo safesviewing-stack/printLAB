@@ -309,7 +309,7 @@
   <!-- CONTROL DE CHECKOUT DINÁMICO DE STRIPE -->
   <script>
     document.addEventListener("DOMContentLoaded", async () => {
-      // Inicializar tu clave pública real de EmailJS
+      // Inicializar clave pública de EmailJS
       emailjs.init({
         publicKey: "BzQs7T56zifGIy9Gf"
       });
@@ -388,26 +388,26 @@
       const form = document.getElementById("payment-form");
       const btn = document.querySelector(".btn-pay");
 
-      // VALIDACIÓN GENERAL OBLIGATORIA (Fuerza avisos visuales si faltan campos obligatorios en el formulario)
+      // VALIDACIÓN GENERAL OBLIGATORIA (Fuerza avisos visuales nativos si faltan campos)
       if (form && !form.reportValidity()) {
         return; 
       }
 
       if (btn) {
         btn.disabled = true;
-        btn.textContent = "Procesando pasarela...";
+        btn.textContent = "Procesando pago seguro...";
       }
 
-      // Obtener valores de tarjeta escritos en el formulario
+      // Obtener valores escritos en el formulario
       const nameVal = document.getElementById("billing-name")?.value.trim() || "";
       const emailVal = document.getElementById("billing-email")?.value.trim() || "";
 
-      // Guardamos la información en el almacenamiento de sesión para que checkout-success.html la pueda leer
+      // Guardamos la información en el almacenamiento de sesión
       sessionStorage.setItem("printlab_billing_email", emailVal);
       sessionStorage.setItem("printlab_billing_name", nameVal);
 
       // --- SIMULACIÓN LOCAL INTELIGENTE ---
-      // Suma de forma REAL los créditos en la Base de Datos de Supabase y envía el correo con EmailJS
+      // Suma créditos en la base de datos de Supabase de manera local/asíncrona
       let creditsToAdd = 10; 
       if (planId === "single") creditsToAdd = 2;
       else if (planId === "industrial") creditsToAdd = 25;
@@ -415,7 +415,6 @@
       try {
         const { data: { user } } = await supabaseClient.auth.getUser();
         if (user) {
-          // Obtener el perfil actual de la base de datos de forma asíncrona
           const { data: profile, error: fetchError } = await supabaseClient
             .from("profiles")
             .select("credits")
@@ -426,14 +425,12 @@
             const currentCredits = profile.credits ?? 0;
             const newCredits = currentCredits + creditsToAdd;
 
-            // Actualizar de forma real el registro de créditos en Supabase
             const { error: updateError } = await supabaseClient
               .from("profiles")
               .update({ credits: newCredits })
               .eq("id", userId);
 
             if (!updateError) {
-              // Sincronizar el caché local de forma instantánea
               localStorage.setItem("printlab_cached_credits", newCredits);
             }
           }
@@ -442,13 +439,13 @@
           localStorage.setItem("printlab_cached_credits", cachedCredits + creditsToAdd);
         }
       } catch (dbError) {
-        console.warn("Fallo al actualizar la base de datos de Supabase de forma directa, usando caché local:", dbError);
+        console.warn("Fallo al actualizar la base de datos, usando caché local:", dbError);
         const cachedCredits = parseInt(localStorage.getItem("printlab_cached_credits") || "80");
         localStorage.setItem("printlab_cached_credits", cachedCredits + creditsToAdd);
       }
 
       // ==========================================
-      // ENVÍO DE EMAIL DESDE EL CHECKOUT DIRECTAMENTE
+      // PREPARACIÓN DE PARÁMETROS PARA EMAILJS
       // ==========================================
       const formattedTime = new Date().toLocaleString('es-ES', { dateStyle: 'full', timeStyle: 'short' });
 
@@ -504,11 +501,18 @@
         `Ya puedes acceder a la plataforma para analizar y optimizar tus archivos STL de forma profesional.\n` +
         `Si tienes cualquier duda o necesitas una factura formal de tu compra, puedes contactarnos respondiendo directamente a este correo o escribiendo a printcontactlab@gmail.com.`;
 
+      // Cambiar texto de estado en el botón
+      if (btn) {
+        btn.textContent = "Enviando correo de confirmación...";
+      }
+
+      // Enviar el correo y esperar confirmación del servidor de EmailJS
       try {
-        console.log("Enviando correo desde checkout...");
-        await emailjs.send(
-          'service_gwq515d',
-          'template_lhq20ur',
+        console.log("Intentando enviar correo a: " + emailVal);
+        
+        const response = await emailjs.send(
+          'service_gwq515d', // ID del Servicio EmailJS
+          'template_lhq20ur', // ID de la Plantilla EmailJS
           {
             name: nameVal,
             to_name: nameVal,      
@@ -519,16 +523,26 @@
             time: formattedTime
           }
         );
-        console.log("¡Correo enviado con éxito!");
+
+        console.log("¡Correo enviado con éxito!", response);
         sessionStorage.setItem("printlab_purchase_email_sent_" + planId, "true");
+        
+        // Redirigir al éxito tras confirmación de envío exitoso
+        window.location.href = `checkout-success.html?plan=${planId}&test=true`;
+
       } catch (err) {
         console.error("Error crítico enviando correo desde checkout:", err);
-      }
+        
+        // Mostrar alerta informativa con el error crudo que devuelve EmailJS en caso de fallo
+        alert(
+          "Atención: Los créditos se han procesado, pero falló la conexión con EmailJS.\n\n" +
+          "Error devuelto:\n" + (err?.text || err?.message || JSON.stringify(err)) + "\n\n" +
+          "Por favor, verifica que tu ID de servicio (service_gwq515d) y tu ID de plantilla (template_lhq20ur) coincidan exactamente en tu cuenta de EmailJS."
+        );
 
-      // Simular retardo de red de 1.5 segundos para dar realismo antes de redirigir al éxito
-      setTimeout(() => {
+        // Permitir la redirección al éxito tras cerrar la alerta de diagnóstico
         window.location.href = `checkout-success.html?plan=${planId}&test=true`;
-      }, 1500);
+      }
     }
   </script>
 </body>
