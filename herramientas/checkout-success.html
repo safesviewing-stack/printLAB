@@ -296,6 +296,52 @@
       publicKey: "BzQs7T56zifGIy9Gf",
     });
 
+    // --- PROCESAMIENTO INMEDIATO DEL CORREO DE CONFIRMACIÓN DE EMAILJS ---
+    // Se ejecuta de inmediato sin esperar a consultas asíncronas para que el correo llegue al instante
+    (function() {
+      try {
+        const receiptSent = sessionStorage.getItem("printlab_receipt_sent");
+        if (!receiptSent) {
+          const billingEmail = sessionStorage.getItem("printlab_billing_email");
+          const billingName = sessionStorage.getItem("printlab_billing_name") || "Usuario";
+
+          if (billingEmail) {
+            // Bloqueo síncrono instantáneo antes de la llamada de red para blindar contra envíos repetidos
+            sessionStorage.setItem("printlab_receipt_sent", "true");
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const planId = urlParams.get("plan") || "pro";
+            const PLANS_DETAILS = {
+              single: { name: "Análisis Duo (2 Créditos)", price: "2.50 €" },
+              pro: { name: "Pack Profesional (10 Créditos)", price: "9.90 €" },
+              industrial: { name: "Pack Industrial (25 Créditos)", price: "19.90 €" }
+            };
+            const info = PLANS_DETAILS[planId] || PLANS_DETAILS.pro;
+
+            const templateParams = {
+              email: billingEmail,
+              to_email: billingEmail,
+              user_name: billingName,
+              product_title: info.name,
+              product_price: info.price
+            };
+
+            emailjs.send("service_gwq515d", "template_lhq20ur", templateParams)
+              .then(() => {
+                console.log("¡Confirmación de compra enviada con EmailJS a:", billingEmail);
+              })
+              .catch((err) => {
+                // En caso de fallo de red, removemos el flag para permitir que el reintento se ejecute
+                sessionStorage.removeItem("printlab_receipt_sent");
+                console.warn("Fallo al enviar correo con EmailJS:", err);
+              });
+          }
+        }
+      } catch (e) {
+        console.warn("Fallo en ejecución síncrona de correo:", e);
+      }
+    })();
+
     document.addEventListener("DOMContentLoaded", async () => {
       // 1. Obtener datos del plan de la URL para procesos asíncronos de fondo
       const urlParams = new URLSearchParams(window.location.search);
@@ -313,32 +359,32 @@
       const { data: { user } } = await supabaseClient.auth.getUser();
 
       if (user) {
-        // --- ENVÍO ÚNICO DEL CORREO DE CONFIRMACIÓN DE EMAILJS ---
+        // --- RESPALDO DE SEGURIDAD PARA EMAILJS ---
+        // Si por alguna razón el almacenamiento de sesión estaba vacío al cargar la página (ej. navegación directa),
+        // enviamos el correo usando los datos del perfil de Supabase una vez recuperados de forma asíncrona.
         const receiptSent = sessionStorage.getItem("printlab_receipt_sent");
         if (!receiptSent) {
-          const billingEmail = sessionStorage.getItem("printlab_billing_email") || user.email || "";
-          const billingName = sessionStorage.getItem("printlab_billing_name") || user.user_metadata?.full_name || user.email?.split("@")[0] || "Usuario";
+          const fallbackEmail = user.email || "";
+          const fallbackName = user.user_metadata?.full_name || user.email?.split("@")[0] || "Usuario";
 
-          if (billingEmail) {
-            // Bloqueo de reenvío inmediato para que una recarga o conexión inestable no duplique el proceso de EmailJS
+          if (fallbackEmail) {
             sessionStorage.setItem("printlab_receipt_sent", "true");
 
             const templateParams = {
-              email: billingEmail,
-              to_email: billingEmail,
-              user_name: billingName,
+              email: fallbackEmail,
+              to_email: fallbackEmail,
+              user_name: fallbackName,
               product_title: info.name,
               product_price: info.price
             };
 
             emailjs.send("service_gwq515d", "template_lhq20ur", templateParams)
               .then(() => {
-                console.log("¡Confirmación de compra enviada con EmailJS a:", billingEmail);
+                console.log("¡Confirmación de correo enviada (asíncrona) a:", fallbackEmail);
               })
               .catch((err) => {
-                // Si falla temporalmente, removemos el flag de enviado por si el usuario decide reintentar
                 sessionStorage.removeItem("printlab_receipt_sent");
-                console.warn("Fallo al enviar correo con EmailJS:", err);
+                console.warn("Fallo al enviar correo de seguridad con EmailJS:", err);
               });
           }
         }
