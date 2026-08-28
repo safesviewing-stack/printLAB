@@ -195,29 +195,8 @@
             <input type="email" id="billing-email" placeholder="facturacion@empresa.com" required>
           </div>
 
-          <h2 style="margin-top:40px;">Método de Pago</h2>
-          <div class="card-mockup">
-            <input type="radio" checked style="width:auto; margin:0;">
-            <span>Tarjeta de Crédito / Débito</span>
-          </div>
-          
-          <div class="input-group">
-            <label>Número de Tarjeta</label>
-            <input type="text" id="card-number" placeholder="0000 0000 0000 0000" required>
-          </div>
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
-            <div class="input-group">
-              <label>Fecha de Expiración</label>
-              <input type="text" id="card-expiry" placeholder="MM/AA" required>
-            </div>
-            <div class="input-group">
-              <label>CVC</label>
-              <input type="text" id="card-cvc" placeholder="123" required>
-            </div>
-          </div>
-          
           <div style="font-size:12.5px; color:var(--muted); line-height:1.5; margin-top:20px;">
-            Al confirmar el pago, declaras ser mayor de edad, reconoces que este es un servicio digital de ejecución inmediata y aceptas expresamente renunciar a tu derecho de desistimiento conforme a nuestros <a href="../condiciones-compra.html" style="color:var(--ink); font-weight:800;">Términos de Compra</a>.
+            Al confirmar el pago, serás redirigido de forma segura a la pasarela de Stripe para introducir los datos de tu tarjeta. Declaras ser mayor de edad, reconoces que este es un servicio digital de ejecución inmediata y aceptas expresamente renunciar a tu derecho de desistimiento conforme a nuestros <a href="../condiciones-compra.html" style="color:var(--ink); font-weight:800;">Términos de Compra</a>.
           </div>
         </form>
       </div>
@@ -327,7 +306,7 @@
           name: "Análisis Duo (2 Créditos)",
           price: "2.07 €",
           iva: "0.43 €",
-          total: "0.10 €"
+          total: "2.50 €"
         },
         pro: {
           name: "Pack Profesional (10 Créditos)",
@@ -384,49 +363,16 @@
           });
         }
       }
-
-      // Añadir detector reactivo para restablecer el borde rojo al escribir un número nuevo
-      const cardInput = document.getElementById("card-number");
-      if (cardInput) {
-        cardInput.addEventListener("input", () => {
-          cardInput.style.borderColor = "";
-          cardInput.style.boxShadow = "";
-        });
-      }
     });
 
     // Función para invocar la pasarela de pago real de Stripe (Supabase Edge Function)
     async function executeStripePayment(planId, userId) {
       const form = document.getElementById("payment-form");
       const btn = document.getElementById("btnPaySubmit");
-      const cardInput = document.getElementById("card-number");
 
       // VALIDACIÓN GENERAL OBLIGATORIA (Fuerza avisos visuales nativos)
       if (form && !form.reportValidity()) {
         return; 
-      }
-
-      // Obtener el valor de la tarjeta ingresada
-      const cardVal = cardInput ? cardInput.value.replace(/\s/g, "") : "";
-
-      // BLOQUEAR EL USO DE LA TARJETA DE PRUEBA 4242... (Rodeando de rojo y enfocando sin alertas emergentes)
-      if (cardVal.startsWith("4242") || cardVal === "4242424242424242") {
-        if (cardInput) {
-          cardInput.style.borderColor = "#9e3223";
-          cardInput.style.boxShadow = "0 0 4px #9e3223";
-          cardInput.focus();
-        }
-        if (btn) {
-          btn.disabled = false;
-          const PLANS = {
-            single: "0.10 €",
-            pro: "9.90 €",
-            industrial: "19.90 €"
-          };
-          const totalVal = PLANS[planId] || "9.90 €";
-          btn.textContent = `Pagar ${totalVal} de forma segura`;
-        }
-        return;
       }
 
       if (btn) {
@@ -443,30 +389,25 @@
 
       // --- REDIRECCIÓN DE SEGURIDAD DEL BACKEND (STRIPE) ---
       try {
-        const response = await fetch(`${window.supabaseClient.supabaseUrl}/functions/v1/stripe-checkout`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${window.supabaseClient.supabaseKey}`
-          },
-          body: JSON.stringify({
+        // Usar la API oficial de Supabase para invocar Edge Functions sin lidiar con URLs ni llaves undefined
+        const { data, error } = await window.supabaseClient.functions.invoke('stripe-checkout', {
+          body: {
             planId: planId,
             userId: userId,
             successUrl: window.location.origin + '/herramientas/checkout-success.html?plan=' + planId,
             cancelUrl: window.location.href
-          })
+          }
         });
 
-        if (!response.ok) {
-          throw new Error("Respuesta de red no válida.");
+        if (error) {
+          throw error;
         }
 
-        const session = await response.json();
-        if (session && session.url) {
-          // Redirigir de forma cifrada a los servidores de Stripe
-          window.location.href = session.url; 
+        if (data && data.url) {
+          // Redirigir de forma cifrada a los servidores oficiales de Stripe
+          window.location.href = data.url; 
         } else {
-          alert('Error de pasarela: ' + (session.error || 'No se pudo generar la sesión de pago de Stripe.'));
+          alert('Error de pasarela: No se pudo generar la sesión de pago de Stripe.');
           if (btn) {
             btn.disabled = false;
             btn.textContent = "Intentar de nuevo";
@@ -474,7 +415,7 @@
         }
       } catch (e) {
         console.error("Fallo de comunicación con la pasarela:", e);
-        alert("Fallo de conexión seguro: No se pudo generar la transacción. Por favor, inténtelo de nuevo.");
+        alert("Fallo de conexión seguro: No se pudo generar la transacción. Asegúrese de que sus credenciales de Stripe estén cargadas en la consola de Supabase.");
         if (btn) {
           btn.disabled = false;
           btn.textContent = "Intentar de nuevo";
