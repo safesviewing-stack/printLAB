@@ -240,34 +240,59 @@
       document.getElementById("item-name").textContent = info.name;
       document.getElementById("item-price").textContent = info.price;
 
-      // 2. Obtener el saldo del usuario de Supabase o de la caché local
-      const { data: { user } } = await supabaseClient.auth.getUser();
-      let displayCredits = parseInt(localStorage.getItem("printlab_cached_credits") || "80");
+      // 2. Obtener el saldo anterior guardado en caché
+      const cachedCreditsStr = localStorage.getItem("printlab_cached_credits");
+      const previousCredits = cachedCreditsStr ? parseInt(cachedCreditsStr) : null;
+      let displayCredits = previousCredits || 0;
 
-      if (user) {
-        try {
-          const { data, error } = await supabaseClient
-            .from("profiles")
-            .select("credits")
-            .eq("id", user.id)
-            .single();
-
-          if (!error && data) {
-            displayCredits = data.credits;
-            localStorage.setItem("printlab_cached_credits", displayCredits);
-          }
-        } catch (e) {
-          console.warn("Fallo al obtener créditos reales de Supabase, usando caché local:", e);
-        }
-      }
-
-      // 3. Pintar el total correcto en la interfaz
+      // Mostrar temporalmente el valor que tengamos en caché de inicio
       document.getElementById("item-credits").textContent = displayCredits + " Créditos";
 
-      // 4. Forzar la actualización del indicador de la cabecera en caliente de forma síncrona
-      const headerCreditsBadge = document.querySelector(".credits-badge");
-      if (headerCreditsBadge) {
-        headerCreditsBadge.textContent = "Créditos: " + displayCredits;
+      // 3. Obtener el saldo real del usuario haciendo consultas recurrentes (polling) hasta que aumenten
+      const { data: { user } } = await supabaseClient.auth.getUser();
+
+      if (user) {
+        let attempts = 0;
+        const maxAttempts = 7; // Polling durante un máximo de ~10 segundos (7 intentos x 1.5s)
+
+        async function pollCredits() {
+          try {
+            const { data, error } = await supabaseClient
+              .from("profiles")
+              .select("credits")
+              .eq("id", user.id)
+              .single();
+
+            if (!error && data) {
+              displayCredits = data.credits;
+              
+              // Actualizar de forma dinámica la interfaz
+              document.getElementById("item-credits").textContent = displayCredits + " Créditos";
+              localStorage.setItem("printlab_cached_credits", displayCredits);
+
+              const headerCreditsBadge = document.querySelector(".credits-badge");
+              if (headerCreditsBadge) {
+                headerCreditsBadge.textContent = "Créditos: " + displayCredits;
+              }
+
+              // Si los créditos ya aumentaron en la base de datos comparado con el valor guardado, paramos el polling
+              if (previousCredits !== null && displayCredits > previousCredits) {
+                console.log("¡Señal de webhook procesada con éxito! Créditos incrementados.");
+                return;
+              }
+            }
+          } catch (e) {
+            console.warn("Fallo al obtener créditos en bucle:", e);
+          }
+
+          attempts++;
+          if (attempts < maxAttempts) {
+            setTimeout(pollCredits, 1500); // Volver a consultar en 1.5 segundos
+          }
+        }
+
+        // Iniciar el bucle asíncrono inteligente
+        await pollCredits();
       }
     });
   </script>
