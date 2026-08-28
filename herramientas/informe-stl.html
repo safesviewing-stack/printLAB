@@ -10,10 +10,7 @@
   <style>
     :root{ --bg:#f6f7f4; --card:#fff; --ink:#0d1110; --muted:#5e6661; --line:#dfe4df; --accent:#b8ff3d; --dark:#111715; --max:1200px; --error:#9e3223; --warning:#c47100;}
     *{box-sizing:border-box}html{scroll-behavior:smooth}
-    
-    /* REGLA GENERAL DE ENLACES (Corrige el subrayado del logotipo de la cabecera) */
     a{color:inherit;text-decoration:none}
-    
     body{margin:0; background:var(--bg); color:var(--ink); font-family:"Plus Jakarta Sans", sans-serif; -webkit-font-smoothing:antialiased;}
     .wrap{max-width:var(--max);margin:auto;padding:0 40px}
     
@@ -39,10 +36,7 @@
     .btn-auth { display: inline-flex; align-items: center; justify-content: center; padding: 12px 24px; border-radius: 9999px; font-weight: 800; font-size: 14px; cursor: pointer; transition: .2s ease; text-decoration: none; border: 2px solid var(--ink); }
     .btn-auth.light { background: #fff; color: var(--ink); box-shadow: 0 3px 0px var(--ink); }
     .btn-auth.light:hover { transform: translateY(-1px); box-shadow: 0 4px 0px var(--ink); }
-    .btn-auth.light:active { transform: translateY(2px); box-shadow: 0 1px 0px var(--ink); }
     .btn-auth.green { background: var(--accent); color: var(--ink); box-shadow: 0 3px 0px var(--ink); }
-    .btn-auth.green:hover { transform: translateY(-1px); box-shadow: 0 4px 0px var(--ink); }
-    .btn-auth.green:active { transform: translateY(2px); box-shadow: 0 1px 0px var(--ink); }
 
     /* TÍTULO PRINCIPAL (ESTILO COMPACTO UNIFICADO) */
     .tool-header{padding:60px 0 20px; border-bottom:1px solid var(--line); margin-bottom:20px;}
@@ -65,7 +59,7 @@
     .problem-list{display:flex; flex-direction:column; gap:20px;}
     .prob-card{background:var(--card); border:1.5px solid var(--error); border-left:6px solid var(--error); border-radius:16px; padding:24px;}
     .prob-card.warn{border-color:var(--warning); border-left-color:var(--warning);}
-    .prob-card.success-card{border-color:var(--muted); border-left-color:var(--muted);}
+    .prob-card.success-card{border-color:var(--line); border-left-color:var(--muted);}
     
     .prob-header{display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;}
     .prob-title{font-size:18px; font-weight:800; margin:0;}
@@ -84,7 +78,12 @@
     .download-panel{background:var(--card); border:1.5px solid var(--line); border-radius:24px; padding:36px; margin-top:32px;}
     .btn-download-stl{display:inline-flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:16px; background:var(--ink); color:#fff; border:2px solid var(--ink); border-radius:12px; font-weight:800; font-size:15px; cursor:pointer;}
 
-    /* PIE DE PÁGINA MEJORADO Y CENTRADO DE CALCULADORA-HOLGURAS */
+    /* Vista de contingencia si no hay sesión activa */
+    .no-session-card { text-align: center; padding: 60px 40px; background: var(--card); border: 1.5px solid var(--line); border-radius: 24px; max-width: 580px; margin: 80px auto; box-shadow: 0 10px 30px rgba(0,0,0,0.02); }
+    .no-session-card h2 { font-size: 26px; font-weight: 800; margin: 0 0 12px; letter-spacing: -0.5px; }
+    .no-session-card p { font-size: 15px; color: var(--muted); margin: 0 0 30px; line-height: 1.6; }
+
+    /* FOOTER */
     .footer { background: var(--bg); border-top: 1px solid var(--line); padding: 80px 0 40px; color: var(--muted); font-size: 14px; line-height: 1.6; }
     .footergrid { display: grid; grid-template-columns: 1.3fr 0.85fr 0.85fr; gap: 60px; margin-bottom: 48px; }
     .footer-col h3 { font-size: 16px; font-weight: 800; color: var(--ink); margin: 0 0 20px; letter-spacing: -0.3px; }
@@ -95,7 +94,6 @@
     .footer-links a:hover { color: var(--ink); transform: translateX(2px); }
     .footer-links a span.arrow { transition: color 0.15s ease; }
     .footer-links a:hover span.arrow { color: var(--accent); }
-    
     .footer-bottom { border-top: 1px solid var(--line); padding-top: 24px; display:flex; justify-content:center; align-items:center; text-align:center; font-size: 13px; color: #7d8782;}
 
     @media(max-width:992px) {
@@ -112,7 +110,7 @@
     }
     @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
 
-    /* REGLA FORZADA PARA EL INDICADOR DE CRÉDITOS (Alineado simétrico y redondeado perfecto) */
+    /* REGLA FORZADA PARA EL INDICADOR DE CRÉDITOS */
     #authHeaderContainer span[style*="background" i],
     #authHeaderContainer span[style*="accent" i],
     #authHeaderContainer span:nth-child(2),
@@ -139,7 +137,7 @@
       white-space: nowrap !important;
     }
 
-    /* REGLA FORZADA PARA EL SALUDO DE USUARIO (Impide alteraciones de tamaño) */
+    /* REGLA FORZADA PARA EL SALUDO DE USUARIO */
     #authHeaderContainer .user-greeting,
     #authHeaderContainer span:nth-child(1),
     #authHeaderContainer div span:nth-child(1),
@@ -153,13 +151,14 @@
       white-space: nowrap !important;
     }
   </style>
+  <!-- JSPDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- THREE.JS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/STLLoader.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/controls/OrbitControls.js"></script>
   
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- Parámetro cache-busting v=11 para forzar descarga de la lógica de redirección directa a index.html en URLs limpias -->
   <script src="../assets/js/auth-helper.js?v=11"></script>
 </head>
 <body>
@@ -186,74 +185,81 @@
           <a class="brand" href="../index.html#portada" title="Volver al inicio">PRINT<span>LAB</span></a>
         </div>
         
-        <!-- Ocultación inicial por estilos inline para prevenir destellos -->
         <div class="auth-buttons" id="authHeaderContainer" style="opacity: 0; visibility: hidden; transition: opacity 0.15s ease, visibility 0.15s ease;">
-          <a href="login.html" class="btn-auth light" onclick="sessionStorage.removeItem('printlab_recovery_mode'); localStorage.removeItem('sb-jmwprzgfdkphbxryjbnr-auth-token');">Iniciar Sesión</a>
-          <a href="registro.html" class="btn-auth green" onclick="sessionStorage.removeItem('printlab_recovery_mode'); localStorage.removeItem('sb-jmwprzgfdkphbxryjbnr-auth-token');">Registrarse</a>
+          <a href="login.html" class="btn-auth light">Iniciar Sesión</a>
+          <a href="registro.html" class="btn-auth green">Registrarse</a>
         </div>
       </nav>
     </div>
   </header>
 
-  <main class="wrap">
-
-    <!-- CABECERA DE INFORME (ESTILO UNIFICADO COMPACTO) -->
-    <div class="tool-header">
-      <div style="display:inline-flex; align-items:center; padding:6px 14px; border-radius:9999px; background:rgba(0,0,0,0.04); font-size:11px; text-transform:uppercase; letter-spacing:1px; font-weight:800; color:var(--muted); margin-bottom:16px;">Diagnóstico técnico de malla 3D</div>
-      <h1>Informe de Optimización STL</h1>
-      <p>Evaluación de estabilidad mecánica, resistencia térmica e idoneidad del laminado para tu pieza.</p>
+  <main class="wrap" id="mainContentContainer">
+    <!-- VISTA DE FALLO O CONTINGENCIA SI NO HAY ANÁLISIS ACTIVO -->
+    <div class="no-session-card" id="noSessionFallback" style="display:none;">
+      <h2>No se ha encontrado ningún análisis activo</h2>
+      <p>Sube un archivo de geometría STL en el analizador interactivo para obtener su diagnóstico técnico completo.</p>
+      <a href="analizador-stl.html" class="btn-auth green" style="padding: 14px 30px; font-weight:800; font-size:15px; border-radius:12px;">Ir al Analizador STL</a>
     </div>
 
-    <div class="report-grid">
-      
-      <!-- LADO IZQUIERDO: VISOR 3D (BASE AMARILLA INTELIGENTE + PUNTOS VINCULADOS) -->
-      <div>
-        <div class="mesh-comparison">
-          <div class="mesh-view-header">
-            <span class="mesh-title" id="reportFileName">Cargando pieza...</span>
-            <span style="color:var(--accent); font-weight:800; font-size:12px;">✓ Diagnóstico Realizado</span>
-          </div>
-          <div class="mesh-canvas" id="canvas3dContainer">
-            <span class="mesh-overlay-tag" style="background:rgba(255,180,0,0.2); border:1px solid #ffb400; color:#ffb400">Apoyo Recomendado (Amarillo) | Tensión (Rojo)</span>
-          </div>
-        </div>
-
-        <div style="margin-top:24px; padding:24px; background:var(--card); border:1.5px solid var(--line); border-radius:20px; font-size:14.5px;">
-          <h4 style="margin:0 0 16px; font-weight:800; font-size:16px;">Datos Técnicos Estructurados</h4>
-          <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px dashed var(--line); padding-bottom:6px;"><span>Volumen Sólido:</span> <strong id="reportVolume">... cm³</strong></div>
-          <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px dashed var(--line); padding-bottom:6px;"><span>Dimensiones límites:</span> <strong id="reportDimensions">... mm</strong></div>
-          <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px dashed var(--line); padding-bottom:6px;"><span>Tecnología idónea:</span> <strong>FDM (Extrusión termoplástica)</strong></div>
-          <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px dashed var(--line); padding-bottom:6px;"><span>Material base propuesto:</span> <strong style="color:#2a694b" id="reportMaterial">...</strong></div>
-          <div style="display:flex; justify-content:space-between; border-bottom:1px dashed var(--line); padding-bottom:6px;"><span>Temperatura de boquilla:</span> <strong id="reportTemp">... ºC</strong></div>
-          <div style="display:flex; justify-content:space-between;"><span>Temperatura de cama:</span> <strong id="reportBed">... ºC</strong></div>
-        </div>
+    <!-- CONTENEDOR PRINCIPAL DEL INFORME -->
+    <div id="reportMainContent" style="display:none;">
+      <div class="tool-header">
+        <div style="display:inline-flex; align-items:center; padding:6px 14px; border-radius:9999px; background:rgba(0,0,0,0.04); font-size:11px; text-transform:uppercase; letter-spacing:1px; font-weight:800; color:var(--muted); margin-bottom:16px;">Diagnóstico técnico de malla 3D</div>
+        <h1>Informe de Optimización STL</h1>
+        <p>Evaluación de estabilidad mecánica, resistencia térmica e idoneidad del laminado para tu pieza.</p>
       </div>
 
-      <!-- LADO DERECHO: DIAGNÓSTICO Y RECOMENDACIÓN DE SLICER -->
-      <div>
-        <div class="score-card">
-          <p class="score-title">Printability Score</p>
-          <p class="score-value" style="color:var(--warning)" id="reportScore">...<span>/100</span></p>
-          <p style="margin:0; color:var(--muted); font-size:15px; line-height:1.5;" id="reportScoreDesc">Procesando evaluación estructural...</p>
+      <div class="report-grid">
+        
+        <!-- LADO IZQUIERDO: VISOR 3D -->
+        <div>
+          <div class="mesh-comparison">
+            <div class="mesh-view-header" style="display:flex; justify-content:space-between; align-items:center;">
+              <span class="mesh-title" id="reportFileName" style="font-weight:800; font-size:15px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:240px;">Cargando pieza...</span>
+              <span style="color:var(--accent); font-weight:800; font-size:12px;">✓ Diagnóstico Realizado</span>
+            </div>
+            <div class="mesh-canvas" id="canvas3dContainer">
+              <span class="mesh-overlay-tag" style="background:rgba(255,180,0,0.2); border:1px solid #ffb400; color:#ffb400">Apoyo Recomendado (Amarillo) | Tensión (Rojo)</span>
+            </div>
+          </div>
+
+          <div style="margin-top:24px; padding:24px; background:var(--card); border:1.5px solid var(--line); border-radius:20px; font-size:14.5px;">
+            <h4 style="margin:0 0 16px; font-weight:800; font-size:16px;">Datos Técnicos Estructurados</h4>
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px dashed var(--line); padding-bottom:6px;"><span>Volumen Sólido:</span> <strong id="reportVolume">... cm³</strong></div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px dashed var(--line); padding-bottom:6px;"><span>Dimensiones límites:</span> <strong id="reportDimensions">... mm</strong></div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px dashed var(--line); padding-bottom:6px;"><span>Tecnología idónea:</span> <strong>FDM (Extrusión termoplástica)</strong></div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px dashed var(--line); padding-bottom:6px;"><span>Material base propuesto:</span> <strong style="color:#2a694b" id="reportMaterial">...</strong></div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px dashed var(--line); padding-bottom:6px;"><span>Temperatura de boquilla:</span> <strong id="reportTemp">... ºC</strong></div>
+            <div style="display:flex; justify-content:space-between;"><span>Temperatura de cama:</span> <strong id="reportBed">... ºC</strong></div>
+          </div>
         </div>
 
-        <div class="problem-list" id="problemListContainer"></div>
+        <!-- LADO DERECHO: DIAGNÓSTICO Y RECOMENDACIÓN DE SLICER -->
+        <div>
+          <div class="score-card">
+            <p class="score-title">Printability Score</p>
+            <p class="score-value" style="color:var(--warning)" id="reportScore">...<span>/100</span></p>
+            <p style="margin:0; color:var(--muted); font-size:15px; line-height:1.5;" id="reportScoreDesc">Procesando evaluación estructural...</p>
+          </div>
 
-        <div class="download-panel">
-          <h4 style="margin:0 0 20px; font-weight:800; font-size:16px;">Descarga de Resultados</h4>
-          <button class="btn-download-stl" id="downloadStlBtn" style="margin-bottom:12px; background:var(--accent); color:var(--ink); border-color:var(--ink);">
-            Descargar pieza optimizada (.STL)
-          </button>
-          <button class="btn-download-stl" id="downloadPdfBtn" style="background:#fff; color:var(--ink);">
-            Descargar Informe de Ingeniería (.PDF)
-          </button>
+          <div class="problem-list" id="problemListContainer"></div>
+
+          <div class="download-panel">
+            <h4 style="margin:0 0 20px; font-weight:800; font-size:16px;">Descarga de Resultados</h4>
+            <button class="btn-download-stl" id="downloadStlBtn" style="margin-bottom:12px; background:var(--accent); color:var(--ink); border-color:var(--ink);">
+              Descargar pieza optimizada (.STL)
+            </button>
+            <button class="btn-download-stl" id="downloadPdfBtn" style="background:#fff; color:var(--ink);">
+              Descargar Informe de Ingeniería (.PDF)
+            </button>
+          </div>
         </div>
+
       </div>
-
     </div>
   </main>
 
-  <!-- PIE DE PÁGINA UNIFICADO COPIADO DE REFERENCIA -->
+  <!-- PIE DE PÁGINA -->
   <footer class="footer">
     <div class="wrap">
       <div class="footergrid">
@@ -335,11 +341,20 @@
       controls = new THREE.OrbitControls(camera, renderer.domElement);
       controls.enableDamping = true;
 
+      // Escala del renderizador interactivo reactivo
+      window.addEventListener('resize', () => {
+        if (camera && renderer && container) {
+          camera.aspect = container.clientWidth / container.clientHeight;
+          camera.updateProjectionMatrix();
+          renderer.setSize(container.clientWidth, container.clientHeight);
+        }
+      });
+
       // Generar matriz matemática de rotación idónea para proyecciones
       const mat = new THREE.Matrix4();
       if (recommendedRotMatrix) {
         const flatMatrix = recommendedRotMatrix.flat();
-        mat.fromArray(flatMatrix).transpose(); // Transponer de Row-Major (NumPy) a Column-Major (WebGL)
+        mat.fromArray(flatMatrix).transpose(); 
       } else {
         mat.identity();
       }
@@ -350,22 +365,20 @@
         const position = geometry.attributes.position;
         const colors = [];
 
-        // 1. --- CÁLCULO DE LA SUPERFICIE DE APOYO IDÓNEA SEGÚN CUESTIONARIO ---
         let minRotatedZ = Infinity;
         let maxRotatedZ = -Infinity;
 
-        // Proyectamos matemáticamente las coordenadas al plano de impresión virtual
+        // Proyectar matemáticamente las coordenadas al plano de impresión virtual
         for (let i = 0; i < position.count; i++) {
           const v = new THREE.Vector3(position.getX(i), position.getY(i), position.getZ(i));
-          v.applyMatrix4(mat); // Transformamos el vértice
+          v.applyMatrix4(mat); 
           if (v.z < minRotatedZ) minRotatedZ = v.z;
           if (v.z > maxRotatedZ) maxRotatedZ = v.z;
         }
 
-        // Establecer el 5% inferior de la orientación óptima como base
         const threshold = minRotatedZ + (maxRotatedZ - minRotatedZ) * 0.05;
 
-        // Pintamos el modelo
+        // Pintar la malla
         for (let i = 0; i < position.count; i++) {
           const v = new THREE.Vector3(position.getX(i), position.getY(i), position.getZ(i));
           v.applyMatrix4(mat);
@@ -388,14 +401,13 @@
         activeMesh = new THREE.Mesh(geometry, material);
         scene.add(activeMesh);
 
-        // 2. --- CORRECCIÓN CLAVE: Vincular marcas rojas a las coordenadas absolutas de la malla ---
+        // Vincular marcas rojas a las coordenadas absolutas de la malla
         if (criticalPoints && criticalPoints.length > 0) {
           criticalPoints.forEach(pt => {
             const sphereGeo = new THREE.SphereGeometry(1.5, 16, 16);
-            const sphereMat = new THREE.MeshBasicMaterial({ color: 0xd9432f }); // Rojo
+            const sphereMat = new THREE.MeshBasicMaterial({ color: 0xd9432f }); 
             const sphere = new THREE.Mesh(sphereGeo, sphereMat);
             
-            // Usamos las coordenadas de origen absolutas pt.x, pt.y, pt.z ya que la geometría está en coordenadas de origen absoluto
             sphere.position.set(pt.x, pt.y, pt.z);
             activeMesh.add(sphere);
           });
@@ -404,7 +416,7 @@
         geometry.computeBoundingBox();
         const center = new THREE.Vector3();
         geometry.boundingBox.getCenter(center);
-        controls.target.copy(center); // Centrar la rotación de cámara en el modelo
+        controls.target.copy(center); 
 
         const size = geometry.boundingBox.getSize(new THREE.Vector3()).length();
         camera.position.set(center.x + size * 0.8, center.y + size * 0.8, center.z + size * 0.8);
@@ -426,6 +438,9 @@
       const downloadStlBtn = document.getElementById("downloadStlBtn");
       const downloadPdfBtn = document.getElementById("downloadPdfBtn");
 
+      const noSessionFallback = document.getElementById("noSessionFallback");
+      const reportMainContent = document.getElementById("reportMainContent");
+
       const reportFileName = document.getElementById("reportFileName");
       const reportVolume = document.getElementById("reportVolume");
       const reportDimensions = document.getElementById("reportDimensions");
@@ -439,75 +454,218 @@
 
       const storedAnalysis = sessionStorage.getItem("printlab_analysis");
 
-      if (storedAnalysis) {
-        const analysis = JSON.parse(storedAnalysis);
-        const s = analysis.slicer_settings;
-        const q = analysis.user_questionnaire;
+      // 1. GESTIÓN DE SEGURIDAD SI NO HAY ANÁLISIS EN CURSO
+      if (!storedAnalysis) {
+        noSessionFallback.style.display = "block";
+        reportMainContent.style.display = "none";
+        return;
+      }
 
-        reportFileName.textContent = "📄 " + analysis.file_name;
-        reportVolume.textContent = `${analysis.volume} cm³`;
-        reportDimensions.textContent = analysis.dimensions;
+      // Mostrar el informe si los datos existen
+      noSessionFallback.style.display = "none";
+      reportMainContent.style.display = "block";
 
-        reportMaterial.textContent = `${s.material} (${s.material_status})`;
-        reportTemp.textContent = `${s.nozzle_temp} ºC`;
-        reportBed.textContent = `${s.bed_temp} ºC`;
+      const analysis = JSON.parse(storedAnalysis);
+      const s = analysis.slicer_settings;
+      const q = analysis.user_questionnaire;
 
-        const baseScore = analysis.watertight ? 98 : 45;
-        let scorePenalty = analysis.critical_points.length * 1.5;
-        if (s.material_status === "no_adecuado") scorePenalty += 20;
+      reportFileName.textContent = "📄 " + analysis.file_name;
+      reportVolume.textContent = `${analysis.volume} cm³`;
+      reportDimensions.textContent = analysis.dimensions;
 
-        const finalScore = Math.max(30, Math.round(baseScore - scorePenalty));
-        reportScore.innerHTML = `${finalScore}<span>/100</span>`;
+      reportMaterial.textContent = `${s.material} (${s.material_status})`;
+      reportTemp.textContent = `${s.nozzle_temp} ºC`;
+      reportBed.textContent = `${s.bed_temp} ºC`;
 
-        if (finalScore >= 85) {
-          reportScore.style.color = "var(--muted)";
-          reportScoreDesc.textContent = "El modelo dispone de una excelente estabilidad bajo los criterios mecánicos indicados.";
-        } else if (finalScore >= 55) {
-          reportScore.style.color = "var(--warning)";
-          reportScoreDesc.textContent = "Se detectan riesgos estructurales o de devaluación térmica moderada bajo las condiciones de funcionamiento dadas.";
-        } else {
-          reportScore.style.color = "var(--error)";
-          reportScoreDesc.textContent = "Modelo crítico. Se recomienda un cambio inmediato de material o de espesores debido al alto esfuerzo o temperatura.";
-        }
+      const baseScore = analysis.watertight ? 98 : 45;
+      let scorePenalty = analysis.critical_points.length * 1.5;
+      if (s.material_status === "no_adecuado") scorePenalty += 20;
 
-        let htmlCards = `
-          <div class="prob-card ${s.material_status === 'no_adecuado' ? '' : 'success-card'}">
-            <div class="prob-header">
-              <h3 class="prob-title">Idoneidad del Material</h3>
-              <span class="prob-badge" style="background:${s.material_status === 'no_adecuado' ? '#fcebe8' : '#eef2ee'}; color:${s.material_status === 'no_adecuado' ? '#b42318' : 'var(--muted)'};">
-                ${s.material_status === 'no_adecuado' ? 'CRÍTICO' : 'CONFIRMADO'}
-              </span>
-            </div>
-            <div class="solution-box">
-              <p class="solution-text">${s.material_reason}</p>
-            </div>
+      const finalScore = Math.max(30, Math.round(baseScore - scorePenalty));
+      reportScore.innerHTML = `${finalScore}<span>/100</span>`;
+
+      if (finalScore >= 85) {
+        reportScore.style.color = "var(--muted)";
+        reportScoreDesc.textContent = "El modelo dispone de una excelente estabilidad bajo los criterios mecánicos indicados.";
+      } else if (finalScore >= 55) {
+        reportScore.style.color = "var(--warning)";
+        reportScoreDesc.textContent = "Se detectan riesgos estructurales o de devaluación térmica moderada bajo las condiciones de funcionamiento dadas.";
+      } else {
+        reportScore.style.color = "var(--error)";
+        reportScoreDesc.textContent = "Modelo crítico. Se recomienda un cambio inmediato de material o de espesores debido al alto esfuerzo o temperatura.";
+      }
+
+      // 2. DIAGNÓSTICO INTEGRAL EN TARJETAS DE LAMINACIÓN
+      let htmlCards = `
+        <!-- Tarjeta 1: Idoneidad del Material -->
+        <div class="prob-card ${s.material_status === 'no_adecuado' ? '' : 'success-card'}">
+          <div class="prob-header">
+            <h3 class="prob-title">Idoneidad del Material</h3>
+            <span class="prob-badge" style="background:${s.material_status === 'no_adecuado' ? '#fcebe8' : '#eef2ee'}; color:${s.material_status === 'no_adecuado' ? '#b42318' : 'var(--muted)'};">
+              ${s.material_status === 'no_adecuado' ? 'CRÍTICO' : 'CONFIRMADO'}
+            </span>
           </div>
-        `;
+          <div class="solution-box">
+            <p class="solution-text">${s.material_reason}</p>
+          </div>
+        </div>
 
-        problemListContainer.innerHTML = htmlCards;
+        <!-- Tarjeta 2: Estanqueidad de la malla (Holes / Overlaps) -->
+        <div class="prob-card ${analysis.watertight ? 'success-card' : 'warn'}" style="${analysis.watertight ? '' : 'border-color: var(--warning); border-left-color: var(--warning);'}">
+          <div class="prob-header">
+            <h3 class="prob-title">Estanqueidad de Malla (Manifold)</h3>
+            <span class="prob-badge" style="background:${analysis.watertight ? '#eef2ee' : '#fff3cd'}; color:${analysis.watertight ? 'var(--muted)' : 'var(--warning)'};">
+              ${analysis.watertight ? 'ESTANCO' : 'ABIERTO'}
+            </span>
+          </div>
+          <div class="solution-box">
+            <p class="solution-text">
+              ${analysis.watertight 
+                ? 'La geometría STL está completamente cerrada. No se detectan aristas abiertas ni pérdida de volumen durante la simulación.' 
+                : 'Se han detectado agujeros o aristas no unificadas en el modelo. Nuestra capa matemática de reparación ha cerrado virtualmente el volumen para asegurar un laminado continuo y sin huecos.'}
+            </p>
+          </div>
+        </div>
 
-        if (analysis.optimized_base64) {
-          const byteCharacters = atob(analysis.optimized_base64);
-          const byteNumbers = new Array(byteCharacters.length);
-          for (let i = 0; i < byteCharacters.length; i++) {
-            byteNumbers[i] = byteCharacters.charCodeAt(i);
-          }
-          const byteArray = new Uint8Array(byteNumbers);
-          const blob = new Blob([byteArray], { type: "model/stl" });
-          const stlLocalUrl = URL.createObjectURL(blob);
+        <!-- Tarjeta 3: Puntos Críticos y Esfuerzos Mecánicos -->
+        <div class="prob-card ${analysis.critical_points.length === 0 ? 'success-card' : 'warn'}" style="${analysis.critical_points.length === 0 ? '' : 'border-color: var(--warning); border-left-color: var(--warning);'}">
+          <div class="prob-header">
+            <h3 class="prob-title">Esfuerzos y Puntos de Tensión</h3>
+            <span class="prob-badge" style="background:${analysis.critical_points.length === 0 ? '#eef2ee' : '#fff3cd'}; color:${analysis.critical_points.length === 0 ? 'var(--muted)' : 'var(--warning)'};">
+              ${analysis.critical_points.length === 0 ? 'ESTABLE' : 'ADVERTENCIA'}
+            </span>
+          </div>
+          <div class="solution-box">
+            <p class="solution-text">
+              ${analysis.critical_points.length === 0 
+                ? 'La distribución de cargas y esfuerzos es homogénea. No se detectan concentraciones peligrosas de tensión mecánica.' 
+                : `Se han identificado ${analysis.critical_points.length} puntos con riesgo de fractura dinámica (marcados en rojo en el visor 3D). Se aconseja aumentar el recuento de paredes por encima de 4 perímetros y usar un relleno giroscópico superior al 30% en estas zonas.`}
+            </p>
+          </div>
+        </div>
+      `;
 
-          // Inicializar el visor pasando las coordenadas absolutas y la matriz de orientación idónea
-          init3DViewer("canvas3dContainer", stlLocalUrl, analysis.critical_points, s.recommended_rot_matrix);
+      problemListContainer.innerHTML = htmlCards;
 
-          downloadStlBtn.addEventListener("click", () => {
-            const a = document.createElement("a");
-            a.href = stlLocalUrl;
-            a.download = "optimized_" + (analysis.file_name || "piece.stl");
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-          });
+      // 3. PROCESAMIENTO DE DESCARGAS STL Y EXPORTACIÓN A PDF REAL
+      if (analysis.optimized_base64) {
+        const byteCharacters = atob(analysis.optimized_base64);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
         }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: "model/stl" });
+        const stlLocalUrl = URL.createObjectURL(blob);
+
+        init3DViewer("canvas3dContainer", stlLocalUrl, analysis.critical_points, s.recommended_rot_matrix);
+
+        // Descarga de archivo STL optimizado
+        downloadStlBtn.addEventListener("click", () => {
+          const a = document.createElement("a");
+          a.href = stlLocalUrl;
+          a.download = "optimized_" + (analysis.file_name || "piece.stl");
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        });
+
+        // Exportación de Informe de Ingeniería Real a PDF con jsPDF
+        downloadPdfBtn.addEventListener("click", () => {
+          const { jsPDF } = window.jspdf || window.jsPDF;
+          const doc = new jsPDF();
+
+          // Cabecera Corporativa PrintLab
+          doc.setFillColor(17, 23, 21); // Dark Slate #111715
+          doc.rect(0, 0, 210, 40, 'F');
+          
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(22);
+          doc.setTextColor(255, 255, 255);
+          doc.text("PRINTLAB", 15, 20);
+
+          doc.setFontSize(9);
+          doc.setTextColor(184, 255, 61); // Accent neon #b8ff3d
+          doc.text("INFORME DE INGENIERÍA Y OPTIMIZACIÓN GEOMÉTRICA", 15, 28);
+
+          // Datos Generales de la Pieza
+          let y = 55;
+          doc.setFontSize(12);
+          doc.setTextColor(13, 17, 16); // var(--ink)
+          doc.setFont("helvetica", "bold");
+          doc.text("Propiedades Físicas y de Laminación", 15, y);
+          doc.setDrawColor(223, 228, 223); // var(--line)
+          doc.line(15, y + 2, 195, y + 2);
+
+          y += 10;
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(10);
+          doc.setTextColor(94, 102, 97); // var(--muted)
+
+          const properties = [
+            ["Archivo analizado:", analysis.file_name],
+            ["Volumen del modelo:", `${analysis.volume} cm3`],
+            ["Dimensiones límites:", analysis.dimensions],
+            ["Material sugerido:", `${s.material} (${s.material_status === 'adecuado' ? 'Recomendado' : 'No idóneo'})`],
+            ["Temperatura de boquilla:", `${s.nozzle_temp} °C`],
+            ["Temperatura de cama:", `${s.bed_temp} °C`],
+            ["Printability Score:", `${finalScore} / 100`]
+          ];
+
+          properties.forEach(prop => {
+            doc.setFont("helvetica", "bold");
+            doc.text(prop[0], 15, y);
+            doc.setFont("helvetica", "normal");
+            doc.text(prop[1], 75, y);
+            y += 8;
+          });
+
+          // Análisis Técnico Estructurado
+          y += 12;
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(12);
+          doc.setTextColor(13, 17, 16);
+          doc.text("Evaluación Mecánica y del Entorno", 15, y);
+          doc.line(15, y + 2, 195, y + 2);
+
+          y += 10;
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(10);
+          doc.setTextColor(13, 17, 16);
+
+          // Justificación de idoneidad térmica y química
+          const materialText = `Sugerencia de polímero: ${s.material_reason}`;
+          const splitMaterialText = doc.splitTextToSize(materialText, 180);
+          doc.text(splitMaterialText, 15, y);
+          
+          y += (splitMaterialText.length * 5) + 6;
+
+          // Diagnóstico de estanqueidad
+          doc.setFont("helvetica", "bold");
+          doc.text("Estado de estanqueidad:", 15, y);
+          doc.setFont("helvetica", "normal");
+          const watertightText = analysis.watertight 
+            ? "Malla 100% cerrada (Manifold). Flujo continuo de extrusión garantizado." 
+            : "Geometría abierta. Se han corregido huecos estructurales virtualmente para garantizar el laminado sin colapsos de pared.";
+          const splitWatertight = doc.splitTextToSize(watertightText, 180);
+          doc.text(splitWatertight, 15, y + 6);
+
+          y += (splitWatertight.length * 5) + 8;
+
+          // Esfuerzos y puntos de tensión
+          doc.setFont("helvetica", "bold");
+          doc.text("Puntos críticos detectados:", 15, y);
+          doc.setFont("helvetica", "normal");
+          const tensionText = analysis.critical_points.length === 0
+            ? "Distribución estática correcta. No se detectan áreas críticas de tensión concentrada."
+            : `Se han identificado ${analysis.critical_points.length} puntos mecánicos con peligro de fatiga dimensional. Se aconseja aumentar el recuento de perímetros por encima de 4 e implementar relleno de tipo giroscopio.`;
+          const splitTension = doc.splitTextToSize(tensionText, 180);
+          doc.text(splitTension, 15, y + 6);
+
+          // Guardar el archivo PDF generado
+          const safeName = analysis.file_name.replace(/\.[^/.]+$/, "").replace(/\s+/g, "_");
+          doc.save(`PrintLab_Reporte_${safeName}.pdf`);
+        });
       }
     });
   </script>
