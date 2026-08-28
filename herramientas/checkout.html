@@ -15,8 +15,8 @@
     a{color:inherit;text-decoration:none}
     .wrap{max-width:var(--max);margin:auto;padding:0 40px}
     
-    /* CABECERA Y NAVEGACIÓN HAMBURGUESA */
-    .top{position:sticky;top:0;z-index:100;background:rgba(246,247,244,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+    /* CABECERA Y NAVEGACIÓN HAMBURGUESA - Corregido para que sea opaco y evite destellos al refrescar */
+    .top{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--line)}
     nav{min-height:95px;display:flex;align-items:center;justify-content:space-between;}
     .header-left{display:flex; align-items:center; gap:24px;}
     .brand{font-size:26px;font-weight:800;letter-spacing:-1px}
@@ -47,7 +47,7 @@
     
     .checkout-grid{display:grid; grid-template-columns: 1fr 400px; gap: 40px; margin-bottom: 80px; align-items:start;}
     
-    .checkout-panel{background:var(--card); border:1.5px solid var(--line); border-radius:26px; padding:40px; box-shadow:0 15px 35px rgba(0,0,0,0.02);}
+    .checkout-panel{background:var(--card); border:1.5px solid var(--line); border-radius:26px; padding:40px; box-shadow:0 15px 35px rgba(0,0,0,0.02); overflow:hidden;}
     .checkout-panel h2{font-size:20px; margin:0 0 24px; border-bottom: 1.5px solid var(--line); padding-bottom:12px; font-weight:800}
     
     .input-group{margin-bottom:20px;}
@@ -195,29 +195,8 @@
             <input type="email" id="billing-email" placeholder="facturacion@empresa.com" required>
           </div>
 
-          <h2 style="margin-top:40px;">Método de Pago</h2>
-          <div class="card-mockup">
-            <input type="radio" checked style="width:auto; margin:0;">
-            <span>Tarjeta de Crédito / Débito</span>
-          </div>
-          
-          <div class="input-group">
-            <label>Número de Tarjeta</label>
-            <input type="text" id="card-number" placeholder="0000 0000 0000 0000" required>
-          </div>
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
-            <div class="input-group">
-              <label>Fecha de Expiración</label>
-              <input type="text" id="card-expiry" placeholder="MM/AA" required>
-            </div>
-            <div class="input-group">
-              <label>CVC</label>
-              <input type="text" id="card-cvc" placeholder="123" required>
-            </div>
-          </div>
-          
           <div style="font-size:12.5px; color:var(--muted); line-height:1.5; margin-top:20px;">
-            Al confirmar el pago, declaras ser mayor de edad, reconoces que este es un servicio digital de ejecución inmediata y aceptas expresamente renunciar a tu derecho de desistimiento conforme a nuestros <a href="../condiciones-compra.html" style="color:var(--ink); font-weight:800;">Términos de Compra</a>.
+            Al confirmar el pago, serás redirigido de forma segura a la pasarela de Stripe para introducir los datos de tu tarjeta. Declaras ser mayor de edad, reconoces que este es un servicio digital de ejecución inmediata y aceptas expresamente renunciar a tu derecho de desistimiento conforme a nuestros <a href="../condiciones-compra.html" style="color:var(--ink); font-weight:800;">Términos de Compra</a>.
           </div>
         </form>
       </div>
@@ -308,6 +287,13 @@
 
   <!-- CONTROL DE CHECKOUT DINÁMICO DE STRIPE -->
   <script>
+    // -----------------------------------------------------
+    // INICIALIZACIÓN DE EMAILJS
+    // -----------------------------------------------------
+    emailjs.init({
+      publicKey: "AQUÍ_PEGA_TU_PUBLIC_KEY", // <-- REEMPLAZA ESTO CON TU PUBLIC KEY DE EMAILJS
+    });
+
     document.addEventListener("DOMContentLoaded", async () => {
       // 1. Verificar sesión de usuario de forma asíncrona
       const { data: { user } } = await supabaseClient.auth.getUser();
@@ -384,49 +370,16 @@
           });
         }
       }
-
-      // Añadir detector reactivo para restablecer el borde rojo al escribir un número nuevo
-      const cardInput = document.getElementById("card-number");
-      if (cardInput) {
-        cardInput.addEventListener("input", () => {
-          cardInput.style.borderColor = "";
-          cardInput.style.boxShadow = "";
-        });
-      }
     });
 
     // Función para invocar la pasarela de pago real de Stripe (Supabase Edge Function)
     async function executeStripePayment(planId, userId) {
       const form = document.getElementById("payment-form");
       const btn = document.getElementById("btnPaySubmit");
-      const cardInput = document.getElementById("card-number");
 
       // VALIDACIÓN GENERAL OBLIGATORIA (Fuerza avisos visuales nativos)
       if (form && !form.reportValidity()) {
         return; 
-      }
-
-      // Obtener el valor de la tarjeta ingresada
-      const cardVal = cardInput ? cardInput.value.replace(/\s/g, "") : "";
-
-      // BLOQUEAR EL USO DE LA TARJETA DE PRUEBA 4242... (Rodeando de rojo y enfocando sin alertas emergentes)
-      if (cardVal.startsWith("4242") || cardVal === "4242424242424242") {
-        if (cardInput) {
-          cardInput.style.borderColor = "#9e3223";
-          cardInput.style.boxShadow = "0 0 4px #9e3223";
-          cardInput.focus();
-        }
-        if (btn) {
-          btn.disabled = false;
-          const PLANS = {
-            single: "2.50 €",
-            pro: "9.90 €",
-            industrial: "19.90 €"
-          };
-          const totalVal = PLANS[planId] || "9.90 €";
-          btn.textContent = `Pagar ${totalVal} de forma segura`;
-        }
-        return;
       }
 
       if (btn) {
@@ -443,30 +396,44 @@
 
       // --- REDIRECCIÓN DE SEGURIDAD DEL BACKEND (STRIPE) ---
       try {
-        const response = await fetch(`${window.supabaseClient.supabaseUrl}/functions/v1/stripe-checkout`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${window.supabaseClient.supabaseKey}`
-          },
-          body: JSON.stringify({
+        // Usar la API oficial de Supabase para invocar Edge Functions sin lidiar con URLs ni llaves undefined
+        const { data, error } = await window.supabaseClient.functions.invoke('stripe-checkout', {
+          body: {
             planId: planId,
             userId: userId,
             successUrl: window.location.origin + '/herramientas/checkout-success.html?plan=' + planId,
             cancelUrl: window.location.href
-          })
+          }
         });
 
-        if (!response.ok) {
-          throw new Error("Respuesta de red no válida.");
+        if (error) {
+          throw error;
         }
 
-        const session = await response.json();
-        if (session && session.url) {
-          // Redirigir de forma cifrada a los servidores de Stripe
-          window.location.href = session.url; 
+        if (data && data.url) {
+          // --- ENVÍO DE EMAILJS AL COMPLETAR EL CHECKOUT CON ÉXITO ---
+          try {
+            const templateParams = {
+              name: nameVal,       // Se asigna a {{name}} en tu plantilla
+              email: emailVal,     // Se asigna a {{email}} en tu plantilla
+              message: `El usuario ha iniciado un proceso de compra para el plan: ${planId}. Redirigiendo a Stripe para procesar la tarjeta.` // Se asigna a {{message}}
+            };
+
+            await emailjs.send(
+              "AQUÍ_PEGA_TU_SERVICE_ID", // <-- REEMPLAZA CON TU SERVICE ID DE EMAILJS (ej: service_xxxx)
+              "template_lhq20ur",        // Tu Template ID exacto de EmailJS
+              templateParams
+            );
+            console.log("Notificación por correo de EmailJS enviada correctamente.");
+          } catch (emailErr) {
+            // No interrumpimos la redirección de compra a Stripe si falla EmailJS por un error de claves
+            console.warn("Fallo al enviar la plantilla de EmailJS:", emailErr);
+          }
+
+          // Redirigir de forma cifrada a los servidores oficiales de Stripe
+          window.location.href = data.url; 
         } else {
-          alert('Error de pasarela: ' + (session.error || 'No se pudo generar la sesión de pago de Stripe.'));
+          alert('Error de pasarela: No se pudo generar la sesión de pago de Stripe.');
           if (btn) {
             btn.disabled = false;
             btn.textContent = "Intentar de nuevo";
@@ -474,7 +441,7 @@
         }
       } catch (e) {
         console.error("Fallo de comunicación con la pasarela:", e);
-        alert("Fallo de conexión seguro: No se pudo generar la transacción. Por favor, inténtelo de nuevo.");
+        alert("Fallo de conexión seguro: No se pudo generar la transacción. Asegúrese de que sus credenciales de Stripe estén cargadas en la consola de Supabase.");
         if (btn) {
           btn.disabled = false;
           btn.textContent = "Intentar de nuevo";
