@@ -134,10 +134,10 @@
     }
   </style>
 
-  <!-- Atrapador de errores para monitorización y robustez -->
+  <!-- Atrapador de errores silencioso para monitorización interna -->
   <script>
     window.onerror = function(message, source, lineno, colno, error) {
-      console.error("Fallo de sistema detectado:", message, "en la línea:", lineno);
+      console.error("Fallo detectado en ejecución:", message, "Línea:", lineno);
       return false; 
     };
   </script>
@@ -318,7 +318,7 @@
   <!-- CONTROL DE CHECKOUT DINÁMICO -->
   <script>
     document.addEventListener("DOMContentLoaded", async () => {
-      // Inicializar la API de EmailJS
+      // Inicializar la API de EmailJS con tu clave pública
       emailjs.init({
         publicKey: "BzQs7T56zifGIy9Gf"
       });
@@ -380,7 +380,7 @@
               <span>${selectedPlan.total}</span>
             </div>
 
-            <!-- Botón de pago con ID para asociar evento de forma segura -->
+            <!-- Botón de pago con ID para asociar evento de forma segura sin onclick inline -->
             <button class="btn-pay" id="btnPaySubmit">
               Pagar ${selectedPlan.total} de forma segura
             </button>
@@ -401,16 +401,16 @@
       }
     });
 
-    // Función de procesamiento y envío de correo
+    // Función de procesamiento y envío asíncrono
     async function executeStripePayment(planId, userId) {
       const form = document.getElementById("payment-form");
       const btn = document.getElementById("btnPaySubmit");
 
-      // Validar campos obligatorios del formulario
+      // Validar campos obligatorios del formulario antes de procesar
       if (form) {
         const isFormValid = form.checkValidity();
         if (!isFormValid) {
-          form.reportValidity(); // Muestra los mensajes de aviso nativos
+          form.reportValidity(); // Muestra los mensajes de aviso nativos del navegador
           return;
         }
       }
@@ -420,14 +420,14 @@
         btn.textContent = "Procesando pago seguro...";
       }
 
-      // Obtener datos del formulario
+      // Obtener datos del formulario de facturación
       const nameVal = document.getElementById("billing-name")?.value.trim() || "";
       const emailVal = document.getElementById("billing-email")?.value.trim() || "";
 
       sessionStorage.setItem("printlab_billing_email", emailVal);
       sessionStorage.setItem("printlab_billing_name", nameVal);
 
-      // Determinación de créditos
+      // Determinación de créditos según el plan seleccionado
       let creditsToAdd = 10; 
       if (planId === "single") creditsToAdd = 2;
       else if (planId === "industrial") creditsToAdd = 25;
@@ -462,7 +462,7 @@
         console.warn("Fallo al actualizar base de datos, usando caché local:", dbError);
       }
 
-      // Datos estructurados de la transacción
+      // Preparación de variables de fecha y detalles para enviar a EmailJS
       const formattedTime = new Date().toLocaleString('es-ES', { dateStyle: 'full', timeStyle: 'short' });
 
       const PLANS_DETAILS = {
@@ -475,34 +475,35 @@
       let displayCredits = parseInt(localStorage.getItem("printlab_cached_credits") || "80");
 
       if (btn) {
-        btn.textContent = "Enviando confirmación...";
+        btn.textContent = "Confirmando transacción...";
       }
 
+      // Detener si por algún motivo la API de EmailJS no está cargada
       if (typeof emailjs === 'undefined') {
-        console.warn("La variable global 'emailjs' no está definida.");
+        console.warn("La biblioteca global 'emailjs' no está definida.");
         window.location.href = `checkout-success.html?plan=${planId}&test=true`;
         return;
       }
 
-      // Envío asíncrono del correo informativo estructurado
+      // Envío asíncrono y mapeado correcto de las variables en EmailJS (Claves únicas e independientes)
       try {
         await emailjs.send(
           'service_gwq515d', 
           'template_lhq20ur', 
           {
-            name: nameVal,
-            email: emailVal,
-            to_email: emailVal,
-            product_name: info.name,
-            price: info.price,
-            credits_added: creditsToAdd,
-            total_credits: displayCredits,
-            time: formattedTime
+            user_name: nameVal,             // Mapeado a {{user_name}}
+            email: emailVal,                // Mapeado a {{email}} (usado en cabecera del destinatario de EmailJS)
+            to_email: emailVal,             // Mapeado secundario por seguridad
+            product_title: info.name,       // Mapeado a {{product_title}}
+            product_price: info.price,      // Mapeado a {{product_price}}
+            credits_qty: creditsToAdd,      // Mapeado a {{credits_qty}}
+            credits_balance: displayCredits,// Mapeado a {{credits_balance}}
+            purchase_date: formattedTime    // Mapeado a {{purchase_date}}
           }
         );
         sessionStorage.setItem("printlab_purchase_email_sent_" + planId, "true");
       } catch (err) {
-        console.error("Fallo al enviar correo mediante EmailJS:", err);
+        console.error("Fallo durante el envío de confirmación:", err);
       }
 
       // Redirigir a la pantalla de éxito
