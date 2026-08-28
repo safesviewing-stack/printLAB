@@ -111,7 +111,7 @@
       .footergrid { grid-template-columns: 1fr; gap: 36px; }
     }
 
-    /* REGLA FORZADA PARA EL INDICADOR DE CRÉDITOS (Alineado simétrico y redondeado perfecto) */
+    /* REGLA FORZADA PARA EL INDICADOR DE CRÉDITOS */
     #authHeaderContainer span[style*="background" i],
     #authHeaderContainer span[style*="accent" i],
     #authHeaderContainer span:nth-child(2),
@@ -138,7 +138,7 @@
       white-space: nowrap !important;
     }
 
-    /* REGLA FORZADA PARA EL SALUDO DE USUARIO (Impide alteraciones de tamaño) */
+    /* REGLA FORZADA PARA EL SALUDO DE USUARIO */
     #authHeaderContainer .user-greeting,
     #authHeaderContainer span:nth-child(1),
     #authHeaderContainer div span:nth-child(1),
@@ -154,7 +154,6 @@
   </style>
   <!-- SUPABASE -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- Parámetro cache-busting v=11 para forzar descarga de la lógica síncrona corregida -->
   <script src="../assets/js/auth-helper.js?v=11"></script>
 </head>
 <body>
@@ -181,7 +180,6 @@
           <a class="brand" href="../index.html#portada" title="Volver al inicio">PRINT<span>LAB</span></a>
         </div>
 
-        <!-- Se añade ocultación inicial por estilos inline para prevenir destellos -->
         <div class="auth-buttons" id="authHeaderContainer" style="opacity: 0; visibility: hidden; transition: opacity 0.15s ease, visibility 0.15s ease;">
           <a href="login.html" class="btn-auth light" onclick="sessionStorage.removeItem('printlab_recovery_mode'); localStorage.removeItem('sb-jmwprzgfdkphbxryjbnr-auth-token');">Iniciar Sesión</a>
           <a href="registro.html" id="header-register-link" class="btn-auth green" onclick="sessionStorage.removeItem('printlab_recovery_mode'); localStorage.removeItem('sb-jmwprzgfdkphbxryjbnr-auth-token');">Registrarse</a>
@@ -197,7 +195,7 @@
     </div>
 
     <div class="pricing-grid">
-      <!-- PLAN A: Pago por análisis suelto -->
+      <!-- PLAN A -->
       <div class="plan-card">
         <h3 class="plan-name">Análisis Duo</h3>
         <p style="color:var(--muted); margin:0 0 20px; font-size:14px; min-height:42px;">Ideal para validar un prototipo final urgente antes de enviarlo a la máquina.</p>
@@ -212,7 +210,7 @@
         <p style="text-align:center; font-size:11px; color:var(--muted); margin:10px 0 0;">Impuestos incluidos.</p>
       </div>
 
-      <!-- PLAN B: Paquete de créditos (Destacado en el centro) -->
+      <!-- PLAN B (Destacado) -->
       <div class="plan-card pro">
         <div class="pro-badge">MÁS POPULAR</div>
         <h3 class="plan-name">Pack Profesional</h3>
@@ -228,7 +226,7 @@
         <p style="text-align:center; font-size:11px; color:var(--muted); margin:10px 0 0;">Impuestos incluidos.</p>
       </div>
 
-      <!-- PLAN C: Paquete de gran volumen (Nuevo) -->
+      <!-- PLAN C -->
       <div class="plan-card">
         <h3 class="plan-name">Pack Industrial</h3>
         <p style="color:var(--muted); margin:0 0 20px; font-size:14px; min-height:42px;">Solución pensada para granjas de impresión, empresas y estudios de diseño.</p>
@@ -306,18 +304,16 @@
   async function processCheckout(planId) {
     const { data: { user } } = await supabaseClient.auth.getUser();
     if (!user) {
-      alert('Debes iniciar sesión para poder comprar créditos.');
+      // Redirección inmediata y silenciosa sin alertas del navegador
       window.location.href = 'login.html?redirect=precios.html';
       return;
     }
-    // Redirección dinámica al HTML de checkout con los parámetros del plan elegido
     window.location.href = `checkout.html?plan=${planId}`;
   }
 
   document.addEventListener('DOMContentLoaded', () => {
     const planButtons = document.querySelectorAll('.plan-card a');
     
-    // Asociar planes a la redirección dinámica
     planButtons[0].removeAttribute('href');
     planButtons[0].addEventListener('click', () => processCheckout('single'));
 
