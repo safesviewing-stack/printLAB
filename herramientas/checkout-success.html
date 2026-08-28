@@ -238,14 +238,14 @@
       const urlParams = new URLSearchParams(window.location.search);
       const planId = urlParams.get("plan") || "pro";
 
-      // Detalles alineados con tu catálogo de precios.html
+      // Detalles de planes alineados con precios.html
       const PLANS_DETAILS = {
         single: { name: "Análisis Duo (2 Créditos)", price: "2.50 €", credits: 2 },
         pro: { name: "Pack Profesional (10 Créditos)", price: "9.90 €", credits: 10 },
         industrial: { name: "Pack Industrial (25 Créditos)", price: "19.90 €", credits: 25 }
       };
 
-      // Ficha de características y desglose de lo que compone cada pack
+      // Desglose de composición para cada plan
       const PLANS_COMPOSITION = {
         single: [
           "2 Créditos transferibles para realizar análisis de modelos avanzados mediante IA.",
@@ -320,7 +320,7 @@
         if (emailSentFlag !== "true") {
           const formattedTime = new Date().toLocaleString('es-ES', { dateStyle: 'full', timeStyle: 'short' });
 
-          // Construcción de la lista detallada de composición de manera dinámica
+          // Construcción de la lista de composición dinámica
           const compositionList = PLANS_COMPOSITION[planId] || PLANS_COMPOSITION.pro;
           const compositionText = compositionList.map(item => `• ${item}`).join('\n');
 
@@ -347,13 +347,13 @@
             console.log("Llamando a la API de EmailJS...");
             const response = await emailjs.send(
               'service_gwq515d',
-              'template_w3w3l6e',
+              'template_lhq20ur', // CAMBIADO AQUÍ PARA USAR TU NUEVA PLANTILLA
               {
                 name: billingName,
-                to_name: billingName,      // Mapeo extra de compatibilidad
+                to_name: billingName,      
                 email: billingEmail,
-                to_email: billingEmail,    // Mapeo extra de compatibilidad
-                user_email: billingEmail,  // Mapeo extra de compatibilidad
+                to_email: billingEmail,    
+                user_email: billingEmail,  
                 message: emailMessage,
                 time: formattedTime
               }
