@@ -484,8 +484,18 @@ async function initAuth() {
     // CRÉDITOS
     // -------------------------------------------------
 
-    const credits =
+    let credits =
       profile?.credits ?? 0;
+
+    // --- PROTECCIÓN OPTIMISTA SÍNCRONA ---
+    // Si estamos en la página de éxito de checkout, no permitimos que un saldo desactualizado (menor) de la base de datos
+    // machaque el saldo optimista actualizado de la caché.
+    if (window.location.pathname.toLowerCase().includes("checkout-success.html")) {
+      const cached = parseInt(localStorage.getItem("printlab_cached_credits"));
+      if (!isNaN(cached) && cached > credits) {
+        credits = cached;
+      }
+    }
 
 
     // Actualizar la caché local para el siguiente refresco instantáneo
