@@ -85,7 +85,14 @@
     .footer { background: var(--bg); border-top: 1px solid var(--line); padding: 80px 0 40px; color: var(--muted); font-size: 14px; line-height: 1.6; }
     .footergrid { display: grid; grid-template-columns: 1.3fr 0.85fr 0.85fr; gap: 60px; margin-bottom: 48px; }
     .footer-col h3 { font-size: 16px; font-weight: 800; color: var(--ink); margin: 0 0 20px; }
-    .footer-bottom { border-top: 1px solid var(--line); padding-top: 24px; text-align:center; color: #7d8782;}
+    .footer-col p { margin: 0 0 16px; color: var(--muted); }
+    .footer-secondary-text { font-size: 12.5px; line-height: 1.5; color: #7d8782; margin-top: 12px; }
+    .footer-links { display: flex; flex-direction: column; gap: 10px; }
+    .footer-links a { color: var(--muted); transition: color 0.15s ease, transform 0.15s ease; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+    .footer-links a:hover { color: var(--ink); transform: translateX(2px); }
+    .footer-links a span.arrow { transition: color 0.15s ease; }
+    .footer-links a:hover span.arrow { color: var(--accent); }
+    .footer-bottom { border-top: 1px solid var(--line); padding-top: 24px; display:flex; justify-content:center; align-items:center; text-align:center; font-size: 13px; color: #7d8782;}
 
     @media(max-width:992px) {
       .report-grid { grid-template-columns: 1fr; }
@@ -100,13 +107,13 @@
       .footergrid { grid-template-columns: 1fr; gap: 36px; }
     }
   </style>
-  <!-- JSPDF -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <!-- THREE.JS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/STLLoader.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/controls/OrbitControls.js"></script>
-  
+  <!-- JSPDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../assets/js/auth-helper.js?v=11"></script>
 </head>
@@ -206,10 +213,43 @@
     </div>
   </main>
 
-  <!-- PIE DE PÁGINA -->
+  <!-- PIE DE PÁGINA UNIFICADO COPIADO DE REFERENCIA -->
   <footer class="footer">
     <div class="wrap">
-      <div class="footer-bottom">© 2026 PrintLab.</div>
+      <div class="footergrid">
+        <div class="footer-col">
+          <h3>PrintLab — Ingeniería 3D</h3>
+          <p>Plataforma profesional de análisis y optimización STL mediante Inteligencia Artificial y simuladores paramétricos. Transformamos modelos 3D con problemas en geometrías perfectas listas para fabricar, ahorrando tiempo, material y costes en entornos industriales.</p>
+          <p class="footer-secondary-text">Desarrollado bajo principios de Privacy by Design. Los datos y archivos STL se procesan con estricta confidencialidad.</p>
+        </div>
+        
+        <div class="footer-col">
+          <h3>Recursos y Herramientas</h3>
+          <div class="footer-links">
+            <a href="../index.html#analizador"><span class="arrow">→</span> Analizador STL IA</a>
+            <a href="../index.html#simulador"><span class="arrow">→</span> Simulador de Extrusión</a>
+            <a href="calculadora-coste.html"><span class="arrow">→</span> Calculadoras de Coste y Masa</a>
+            <a href="../index.html#guias"><span class="arrow">→</span> Base de Conocimiento</a>
+            <a href="../materiales/index.html"><span class="arrow">→</span> Atlas de Materiales</a>
+          </div>
+        </div>
+        
+        <div class="footer-col">
+          <h3>Soporte y Legal</h3>
+          <div class="footer-links">
+            <a href="precios.html"><span class="arrow">→</span> Precios y Suscripciones</a>
+            <a href="contacto.html"><span class="arrow">→</span> Contacto y Soporte</a>
+            <a href="../condiciones-compra.html"><span class="arrow">→</span> Condiciones de Compra</a>
+            <a href="../terminos.html"><span class="arrow">→</span> Términos y Condiciones</a>
+            <a href="../privacidad.html"><span class="arrow">→</span> Política de Privacidad</a>
+            <a href="../cookies.html"><span class="arrow">→</span> Política de Cookies</a>
+          </div>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <div class="footer-bottom-text">© 2026 PrintLab.</div>
+      </div>
     </div>
   </footer>
 
@@ -235,7 +275,7 @@
       const container = document.getElementById(containerId);
       if (!container) return;
 
-      container.innerHTML = ""; // Limpiar cualquier indicador previo
+      container.innerHTML = ""; 
 
       scene = new THREE.Scene();
       scene.background = new THREE.Color(0x161d1a);
@@ -275,7 +315,6 @@
 
       const loader = new THREE.STLLoader();
       try {
-        // Decodificación local de la malla STL recibida por el backend para procesar en Three.js
         const binaryStr = atob(base64Data);
         const bytes = new Uint8Array(binaryStr.length);
         for (let i = 0; i < binaryStr.length; i++) {
@@ -303,9 +342,9 @@
           v.applyMatrix4(mat);
           
           if (v.z < threshold) {
-            colors.push(1.0, 0.82, 0.0); // Amarillo base de apoyo idónea
+            colors.push(1.0, 0.82, 0.0); 
           } else {
-            colors.push(0.12, 0.38, 0.25); // Cuerpo verde oscuro
+            colors.push(0.12, 0.38, 0.25); 
           }
         }
 
@@ -320,7 +359,6 @@
         activeMesh = new THREE.Mesh(geometry, material);
         scene.add(activeMesh);
 
-        // Vincular marcas rojas basadas en coordenadas críticas del backend
         if (criticalPoints && criticalPoints.length > 0) {
           criticalPoints.forEach(pt => {
             const sphereGeo = new THREE.SphereGeometry(1.5, 16, 16);
@@ -380,7 +418,6 @@
 
       const storedAnalysis = sessionStorage.getItem("printlab_analysis");
 
-      // 1. CONTROL DE INTEGRIDAD DE SESSIONSTORAGE
       if (!storedAnalysis) {
         noSessionFallback.style.display = "block";
         reportMainContent.style.display = "none";
@@ -403,7 +440,6 @@
       const s = analysis.slicer_settings || {};
       const q = analysis.user_questionnaire || {};
 
-      // 2. EXTRACCIÓN DINÁMICA DE VARIABLES REALES SIN INVENTAR DATOS
       reportFileName.textContent = "📄 " + (analysis.file_name || "Archivo de ingeniería");
       reportVolume.textContent = analysis.volume !== undefined ? `${analysis.volume} cm³` : "No disponible en este análisis";
       reportDimensions.textContent = analysis.dimensions || "No disponible en este análisis";
@@ -412,7 +448,6 @@
       reportTemp.textContent = s.nozzle_temp !== undefined ? `${s.nozzle_temp} ºC` : "No disponible";
       reportBed.textContent = s.bed_temp !== undefined ? `${s.bed_temp} ºC` : "No disponible";
 
-      // 3. DETERMINACIÓN DEL ESTADO DE LAMINABILIDAD BASADO EN DATOS REALES
       let stateText = "APTO";
       let stateColor = "var(--accent)"; 
       let stateDesc = "El modelo dispone de una excelente estabilidad y cumple con los requisitos geométricos de impresión.";
@@ -431,10 +466,8 @@
       reportScore.style.color = stateColor;
       reportScoreDesc.textContent = stateDesc;
 
-      // 4. RENDERIZACIÓN DE TARJETAS TÉCNICAS ESTRUCTURADAS
       let htmlCards = "";
 
-      // Tarjeta de Estanqueidad (Geometría de Malla)
       if (analysis.watertight !== undefined) {
         htmlCards += `
           <div class="prob-card ${analysis.watertight ? 'success-card' : 'warn'}" style="${analysis.watertight ? '' : 'border-color: var(--warning); border-left-color: var(--warning);'}">
@@ -455,7 +488,6 @@
         `;
       }
 
-      // Tarjeta de Esfuerzos Mecánicos
       if (analysis.critical_points !== undefined) {
         const pointsCount = analysis.critical_points.length;
         htmlCards += `
@@ -477,7 +509,6 @@
         `;
       }
 
-      // Tarjeta de Recomendación de Laminado (Slicer)
       if (s.material_reason) {
         htmlCards += `
           <div class="prob-card ${s.material_status === 'no_adecuado' ? '' : 'success-card'}">
@@ -496,15 +527,12 @@
 
       problemListContainer.innerHTML = htmlCards || "<p style='color:var(--muted); text-align:center;'>No se disponen de detalles de diagnóstico adicionales.</p>";
 
-      // 5. CARGA DEL VISOR 3D SI EXISTE MALLA DE RETORNO
       if (analysis.optimized_base64) {
         init3DViewer("canvas3dContainer", analysis.optimized_base64, analysis.critical_points, s.recommended_rot_matrix);
 
-        // Configuración de la descarga real de la malla reconstruida
         downloadStlBtn.disabled = false;
         downloadStlBtn.style.opacity = "1";
         
-        // Cambiar nombre dinámico según estanqueidad original
         const isRepaired = analysis.watertight === false;
         const fileSuffix = isRepaired ? "_reparado.stl" : "_optimizado.stl";
         downloadStlBtn.textContent = isRepaired ? "Descargar pieza reparada (.STL)" : "Descargar pieza optimizada (.STL)";
@@ -534,7 +562,6 @@
           }
         });
       } else {
-        // Malla no disponible
         downloadStlBtn.disabled = true;
         downloadStlBtn.style.opacity = "0.5";
         downloadStlBtn.style.cursor = "not-allowed";
@@ -550,13 +577,11 @@
         }
       }
 
-      // 6. GENERADOR DE INFORME TÉCNICO EN PDF REAL CON JSPDF
       downloadPdfBtn.addEventListener("click", () => {
         const { jsPDF } = window.jspdf || window.jsPDF;
         const doc = new jsPDF();
 
-        // Cabecera Corporativa PrintLab
-        doc.setFillColor(17, 23, 21); // Dark Slate #111715
+        doc.setFillColor(17, 23, 21); 
         doc.rect(0, 0, 210, 40, 'F');
         
         doc.setFont("helvetica", "bold");
@@ -565,10 +590,9 @@
         doc.text("PRINTLAB", 15, 20);
 
         doc.setFontSize(9);
-        doc.setTextColor(184, 255, 61); // Accent neon #b8ff3d
+        doc.setTextColor(184, 255, 61); 
         doc.text("INFORME DE INGENIERÍA Y OPTIMIZACIÓN GEOMÉTRICA", 15, 28);
 
-        // Propiedades Físicas Reales
         let y = 55;
         doc.setFontSize(12);
         doc.setTextColor(13, 17, 16); 
@@ -598,7 +622,6 @@
           y += 8;
         });
 
-        // Sección de Recomendaciones de Laminado
         y += 12;
         doc.setFont("helvetica", "bold");
         doc.setFontSize(12);
@@ -611,7 +634,6 @@
         doc.setFontSize(10);
         doc.setTextColor(13, 17, 16);
 
-        // Añadir temperaturas sugeridas de forma explícita
         doc.setFont("helvetica", "bold");
         doc.text("Configuración sugerida de temperaturas:", 15, y);
         doc.setFont("helvetica", "normal");
@@ -628,7 +650,6 @@
           y += (splitReason.length * 5) + 10;
         }
 
-        // Diagnóstico estructural simplificado
         if (analysis.critical_points) {
           doc.setFont("helvetica", "bold");
           doc.text("Análisis de tensiones y deformaciones:", 15, y);
