@@ -238,10 +238,33 @@
       const urlParams = new URLSearchParams(window.location.search);
       const planId = urlParams.get("plan") || "pro";
 
+      // Detalles alineados con tu catálogo de precios.html
       const PLANS_DETAILS = {
-        single: { name: "Análisis Único (2 Créditos)", price: "2.50 €", credits: 2 },
-        pro: { name: "Pack Profesional (10 Créditos)", price: "9.99 €", credits: 10 },
+        single: { name: "Análisis Duo (2 Créditos)", price: "2.50 €", credits: 2 },
+        pro: { name: "Pack Profesional (10 Créditos)", price: "9.90 €", credits: 10 },
         industrial: { name: "Pack Industrial (25 Créditos)", price: "19.90 €", credits: 25 }
+      };
+
+      // Ficha de características y desglose de lo que compone cada pack
+      const PLANS_COMPOSITION = {
+        single: [
+          "2 Créditos transferibles para realizar análisis de modelos avanzados mediante IA.",
+          "Detección geométrica completa del modelo 3D.",
+          "Informe de soluciones accionables para mejorar la fabricabilidad de tus piezas.",
+          "Acceso interactivo al visualizador 3D de errores estructurales."
+        ],
+        pro: [
+          "10 Créditos transferibles para realizar análisis de modelos avanzados mediante IA.",
+          "Importante ahorro del 21% respecto al precio de adquisición individual.",
+          "Historial completo de análisis de archivos guardado en la nube durante 30 días.",
+          "Prioridad de procesamiento estándar en nuestros servidores para un flujo ágil."
+        ],
+        industrial: [
+          "25 Créditos transferibles para realizar análisis de modelos avanzados mediante IA.",
+          "Importante ahorro del 36% respecto al precio de adquisición individual.",
+          "Historial completo de análisis de archivos guardado en la nube de forma permanente.",
+          "Máxima prioridad en la cola de procesamiento y acceso directo al soporte de ingeniería 3D."
+        ]
       };
 
       const info = PLANS_DETAILS[planId] || PLANS_DETAILS.pro;
@@ -250,7 +273,7 @@
 
       const creditsToAdd = info.credits;
 
-      // 2. Obtener el saldo del usuario de Supabase o de la caché local ya actualizada por checkout.html (sin duplicar sumas)
+      // 2. Obtener el saldo del usuario de Supabase o de la caché local ya actualizada por checkout.html
       const { data: { user } } = await supabaseClient.auth.getUser();
       let displayCredits = parseInt(localStorage.getItem("printlab_cached_credits") || "80");
 
@@ -264,7 +287,6 @@
 
           if (!error && data) {
             displayCredits = data.credits;
-            // Asegurar que la caché local está perfectamente sincronizada con la base de datos
             localStorage.setItem("printlab_cached_credits", displayCredits);
           }
         } catch (e) {
@@ -281,49 +303,71 @@
         headerCreditsBadge.textContent = "Créditos: " + displayCredits;
       }
 
-      // 5. ENVÍO AUTOMÁTICO DE EMAIL DE CONFIRMACIÓN DE COMPRA CON EMAILJS
+      // ==========================================
+      // 5. DIAGNÓSTICO Y ENVÍO AUTOMÁTICO CON EMAILJS
+      // ==========================================
       const billingEmail = sessionStorage.getItem("printlab_billing_email") || (user ? user.email : null);
       const billingName = sessionStorage.getItem("printlab_billing_name") || localStorage.getItem("printlab_cached_name") || (user ? (user.user_metadata?.full_name || user.email?.split("@")[0]) : "Usuario");
 
+      console.group("Diagnóstico de envío EmailJS (PrintLab)");
+      console.log("Email destinatario detectado:", billingEmail);
+      console.log("Nombre destinatario detectado:", billingName);
+      console.log("Plan ID detectado:", planId);
+      console.groupEnd();
+
       if (billingEmail) {
-        // Evitar envíos repetidos de correos si el usuario refresca la página de éxito manualmente
         const emailSentFlag = sessionStorage.getItem("printlab_purchase_email_sent_" + planId);
         if (emailSentFlag !== "true") {
           const formattedTime = new Date().toLocaleString('es-ES', { dateStyle: 'full', timeStyle: 'short' });
 
-          // Construcción del desglose plano del ticket de compra para el cuerpo del mensaje
+          // Construcción de la lista detallada de composición de manera dinámica
+          const compositionList = PLANS_COMPOSITION[planId] || PLANS_COMPOSITION.pro;
+          const compositionText = compositionList.map(item => `• ${item}`).join('\n');
+
           const emailMessage = 
             `¡Gracias por tu compra en PrintLab!\n\n` +
             `Hola, ${billingName}.\n\n` +
-            `Te confirmamos que el pago de tu pedido ha sido procesado de forma correcta y los créditos han sido cargados en tu cuenta.\n\n` +
+            `Te confirmamos que el pago de tu pedido ha sido procesado de forma correcta y los créditos han sido cargados con éxito en tu cuenta.\n\n` +
             `DETALLES DE LA TRANSACCIÓN:\n` +
             `=================================\n` +
-            `• Concepto: ${info.name}\n` +
+            `• Producto: ${info.name}\n` +
             `• Importe total: ${info.price} (Impuestos incluidos)\n` +
             `• Créditos añadidos: +${creditsToAdd}\n` +
-            `• Nuevo saldo de créditos: ${displayCredits} Créditos\n` +
-            `• Estado de la carga: Completado ✓\n` +
+            `• Nuevo saldo total: ${displayCredits} Créditos\n` +
+            `• Estado: Completado ✓\n` +
             `=================================\n\n` +
-            `Ya puedes acceder a la plataforma para analizar y optimizar tus archivos STL.\n` +
-            `Si tienes cualquier duda o necesitas una factura formal, puedes contactarnos respondiendo a este correo o escribiendo a printcontactlab@gmail.com.`;
+            `¿QUÉ INCLUYE TU ADQUISICIÓN?\n` +
+            `=================================\n` +
+            `${compositionText}\n` +
+            `=================================\n\n` +
+            `Ya puedes acceder a la plataforma para analizar y optimizar tus archivos STL de forma profesional.\n` +
+            `Si tienes cualquier duda o necesitas una factura formal de tu compra, puedes contactarnos respondiendo directamente a este correo o escribiendo a printcontactlab@gmail.com.`;
 
           try {
-            await emailjs.send(
+            console.log("Llamando a la API de EmailJS...");
+            const response = await emailjs.send(
               'service_gwq515d',
               'template_w3w3l6e',
               {
                 name: billingName,
+                to_name: billingName,      // Mapeo extra de compatibilidad
                 email: billingEmail,
+                to_email: billingEmail,    // Mapeo extra de compatibilidad
+                user_email: billingEmail,  // Mapeo extra de compatibilidad
                 message: emailMessage,
                 time: formattedTime
               }
             );
-            // Marcar como enviado en esta sesión para evitar duplicados al refrescar la página
+            console.log("¡EmailJS ha respondido con éxito!", response);
             sessionStorage.setItem("printlab_purchase_email_sent_" + planId, "true");
           } catch (err) {
-            console.error("Error enviando email de confirmación:", err);
+            console.error("Error crítico reportado por la API de EmailJS:", err);
           }
+        } else {
+          console.log("El correo ya fue enviado previamente en esta sesión para evitar duplicidad.");
         }
+      } else {
+        console.warn("No se pudo enviar el correo: no se encontró ninguna dirección de correo válida.");
       }
     });
   </script>
