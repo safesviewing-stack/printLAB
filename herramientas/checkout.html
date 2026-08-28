@@ -311,7 +311,7 @@
     document.addEventListener("DOMContentLoaded", async () => {
       // Inicializar tu clave pública real de EmailJS
       emailjs.init({
-        publicKey: "BzQs7T56zifGly9Gf"
+        publicKey: "BzQs7T56zifGIy9Gf"
       });
 
       // 1. Verificar sesión de usuario de forma asíncrona
@@ -383,192 +383,152 @@
       }
     });
 
-    // Función para invocar la pasarela de pago real de Stripe (o el simulador inteligente)
+    // Función para invocar la simulación de pago local (añade créditos y manda el correo)
     async function executeStripePayment(planId, userId) {
+      const form = document.getElementById("payment-form");
       const btn = document.querySelector(".btn-pay");
+
+      // VALIDACIÓN GENERAL OBLIGATORIA (Fuerza avisos visuales si faltan campos obligatorios en el formulario)
+      if (form && !form.reportValidity()) {
+        return; 
+      }
+
       if (btn) {
         btn.disabled = true;
         btn.textContent = "Procesando pasarela...";
       }
 
-      // 1. Obtener valores de tarjeta escritos en el formulario para el simulador local
-      const cardVal = document.getElementById("card-number")?.value.replace(/\s/g, "") || "";
+      // Obtener valores de tarjeta escritos en el formulario
       const nameVal = document.getElementById("billing-name")?.value.trim() || "";
       const emailVal = document.getElementById("billing-email")?.value.trim() || "";
-
-      // VALIDACIÓN GENERAL OBLIGATORIA
-      if (!nameVal || !emailVal) {
-        alert("Por favor, rellena tu nombre y correo electrónico antes de pagar.");
-        if (btn) {
-          btn.disabled = false;
-          btn.textContent = "Intentar de nuevo";
-        }
-        return;
-      }
 
       // Guardamos la información en el almacenamiento de sesión para que checkout-success.html la pueda leer
       sessionStorage.setItem("printlab_billing_email", emailVal);
       sessionStorage.setItem("printlab_billing_name", nameVal);
 
-      // 2. SIMULACIÓN LOCAL INTELIGENTE (Suma de forma REAL los créditos en la Base de Datos de Supabase)
-      if (cardVal === "4242424242424242") {
-        let creditsToAdd = 10; 
-        if (planId === "single") creditsToAdd = 2;
-        else if (planId === "industrial") creditsToAdd = 25;
+      // --- SIMULACIÓN LOCAL INTELIGENTE ---
+      // Suma de forma REAL los créditos en la Base de Datos de Supabase y envía el correo con EmailJS
+      let creditsToAdd = 10; 
+      if (planId === "single") creditsToAdd = 2;
+      else if (planId === "industrial") creditsToAdd = 25;
 
-        try {
-          const { data: { user } } = await supabaseClient.auth.getUser();
-          if (user) {
-            // Obtener el perfil actual de la base de datos de forma asíncrona
-            const { data: profile, error: fetchError } = await supabaseClient
+      try {
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        if (user) {
+          // Obtener el perfil actual de la base de datos de forma asíncrona
+          const { data: profile, error: fetchError } = await supabaseClient
+            .from("profiles")
+            .select("credits")
+            .eq("id", userId)
+            .single();
+
+          if (!fetchError && profile) {
+            const currentCredits = profile.credits ?? 0;
+            const newCredits = currentCredits + creditsToAdd;
+
+            // Actualizar de forma real el registro de créditos en Supabase
+            const { error: updateError } = await supabaseClient
               .from("profiles")
-              .select("credits")
-              .eq("id", userId)
-              .single();
+              .update({ credits: newCredits })
+              .eq("id", userId);
 
-            if (!fetchError && profile) {
-              const currentCredits = profile.credits ?? 0;
-              const newCredits = currentCredits + creditsToAdd;
-
-              // Actualizar de forma real el registro de créditos en Supabase
-              const { error: updateError } = await supabaseClient
-                .from("profiles")
-                .update({ credits: newCredits })
-                .eq("id", userId);
-
-              if (!updateError) {
-                // Sincronizar el caché local de forma instantánea
-                localStorage.setItem("printlab_cached_credits", newCredits);
-              }
+            if (!updateError) {
+              // Sincronizar el caché local de forma instantánea
+              localStorage.setItem("printlab_cached_credits", newCredits);
             }
-          } else {
-            const cachedCredits = parseInt(localStorage.getItem("printlab_cached_credits") || "80");
-            localStorage.setItem("printlab_cached_credits", cachedCredits + creditsToAdd);
           }
-        } catch (dbError) {
-          console.warn("Fallo al actualizar la base de datos de Supabase de forma directa, usando caché local:", dbError);
+        } else {
           const cachedCredits = parseInt(localStorage.getItem("printlab_cached_credits") || "80");
           localStorage.setItem("printlab_cached_credits", cachedCredits + creditsToAdd);
         }
-
-        // ==========================================
-        // ENVÍO DE EMAIL DESDE EL CHECKOUT DIRECTAMENTE
-        // ==========================================
-        const formattedTime = new Date().toLocaleString('es-ES', { dateStyle: 'full', timeStyle: 'short' });
-
-        const PLANS_DETAILS = {
-          single: { name: "Análisis Duo (2 Créditos)", price: "2.50 €" },
-          pro: { name: "Pack Profesional (10 Créditos)", price: "9.90 €" },
-          industrial: { name: "Pack Industrial (25 Créditos)", price: "19.90 €" }
-        };
-
-        const PLANS_COMPOSITION = {
-          single: [
-            "2 Créditos transferibles para realizar análisis de modelos avanzados mediante IA.",
-            "Detección geométrica completa del modelo 3D.",
-            "Informe de soluciones accionables para mejorar la fabricabilidad de tus piezas.",
-            "Acceso interactivo al visualizador 3D de errores estructurales."
-          ],
-          pro: [
-            "10 Créditos transferibles para realizar análisis de modelos avanzados mediante IA.",
-            "Importante ahorro del 21% respecto al precio de adquisición individual.",
-            "Historial completo de análisis de archivos guardado en la nube durante 30 días.",
-            "Prioridad de procesamiento estándar en nuestros servidores para un flujo ágil."
-          ],
-          industrial: [
-            "25 Créditos transferibles para realizar análisis de modelos avanzados mediante IA.",
-            "Importante ahorro del 36% respecto al precio de adquisición individual.",
-            "Historial completo de análisis de archivos guardado en la nube de forma permanente.",
-            "Máxima prioridad en la cola de procesamiento y acceso directo al soporte de ingeniería 3D."
-          ]
-        };
-
-        const info = PLANS_DETAILS[planId] || PLANS_DETAILS.pro;
-        const compositionList = PLANS_COMPOSITION[planId] || PLANS_COMPOSITION.pro;
-        const compositionText = compositionList.map(item => `• ${item}`).join('\n');
-        
-        let displayCredits = parseInt(localStorage.getItem("printlab_cached_credits") || "80");
-
-        const emailMessage = 
-          `¡Gracias por tu compra en PrintLab!\n\n` +
-          `Hola, ${nameVal}.\n\n` +
-          `Te confirmamos que el pago de tu pedido ha sido procesado de forma correcta y los créditos han sido cargados con éxito en tu cuenta.\n\n` +
-          `DETALLES DE LA TRANSACCIÓN:\n` +
-          `=================================\n` +
-          `• Producto: ${info.name}\n` +
-          `• Importe total: ${info.price} (Impuestos incluidos)\n` +
-          `• Créditos añadidos: +${creditsToAdd}\n` +
-          `• Nuevo saldo total: ${displayCredits} Créditos\n` +
-          `• Estado: Completado ✓\n` +
-          `=================================\n\n` +
-          `¿QUÉ INCLUYE TU ADQUISICIÓN?\n` +
-          `=================================\n` +
-          `${compositionText}\n` +
-          `=================================\n\n` +
-          `Ya puedes acceder a la plataforma para analizar y optimizar tus archivos STL de forma profesional.\n` +
-          `Si tienes cualquier duda o necesitas una factura formal de tu compra, puedes contactarnos respondiendo directamente a este correo o escribiendo a printcontactlab@gmail.com.`;
-
-        try {
-          console.log("Enviando correo desde checkout...");
-          await emailjs.send(
-            'service_gwq515d',
-            'template_lhq20ur',
-            {
-              name: nameVal,
-              to_name: nameVal,      
-              email: emailVal,
-              to_email: emailVal,    
-              user_email: emailVal,  
-              message: emailMessage,
-              time: formattedTime
-            }
-          );
-          console.log("¡Correo enviado con éxito!");
-          sessionStorage.setItem("printlab_purchase_email_sent_" + planId, "true");
-        } catch (err) {
-          console.error("Error crítico enviando correo desde checkout:", err);
-        }
-
-        // Simular retardo de red de 2 segundos para dar realismo antes de la redirección
-        setTimeout(() => {
-          window.location.href = `checkout-success.html?plan=${planId}&test=true`;
-        }, 2000);
-        return;
+      } catch (dbError) {
+        console.warn("Fallo al actualizar la base de datos de Supabase de forma directa, usando caché local:", dbError);
+        const cachedCredits = parseInt(localStorage.getItem("printlab_cached_credits") || "80");
+        localStorage.setItem("printlab_cached_credits", cachedCredits + creditsToAdd);
       }
 
-      // 3. FLUJO REAL DEL BACKEND (Intento de llamada a Edge Function)
+      // ==========================================
+      // ENVÍO DE EMAIL DESDE EL CHECKOUT DIRECTAMENTE
+      // ==========================================
+      const formattedTime = new Date().toLocaleString('es-ES', { dateStyle: 'full', timeStyle: 'short' });
+
+      const PLANS_DETAILS = {
+        single: { name: "Análisis Duo (2 Créditos)", price: "2.50 €" },
+        pro: { name: "Pack Profesional (10 Créditos)", price: "9.90 €" },
+        industrial: { name: "Pack Industrial (25 Créditos)", price: "19.90 €" }
+      };
+
+      const PLANS_COMPOSITION = {
+        single: [
+          "2 Créditos transferibles para realizar análisis de modelos avanzados mediante IA.",
+          "Detección geométrica completa del modelo 3D.",
+          "Informe de soluciones accionables para mejorar la fabricabilidad de tus piezas.",
+          "Acceso interactivo al visualizador 3D de errores estructurales."
+        ],
+        pro: [
+          "10 Créditos transferibles para realizar análisis de modelos avanzados mediante IA.",
+          "Importante ahorro del 21% respecto al precio de adquisición individual.",
+          "Historial completo de análisis de archivos guardado en la nube durante 30 días.",
+          "Prioridad de procesamiento estándar en nuestros servidores para un flujo ágil."
+        ],
+        industrial: [
+          "25 Créditos transferibles para realizar análisis de modelos avanzados mediante IA.",
+          "Importante ahorro del 36% respecto al precio de adquisición individual.",
+          "Historial completo de análisis de archivos guardado en la nube de forma permanente.",
+          "Máxima prioridad en la cola de procesamiento y acceso directo al soporte de ingeniería 3D."
+        ]
+      };
+
+      const info = PLANS_DETAILS[planId] || PLANS_DETAILS.pro;
+      const compositionList = PLANS_COMPOSITION[planId] || PLANS_COMPOSITION.pro;
+      const compositionText = compositionList.map(item => `• ${item}`).join('\n');
+      
+      let displayCredits = parseInt(localStorage.getItem("printlab_cached_credits") || "80");
+
+      const emailMessage = 
+        `¡Gracias por tu compra en PrintLab!\n\n` +
+        `Hola, ${nameVal}.\n\n` +
+        `Te confirmamos que el pago de tu pedido ha sido procesado de forma correcta y los créditos han sido cargados con éxito en tu cuenta.\n\n` +
+        `DETALLES DE LA TRANSACCIÓN:\n` +
+        `=================================\n` +
+        `• Producto: ${info.name}\n` +
+        `• Importe total: ${info.price} (Impuestos incluidos)\n` +
+        `• Créditos añadidos: +${creditsToAdd}\n` +
+        `• Nuevo saldo total: ${displayCredits} Créditos\n` +
+        `• Estado: Completado ✓\n` +
+        `=================================\n\n` +
+        `¿QUÉ INCLUYE TU ADQUISICIÓN?\n` +
+        `=================================\n` +
+        `${compositionText}\n` +
+        `=================================\n\n` +
+        `Ya puedes acceder a la plataforma para analizar y optimizar tus archivos STL de forma profesional.\n` +
+        `Si tienes cualquier duda o necesitas una factura formal de tu compra, puedes contactarnos respondiendo directamente a este correo o escribiendo a printcontactlab@gmail.com.`;
+
       try {
-        const response = await fetch(`${SUPABASE_URL}/functions/v1/stripe-checkout`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-          },
-          body: JSON.stringify({
-            planId: planId,
-            userId: userId,
-            successUrl: window.location.origin + '/herramientas/checkout-success.html?plan=' + planId,
-            cancelUrl: window.location.href
-          })
-        });
-
-        const session = await response.json();
-        if (session.url) {
-          window.location.href = session.url; 
-        } else {
-          alert('Error en pasarela: ' + session.error);
-          if (btn) {
-            btn.disabled = false;
-            btn.textContent = "Intentar de nuevo";
+        console.log("Enviando correo desde checkout...");
+        await emailjs.send(
+          'service_gwq515d',
+          'template_lhq20ur',
+          {
+            name: nameVal,
+            to_name: nameVal,      
+            email: emailVal,
+            to_email: emailVal,    
+            user_email: emailVal,  
+            message: emailMessage,
+            time: formattedTime
           }
-        }
-      } catch (e) {
-        alert("Error de conexión con la pasarela.");
-        if (btn) {
-          btn.disabled = false;
-          btn.textContent = "Intentar de nuevo";
-        }
+        );
+        console.log("¡Correo enviado con éxito!");
+        sessionStorage.setItem("printlab_purchase_email_sent_" + planId, "true");
+      } catch (err) {
+        console.error("Error crítico enviando correo desde checkout:", err);
       }
+
+      // Simular retardo de red de 1.5 segundos para dar realismo antes de redirigir al éxito
+      setTimeout(() => {
+        window.location.href = `checkout-success.html?plan=${planId}&test=true`;
+      }, 1500);
     }
   </script>
 </body>
