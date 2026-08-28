@@ -223,26 +223,26 @@
   </footer>
 
   <script>
-    // --- ACTUALIZACIÓN OPTIMISTA INMEDIATA (Síncrona) ---
-    // Se ejecuta al instante antes de cualquier renderizado para que auth-helper.js lea el saldo nuevo de inmediato
+    // --- ACTUALIZACIÓN OPTIMISTA INMEDIATA Y CONTROLADA (Síncrona) ---
+    // Consume la señal temporal una única vez para evitar duplicidades al refrescar la página (F5)
     (function() {
       try {
-        const urlParams = new URLSearchParams(window.location.search);
-        const planId = urlParams.get("plan") || "pro";
-        const PLANS_DETAILS = {
-          single: { credits: 2 },
-          pro: { credits: 10 },
-          industrial: { credits: 25 }
-        };
-        const info = PLANS_DETAILS[planId] || PLANS_DETAILS.pro;
-        const cachedCreditsStr = localStorage.getItem("printlab_cached_credits");
-        if (cachedCreditsStr && !isNaN(cachedCreditsStr)) {
-          const previousCredits = parseInt(cachedCreditsStr);
-          const optimisticCredits = previousCredits + info.credits;
-          localStorage.setItem("printlab_cached_credits", optimisticCredits);
+        const pendingCreditsStr = sessionStorage.getItem("printlab_pending_credits");
+        if (pendingCreditsStr) {
+          const pendingCredits = parseInt(pendingCreditsStr);
+          if (!isNaN(pendingCredits) && pendingCredits > 0) {
+            const cachedCreditsStr = localStorage.getItem("printlab_cached_credits");
+            if (cachedCreditsStr && !isNaN(cachedCreditsStr)) {
+              const previousCredits = parseInt(cachedCreditsStr);
+              const optimisticCredits = previousCredits + pendingCredits;
+              localStorage.setItem("printlab_cached_credits", optimisticCredits);
+            }
+            // Destrucción inmediata del flag de la sesión para evitar bucles de sumas en recargas sucesivas
+            sessionStorage.removeItem("printlab_pending_credits");
+          }
         }
       } catch (e) {
-        console.warn("Fallo en actualización optimista:", e);
+        console.warn("Fallo en actualización optimista única:", e);
       }
     })();
 
