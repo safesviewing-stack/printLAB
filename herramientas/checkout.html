@@ -15,7 +15,7 @@
     a{color:inherit;text-decoration:none}
     .wrap{max-width:var(--max);margin:auto;padding:0 40px}
     
-    /* CABECERA Y NAVEGACIÓN HAMBURGUESA - Corregido para que sea opaco y evite destellos al refrescar */
+    /* CABECERA Y NAVEGACIÓN HAMBURGUESA - Corregido para evitar destellos */
     .top{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--line)}
     nav{min-height:95px;display:flex;align-items:center;justify-content:space-between;}
     .header-left{display:flex; align-items:center; gap:24px;}
@@ -55,9 +55,10 @@
     .input-group input{width:100%; padding:14px; border:1.5px solid var(--line); border-radius:12px; font-size:15px; outline:none; transition:.2s; background:var(--bg);}
     .input-group input:focus{border-color:var(--ink); background:#fff;}
     
-    /* Cajas de pago */
-    .card-mockup{border:1.5px solid var(--line); border-radius:12px; padding:16px; display:flex; align-items:center; gap:12px; background:var(--bg); margin-bottom:16px;}
-    .card-mockup span{font-size:14px; font-weight:700; color:var(--muted);}
+    /* Caja informativa de pago */
+    .payment-notice-box { background: rgba(184, 255, 61, 0.08); border: 1.5px solid rgba(184, 255, 61, 0.3); border-radius: 16px; padding: 20px; margin-top: 10px; }
+    .payment-notice-title { font-weight: 800; font-size: 15px; color: var(--ink); margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+    .payment-notice-text { font-size: 13.5px; color: var(--muted); margin: 0; line-height: 1.5; }
 
     /* Resumen de pedido */
     .summary-panel{background:var(--dark); color:#fff; border-radius:24px; padding:32px; border: 1px solid #2a332f;}
@@ -137,8 +138,6 @@
   <script src="../assets/js/auth-helper.js?v=11"></script>
   <!-- EMAILJS -->
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-  <!-- STRIPE OFICIAL -->
-  <script src="https://js.stripe.com/v3/"></script>
 </head>
 <body>
 
@@ -198,17 +197,11 @@
           </div>
 
           <h2 style="margin-top:40px;">Método de Pago</h2>
-          <div class="card-mockup">
-            <input type="radio" checked style="width:auto; margin:0;">
-            <span>Tarjeta de Crédito / Débito (Procesado seguro por Stripe)</span>
-          </div>
-          
-          <div class="input-group">
-            <label>Datos de la Tarjeta</label>
-            <div id="card-element" style="padding:14px; border:1.5px solid var(--line); border-radius:12px; background:var(--bg);">
-              <!-- Stripe Elements montará su formulario de tarjeta seguro aquí -->
+          <div class="payment-notice-box">
+            <div class="payment-notice-title">
+              <span>💳 Pago 100% Seguro</span>
             </div>
-            <div id="card-errors" role="alert" style="color:#9e3223; font-size:13px; margin-top:8px; font-weight:700;"></div>
+            <p class="payment-notice-text">Al confirmar tus datos de facturación y pulsar el botón de pago, te conectarás a los servidores cifrados de Stripe para poder realizar el pago con <strong>cualquier tarjeta de débito o crédito</strong> de forma segura.</p>
           </div>
           
           <div style="font-size:12.5px; color:var(--muted); line-height:1.5; margin-top:20px;">
@@ -303,38 +296,8 @@
 
   <!-- CONTROL DE CHECKOUT DINÁMICO DE STRIPE -->
   <script>
-    let stripe, elements, cardElement;
-
     document.addEventListener("DOMContentLoaded", async () => {
-      // 1. Inicializar Stripe con la clave pública (Reemplaza con tu clave real pk_test_... o pk_live_...)
-      stripe = Stripe("pk_test_tu_clave_publica_aqui"); 
-      elements = stripe.elements();
-
-      cardElement = elements.create("card", {
-        style: {
-          base: {
-            fontSize: "15px",
-            color: "#0d1110",
-            fontFamily: '"Plus Jakarta Sans", sans-serif',
-            "::placeholder": {
-              color: "#5e6661",
-            },
-          },
-        },
-      });
-
-      cardElement.mount("#card-element");
-
-      cardElement.on("change", (event) => {
-        const displayError = document.getElementById("card-errors");
-        if (event.error) {
-          displayError.textContent = event.error.message;
-        } else {
-          displayError.textContent = "";
-        }
-      });
-
-      // 2. Verificar sesión de usuario de forma asíncrona
+      // 1. Verificar sesión de usuario de forma asíncrona
       const { data: { user } } = await supabaseClient.auth.getUser();
       if (!user) {
         alert("Debes iniciar sesión para proceder al pago.");
@@ -342,11 +305,11 @@
         return;
       }
 
-      // 3. Obtener plan de la URL mediante parámetros GET
+      // 2. Obtener plan de la URL mediante parámetros GET
       const urlParams = new URLSearchParams(window.location.search);
       const planId = urlParams.get("plan") || "pro"; 
 
-      // 4. Matriz de precios y desgloses impositivos reales
+      // 3. Matriz de precios y desgloses impositivos reales
       const PLANS = {
         single: {
           name: "Análisis Duo (2 Créditos)",
@@ -370,7 +333,7 @@
 
       const selectedPlan = PLANS[planId] || PLANS.pro;
 
-      // 5. Modificar de forma dinámica la tarjeta del resumen de pedido
+      // 4. Modificar de forma dinámica la tarjeta del resumen de pedido
       const summaryContainer = document.getElementById("checkoutSummaryContainer");
       if (summaryContainer) {
         summaryContainer.innerHTML = `
@@ -423,7 +386,7 @@
 
       if (btn) {
         btn.disabled = true;
-        btn.textContent = "Procesando pago seguro...";
+        btn.textContent = "Conectando con Stripe...";
       }
 
       // Obtener valores de texto obligatorios para el historial temporal de compra
@@ -433,47 +396,35 @@
       sessionStorage.setItem("printlab_billing_email", emailVal);
       sessionStorage.setItem("printlab_billing_name", nameVal);
 
-      // --- PROCESAMIENTO SEGURO DEL BACKEND (STRIPE ELEMENTS) ---
+      // --- REDIRECCIÓN DE SEGURIDAD DEL BACKEND (STRIPE CHECKOUT SESSIONS) ---
       try {
-        // Llamar a tu función de Supabase para obtener el clientSecret (requiere modificar el backend para PaymentIntents)
-        const { data, error } = await window.supabaseClient.functions.invoke('create-payment-intent', {
+        // Usamos .functions.invoke() con tu función real 'stripe-checkout'
+        const { data, error } = await window.supabaseClient.functions.invoke('stripe-checkout', {
           body: {
             planId: planId,
             userId: userId,
-            receipt_email: emailVal
+            successUrl: window.location.origin + '/herramientas/checkout-success.html?plan=' + planId,
+            cancelUrl: window.location.href
           }
         });
 
-        if (error || !data || !data.clientSecret) {
-          throw new Error(error ? error.message : "No se pudo generar el intento de pago.");
+        if (error) {
+          throw error;
         }
 
-        // Confirmar el pago de forma segura sin salir de la web
-        const result = await stripe.confirmCardPayment(data.clientSecret, {
-          payment_method: {
-            card: cardElement,
-            billing_details: {
-              name: nameVal,
-              email: emailVal,
-            },
-          },
-        });
-
-        if (result.error) {
-          const errorDiv = document.getElementById("card-errors");
-          if (errorDiv) errorDiv.textContent = result.error.message;
+        if (data && data.url) {
+          // Redirigir directamente a Stripe para procesar cualquier tarjeta de forma garantizada y sin errores
+          window.location.href = data.url; 
+        } else {
+          alert('Error de pasarela: No se pudo generar la sesión de pago de Stripe.');
           if (btn) {
             btn.disabled = false;
             btn.textContent = "Intentar de nuevo";
           }
-        } else {
-          if (result.paymentIntent.status === "succeeded") {
-            window.location.href = "checkout-success.html?plan=" + planId;
-          }
         }
       } catch (e) {
         console.error("Fallo de comunicación con la pasarela:", e);
-        alert("Fallo de conexión seguro: No se pudo generar la transacción. Asegúrese de que su backend de Supabase esté configurado para generar 'PaymentIntents'.");
+        alert("Fallo de conexión seguro: No se pudo generar la transacción. Asegúrese de que su función de Supabase esté configurada y de que sus llaves de Stripe estén cargadas en la consola.");
         if (btn) {
           btn.disabled = false;
           btn.textContent = "Intentar de nuevo";
