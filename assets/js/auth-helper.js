@@ -90,6 +90,12 @@ const authHeaderStyles =
 
 authHeaderStyles.textContent = `
 
+  /* CORRECCIÓN GLOBAL: Evita que el contenido detrás del header se trasluzca al refrescar */
+  .top {
+    background: var(--bg, #f6f7f4) !important;
+    backdrop-filter: none !important;
+  }
+
   .auth-buttons {
     opacity: 0;
     visibility: hidden;
