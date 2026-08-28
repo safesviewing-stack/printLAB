@@ -487,6 +487,11 @@
           }
         } else {
           if (result.paymentIntent.status === "succeeded") {
+            // Guardar de forma efímera los créditos adquiridos en memoria de pestaña para sumarlos una única vez de forma segura
+            const CREDITS_BY_PLAN = { single: 2, pro: 10, industrial: 25 };
+            const creditsToCredit = CREDITS_BY_PLAN[planId] || 10;
+            sessionStorage.setItem("printlab_pending_credits", creditsToCredit);
+
             window.location.href = "checkout-success.html?plan=" + planId;
           }
         }
