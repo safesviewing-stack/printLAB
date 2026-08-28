@@ -247,9 +247,9 @@
       document.getElementById("item-name").textContent = info.name;
       document.getElementById("item-price").textContent = info.price;
 
-      // 2. Obtener el saldo anterior guardado en caché
+      // 2. Obtener el saldo anterior guardado en caché de forma segura
       const cachedCreditsStr = localStorage.getItem("printlab_cached_credits");
-      const previousCredits = cachedCreditsStr ? parseInt(cachedCreditsStr) : null;
+      const previousCredits = (cachedCreditsStr && !isNaN(cachedCreditsStr)) ? parseInt(cachedCreditsStr) : null;
       let displayCredits = previousCredits || 0;
 
       // Mostrar temporalmente el valor que tengamos en caché de inicio
@@ -274,7 +274,6 @@
               plan_price: info.price
             };
 
-            // Reemplaza "AQUÍ_PEGA_TU_SERVICE_ID" con el Service ID que tienes en tu panel de EmailJS
             emailjs.send("service_gwq515d", "template_lhq20ur", templateParams)
               .then(() => {
                 sessionStorage.setItem("printlab_receipt_sent", "true");
@@ -287,7 +286,7 @@
         }
 
         let attempts = 0;
-        const maxAttempts = 7; // Polling durante un máximo de ~10 segundos (7 intentos x 1.5s)
+        const maxAttempts = 15; // Polling durante un máximo de ~22.5 segundos (15 intentos x 1.5s) para asimilar el webhook
 
         async function pollCredits() {
           try {
@@ -300,10 +299,11 @@
             if (!error && data) {
               displayCredits = data.credits;
               
-              // Actualizar de forma dinámica la interfaz
+              // Actualizar de forma dinámica la interfaz local
               document.getElementById("item-credits").textContent = displayCredits + " Créditos";
               localStorage.setItem("printlab_cached_credits", displayCredits);
 
+              // Actualizar de forma dinámica el header (credits-badge) inyectado por el helper
               const headerCreditsBadge = document.querySelector(".credits-badge");
               if (headerCreditsBadge) {
                 headerCreditsBadge.textContent = "Créditos: " + displayCredits;
