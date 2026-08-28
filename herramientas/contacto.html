@@ -50,14 +50,12 @@
       padding:0 40px;
     }
 
-    /* CABECERA Y NAVEGACIÓN HAMBURGUESA */
-
+    /* CABECERA Y NAVEGACIÓN HAMBURGUESA - Corregido para que sea opaco y evite destellos al refrescar */
     .top{
       position:sticky;
       top:0;
       z-index:100;
-      background:rgba(246,247,244,.9);
-      backdrop-filter:blur(16px);
+      background:var(--bg);
       border-bottom:1px solid var(--line);
     }
 
@@ -543,7 +541,7 @@
       }
     }
 
-    /* REGLAS COMPLEMENTARIAS PARA PREVENIR DESFASES EN LA CABECERA (IDÉNTICAS AL INDEX) */
+    /* REGLAS COMPLEMENTARIAS PARA PREVENIR DESFASES EN LA CABECERA */
     #authHeaderContainer span[style*="background" i],
     #authHeaderContainer span[style*="accent" i],
     #authHeaderContainer span:nth-child(2),
@@ -962,7 +960,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
   <script>
-
+    // Inicializar EmailJS con tu Public Key de la imagen (100% correcta)
     emailjs.init({
       publicKey: "BzQs7T56zifGly9Gf"
     });
@@ -1022,9 +1020,7 @@
            */
 
           if (!name || !email || !message) {
-
             return;
-
           }
 
 
@@ -1043,14 +1039,9 @@
            */
 
           if (submitButton) {
-
             submitButton.disabled = true;
-
             submitButton.classList.add('sending');
-
-            submitButton.textContent =
-              'Enviando...';
-
+            submitButton.textContent = 'Enviando...';
           }
 
 
@@ -1061,8 +1052,8 @@
              */
 
             await emailjs.send(
-              'service_gwq515d',
-              'template_w3w3l6e',
+              'service_gwq515d', // <-- Comprueba que este sea tu Service ID activo en "Email Services"
+              'template_w3w3l6e', // Tu Template ID de la imagen (100% correcto)
               {
                 name:name,
                 email:email,
@@ -1080,19 +1071,14 @@
 
 
             /*
-             * CAMBIAMOS EL PROPIO BOTÓN.
-             * NO APARECE NINGUNA ALERTA.
+             * CAMBIAMOS EL PROPIO BOTÓN AL ESTADO DE ÉXITO
              */
 
             if (submitButton) {
-
               submitButton.classList.remove('sending');
-
               submitButton.classList.add('success');
-
               submitButton.innerHTML =
                 '<span class="success-check">✓</span> Mensaje enviado';
-
             }
 
 
@@ -1102,18 +1088,11 @@
              */
 
             setTimeout(function(){
-
               if (submitButton) {
-
                 submitButton.disabled = false;
-
                 submitButton.classList.remove('success');
-
-                submitButton.innerHTML =
-                  'Enviar consulta';
-
+                submitButton.innerHTML = 'Enviar consulta';
               }
-
             }, 3000);
 
 
@@ -1124,6 +1103,9 @@
               error
             );
 
+            // Alerta de diagnóstico: si hay un fallo, te dirá exactamente qué clave está mal
+            alert("Error de envío: " + (error?.text || JSON.stringify(error) || "Error desconocido"));
+
 
             /*
              * En caso de error,
@@ -1131,15 +1113,10 @@
              */
 
             if (submitButton) {
-
               submitButton.disabled = false;
-
               submitButton.classList.remove('sending');
-
-              submitButton.innerHTML =
-                'Enviar consulta';
-
-              }
+              submitButton.innerHTML = 'Enviar consulta';
+            }
 
           }
 
@@ -1149,7 +1126,6 @@
     }
 
   </script>
-
 
 </body>
 </html>
