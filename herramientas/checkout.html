@@ -47,7 +47,7 @@
     
     .checkout-grid{display:grid; grid-template-columns: 1fr 400px; gap: 40px; margin-bottom: 80px; align-items:start;}
     
-    .checkout-panel{background:var(--card); border:1.5px solid var(--line); border-radius:26px; padding:40px; box-shadow:0 15px 35px rgba(0,0,0,0.02); overflow:hidden;}
+    .checkout-panel{background:var(--card); border:1.5px solid var(--line); border-radius:26px; padding:40px; box-shadow:0 15px 35px rgba(0,0,0,0.02);}
     .checkout-panel h2{font-size:20px; margin:0 0 24px; border-bottom: 1.5px solid var(--line); padding-bottom:12px; font-weight:800}
     
     .input-group{margin-bottom:20px;}
@@ -137,6 +137,8 @@
   <script src="../assets/js/auth-helper.js?v=11"></script>
   <!-- EMAILJS -->
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <!-- STRIPE OFICIAL -->
+  <script src="https://js.stripe.com/v3/"></script>
 </head>
 <body>
 
@@ -195,8 +197,22 @@
             <input type="email" id="billing-email" placeholder="facturacion@empresa.com" required>
           </div>
 
+          <h2 style="margin-top:40px;">Método de Pago</h2>
+          <div class="card-mockup">
+            <input type="radio" checked style="width:auto; margin:0;">
+            <span>Tarjeta de Crédito / Débito (Procesado seguro por Stripe)</span>
+          </div>
+          
+          <div class="input-group">
+            <label>Datos de la Tarjeta</label>
+            <div id="card-element" style="padding:14px; border:1.5px solid var(--line); border-radius:12px; background:var(--bg);">
+              <!-- Stripe Elements montará su formulario de tarjeta seguro aquí -->
+            </div>
+            <div id="card-errors" role="alert" style="color:#9e3223; font-size:13px; margin-top:8px; font-weight:700;"></div>
+          </div>
+          
           <div style="font-size:12.5px; color:var(--muted); line-height:1.5; margin-top:20px;">
-            Al confirmar el pago, serás redirigido de forma segura a la pasarela de Stripe para introducir los datos de tu tarjeta. Declaras ser mayor de edad, reconoces que este es un servicio digital de ejecución inmediata y aceptas expresamente renunciar a tu derecho de desistimiento conforme a nuestros <a href="../condiciones-compra.html" style="color:var(--ink); font-weight:800;">Términos de Compra</a>.
+            Al confirmar el pago, declaras ser mayor de edad, reconoces que este es un servicio digital de ejecución inmediata y aceptas expresamente renunciar a tu derecho de desistimiento conforme a nuestros <a href="../condiciones-compra.html" style="color:var(--ink); font-weight:800;">Términos de Compra</a>.
           </div>
         </form>
       </div>
@@ -287,15 +303,38 @@
 
   <!-- CONTROL DE CHECKOUT DINÁMICO DE STRIPE -->
   <script>
-    // -----------------------------------------------------
-    // INICIALIZACIÓN DE EMAILJS
-    // -----------------------------------------------------
-    emailjs.init({
-      publicKey: "AQUÍ_PEGA_TU_PUBLIC_KEY", // <-- REEMPLAZA ESTO CON TU PUBLIC KEY DE EMAILJS
-    });
+    let stripe, elements, cardElement;
 
     document.addEventListener("DOMContentLoaded", async () => {
-      // 1. Verificar sesión de usuario de forma asíncrona
+      // 1. Inicializar Stripe con la clave pública (Reemplaza con tu clave real pk_test_... o pk_live_...)
+      stripe = Stripe("pk_test_tu_clave_publica_aqui"); 
+      elements = stripe.elements();
+
+      cardElement = elements.create("card", {
+        style: {
+          base: {
+            fontSize: "15px",
+            color: "#0d1110",
+            fontFamily: '"Plus Jakarta Sans", sans-serif',
+            "::placeholder": {
+              color: "#5e6661",
+            },
+          },
+        },
+      });
+
+      cardElement.mount("#card-element");
+
+      cardElement.on("change", (event) => {
+        const displayError = document.getElementById("card-errors");
+        if (event.error) {
+          displayError.textContent = event.error.message;
+        } else {
+          displayError.textContent = "";
+        }
+      });
+
+      // 2. Verificar sesión de usuario de forma asíncrona
       const { data: { user } } = await supabaseClient.auth.getUser();
       if (!user) {
         alert("Debes iniciar sesión para proceder al pago.");
@@ -303,11 +342,11 @@
         return;
       }
 
-      // 2. Obtener plan de la URL mediante parámetros GET
+      // 3. Obtener plan de la URL mediante parámetros GET
       const urlParams = new URLSearchParams(window.location.search);
       const planId = urlParams.get("plan") || "pro"; 
 
-      // 3. Matriz de precios y desgloses impositivos reales
+      // 4. Matriz de precios y desgloses impositivos reales
       const PLANS = {
         single: {
           name: "Análisis Duo (2 Créditos)",
@@ -331,7 +370,7 @@
 
       const selectedPlan = PLANS[planId] || PLANS.pro;
 
-      // 4. Modificar de forma dinámica la tarjeta del resumen de pedido
+      // 5. Modificar de forma dinámica la tarjeta del resumen de pedido
       const summaryContainer = document.getElementById("checkoutSummaryContainer");
       if (summaryContainer) {
         summaryContainer.innerHTML = `
@@ -384,7 +423,7 @@
 
       if (btn) {
         btn.disabled = true;
-        btn.textContent = "Conectando con Stripe...";
+        btn.textContent = "Procesando pago seguro...";
       }
 
       // Obtener valores de texto obligatorios para el historial temporal de compra
@@ -394,54 +433,47 @@
       sessionStorage.setItem("printlab_billing_email", emailVal);
       sessionStorage.setItem("printlab_billing_name", nameVal);
 
-      // --- REDIRECCIÓN DE SEGURIDAD DEL BACKEND (STRIPE) ---
+      // --- PROCESAMIENTO SEGURO DEL BACKEND (STRIPE ELEMENTS) ---
       try {
-        // Usar la API oficial de Supabase para invocar Edge Functions sin lidiar con URLs ni llaves undefined
-        const { data, error } = await window.supabaseClient.functions.invoke('stripe-checkout', {
+        // Llamar a tu función de Supabase para obtener el clientSecret (requiere modificar el backend para PaymentIntents)
+        const { data, error } = await window.supabaseClient.functions.invoke('create-payment-intent', {
           body: {
             planId: planId,
             userId: userId,
-            successUrl: window.location.origin + '/herramientas/checkout-success.html?plan=' + planId,
-            cancelUrl: window.location.href
+            receipt_email: emailVal
           }
         });
 
-        if (error) {
-          throw error;
+        if (error || !data || !data.clientSecret) {
+          throw new Error(error ? error.message : "No se pudo generar el intento de pago.");
         }
 
-        if (data && data.url) {
-          // --- ENVÍO DE EMAILJS AL COMPLETAR EL CHECKOUT CON ÉXITO ---
-          try {
-            const templateParams = {
-              name: nameVal,       // Se asigna a {{name}} en tu plantilla
-              email: emailVal,     // Se asigna a {{email}} en tu plantilla
-              message: `El usuario ha iniciado un proceso de compra para el plan: ${planId}. Redirigiendo a Stripe para procesar la tarjeta.` // Se asigna a {{message}}
-            };
+        // Confirmar el pago de forma segura sin salir de la web
+        const result = await stripe.confirmCardPayment(data.clientSecret, {
+          payment_method: {
+            card: cardElement,
+            billing_details: {
+              name: nameVal,
+              email: emailVal,
+            },
+          },
+        });
 
-            await emailjs.send(
-              "AQUÍ_PEGA_TU_SERVICE_ID", // <-- REEMPLAZA CON TU SERVICE ID DE EMAILJS (ej: service_xxxx)
-              "template_lhq20ur",        // Tu Template ID exacto de EmailJS
-              templateParams
-            );
-            console.log("Notificación por correo de EmailJS enviada correctamente.");
-          } catch (emailErr) {
-            // No interrumpimos la redirección de compra a Stripe si falla EmailJS por un error de claves
-            console.warn("Fallo al enviar la plantilla de EmailJS:", emailErr);
-          }
-
-          // Redirigir de forma cifrada a los servidores oficiales de Stripe
-          window.location.href = data.url; 
-        } else {
-          alert('Error de pasarela: No se pudo generar la sesión de pago de Stripe.');
+        if (result.error) {
+          const errorDiv = document.getElementById("card-errors");
+          if (errorDiv) errorDiv.textContent = result.error.message;
           if (btn) {
             btn.disabled = false;
             btn.textContent = "Intentar de nuevo";
           }
+        } else {
+          if (result.paymentIntent.status === "succeeded") {
+            window.location.href = "checkout-success.html?plan=" + planId;
+          }
         }
       } catch (e) {
         console.error("Fallo de comunicación con la pasarela:", e);
-        alert("Fallo de conexión seguro: No se pudo generar la transacción. Asegúrese de que sus credenciales de Stripe estén cargadas en la consola de Supabase.");
+        alert("Fallo de conexión seguro: No se pudo generar la transacción. Asegúrese de que su backend de Supabase esté configurado para generar 'PaymentIntents'.");
         if (btn) {
           btn.disabled = false;
           btn.textContent = "Intentar de nuevo";
