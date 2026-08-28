@@ -410,24 +410,7 @@
       const cardVal = cardInput ? cardInput.value.replace(/\s/g, "") : "";
 
       // BLOQUEAR EL USO DE LA TARJETA DE PRUEBA 4242... (Rodeando de rojo y enfocando sin alertas emergentes)
-      if (cardVal.startsWith("4242") || cardVal === "4242424242424242") {
-        if (cardInput) {
-          cardInput.style.borderColor = "#9e3223";
-          cardInput.style.boxShadow = "0 0 4px #9e3223";
-          cardInput.focus();
-        }
-        if (btn) {
-          btn.disabled = false;
-          const PLANS = {
-            single: "2.50 €",
-            pro: "9.90 €",
-            industrial: "19.90 €"
-          };
-          const totalVal = PLANS[planId] || "9.90 €";
-          btn.textContent = `Pagar ${totalVal} de forma segura`;
-        }
-        return;
-      }
+      
 
       if (btn) {
         btn.disabled = true;
