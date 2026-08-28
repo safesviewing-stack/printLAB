@@ -223,6 +223,29 @@
   </footer>
 
   <script>
+    // --- ACTUALIZACIÓN OPTIMISTA INMEDIATA (Síncrona) ---
+    // Se ejecuta al instante antes de cualquier renderizado para que auth-helper.js lea el saldo nuevo de inmediato
+    (function() {
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const planId = urlParams.get("plan") || "pro";
+        const PLANS_DETAILS = {
+          single: { credits: 2 },
+          pro: { credits: 10 },
+          industrial: { credits: 25 }
+        };
+        const info = PLANS_DETAILS[planId] || PLANS_DETAILS.pro;
+        const cachedCreditsStr = localStorage.getItem("printlab_cached_credits");
+        if (cachedCreditsStr && !isNaN(cachedCreditsStr)) {
+          const previousCredits = parseInt(cachedCreditsStr);
+          const optimisticCredits = previousCredits + info.credits;
+          localStorage.setItem("printlab_cached_credits", optimisticCredits);
+        }
+      } catch (e) {
+        console.warn("Fallo en actualización optimista:", e);
+      }
+    })();
+
     function toggleMenu() {
       document.getElementById('mainMenu').classList.toggle('show');
     }
@@ -247,15 +270,11 @@
       document.getElementById("item-name").textContent = info.name;
       document.getElementById("item-price").textContent = info.price;
 
-      // 2. Obtener el saldo anterior guardado en caché de forma segura
+      // 2. Mostrar directamente el saldo actualizado optimista en la tarjeta de éxito
       const cachedCreditsStr = localStorage.getItem("printlab_cached_credits");
-      const previousCredits = (cachedCreditsStr && !isNaN(cachedCreditsStr)) ? parseInt(cachedCreditsStr) : null;
-      let displayCredits = previousCredits || 0;
+      document.getElementById("item-credits").textContent = (cachedCreditsStr || "...") + " Créditos";
 
-      // Mostrar temporalmente el valor que tengamos en caché de inicio
-      document.getElementById("item-credits").textContent = displayCredits + " Créditos";
-
-      // 3. Obtener el saldo real del usuario haciendo consultas recurrentes (polling) hasta que aumenten
+      // 3. Consultas recurrentes en segundo plano para verificar y asegurar que el webhook sincronice el valor oficial de la DB
       const { data: { user } } = await supabaseClient.auth.getUser();
 
       if (user) {
@@ -286,7 +305,7 @@
         }
 
         let attempts = 0;
-        const maxAttempts = 15; // Polling durante un máximo de ~22.5 segundos (15 intentos x 1.5s) para asimilar el webhook
+        const maxAttempts = 15; // Sincronización en segundo plano
 
         async function pollCredits() {
           try {
@@ -297,35 +316,28 @@
               .single();
 
             if (!error && data) {
-              displayCredits = data.credits;
+              const displayCredits = data.credits;
               
-              // Actualizar de forma dinámica la interfaz local
+              // Sincronizar el DOM con el valor real final una vez confirmado por la base de datos
               document.getElementById("item-credits").textContent = displayCredits + " Créditos";
               localStorage.setItem("printlab_cached_credits", displayCredits);
 
-              // Actualizar de forma dinámica el header (credits-badge) inyectado por el helper
               const headerCreditsBadge = document.querySelector(".credits-badge");
               if (headerCreditsBadge) {
                 headerCreditsBadge.textContent = "Créditos: " + displayCredits;
               }
-
-              // Si los créditos ya aumentaron en la base de datos comparado con el valor guardado, paramos el polling
-              if (previousCredits !== null && displayCredits > previousCredits) {
-                console.log("¡Señal de webhook procesada con éxito! Créditos incrementados.");
-                return;
-              }
             }
           } catch (e) {
-            console.warn("Fallo al obtener créditos en bucle:", e);
+            console.warn("Fallo al sincronizar créditos en segundo plano:", e);
           }
 
           attempts++;
           if (attempts < maxAttempts) {
-            setTimeout(pollCredits, 1500); // Volver a consultar en 1.5 segundos
+            setTimeout(pollCredits, 1500); // Comprobación de seguridad en bucle discreto
           }
         }
 
-        // Iniciar el bucle asíncrono inteligente
+        // Iniciar el bucle asíncrono de fondo
         await pollCredits();
       }
     });
