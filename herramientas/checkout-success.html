@@ -1,431 +1,1020 @@
 <!doctype html>
 <html lang="es">
+
 <head>
+
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  >
+
   <title>¡Compra Confirmada! — PrintLab</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+  <link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+  >
+
+  <link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+  >
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap"
+    rel="stylesheet"
+  >
+
+
   <style>
-    :root{ --bg:#f6f7f4; --card:#fff; --ink:#0d1110; --muted:#5e6661; --line:#dfe4df; --accent:#b8ff3d; --dark:#111715; --max:1200px; }
-    *{box-sizing:border-box}html{scroll-behavior:smooth}
-    body{margin:0; background:var(--bg); color:var(--ink); font-family:"Plus Jakarta Sans", sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased;}
-    a{color:inherit;text-decoration:none}
-    .wrap{max-width:var(--max);margin:auto;padding:0 40px}
-    
-    /* CABECERA */
-    .top{position:sticky;top:0;z-index:100;background:rgba(246,247,244,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
-    nav{min-height:95px;display:flex;align-items:center;justify-content:space-between;}
-    .header-left{display:flex; align-items:center; gap:24px;}
-    .brand{font-size:26px;font-weight:800;letter-spacing:-1px}
-    .brand span{background:var(--accent);padding:5px 12px;border-radius:10px;margin-left:6px;color:var(--ink)}
-    
-    .menu-dropdown { position: relative; display: inline-block; }
-    .hamburger { background: none; border: none; cursor: pointer; padding: 10px; display: flex; flex-direction: column; gap: 5px; outline:none; }
-    .hamburger span { display: block; width: 26px; height: 3px; background: var(--ink); border-radius: 2px; transition: 0.3s; }
-    .hamburger:hover span { background: var(--muted); }
-    
-    .dropdown-content { display: none; position: absolute; top: 110%; left: 0; background-color: var(--card); min-width: 240px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); border: 1.5px solid var(--line); border-radius: 16px; z-index: 200; flex-direction: column; padding: 12px 0; }
-    .dropdown-content.show { display: flex; animation: slideDown 0.2s ease; }
-    .dropdown-content a { padding: 14px 24px; color: var(--muted); font-weight: 700; font-size:15px; transition: 0.15s; }
-    .dropdown-content a:hover { color: var(--ink); background: rgba(0,0,0,0.03); }
 
-    .auth-buttons { display:flex; gap:12px; align-items:center; }
-    .btn-auth { display: inline-flex; align-items: center; justify-content: center; padding: 12px 24px; border-radius: 9999px; font-weight: 800; font-size: 14px; cursor: pointer; transition: .2s ease; text-decoration: none; border: 2px solid var(--ink); }
-    .btn-auth.light { background: #fff; color: var(--ink); box-shadow: 0 3px 0px var(--ink); }
-    .btn-auth.light:hover { transform: translateY(-1px); box-shadow: 0 4px 0px var(--ink); }
-    
-    @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+    :root{
+      --bg:#f6f7f4;
+      --card:#fff;
+      --ink:#0d1110;
+      --muted:#5e6661;
+      --line:#dfe4df;
+      --accent:#b8ff3d;
+      --dark:#111715;
+      --max:1200px;
+    }
 
-    /* CONTENEDOR EXCLUSIVO DE ÉXITO */
-    .success-container{max-width:540px; margin:60px auto; background:var(--card); padding:50px 40px; border-radius:24px; border:1px solid var(--line); box-shadow:0 20px 40px rgba(0,0,0,0.03); text-align:center;}
-    
+    *{
+      box-sizing:border-box;
+    }
+
+    html{
+      scroll-behavior:smooth;
+    }
+
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--ink);
+      font-family:"Plus Jakarta Sans",sans-serif;
+      line-height:1.6;
+      -webkit-font-smoothing:antialiased;
+    }
+
+    a{
+      color:inherit;
+      text-decoration:none;
+    }
+
+    .wrap{
+      max-width:var(--max);
+      margin:auto;
+      padding:0 40px;
+    }
+
+    .top{
+      position:sticky;
+      top:0;
+      z-index:100;
+      background:rgba(246,247,244,.9);
+      backdrop-filter:blur(16px);
+      border-bottom:1px solid var(--line);
+    }
+
+    nav{
+      min-height:95px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+    }
+
+    .header-left{
+      display:flex;
+      align-items:center;
+      gap:24px;
+    }
+
+    .brand{
+      font-size:26px;
+      font-weight:800;
+      letter-spacing:-1px;
+    }
+
+    .brand span{
+      background:var(--accent);
+      padding:5px 12px;
+      border-radius:10px;
+      margin-left:6px;
+      color:var(--ink);
+    }
+
+    .menu-dropdown{
+      position:relative;
+      display:inline-block;
+    }
+
+    .hamburger{
+      background:none;
+      border:none;
+      cursor:pointer;
+      padding:10px;
+      display:flex;
+      flex-direction:column;
+      gap:5px;
+      outline:none;
+    }
+
+    .hamburger span{
+      display:block;
+      width:26px;
+      height:3px;
+      background:var(--ink);
+      border-radius:2px;
+    }
+
+    .dropdown-content{
+      display:none;
+      position:absolute;
+      top:110%;
+      left:0;
+      background-color:var(--card);
+      min-width:240px;
+      box-shadow:0 20px 40px rgba(0,0,0,.1);
+      border:1.5px solid var(--line);
+      border-radius:16px;
+      z-index:200;
+      flex-direction:column;
+      padding:12px 0;
+    }
+
+    .dropdown-content.show{
+      display:flex;
+    }
+
+    .dropdown-content a{
+      padding:14px 24px;
+      color:var(--muted);
+      font-weight:700;
+      font-size:15px;
+    }
+
+    .dropdown-content a:hover{
+      color:var(--ink);
+      background:rgba(0,0,0,.03);
+    }
+
+    .auth-buttons{
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+
+    .btn-auth{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:12px 24px;
+      border-radius:9999px;
+      font-weight:800;
+      font-size:14px;
+      cursor:pointer;
+      transition:.2s ease;
+      text-decoration:none;
+      border:2px solid var(--ink);
+    }
+
+    .btn-auth.light{
+      background:#fff;
+      color:var(--ink);
+      box-shadow:0 3px 0 var(--ink);
+    }
+
+    .success-container{
+      max-width:540px;
+      margin:60px auto;
+      background:var(--card);
+      padding:50px 40px;
+      border-radius:24px;
+      border:1px solid var(--line);
+      box-shadow:0 20px 40px rgba(0,0,0,.03);
+      text-align:center;
+    }
+
     .success-icon{
-      display:inline-flex; align-items:center; justify-content:center;
-      width:72px; height:72px; background:#eef9f0; border:2.5px solid #155724; border-radius:50%;
-      color:#155724; font-size:32px; font-weight:800; margin-bottom:24px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:72px;
+      height:72px;
+      background:#eef9f0;
+      border:2.5px solid #155724;
+      border-radius:50%;
+      color:#155724;
+      font-size:32px;
+      font-weight:800;
+      margin-bottom:24px;
     }
 
-    .success-container h1{font-size:30px; font-weight:800; margin:0 0 12px; letter-spacing:-1px;}
-    .success-container p{color:var(--muted); font-size:15.5px; margin:0 0 30px; line-height:1.5;}
-
-    .order-details{background:var(--bg); border:1.5px solid var(--line); border-radius:16px; padding:24px; margin-bottom:30px; text-align:left;}
-    .order-row{display:flex; justify-content:space-between; margin-bottom:10px; padding-bottom:10px; border-bottom:1px dashed var(--line); font-size:14px;}
-    .order-row:last-of-type{margin-bottom:0; padding-bottom:0; border-bottom:none;}
-    .order-row span{color:var(--muted); font-weight:700;}
-    .order-row strong{color:var(--ink); font-weight:800;}
-
-    .btn-action{display:block; width:100%; background:var(--ink); color:#fff; text-align:center; padding:16px; border-radius:12px; font-weight:800; font-size:16px; transition:.2s; border:2px solid var(--ink);}
-    .btn-action:hover{background:var(--dark); box-shadow:0 4px 0 var(--accent); transform:translateY(-2px);}
-
-    /* FOOTER */
-    .footer { background: var(--bg); border-top: 1px solid var(--line); padding: 80px 0 40px; color: var(--muted); font-size: 14px; line-height: 1.6; }
-    .footergrid { display: grid; grid-template-columns: 1.3fr 0.85fr 0.85fr; gap: 60px; margin-bottom: 48px; }
-    .footer-col h3 { font-size: 16px; font-weight: 800; color: var(--ink); margin: 0 0 20px; letter-spacing: -0.3px; }
-    .footer-col p { margin: 0 0 16px; color: var(--muted); }
-    .footer-secondary-text { font-size: 12.5px; line-height: 1.5; color: #7d8782; margin-top: 12px; }
-    .footer-links { display: flex; flex-direction: column; gap: 10px; }
-    .footer-links a { color: var(--muted); transition: color 0.15s ease, transform 0.15s ease; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
-    .footer-links a:hover { color: var(--ink); transform: translateX(2px); }
-    .footer-links a span.arrow { transition: color 0.15s ease; }
-    .footer-links a:hover span.arrow { color: var(--accent); }
-    .footer-bottom { border-top: 1px solid var(--line); padding-top: 24px; display:flex; justify-content:center; align-items:center; text-align:center; font-size: 13px; color: #7d8782;}
-
-    @media(max-width:992px){ .footergrid { grid-template-columns: 1.2fr 1fr; gap: 40px; } }
-    @media(max-width: 768px) {
-      .wrap{padding:0 24px}
-      .brand { font-size:22px; }
-      .auth-buttons { display: none; }
-      .footergrid { grid-template-columns: 1fr; gap: 36px; }
-      .footer-bottom { flex-direction: column; align-items: flex-start;}
+    .success-container h1{
+      font-size:30px;
+      font-weight:800;
+      margin:0 0 12px;
+      letter-spacing:-1px;
     }
 
-    #authHeaderContainer span[style*="background" i],
-    #authHeaderContainer span[style*="accent" i],
-    #authHeaderContainer span:nth-child(2),
-    #authHeaderContainer div span:nth-child(2) {
-      background: var(--accent) !important;
-      background-color: var(--accent) !important;
-      color: var(--ink) !important;
-      padding: 8px 18px !important;
-      border-radius: 9999px !important;
-      font-weight: 800 !important;
-      font-size: 15px !important;
-      border: none !important;
-      border-width: 0px !important;
-      box-shadow: none !important;
-      display: inline-flex !important;
-      align-items: center !important;  
-      justify-content: center !important; 
-      align-self: center !important;
-      line-height: 1 !important; 
-      height: auto !important;
-      min-height: 0 !important;
-      max-height: 38px !important;
-      margin: auto 0 !important;
-      white-space: nowrap !important;
+    .success-container p{
+      color:var(--muted);
+      font-size:15.5px;
+      margin:0 0 30px;
+      line-height:1.5;
     }
 
-    #authHeaderContainer .user-greeting,
-    #authHeaderContainer span:nth-child(1),
-    #authHeaderContainer div span:nth-child(1),
-    #authHeaderContainer span:first-child,
-    #authHeaderContainer div span:first-child {
-      font-weight: 700 !important;
-      font-size: 15px !important;
-      color: var(--ink) !important;
-      display: inline-block !important;
-      margin: auto 0 !important;
-      white-space: nowrap !important;
+    .order-details{
+      background:var(--bg);
+      border:1.5px solid var(--line);
+      border-radius:16px;
+      padding:24px;
+      margin-bottom:30px;
+      text-align:left;
     }
+
+    .order-row{
+      display:flex;
+      justify-content:space-between;
+      margin-bottom:10px;
+      padding-bottom:10px;
+      border-bottom:1px dashed var(--line);
+      font-size:14px;
+      gap:20px;
+    }
+
+    .order-row:last-of-type{
+      margin-bottom:0;
+      padding-bottom:0;
+      border-bottom:none;
+    }
+
+    .order-row span{
+      color:var(--muted);
+      font-weight:700;
+    }
+
+    .order-row strong{
+      color:var(--ink);
+      font-weight:800;
+      text-align:right;
+    }
+
+    .btn-action{
+      display:block;
+      width:100%;
+      background:var(--ink);
+      color:#fff;
+      text-align:center;
+      padding:16px;
+      border-radius:12px;
+      font-weight:800;
+      font-size:16px;
+      transition:.2s;
+      border:2px solid var(--ink);
+    }
+
+    .btn-action:hover{
+      background:var(--dark);
+      box-shadow:0 4px 0 var(--accent);
+      transform:translateY(-2px);
+    }
+
+    .footer{
+      background:var(--bg);
+      border-top:1px solid var(--line);
+      padding:80px 0 40px;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.6;
+    }
+
+    .footergrid{
+      display:grid;
+      grid-template-columns:1.3fr .85fr .85fr;
+      gap:60px;
+      margin-bottom:48px;
+    }
+
+    .footer-col h3{
+      font-size:16px;
+      font-weight:800;
+      color:var(--ink);
+      margin:0 0 20px;
+    }
+
+    .footer-col p{
+      margin:0 0 16px;
+      color:var(--muted);
+    }
+
+    .footer-secondary-text{
+      font-size:12.5px;
+      line-height:1.5;
+      color:#7d8782;
+      margin-top:12px;
+    }
+
+    .footer-links{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    .footer-links a{
+      color:var(--muted);
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+    }
+
+    .footer-bottom{
+      border-top:1px solid var(--line);
+      padding-top:24px;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      text-align:center;
+      font-size:13px;
+      color:#7d8782;
+    }
+
+    @media(max-width:992px){
+
+      .footergrid{
+        grid-template-columns:1.2fr 1fr;
+        gap:40px;
+      }
+
+    }
+
+    @media(max-width:768px){
+
+      .wrap{
+        padding:0 24px;
+      }
+
+      .brand{
+        font-size:22px;
+      }
+
+      .auth-buttons{
+        display:none;
+      }
+
+      .footergrid{
+        grid-template-columns:1fr;
+        gap:36px;
+      }
+
+      .footer-bottom{
+        flex-direction:column;
+      }
+
+      .success-container{
+        padding:40px 24px;
+      }
+
+    }
+
   </style>
+
+
+  <!-- SUPABASE -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <script src="../assets/js/auth-helper.js?v=11"></script>
-  <!-- EMAILJS OFICIAL -->
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
 </head>
+
+
 <body>
 
-  <!-- CABECERA -->
-  <header class="top">
-    <div class="wrap">
-      <nav>
-        <div class="header-left">
-          <div class="menu-dropdown">
-            <button class="hamburger" onclick="toggleMenu()" aria-label="Abrir menú" type="button">
-              <span></span>
-              <span></span>
-              <span></span>
-            </button>
-            <div class="dropdown-content" id="mainMenu">
-              <a href="../index.html#portada">Inicio</a>
-              <a href="analizador-stl.html">Analizador STL</a>
-              <a href="../index.html#simulador">Simulador</a>
-              <a href="../index.html#herramientas">Herramientas</a>
-              <a href="../index.html#guias">Guías</a>
-            </div>
+
+<header class="top">
+
+  <div class="wrap">
+
+    <nav>
+
+      <div class="header-left">
+
+        <div class="menu-dropdown">
+
+          <button
+            class="hamburger"
+            onclick="toggleMenu()"
+            aria-label="Abrir menú"
+            type="button"
+          >
+
+            <span></span>
+            <span></span>
+            <span></span>
+
+          </button>
+
+
+          <div
+            class="dropdown-content"
+            id="mainMenu"
+          >
+
+            <a href="../index.html#portada">
+              Inicio
+            </a>
+
+            <a href="analizador-stl.html">
+              Analizador STL
+            </a>
+
+            <a href="../index.html#simulador">
+              Simulador
+            </a>
+
+            <a href="../index.html#herramientas">
+              Herramientas
+            </a>
+
+            <a href="../index.html#guias">
+              Guías
+            </a>
+
           </div>
-          <a class="brand" href="../index.html#portada" title="Volver al inicio">PRINT<span>LAB</span></a>
-        </div>
-        
-        <!-- PRE-RENDERIZADO SÍNCRONO DEL HEADER: Evita el parpadeo de los botones de login y muestra el saldo al instante -->
-        <div class="auth-buttons" id="authHeaderContainer" style="opacity: 1; visibility: visible;">
-          <div class="user-header-info" id="preRenderedHeader" style="display: none; align-items: center; gap: 16px;">
-            <span class="user-greeting" id="preRenderedName">Hola, Usuario</span>
-            <span class="credits-badge" id="preRenderedCredits">Créditos: ...</span>
-            <button id="btn-logout" class="btn-auth light" type="button" onclick="handleLogout()">Cerrar Sesión</button>
-          </div>
-          <a href="../index.html" class="btn-auth light" id="preRenderedBack" style="display: none;">Volver al Inicio</a>
-          <script>
-            // --- ACTUALIZACIÓN OPTIMISTA INMEDIATA Y CONTROLADA (Síncrona) ---
-            // Suma el nuevo saldo adquirido una única vez de manera efímera antes de que se pinte el HTML
-            (function() {
-              try {
-                const pendingCreditsStr = sessionStorage.getItem("printlab_pending_credits");
-                if (pendingCreditsStr) {
-                  const pendingCredits = parseInt(pendingCreditsStr);
-                  if (!isNaN(pendingCredits) && pendingCredits > 0) {
-                    const cachedCreditsStr = localStorage.getItem("printlab_cached_credits");
-                    if (cachedCreditsStr && !isNaN(cachedCreditsStr)) {
-                      const previousCredits = parseInt(cachedCreditsStr);
-                      localStorage.setItem("printlab_cached_credits", previousCredits + pendingCredits);
-                    }
-                    sessionStorage.removeItem("printlab_pending_credits");
-                  }
-                }
 
-                // Pintar el header síncronamente en el acto
-                const tokenStr = localStorage.getItem("sb-jmwprzgfdkphbxryjbnr-auth-token");
-                if (tokenStr) {
-                  const name = localStorage.getItem("printlab_cached_name") || "Usuario";
-                  const credits = localStorage.getItem("printlab_cached_credits") || "...";
-                  document.getElementById("preRenderedName").textContent = "Hola, " + name;
-                  document.getElementById("preRenderedCredits").textContent = "Créditos: " + credits;
-                  document.getElementById("preRenderedHeader").style.display = "flex";
-                } else {
-                  document.getElementById("preRenderedBack").style.display = "inline-flex";
-                }
-              } catch (e) {
-                console.warn("Fallo en inicialización de cabecera optimista:", e);
-              }
-            })();
-          </script>
         </div>
-      </nav>
-    </div>
-  </header>
 
-  <!-- CONTENIDO DE ÉXITO -->
-  <main class="wrap">
-    <div class="success-container">
-      <div class="success-icon">✓</div>
-      <h1>¡Disfruta de tu compra! 🚀</h1>
-      <p>El pago ha sido procesado de forma segura y los créditos han sido agregados con éxito a tu cuenta de PrintLab.</p>
 
-      <div class="order-details">
-        <div class="order-row">
-          <span>Producto adquirido:</span>
-          <strong id="item-name">Cargando...</strong>
-        </div>
-        <div class="order-row">
-          <span>Importe total:</span>
-          <strong id="item-price">0.00 €</strong>
-        </div>
-        <div class="order-row">
-          <span>Tus créditos totales:</span>
-          <strong id="item-credits">Cargando...</strong>
-        </div>
-        <!-- PRE-RENDERIZADO SÍNCRONO DEL FORMULARIO DE DETALLES: Muestra los valores definitivos al primer frame -->
-        <script>
-          (function() {
-            try {
-              const urlParams = new URLSearchParams(window.location.search);
-              const planId = urlParams.get("plan") || "pro";
-              const PLANS_DETAILS = {
-                single: { name: "Análisis Duo (2 Créditos)", price: "2.50 €" },
-                pro: { name: "Pack Profesional (10 Créditos)", price: "9.90 €" },
-                industrial: { name: "Pack Industrial (25 Créditos)", price: "19.90 €" }
-              };
-              const info = PLANS_DETAILS[planId] || PLANS_DETAILS.pro;
-              document.getElementById("item-name").textContent = info.name;
-              document.getElementById("item-price").textContent = info.price;
+        <a
+          class="brand"
+          href="../index.html#portada"
+        >
+          PRINT<span>LAB</span>
+        </a>
 
-              const cachedCreditsStr = localStorage.getItem("printlab_cached_credits");
-              if (cachedCreditsStr) {
-                document.getElementById("item-credits").textContent = cachedCreditsStr + " Créditos";
-              }
-            } catch(e) {
-              console.warn("Fallo en render síncrono de detalles:", e);
-            }
-          })();
-        </script>
       </div>
 
-      <a href="analizador-stl.html" class="btn-action">Ir al Analizador STL</a>
-    </div>
-  </main>
 
-  <!-- PIE DE PÁGINA -->
-  <footer class="footer">
-    <div class="wrap">
-      <div class="footergrid">
-        <div class="footer-col">
-          <h3>PrintLab — Ingeniería 3D</h3>
-          <p>Plataforma profesional de análisis y optimización STL mediante Inteligencia Artificial y simuladores paramétricos. Transformamos modelos 3D con problemas en geometrías perfectas listas para fabricar, ahorrando tiempo, material y costes en entornos industriales.</p>
-          <p class="footer-secondary-text">Desarrollado bajo principios de Privacy by Design. Los datos y archivos STL se procesan con estricta confidencialidad.</p>
-        </div>
-        
-        <div class="footer-col">
-          <h3>Recursos y Herramientas</h3>
-          <div class="footer-links">
-            <a href="../index.html#analizador"><span class="arrow">→</span> Analizador STL IA</a>
-            <a href="../index.html#simulador"><span class="arrow">→</span> Simulador de Extrusión</a>
-            <a href="calculadora-coste.html"><span class="arrow">→</span> Calculadoras de Coste y Masa</a>
-            <a href="../index.html#guias"><span class="arrow">→</span> Base de Conocimiento</a>
-            <a href="../materiales/index.html"><span class="arrow">→</span> Atlas de Materiales</a>
-          </div>
-        </div>
-        
-        <div class="footer-col">
-          <h3>Soporte y Legal</h3>
-          <div class="footer-links">
-            <a href="precios.html"><span class="arrow">→</span> Precios y Suscripciones</a>
-            <a href="contacto.html"><span class="arrow">→</span> Contacto y Soporte</a>
-            <a href="../condiciones-compra.html"><span class="arrow">→</span> Condiciones de Compra</a>
-            <a href="../terminos.html"><span class="arrow">→</span> Términos y Condiciones</a>
-            <a href="../privacidad.html"><span class="arrow">→</span> Política de Privacidad</a>
-            <a href="../cookies.html"><span class="arrow">→</span> Política de Cookies</a>
-          </div>
-        </div>
-      </div>
-      
-      <div class="footer-bottom">
-        <div class="footer-bottom-text">© 2026 PrintLab. All rights reserved.</div>
-      </div>
-    </div>
-  </footer>
+      <div
+        class="auth-buttons"
+        id="authHeaderContainer"
+      >
 
-  <script>
-    function toggleMenu() {
-      document.getElementById('mainMenu').classList.toggle('show');
+        <div
+          class="user-header-info"
+          id="preRenderedHeader"
+          style="
+            display:none;
+            align-items:center;
+            gap:16px;
+          "
+        >
+
+          <span
+            class="user-greeting"
+            id="preRenderedName"
+          >
+            Hola, Usuario
+          </span>
+
+
+          <span
+            class="credits-badge"
+            id="preRenderedCredits"
+          >
+            Créditos: ...
+          </span>
+
+
+          <button
+            id="btn-logout"
+            class="btn-auth light"
+            type="button"
+            onclick="handleLogout()"
+          >
+            Cerrar Sesión
+          </button>
+
+        </div>
+
+
+        <a
+          href="../index.html"
+          class="btn-auth light"
+          id="preRenderedBack"
+          style="display:none;"
+        >
+          Volver al Inicio
+        </a>
+
+      </div>
+
+    </nav>
+
+  </div>
+
+</header>
+
+
+<main class="wrap">
+
+  <div class="success-container">
+
+    <div class="success-icon">
+      ✓
+    </div>
+
+
+    <h1>
+      ¡Disfruta de tu compra! 🚀
+    </h1>
+
+
+    <p>
+      El pago ha sido procesado de forma segura
+      y los créditos han sido añadidos correctamente
+      a tu cuenta de PrintLab.
+    </p>
+
+
+    <div class="order-details">
+
+      <div class="order-row">
+
+        <span>
+          Producto adquirido:
+        </span>
+
+        <strong id="item-name">
+          Cargando...
+        </strong>
+
+      </div>
+
+
+      <div class="order-row">
+
+        <span>
+          Importe total:
+        </span>
+
+        <strong id="item-price">
+          0.00 €
+        </strong>
+
+      </div>
+
+
+      <div class="order-row">
+
+        <span>
+          Tus créditos totales:
+        </span>
+
+        <strong id="item-credits">
+          Cargando...
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <a
+      href="analizador-stl.html"
+      class="btn-action"
+    >
+      Ir al Analizador STL
+    </a>
+
+  </div>
+
+</main>
+
+
+<footer class="footer">
+
+  <div class="wrap">
+
+    <div class="footergrid">
+
+      <div class="footer-col">
+
+        <h3>
+          PrintLab — Ingeniería 3D
+        </h3>
+
+        <p>
+          Plataforma profesional de análisis y optimización STL
+          mediante Inteligencia Artificial y simuladores paramétricos.
+          Transformamos modelos 3D con problemas en geometrías perfectas
+          listas para fabricar, ahorrando tiempo, material y costes.
+        </p>
+
+        <p class="footer-secondary-text">
+          Desarrollado bajo principios de Privacy by Design.
+          Los datos y archivos STL se procesan con estricta confidencialidad.
+        </p>
+
+      </div>
+
+
+      <div class="footer-col">
+
+        <h3>
+          Recursos y Herramientas
+        </h3>
+
+        <div class="footer-links">
+
+          <a href="../index.html#analizador">
+            → Analizador STL IA
+          </a>
+
+          <a href="../index.html#simulador">
+            → Simulador de Extrusión
+          </a>
+
+          <a href="calculadora-coste.html">
+            → Calculadoras de Coste y Masa
+          </a>
+
+          <a href="../index.html#guias">
+            → Base de Conocimiento
+          </a>
+
+          <a href="../materiales/index.html">
+            → Atlas de Materiales
+          </a>
+
+        </div>
+
+      </div>
+
+
+      <div class="footer-col">
+
+        <h3>
+          Soporte y Legal
+        </h3>
+
+        <div class="footer-links">
+
+          <a href="precios.html">
+            → Precios y Suscripciones
+          </a>
+
+          <a href="contacto.html">
+            → Contacto y Soporte
+          </a>
+
+          <a href="../condiciones-compra.html">
+            → Condiciones de Compra
+          </a>
+
+          <a href="../terminos.html">
+            → Términos y Condiciones
+          </a>
+
+          <a href="../privacidad.html">
+            → Política de Privacidad
+          </a>
+
+          <a href="../cookies.html">
+            → Política de Cookies
+          </a>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="footer-bottom">
+
+      © 2026 PrintLab. All rights reserved.
+
+    </div>
+
+  </div>
+
+</footer>
+
+
+<script>
+
+
+/* =========================================================
+   MENÚ
+========================================================= */
+
+function toggleMenu(){
+
+  document
+    .getElementById("mainMenu")
+    .classList
+    .toggle("show");
+
+}
+
+
+window.onclick =
+  function(event){
+
+    if(
+      !event.target.closest(".menu-dropdown") &&
+      !event.target.closest(".hamburger")
+    ){
+
+      const dropdowns =
+        document.getElementsByClassName(
+          "dropdown-content"
+        );
+
+      for(
+        let i = 0;
+        i < dropdowns.length;
+        i++
+      ){
+
+        dropdowns[i]
+          .classList
+          .remove("show");
+
+      }
+
     }
 
-    // Inicializar EmailJS con tu Public Key
-    emailjs.init({
-      publicKey: "BzQs7T56zifGIy9Gf",
-    });
+  };
 
-    // --- PROCESAMIENTO INMEDIATO DEL CORREO DE CONFIRMACIÓN DE EMAILJS ---
-    // Se ejecuta de inmediato sin esperar a consultas asíncronas para que el correo llegue al instante
-    (function() {
-      try {
-        const receiptSent = sessionStorage.getItem("printlab_receipt_sent");
-        if (!receiptSent) {
-          const billingEmail = sessionStorage.getItem("printlab_billing_email");
-          const billingName = sessionStorage.getItem("printlab_billing_name") || "Usuario";
 
-          if (billingEmail) {
-            // Bloqueo síncrono instantáneo antes de la llamada de red para blindar contra envíos repetidos
-            sessionStorage.setItem("printlab_receipt_sent", "true");
+/* =========================================================
+   PLANES
+========================================================= */
 
-            const urlParams = new URLSearchParams(window.location.search);
-            const planId = urlParams.get("plan") || "pro";
-            const PLANS_DETAILS = {
-              single: { name: "Análisis Duo (2 Créditos)", price: "2.50 €" },
-              pro: { name: "Pack Profesional (10 Créditos)", price: "9.90 €" },
-              industrial: { name: "Pack Industrial (25 Créditos)", price: "19.90 €" }
-            };
-            const info = PLANS_DETAILS[planId] || PLANS_DETAILS.pro;
+const PLANS = {
 
-            const templateParams = {
-              email: billingEmail,
-              to_email: billingEmail,
-              user_name: billingName,
-              product_title: info.name,
-              product_price: info.price
-            };
+  single:{
+    name:"Análisis Duo (2 Créditos)",
+    price:"2.50 €",
+    credits:2
+  },
 
-            emailjs.send("service_gwq515d", "template_lhq20ur", templateParams)
-              .then(() => {
-                console.log("¡Confirmación de compra enviada con EmailJS a:", billingEmail);
-              })
-              .catch((err) => {
-                // En caso de fallo de red, removemos el flag para permitir que el reintento se ejecute
-                sessionStorage.removeItem("printlab_receipt_sent");
-                console.warn("Fallo al enviar correo con EmailJS:", err);
-              });
-          }
+  pro:{
+    name:"Pack Profesional (10 Créditos)",
+    price:"9.90 €",
+    credits:10
+  },
+
+  industrial:{
+    name:"Pack Industrial (25 Créditos)",
+    price:"19.90 €",
+    credits:25
+  }
+
+};
+
+
+/* =========================================================
+   PRE-RENDER HEADER
+========================================================= */
+
+(function(){
+
+  try{
+
+    const tokenStr =
+      localStorage.getItem(
+        "sb-jmwprzgfdkphbxryjbnr-auth-token"
+      );
+
+
+    if(tokenStr){
+
+      const name =
+        localStorage.getItem(
+          "printlab_cached_name"
+        ) ||
+        "Usuario";
+
+
+      const credits =
+        localStorage.getItem(
+          "printlab_cached_credits"
+        );
+
+
+      document
+        .getElementById(
+          "preRenderedName"
+        )
+        .textContent =
+          "Hola, " + name;
+
+
+      document
+        .getElementById(
+          "preRenderedCredits"
+        )
+        .textContent =
+          credits !== null
+            ? "Créditos: " + credits
+            : "Créditos: ...";
+
+
+      document
+        .getElementById(
+          "preRenderedHeader"
+        )
+        .style.display =
+          "flex";
+
+    }
+    else{
+
+      document
+        .getElementById(
+          "preRenderedBack"
+        )
+        .style.display =
+          "inline-flex";
+
+    }
+
+  }
+  catch(error){
+
+    console.warn(
+      "Error pre-render header:",
+      error
+    );
+
+  }
+
+})();
+
+
+/* =========================================================
+   CARGAR DATOS DE COMPRA
+========================================================= */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  async () => {
+
+    const urlParams =
+      new URLSearchParams(
+        window.location.search
+      );
+
+
+    const planId =
+      urlParams.get("plan") ||
+      sessionStorage.getItem(
+        "printlab_purchase_plan"
+      ) ||
+      "pro";
+
+
+    const plan =
+      PLANS[planId] ||
+      PLANS.pro;
+
+
+    /* ---------------------------------------------
+       MOSTRAR PLAN
+    --------------------------------------------- */
+
+    document
+      .getElementById("item-name")
+      .textContent =
+        plan.name;
+
+
+    document
+      .getElementById("item-price")
+      .textContent =
+        plan.price;
+
+
+    /* ---------------------------------------------
+       USUARIO
+    --------------------------------------------- */
+
+    try{
+
+      const {
+        data:{
+          user
         }
-      } catch (e) {
-        console.warn("Fallo en ejecución síncrona de correo:", e);
+      } =
+        await supabaseClient.auth.getUser();
+
+
+      if(!user){
+
+        return;
+
       }
-    })();
 
-    document.addEventListener("DOMContentLoaded", async () => {
-      // 1. Obtener datos del plan de la URL para procesos asíncronos de fondo
-      const urlParams = new URLSearchParams(window.location.search);
-      const planId = urlParams.get("plan") || "pro";
 
-      const PLANS_DETAILS = {
-        single: { name: "Análisis Duo (2 Créditos)", price: "2.50 €", credits: 2 },
-        pro: { name: "Pack Profesional (10 Créditos)", price: "9.90 €", credits: 10 },
-        industrial: { name: "Pack Industrial (25 Créditos)", price: "19.90 €", credits: 25 }
-      };
+      /* -------------------------------------------
+         OBTENER SALDO REAL
+      ------------------------------------------- */
 
-      const info = PLANS_DETAILS[planId] || PLANS_DETAILS.pro;
+      const {
+        data,
+        error
+      } =
+        await supabaseClient
+          .from("profiles")
+          .select("credits")
+          .eq("id", user.id)
+          .single();
 
-      // 2. Consultas en segundo plano para verificar de forma segura y permanente que el webhook de Stripe se haya consolidado en DB
-      const { data: { user } } = await supabaseClient.auth.getUser();
 
-      if (user) {
-        // --- RESPALDO DE SEGURIDAD PARA EMAILJS ---
-        // Si por alguna razón el almacenamiento de sesión estaba vacío al cargar la página (ej. navegación directa),
-        // enviamos el correo usando los datos del perfil de Supabase una vez recuperados de forma asíncrona.
-        const receiptSent = sessionStorage.getItem("printlab_receipt_sent");
-        if (!receiptSent) {
-          const fallbackEmail = user.email || "";
-          const fallbackName = user.user_metadata?.full_name || user.email?.split("@")[0] || "Usuario";
+      if(
+        !error &&
+        data &&
+        typeof data.credits === "number"
+      ){
 
-          if (fallbackEmail) {
-            sessionStorage.setItem("printlab_receipt_sent", "true");
+        const realCredits =
+          data.credits;
 
-            const templateParams = {
-              email: fallbackEmail,
-              to_email: fallbackEmail,
-              user_name: fallbackName,
-              product_title: info.name,
-              product_price: info.price
-            };
 
-            emailjs.send("service_gwq515d", "template_lhq20ur", templateParams)
-              .then(() => {
-                console.log("¡Confirmación de correo enviada (asíncrona) a:", fallbackEmail);
-              })
-              .catch((err) => {
-                sessionStorage.removeItem("printlab_receipt_sent");
-                console.warn("Fallo al enviar correo de seguridad con EmailJS:", err);
-              });
-          }
-        }
+        document
+          .getElementById(
+            "item-credits"
+          )
+          .textContent =
+            realCredits +
+            " Créditos";
 
-        let attempts = 0;
-        const maxAttempts = 15; // Sincronización en segundo plano
 
-        async function pollCredits() {
-          try {
-            const { data, error } = await supabaseClient
-              .from("profiles")
-              .select("credits")
-              .eq("id", user.id)
-              .single();
+        document
+          .getElementById(
+            "preRenderedCredits"
+          )
+          .textContent =
+            "Créditos: " +
+            realCredits;
 
-            if (!error && data) {
-              const displayCredits = data.credits;
-              
-              // Mantener sincronizada la UI con el valor confirmado de la base de datos
-              document.getElementById("item-credits").textContent = displayCredits + " Créditos";
-              localStorage.setItem("printlab_cached_credits", displayCredits);
 
-              const headerCreditsBadge = document.querySelector(".credits-badge");
-              if (headerCreditsBadge) {
-                headerCreditsBadge.textContent = "Créditos: " + displayCredits;
-              }
-            }
-          } catch (e) {
-            console.warn("Fallo al sincronizar créditos en segundo plano:", e);
-          }
+        localStorage.setItem(
+          "printlab_cached_credits",
+          String(realCredits)
+        );
 
-          attempts++;
-          if (attempts < maxAttempts) {
-            setTimeout(pollCredits, 1500); // Comprobación de seguridad en segundo plano
-          }
-        }
-
-        // Iniciar bucle de fondo
-        await pollCredits();
       }
-    });
-  </script>
+
+
+      /* -------------------------------------------
+         NOMBRE
+      ------------------------------------------- */
+
+      const name =
+        user.user_metadata?.full_name ||
+        localStorage.getItem(
+          "printlab_cached_name"
+        ) ||
+        user.email?.split("@")[0] ||
+        "Usuario";
+
+
+      document
+        .getElementById(
+          "preRenderedName"
+        )
+        .textContent =
+          "Hola, " + name;
+
+
+      localStorage.setItem(
+        "printlab_cached_name",
+        name
+      );
+
+
+    }
+    catch(error){
+
+      console.error(
+        "Error obteniendo saldo:",
+        error
+      );
+
+    }
+
+  }
+);
+
+
+</script>
+
 </body>
 </html>
