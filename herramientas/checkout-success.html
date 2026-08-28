@@ -149,8 +149,48 @@
           <a class="brand" href="../index.html#portada" title="Volver al inicio">PRINT<span>LAB</span></a>
         </div>
         
-        <div class="auth-buttons" id="authHeaderContainer" style="opacity: 0; visibility: hidden; transition: opacity 0.15s ease, visibility 0.15s ease;">
-          <a href="../index.html" class="btn-auth light">Volver al Inicio</a>
+        <!-- PRE-RENDERIZADO SÍNCRONO DEL HEADER: Evita el parpadeo de los botones de login y muestra el saldo al instante -->
+        <div class="auth-buttons" id="authHeaderContainer" style="opacity: 1; visibility: visible;">
+          <div class="user-header-info" id="preRenderedHeader" style="display: none; align-items: center; gap: 16px;">
+            <span class="user-greeting" id="preRenderedName">Hola, Usuario</span>
+            <span class="credits-badge" id="preRenderedCredits">Créditos: ...</span>
+            <button id="btn-logout" class="btn-auth light" type="button" onclick="handleLogout()">Cerrar Sesión</button>
+          </div>
+          <a href="../index.html" class="btn-auth light" id="preRenderedBack" style="display: none;">Volver al Inicio</a>
+          <script>
+            // --- ACTUALIZACIÓN OPTIMISTA INMEDIATA Y CONTROLADA (Síncrona) ---
+            // Suma el nuevo saldo adquirido una única vez de manera efímera antes de que se pinte el HTML
+            (function() {
+              try {
+                const pendingCreditsStr = sessionStorage.getItem("printlab_pending_credits");
+                if (pendingCreditsStr) {
+                  const pendingCredits = parseInt(pendingCreditsStr);
+                  if (!isNaN(pendingCredits) && pendingCredits > 0) {
+                    const cachedCreditsStr = localStorage.getItem("printlab_cached_credits");
+                    if (cachedCreditsStr && !isNaN(cachedCreditsStr)) {
+                      const previousCredits = parseInt(cachedCreditsStr);
+                      localStorage.setItem("printlab_cached_credits", previousCredits + pendingCredits);
+                    }
+                    sessionStorage.removeItem("printlab_pending_credits");
+                  }
+                }
+
+                // Pintar el header síncronamente en el acto
+                const tokenStr = localStorage.getItem("sb-jmwprzgfdkphbxryjbnr-auth-token");
+                if (tokenStr) {
+                  const name = localStorage.getItem("printlab_cached_name") || "Usuario";
+                  const credits = localStorage.getItem("printlab_cached_credits") || "...";
+                  document.getElementById("preRenderedName").textContent = "Hola, " + name;
+                  document.getElementById("preRenderedCredits").textContent = "Créditos: " + credits;
+                  document.getElementById("preRenderedHeader").style.display = "flex";
+                } else {
+                  document.getElementById("preRenderedBack").style.display = "inline-flex";
+                }
+              } catch (e) {
+                console.warn("Fallo en inicialización de cabecera optimista:", e);
+              }
+            })();
+          </script>
         </div>
       </nav>
     </div>
@@ -174,8 +214,32 @@
         </div>
         <div class="order-row">
           <span>Tus créditos totales:</span>
-          <strong id="item-credits" style="color:#155724;">Actualizando...</strong>
+          <strong id="item-credits">Cargando...</strong>
         </div>
+        <!-- PRE-RENDERIZADO SÍNCRONO DEL FORMULARIO DE DETALLES: Muestra los valores definitivos al primer frame -->
+        <script>
+          (function() {
+            try {
+              const urlParams = new URLSearchParams(window.location.search);
+              const planId = urlParams.get("plan") || "pro";
+              const PLANS_DETAILS = {
+                single: { name: "Análisis Duo (2 Créditos)", price: "2.50 €" },
+                pro: { name: "Pack Profesional (10 Créditos)", price: "9.90 €" },
+                industrial: { name: "Pack Industrial (25 Créditos)", price: "19.90 €" }
+              };
+              const info = PLANS_DETAILS[planId] || PLANS_DETAILS.pro;
+              document.getElementById("item-name").textContent = info.name;
+              document.getElementById("item-price").textContent = info.price;
+
+              const cachedCreditsStr = localStorage.getItem("printlab_cached_credits");
+              if (cachedCreditsStr) {
+                document.getElementById("item-credits").textContent = cachedCreditsStr + " Créditos";
+              }
+            } catch(e) {
+              console.warn("Fallo en render síncrono de detalles:", e);
+            }
+          })();
+        </script>
       </div>
 
       <a href="analizador-stl.html" class="btn-action">Ir al Analizador STL</a>
@@ -223,29 +287,6 @@
   </footer>
 
   <script>
-    // --- ACTUALIZACIÓN OPTIMISTA INMEDIATA Y CONTROLADA (Síncrona) ---
-    // Consume la señal temporal una única vez para evitar duplicidades al refrescar la página (F5)
-    (function() {
-      try {
-        const pendingCreditsStr = sessionStorage.getItem("printlab_pending_credits");
-        if (pendingCreditsStr) {
-          const pendingCredits = parseInt(pendingCreditsStr);
-          if (!isNaN(pendingCredits) && pendingCredits > 0) {
-            const cachedCreditsStr = localStorage.getItem("printlab_cached_credits");
-            if (cachedCreditsStr && !isNaN(cachedCreditsStr)) {
-              const previousCredits = parseInt(cachedCreditsStr);
-              const optimisticCredits = previousCredits + pendingCredits;
-              localStorage.setItem("printlab_cached_credits", optimisticCredits);
-            }
-            // Destrucción inmediata del flag de la sesión para evitar bucles de sumas en recargas sucesivas
-            sessionStorage.removeItem("printlab_pending_credits");
-          }
-        }
-      } catch (e) {
-        console.warn("Fallo en actualización optimista única:", e);
-      }
-    })();
-
     function toggleMenu() {
       document.getElementById('mainMenu').classList.toggle('show');
     }
@@ -256,7 +297,7 @@
     });
 
     document.addEventListener("DOMContentLoaded", async () => {
-      // 1. Obtener datos del plan de la URL
+      // 1. Obtener datos del plan de la URL para procesos asíncronos de fondo
       const urlParams = new URLSearchParams(window.location.search);
       const planId = urlParams.get("plan") || "pro";
 
@@ -267,14 +308,8 @@
       };
 
       const info = PLANS_DETAILS[planId] || PLANS_DETAILS.pro;
-      document.getElementById("item-name").textContent = info.name;
-      document.getElementById("item-price").textContent = info.price;
 
-      // 2. Mostrar directamente el saldo actualizado optimista en la tarjeta de éxito
-      const cachedCreditsStr = localStorage.getItem("printlab_cached_credits");
-      document.getElementById("item-credits").textContent = (cachedCreditsStr || "...") + " Créditos";
-
-      // 3. Consultas recurrentes en segundo plano para verificar y asegurar que el webhook sincronice el valor oficial de la DB
+      // 2. Consultas en segundo plano para verificar de forma segura y permanente que el webhook de Stripe se haya consolidado en DB
       const { data: { user } } = await supabaseClient.auth.getUser();
 
       if (user) {
@@ -318,7 +353,7 @@
             if (!error && data) {
               const displayCredits = data.credits;
               
-              // Sincronizar el DOM con el valor real final una vez confirmado por la base de datos
+              // Mantener sincronizada la UI con el valor confirmado de la base de datos
               document.getElementById("item-credits").textContent = displayCredits + " Créditos";
               localStorage.setItem("printlab_cached_credits", displayCredits);
 
@@ -333,11 +368,11 @@
 
           attempts++;
           if (attempts < maxAttempts) {
-            setTimeout(pollCredits, 1500); // Comprobación de seguridad en bucle discreto
+            setTimeout(pollCredits, 1500); // Comprobación de seguridad en segundo plano
           }
         }
 
-        // Iniciar el bucle asíncrono de fondo
+        // Iniciar bucle de fondo
         await pollCredits();
       }
     });
