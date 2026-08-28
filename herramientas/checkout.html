@@ -70,7 +70,7 @@
 
     .trust-badge{display:flex; align-items:center; justify-content:center; gap:8px; margin-top:20px; font-size:12px; color:#8f9892; font-weight:700;}
 
-    /* FOOTER MEJORADO Y CENTRADO */
+    /* FOOTER */
     .footer { background: var(--bg); border-top: 1px solid var(--line); padding: 80px 0 40px; color: var(--muted); font-size: 14px; line-height: 1.6; }
     .footergrid { display: grid; grid-template-columns: 1.3fr 0.85fr 0.85fr; gap: 60px; margin-bottom: 48px; }
     .footer-col h3 { font-size: 16px; font-weight: 800; color: var(--ink); margin: 0 0 20px; letter-spacing: -0.3px; }
@@ -94,7 +94,6 @@
       .footer-bottom { flex-direction: column; align-items: flex-start;}
     }
 
-    /* REGLAS COMPLEMENTARIAS PARA PREVENIR DESFASES EN LA CABECERA (IDÉNTICAS AL INDEX) */
     #authHeaderContainer span[style*="background" i],
     #authHeaderContainer span[style*="accent" i],
     #authHeaderContainer span:nth-child(2),
@@ -136,6 +135,8 @@
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../assets/js/auth-helper.js?v=11"></script>
+  <!-- EMAILJS -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body>
 
@@ -161,7 +162,6 @@
           <a class="brand" href="../index.html#portada" title="Volver al inicio">PRINT<span>LAB</span></a>
         </div>
         
-        <!-- Ocultación inicial por estilos inline para prevenir destellos -->
         <div class="auth-buttons" id="authHeaderContainer" style="opacity: 0; visibility: hidden; transition: opacity 0.15s ease, visibility 0.15s ease;">
           <a href="precios.html" class="btn-auth light">← Volver a Precios</a>
         </div>
@@ -309,6 +309,11 @@
   <!-- CONTROL DE CHECKOUT DINÁMICO DE STRIPE -->
   <script>
     document.addEventListener("DOMContentLoaded", async () => {
+      // Inicializar tu clave pública real de EmailJS
+      emailjs.init({
+        publicKey: "BzQs7T56zifGIy9Gf"
+      });
+
       // 1. Verificar sesión de usuario de forma asíncrona
       const { data: { user } } = await supabaseClient.auth.getUser();
       if (!user) {
@@ -319,21 +324,21 @@
 
       // 2. Obtener plan de la URL mediante parámetros GET
       const urlParams = new URLSearchParams(window.location.search);
-      const planId = urlParams.get("plan") || "pro"; // Por defecto 'pro' si se accede de forma directa
+      const planId = urlParams.get("plan") || "pro"; 
 
       // 3. Matriz de precios y desgloses impositivos reales
       const PLANS = {
         single: {
-          name: "Análisis Único (2 Créditos)",
+          name: "Análisis Duo (2 Créditos)",
           price: "2.07 €",
           iva: "0.43 €",
           total: "2.50 €"
         },
         pro: {
           name: "Pack Profesional (10 Créditos)",
-          price: "8.26 €",
-          iva: "1.73 €",
-          total: "9.99 €"
+          price: "8.18 €",
+          iva: "1.72 €",
+          total: "9.90 €"
         },
         industrial: {
           name: "Pack Industrial (25 Créditos)",
@@ -407,7 +412,7 @@
 
       // 2. SIMULACIÓN LOCAL INTELIGENTE (Suma de forma REAL los créditos en la Base de Datos de Supabase)
       if (cardVal === "4242424242424242") {
-        let creditsToAdd = 10; // Plan pro por defecto
+        let creditsToAdd = 10; 
         if (planId === "single") creditsToAdd = 2;
         else if (planId === "industrial") creditsToAdd = 25;
 
@@ -437,7 +442,6 @@
               }
             }
           } else {
-            // Fallback síncrono si no hay sesión para pruebas locales rápidas sin login
             const cachedCredits = parseInt(localStorage.getItem("printlab_cached_credits") || "80");
             localStorage.setItem("printlab_cached_credits", cachedCredits + creditsToAdd);
           }
@@ -445,6 +449,84 @@
           console.warn("Fallo al actualizar la base de datos de Supabase de forma directa, usando caché local:", dbError);
           const cachedCredits = parseInt(localStorage.getItem("printlab_cached_credits") || "80");
           localStorage.setItem("printlab_cached_credits", cachedCredits + creditsToAdd);
+        }
+
+        // ==========================================
+        // ENVÍO DE EMAIL DESDE EL CHECKOUT DIRECTAMENTE
+        // ==========================================
+        const formattedTime = new Date().toLocaleString('es-ES', { dateStyle: 'full', timeStyle: 'short' });
+
+        const PLANS_DETAILS = {
+          single: { name: "Análisis Duo (2 Créditos)", price: "2.50 €" },
+          pro: { name: "Pack Profesional (10 Créditos)", price: "9.90 €" },
+          industrial: { name: "Pack Industrial (25 Créditos)", price: "19.90 €" }
+        };
+
+        const PLANS_COMPOSITION = {
+          single: [
+            "2 Créditos transferibles para realizar análisis de modelos avanzados mediante IA.",
+            "Detección geométrica completa del modelo 3D.",
+            "Informe de soluciones accionables para mejorar la fabricabilidad de tus piezas.",
+            "Acceso interactivo al visualizador 3D de errores estructurales."
+          ],
+          pro: [
+            "10 Créditos transferibles para realizar análisis de modelos avanzados mediante IA.",
+            "Importante ahorro del 21% respecto al precio de adquisición individual.",
+            "Historial completo de análisis de archivos guardado en la nube durante 30 días.",
+            "Prioridad de procesamiento estándar en nuestros servidores para un flujo ágil."
+          ],
+          industrial: [
+            "25 Créditos transferibles para realizar análisis de modelos avanzados mediante IA.",
+            "Importante ahorro del 36% respecto al precio de adquisición individual.",
+            "Historial completo de análisis de archivos guardado en la nube de forma permanente.",
+            "Máxima prioridad en la cola de procesamiento y acceso directo al soporte de ingeniería 3D."
+          ]
+        };
+
+        const info = PLANS_DETAILS[planId] || PLANS_DETAILS.pro;
+        const compositionList = PLANS_COMPOSITION[planId] || PLANS_COMPOSITION.pro;
+        const compositionText = compositionList.map(item => `• ${item}`).join('\n');
+        
+        let displayCredits = parseInt(localStorage.getItem("printlab_cached_credits") || "80");
+
+        const emailMessage = 
+          `¡Gracias por tu compra en PrintLab!\n\n` +
+          `Hola, ${nameVal}.\n\n` +
+          `Te confirmamos que el pago de tu pedido ha sido procesado de forma correcta y los créditos han sido cargados con éxito en tu cuenta.\n\n` +
+          `DETALLES DE LA TRANSACCIÓN:\n` +
+          `=================================\n` +
+          `• Producto: ${info.name}\n` +
+          `• Importe total: ${info.price} (Impuestos incluidos)\n` +
+          `• Créditos añadidos: +${creditsToAdd}\n` +
+          `• Nuevo saldo total: ${displayCredits} Créditos\n` +
+          `• Estado: Completado ✓\n` +
+          `=================================\n\n` +
+          `¿QUÉ INCLUYE TU ADQUISICIÓN?\n` +
+          `=================================\n` +
+          `${compositionText}\n` +
+          `=================================\n\n` +
+          `Ya puedes acceder a la plataforma para analizar y optimizar tus archivos STL de forma profesional.\n` +
+          `Si tienes cualquier duda o necesitas una factura formal de tu compra, puedes contactarnos respondiendo directamente a este correo o escribiendo a printcontactlab@gmail.com.`;
+
+        try {
+          console.log("Enviando correo desde checkout...");
+          await emailjs.send(
+            'service_gwq515d',
+            'template_lhq20ur',
+            {
+              name: nameVal,
+              to_name: nameVal,      
+              email: emailVal,
+              to_email: emailVal,    
+              user_email: emailVal,  
+              message: emailMessage,
+              time: formattedTime
+            }
+          );
+          console.log("¡Correo enviado con éxito!");
+          sessionStorage.setItem("printlab_purchase_email_sent_" + planId, "true");
+        } catch (err) {
+          console.error("Error crítico enviando correo desde checkout:", err);
         }
 
         // Simular retardo de red de 2 segundos para dar realismo antes de la redirección
@@ -465,7 +547,6 @@
           body: JSON.stringify({
             planId: planId,
             userId: userId,
-            // Modificación exitosa para redirigir a la pantalla de éxito con detalles
             successUrl: window.location.origin + '/herramientas/checkout-success.html?plan=' + planId,
             cancelUrl: window.location.href
           })
@@ -473,7 +554,7 @@
 
         const session = await response.json();
         if (session.url) {
-          window.location.href = session.url; // Redirigir a pasarela real cifrada de Stripe
+          window.location.href = session.url; 
         } else {
           alert('Error en pasarela: ' + session.error);
           if (btn) {
