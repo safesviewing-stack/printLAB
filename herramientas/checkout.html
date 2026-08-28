@@ -384,12 +384,22 @@
           });
         }
       }
+
+      // Añadir detector reactivo para restablecer el borde rojo al escribir un número nuevo
+      const cardInput = document.getElementById("card-number");
+      if (cardInput) {
+        cardInput.addEventListener("input", () => {
+          cardInput.style.borderColor = "";
+          cardInput.style.boxShadow = "";
+        });
+      }
     });
 
     // Función para invocar la pasarela de pago real de Stripe (Supabase Edge Function)
     async function executeStripePayment(planId, userId) {
       const form = document.getElementById("payment-form");
       const btn = document.getElementById("btnPaySubmit");
+      const cardInput = document.getElementById("card-number");
 
       // VALIDACIÓN GENERAL OBLIGATORIA (Fuerza avisos visuales nativos)
       if (form && !form.reportValidity()) {
@@ -397,14 +407,24 @@
       }
 
       // Obtener el valor de la tarjeta ingresada
-      const cardVal = document.getElementById("card-number")?.value.replace(/\s/g, "") || "";
+      const cardVal = cardInput ? cardInput.value.replace(/\s/g, "") : "";
 
-      // BLOQUEAR EL USO DE LA TARJETA DE PRUEBA 4242...
+      // BLOQUEAR EL USO DE LA TARJETA DE PRUEBA 4242... (Rodeando de rojo y enfocando sin alertas emergentes)
       if (cardVal.startsWith("4242") || cardVal === "4242424242424242") {
-        alert("La tarjeta de prueba (4242...) ha sido desactivada en esta pasarela para prevenir fraudes. Por favor, introduzca una tarjeta de débito o crédito real.");
+        if (cardInput) {
+          cardInput.style.borderColor = "#9e3223";
+          cardInput.style.boxShadow = "0 0 4px #9e3223";
+          cardInput.focus();
+        }
         if (btn) {
           btn.disabled = false;
-          btn.textContent = "Intentar de nuevo";
+          const PLANS = {
+            single: "2.50 €",
+            pro: "9.90 €",
+            industrial: "19.90 €"
+          };
+          const totalVal = PLANS[planId] || "9.90 €";
+          btn.textContent = `Pagar ${totalVal} de forma segura`;
         }
         return;
       }
