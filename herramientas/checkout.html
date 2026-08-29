@@ -1440,7 +1440,59 @@ async function executeStripePayment(
 
 
     /* =================================================
-       3. CONFIRMAR PAGO EN SUPABASE
+       3. ENVIAR EMAILJS (Prioridad Absoluta)
+       Se ejecuta e inicia la comunicación de EmailJS
+       inmediatamente después del cobro capturado con éxito.
+    ================================================= */
+
+    if(btn){
+
+      btn.textContent =
+        "Enviando confirmación...";
+
+    }
+
+
+    try{
+
+      await sendPurchaseEmail(
+        emailVal,
+        nameVal,
+        plan
+      );
+
+      sessionStorage.setItem(
+        "printlab_receipt_sent",
+        "true"
+      );
+
+      console.log(
+        "Correo de compra enviado correctamente."
+      );
+
+    }
+    catch(emailError){
+
+      /*
+       El pago ya está cobrado en este punto.
+       Un fallo en EmailJS no debe abortar la confirmación,
+       pero controlamos el registro de la sesión de igual forma.
+      */
+
+      console.error(
+        "Error enviando correo de confirmación prioritario:",
+        emailError
+      );
+
+      sessionStorage.removeItem(
+        "printlab_receipt_sent"
+      );
+
+    }
+
+
+    /* =================================================
+       4. CONFIRMAR PAGO EN SUPABASE
        AQUÍ SE AÑADEN REALMENTE LOS CRÉDITOS
     ================================================= */
 
@@ -1522,57 +1574,6 @@ async function executeStripePayment(
 
 
     /* =================================================
-       4. ENVIAR EMAILJS
-       SE HACE ANTES DE ENTRAR EN SUCCESS
-    ================================================= */
-
-    if(btn){
-
-      btn.textContent =
-        "Enviando confirmación...";
-
-    }
-
-
-    try{
-
-      await sendPurchaseEmail(
-        emailVal,
-        nameVal,
-        plan
-      );
-
-      sessionStorage.setItem(
-        "printlab_receipt_sent",
-        "true"
-      );
-
-      console.log(
-        "Correo de compra enviado correctamente."
-      );
-
-    }
-    catch(emailError){
-
-      /*
-       El pago y los créditos YA están confirmados.
-       Un fallo de EmailJS NO debe hacer que el usuario
-       piense que el pago ha fallado.
-      */
-
-      console.error(
-        "Error enviando correo de confirmación:",
-        emailError
-      );
-
-      sessionStorage.removeItem(
-        "printlab_receipt_sent"
-      );
-
-    }
-
-
-    /* =================================================
        5. ENTRAR EN SUCCESS
     ================================================= */
 
@@ -1622,9 +1623,6 @@ async function executeStripePayment(
         "El pago se realizó"
       )
     ){
-
-     
-
 
       window.location.href =
         "checkout-success.html?plan=" +
