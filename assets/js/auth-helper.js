@@ -41,7 +41,7 @@ window.supabaseClient = supabaseClient;
 
 
 // =====================================================
-// MÉTODO GLOBAL DE CIERRE DE SESIÓN (Restaurada la lógica original inmune a 404)
+// MÉTODO GLOBAL DE CIERRE DE SESIÓN (Redirección adaptada a checkout-success)
 // =====================================================
 
 window.handleLogout = async function() {
@@ -64,10 +64,10 @@ window.handleLogout = async function() {
     // 3. Ejecutar el signOut asíncrono oficial
     await supabaseClient.auth.signOut();
 
-    // 4. Lógica original exacta: redirigir si es informe-stl, de lo contrario recargar en caliente
+    // 4. Redirigir al inicio si estamos en informe-stl o en checkout-success
     const currentPathname = window.location.pathname.toLowerCase();
 
-    if (currentPathname.includes("informe-stl")) {
+    if (currentPathname.includes("informe-stl") || currentPathname.includes("checkout-success")) {
       sessionStorage.removeItem("printlab_auth_redirect");
       window.location.href = "../index.html";
     } else {
@@ -275,6 +275,12 @@ document.addEventListener(
 // =====================================================
 
 async function initAuth() {
+
+  // --- EVITAR SOBREESCRITURAS EN PÁGINA DE ÉXITO ---
+  // Impide que el flujo asíncrono de auth-helper machaque la cabecera pre-renderizada estática de la pantalla de éxito
+  if (window.location.pathname.toLowerCase().includes("checkout-success.html")) {
+    return;
+  }
 
   let user = null;
 
