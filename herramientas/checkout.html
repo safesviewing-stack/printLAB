@@ -1123,7 +1123,9 @@ document.addEventListener(
 async function sendPurchaseEmail(
   email,
   name,
-  plan
+  plan,
+  creditsAdded,
+  newBalance
 ){
 
   if(!email){
@@ -1133,6 +1135,16 @@ async function sendPurchaseEmail(
     );
 
   }
+
+
+  // Formatear la fecha actual en español
+  const purchaseDate = new Date().toLocaleDateString('es-ES', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
 
 
   const templateParams = {
@@ -1149,7 +1161,18 @@ async function sendPurchaseEmail(
       plan.name,
 
     product_price:
-      plan.total
+      plan.total,
+
+    // Variables dinámicas para el cuerpo del pedido en el editor de EmailJS
+    credits_added: "+" + creditsAdded,
+    credits: "+" + creditsAdded,
+
+    new_balance: newBalance,
+    new_credits: newBalance,
+    total_credits: newBalance,
+
+    purchase_date: purchaseDate,
+    date: purchaseDate
 
   };
 
@@ -1440,59 +1463,7 @@ async function executeStripePayment(
 
 
     /* =================================================
-       3. ENVIAR EMAILJS (Prioridad Absoluta)
-       Se ejecuta e inicia la comunicación de EmailJS
-       inmediatamente después del cobro capturado con éxito.
-    ================================================= */
-
-    if(btn){
-
-      btn.textContent =
-        "Enviando confirmación...";
-
-    }
-
-
-    try{
-
-      await sendPurchaseEmail(
-        emailVal,
-        nameVal,
-        plan
-      );
-
-      sessionStorage.setItem(
-        "printlab_receipt_sent",
-        "true"
-      );
-
-      console.log(
-        "Correo de compra enviado correctamente."
-      );
-
-    }
-    catch(emailError){
-
-      /*
-       El pago ya está cobrado en este punto.
-       Un fallo en EmailJS no debe abortar la confirmación,
-       pero controlamos el registro de la sesión de igual forma.
-      */
-
-      console.error(
-        "Error enviando correo de confirmación prioritario:",
-        emailError
-      );
-
-      sessionStorage.removeItem(
-        "printlab_receipt_sent"
-      );
-
-    }
-
-
-    /* =================================================
-       4. CONFIRMAR PAGO EN SUPABASE
+       3. CONFIRMAR PAGO EN SUPABASE
        AQUÍ SE AÑADEN REALMENTE LOS CRÉDITOS
     ================================================= */
 
@@ -1568,6 +1539,62 @@ async function executeStripePayment(
       localStorage.setItem(
         "printlab_cached_credits",
         String(confirmData.credits)
+      );
+
+    }
+
+
+    /* =================================================
+       4. ENVIAR EMAILJS
+       SE HACE ANTES DE ENTRAR EN SUCCESS
+    ================================================= */
+
+    if(btn){
+
+      btn.textContent =
+        "Enviando confirmación...";
+
+    }
+
+
+    try{
+
+      const creditsAdded = plan.credits;
+      const newBalance = typeof confirmData.credits === "number" ? confirmData.credits : "0";
+
+      await sendPurchaseEmail(
+        emailVal,
+        nameVal,
+        plan,
+        creditsAdded,
+        newBalance
+      );
+
+      sessionStorage.setItem(
+        "printlab_receipt_sent",
+        "true"
+      );
+
+      console.log(
+        "Correo de compra enviado correctamente."
+      );
+
+    }
+    catch(emailError){
+
+      /*
+       El pago y los créditos YA están confirmados.
+       Un fallo de EmailJS NO debe hacer que el usuario
+       piense que el pago ha fallado.
+      */
+
+      console.error(
+        "Error enviando correo de confirmación:",
+        emailError
+      );
+
+      sessionStorage.removeItem(
+        "printlab_receipt_sent"
       );
 
     }
