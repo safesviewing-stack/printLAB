@@ -1014,6 +1014,34 @@ document.addEventListener(
 );
 
 
+/* =========================================================
+   CERRAR SESIÓN CON REDIRECCIÓN DIRECTA AL INDEX
+========================================================= */
+window.handleLogout = async function() {
+  const btn = document.getElementById("btn-logout") || document.querySelector(".user-header-info button");
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "Cerrando sesión...";
+  }
+
+  try {
+    localStorage.removeItem("sb-jmwprzgfdkphbxryjbnr-auth-token");
+    localStorage.removeItem("printlab_cached_name");
+    localStorage.removeItem("printlab_cached_credits");
+    sessionStorage.removeItem("printlab_recovery_mode");
+    sessionStorage.removeItem("printlab_auth_redirect");
+
+    const client = window.supabaseClient || (typeof supabaseClient !== "undefined" ? supabaseClient : null);
+    if (client) {
+      await client.auth.signOut();
+    }
+  } catch (error) {
+    console.error("Error al cerrar sesión:", error);
+  } finally {
+    window.location.href = "../index.html";
+  }
+};
+
 </script>
 
 </body>
