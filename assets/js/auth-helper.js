@@ -41,11 +41,12 @@ window.supabaseClient = supabaseClient;
 
 
 // =====================================================
-// MÉTODO GLOBAL DE CIERRE DE SESIÓN (Restaurada la lógica original inmune a 404)
+// MÉTODO GLOBAL DE CIERRE DE SESIÓN
 // =====================================================
 
 window.handleLogout = async function() {
   const btn = document.getElementById("btn-logout") || document.querySelector(".user-header-info button");
+
   if (btn) {
     btn.disabled = true;
     btn.textContent = "Cerrando sesión...";
@@ -64,15 +65,9 @@ window.handleLogout = async function() {
     // 3. Ejecutar el signOut asíncrono oficial
     await supabaseClient.auth.signOut();
 
-    // 4. Lógica original exacta: redirigir si es informe-stl, de lo contrario recargar en caliente
-    const currentPathname = window.location.pathname.toLowerCase();
-
-    if (currentPathname.includes("informe-stl")) {
-      sessionStorage.removeItem("printlab_auth_redirect");
-      window.location.href = "../index.html";
-    } else {
-      window.location.reload();
-    }
+    // 4. Volver siempre al index.html principal
+    sessionStorage.removeItem("printlab_auth_redirect");
+    window.location.href = "../index.html";
 
   } catch (error) {
     console.error("Error cerrando sesión, recargando de seguridad:", error);
@@ -321,12 +316,15 @@ async function initAuth() {
     window.location.search.includes("type=recovery") ||
     sessionStorage.getItem("printlab_recovery_mode") === "true";
 
+
   if (
     window.location.hash.includes("type=recovery") ||
     window.location.hash.includes("access_token=") ||
     window.location.search.includes("type=recovery")
   ) {
+
     sessionStorage.setItem("printlab_recovery_mode", "true");
+
   }
 
 
@@ -335,27 +333,39 @@ async function initAuth() {
   // ===================================================
 
   const tokenStr = localStorage.getItem("sb-jmwprzgfdkphbxryjbnr-auth-token");
+
   if (tokenStr && !isRecovery) {
+
     try {
+
       const tokenData = JSON.parse(tokenStr);
       const sessionUser = tokenData?.user;
+
       if (sessionUser) {
+
         user = sessionUser; // Pre-cargar el usuario síncronamente
+
 
         // Recuperar valores de caché síncronos para eliminar el parpadeo de "85"
         const cachedName = localStorage.getItem("printlab_cached_name") || user.user_metadata?.full_name || user.email?.split("@")[0] || "Usuario";
         const cachedCredits = localStorage.getItem("printlab_cached_credits") || "...";
 
+
         // Pintar la cabecera síncronamente en el acto
         if (authButtons) {
+
           authButtons.innerHTML = `
+
             <div class="user-header-info">
+
               <span class="user-greeting">
                 Hola, ${cachedName}
               </span>
+
               <span class="credits-badge">
                 Créditos: ${cachedCredits}
               </span>
+
               <button
                 id="btn-logout"
                 class="btn-auth light"
@@ -364,23 +374,38 @@ async function initAuth() {
               >
                 Cerrar Sesión
               </button>
+
             </div>
+
           `;
+
           authButtons.style.opacity = "1";
           authButtons.style.visibility = "visible";
+
         }
+
 
         // Pintar el dashboard de bienvenida de inmediato
         if (greetingDashboard) {
+
           const creditsText = cachedCredits !== "..." ? `Dispones de ${cachedCredits} créditos` : "Cargando créditos...";
+
           greetingDashboard.innerHTML = `Hola, ${cachedName} | ${creditsText}`;
+
           greetingDashboard.style.setProperty("background", "rgba(184, 255, 61, 0.2)", "important");
+
           greetingDashboard.style.setProperty("color", "var(--ink)", "important");
+
         }
+
       }
+
     } catch (e) {
+
       console.warn("Error en pre-carga de sesión:", e);
+
     }
+
   }
 
 
@@ -391,9 +416,12 @@ async function initAuth() {
   try {
 
     if (isRecovery) {
+
       // Bloquear cualquier comprobación de usuario si estamos en modo recuperación
       user = null;
+
     } else {
+
       const {
         data,
         error
@@ -407,6 +435,7 @@ async function initAuth() {
           "No se pudo obtener el usuario:",
           error
         );
+
         user = null; // Si da error, limpiamos el estado síncrono
 
       } else {
@@ -415,6 +444,7 @@ async function initAuth() {
           data?.user || null;
 
       }
+
     }
 
   } catch (error) {
@@ -423,6 +453,7 @@ async function initAuth() {
       "Error comprobando autenticación:",
       error
     );
+
     user = null;
 
   }
@@ -487,20 +518,33 @@ async function initAuth() {
     let credits =
       profile?.credits ?? 0;
 
+
     // --- PROTECCIÓN OPTIMISTA SÍNCRONA ---
     // Si estamos en la página de éxito de checkout, no permitimos que un saldo desactualizado (menor) de la base de datos
     // machaque el saldo optimista actualizado de la caché.
     if (window.location.pathname.toLowerCase().includes("checkout-success.html")) {
-      const cached = parseInt(localStorage.getItem("printlab_cached_credits"));
+
+      const cached = parseInt(
+        localStorage.getItem("printlab_cached_credits")
+      );
+
       if (!isNaN(cached) && cached > credits) {
         credits = cached;
       }
+
     }
 
 
     // Actualizar la caché local para el siguiente refresco instantáneo
-    localStorage.setItem("printlab_cached_name", name);
-    localStorage.setItem("printlab_cached_credits", credits);
+    localStorage.setItem(
+      "printlab_cached_name",
+      name
+    );
+
+    localStorage.setItem(
+      "printlab_cached_credits",
+      credits
+    );
 
 
     // =================================================
@@ -552,6 +596,7 @@ async function initAuth() {
       greetingDashboard.innerHTML = `Hola, ${name} | Dispones de ${credits} créditos`;
       
       greetingDashboard.style.setProperty("background", "rgba(184, 255, 61, 0.2)", "important");
+
       greetingDashboard.style.setProperty("color", "var(--ink)", "important");
 
     }
@@ -580,22 +625,59 @@ async function initAuth() {
 
 
   if (authButtons) {
+
     authButtons.innerHTML = `
-      <a href="${pathPrefix}login.html" class="btn-auth light" onclick="sessionStorage.removeItem('printlab_recovery_mode'); localStorage.removeItem('sb-jmwprzgfdkphbxryjbnr-auth-token');">Iniciar Sesión</a>
-      <a href="${pathPrefix}registro.html" id="header-register-link" class="btn-auth green" onclick="sessionStorage.removeItem('printlab_recovery_mode'); localStorage.removeItem('sb-jmwprzgfdkphbxryjbnr-auth-token');">Registrarse</a>
+
+      <a
+        href="${pathPrefix}login.html"
+        class="btn-auth light"
+        onclick="sessionStorage.removeItem('printlab_recovery_mode'); localStorage.removeItem('sb-jmwprzgfdkphbxryjbnr-auth-token');"
+      >
+        Iniciar Sesión
+      </a>
+
+      <a
+        href="${pathPrefix}registro.html"
+        id="header-register-link"
+        class="btn-auth green"
+        onclick="sessionStorage.removeItem('printlab_recovery_mode'); localStorage.removeItem('sb-jmwprzgfdkphbxryjbnr-auth-token');"
+      >
+        Registrarse
+      </a>
+
     `;
 
+
     // Si estamos en login o registro, ajustar el enlace dinámico de la cabecera
-    const headerRegLink = document.getElementById("header-register-link");
+    const headerRegLink =
+      document.getElementById(
+        "header-register-link"
+      );
+
     if (headerRegLink) {
-      const loginParams = new URLSearchParams(window.location.search);
-      let redir = loginParams.get("redirect") || sessionStorage.getItem("printlab_auth_redirect") || "../index.html";
-      headerRegLink.href = `${pathPrefix}registro.html?redirect=${encodeURIComponent(redir)}`;
+
+      const loginParams =
+        new URLSearchParams(
+          window.location.search
+        );
+
+      let redir =
+        loginParams.get("redirect") ||
+        sessionStorage.getItem(
+          "printlab_auth_redirect"
+        ) ||
+        "../index.html";
+
+      headerRegLink.href =
+        `${pathPrefix}registro.html?redirect=${encodeURIComponent(redir)}`;
+
     }
+
 
     // Hace visible la cabecera en el estado deslogueado
     authButtons.style.opacity = "1";
     authButtons.style.visibility = "visible";
+
   }
 
 
