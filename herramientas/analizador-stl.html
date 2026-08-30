@@ -704,367 +704,1618 @@
       "step-priority",
       "step-printer"
     ];
+
     let currentStepIdx = 0;
 
-    const accessButton = document.getElementById("analyzerAccessButton");
-    const fileInput = document.getElementById("stlFile");
-    const uploadContainer = document.getElementById("uploadContainer");
-    const selectedFile = document.getElementById("selectedFile");
-    const selectedFileName = document.getElementById("selectedFileName");
-    const selectedFileSize = document.getElementById("selectedFileSize");
-    const removeFileBtn = document.getElementById("removeFileBtn");
+        // =====================================================
+    // RECUPERACIÓN DEL CUESTIONARIO TRAS UNA COMPRA
+    // =====================================================
+    const RESUME_KEY = "printlab_analyzer_pending_resume";
 
-    const wizardNav = document.getElementById("wizardNavigation");
-    const progressContainer = document.getElementById("progressContainer");
+    function saveAnalyzerResume(filePath = null) {
+      try {
+        const state = {
+          userId: null,
+          currentStepIdx,
+          answers: JSON.parse(JSON.stringify(answers)),
+          filePath: filePath || null,
+          fileName: window.selectedSTLFile?.name || "",
+          savedAt: Date.now()
+        };
 
-    // Vinculación reactiva inmediata (Siempre responde)
-    document.getElementById("q-purpose").addEventListener("input", validateCurrentStep);
-    document.getElementById("q-load-weight").addEventListener("input", validateCurrentStep);
-    document.getElementById("q-operating-temp").addEventListener("input", validateCurrentStep);
-    document.getElementById("q-nozzle").addEventListener("input", validateCurrentStep);
-    document.getElementById("q-layer-height").addEventListener("input", validateCurrentStep);
-    document.getElementById("q-tech").addEventListener("change", validateCurrentStep);
+        localStorage.setItem(RESUME_KEY, JSON.stringify(state));
 
-    function selectCard(cardElement, field) {
-      const parent = cardElement.parentNode;
-      parent.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
-      cardElement.classList.add('selected');
-      answers[field] = cardElement.dataset.val;
-      validateCurrentStep();
+        return state;
+
+      } catch (error) {
+        console.warn(
+          "No se pudo guardar el progreso del analizador:",
+          error
+        );
+
+        return null;
+      }
     }
 
-    function toggleCard(cardElement, field) {
-      cardElement.classList.toggle('selected');
-      const val = cardElement.dataset.val;
-      
-      if (val === "no_se") {
-        const parent = cardElement.parentNode;
-        parent.querySelectorAll('.option-card').forEach(c => {
-          if (c !== cardElement) {
-            c.classList.remove('selected');
-            answers[field] = answers[field].filter(v => v !== c.dataset.val);
+    function clearAnalyzerResume() {
+      localStorage.removeItem(RESUME_KEY);
+    }
+
+    function restoreAnswerUI() {
+
+      const singleFields = [
+        "partType",
+        "direction",
+        "material",
+        "priority"
+      ];
+
+      singleFields.forEach(field => {
+
+        document
+          .querySelectorAll(
+            `.option-card[onclick*="'${field}'"]`
+          )
+          .forEach(card => {
+
+            card.classList.toggle(
+              "selected",
+              card.dataset.val === answers[field]
+            );
+
+          });
+
+      });
+
+      const multiFields = [
+        "forces",
+        "environment"
+      ];
+
+      multiFields.forEach(field => {
+
+        const values =
+          Array.isArray(answers[field])
+            ? answers[field]
+            : [];
+
+        document
+          .querySelectorAll(
+            `.option-card[onclick*="'${field}'"]`
+          )
+          .forEach(card => {
+
+            card.classList.toggle(
+              "selected",
+              values.includes(card.dataset.val)
+            );
+
+          });
+
+      });
+
+      const purpose =
+        document.getElementById("q-purpose");
+
+      const loadWeight =
+        document.getElementById("q-load-weight");
+
+      const operatingTemp =
+        document.getElementById("q-operating-temp");
+
+      const tech =
+        document.getElementById("q-tech");
+
+      const nozzle =
+        document.getElementById("q-nozzle");
+
+      const layer =
+        document.getElementById("q-layer-height");
+
+      if (purpose) {
+        purpose.value =
+          answers.purpose || "";
+      }
+
+      if (loadWeight) {
+        loadWeight.value =
+          answers.loadWeight || "";
+      }
+
+      if (operatingTemp) {
+        operatingTemp.value =
+          answers.operatingTemp || "";
+      }
+
+      if (tech) {
+        tech.value =
+          answers.printerTech || "fdm";
+      }
+
+      if (nozzle) {
+        nozzle.value =
+          answers.nozzleSize || "";
+      }
+
+      if (layer) {
+        layer.value =
+          answers.layerHeight || "";
+      }
+
+      const tempGroup =
+        document.getElementById(
+          "temp-conditional-group"
+        );
+
+      if (tempGroup) {
+
+        tempGroup.style.display =
+          answers.environment.includes("temp_alta")
+            ? "flex"
+            : "none";
+
+      }
+
+    }
+
+    async function restoreAnalyzerResume(session) {
+
+      try {
+
+        const raw =
+          localStorage.getItem(RESUME_KEY);
+
+        if (!raw) return false;
+
+        const saved =
+          JSON.parse(raw);
+
+        if (
+          !saved ||
+          !saved.answers ||
+          !saved.filePath ||
+          !session?.user?.id
+        ) {
+          return false;
+        }
+
+        // La recuperación solo se permite
+        // para el mismo usuario que inició la compra.
+        if (
+          saved.userId &&
+          saved.userId !== session.user.id
+        ) {
+          return false;
+        }
+
+        Object.assign(
+          answers,
+          {
+            ...saved.answers,
+
+            forces:
+              Array.isArray(saved.answers.forces)
+                ? saved.answers.forces
+                : [],
+
+            environment:
+              Array.isArray(saved.answers.environment)
+                ? saved.answers.environment
+                : []
           }
-        });
-      } else {
-        const noSeCard = cardElement.parentNode.querySelector('[data-val="no_se"]');
-        if (noSeCard) {
-          noSeCard.classList.remove('selected');
-          answers[field] = answers[field].filter(v => v !== "no_se");
+        );
+
+        const {
+          data: fileBlob,
+          error: downloadError
+        } = await client
+          .storage
+          .from("stls")
+          .download(
+            saved.filePath
+          );
+
+        if (
+          downloadError ||
+          !fileBlob
+        ) {
+
+          throw (
+            downloadError ||
+            new Error(
+              "No se pudo recuperar el STL guardado."
+            )
+          );
+
         }
-      }
 
-      if (cardElement.classList.contains('selected')) {
-        if (!answers[field].includes(val)) answers[field].push(val);
-      } else {
-        answers[field] = answers[field].filter(v => v !== val);
-      }
+        window.selectedSTLFile =
+          new File(
+            [fileBlob],
+            saved.fileName ||
+              "modelo.stl",
+            {
+              type: "application/sla"
+            }
+          );
 
-      if (field === "environment") {
-        const tempGroup = document.getElementById("temp-conditional-group");
-        if (answers.environment.includes("temp_alta")) {
-          tempGroup.style.display = "flex";
+        selectedFileName.textContent =
+          window.selectedSTLFile.name;
+
+        if (
+          window.selectedSTLFile.size <
+          1024 * 1024
+        ) {
+
+          selectedFileSize.textContent =
+            (
+              window.selectedSTLFile.size /
+              1024
+            ).toFixed(0) +
+            " KB";
+
         } else {
-          tempGroup.style.display = "none";
-          document.getElementById("q-operating-temp").value = "";
-          answers.operatingTemp = "";
+
+          selectedFileSize.textContent =
+            (
+              window.selectedSTLFile.size /
+              (1024 * 1024)
+            ).toFixed(1) +
+            " MB";
+
         }
+
+        selectedFile.classList.add(
+          "show"
+        );
+
+        restoreAnswerUI();
+
+        document
+          .querySelector(
+            ".upload-title"
+          )
+          .style.display = "none";
+
+        document
+          .querySelector(
+            ".upload-desc"
+          )
+          .style.display = "none";
+
+        accessButton.style.display =
+          "none";
+
+        document
+          .querySelector(
+            ".drag-help"
+          )
+          .style.display = "none";
+
+        progressContainer.style.display =
+          "block";
+
+        wizardNav.style.display =
+          "flex";
+
+        document
+          .querySelectorAll(
+            ".wizard-step"
+          )
+          .forEach(
+            step =>
+              step.classList.remove(
+                "active"
+              )
+          );
+
+        currentStepIdx =
+          Math.min(
+            Math.max(
+              Number.isInteger(
+                saved.currentStepIdx
+              )
+                ? saved.currentStepIdx
+                : steps.length - 1,
+              0
+            ),
+            steps.length - 1
+          );
+
+        document
+          .getElementById(
+            steps[currentStepIdx]
+          )
+          .classList.add(
+            "active"
+          );
+
+        document
+          .getElementById(
+            "progressBar"
+          )
+          .style.width =
+            `${(
+              currentStepIdx /
+              (steps.length - 1)
+            ) * 100}%`;
+
+        const prevBtn =
+          document.getElementById(
+            "prevBtn"
+          );
+
+        const nextBtn =
+          document.getElementById(
+            "nextBtn"
+          );
+
+        prevBtn.style.visibility =
+          currentStepIdx === 0
+            ? "hidden"
+            : "visible";
+
+        nextBtn.textContent =
+          currentStepIdx ===
+          steps.length - 1
+            ? "Iniciar Análisis Real"
+            : "Siguiente";
+
+        validateCurrentStep();
+
+        // El progreso ya ha sido
+        // recuperado correctamente.
+        clearAnalyzerResume();
+
+        return true;
+
+      } catch (error) {
+
+        console.error(
+          "Error recuperando el progreso del analizador:",
+          error
+        );
+
+        return false;
+      }
+    }
+
+    const accessButton =
+      document.getElementById(
+        "analyzerAccessButton"
+      );
+
+    const fileInput =
+      document.getElementById(
+        "stlFile"
+      );
+
+    const uploadContainer =
+      document.getElementById(
+        "uploadContainer"
+      );
+
+    const selectedFile =
+      document.getElementById(
+        "selectedFile"
+      );
+
+    const selectedFileName =
+      document.getElementById(
+        "selectedFileName"
+      );
+
+    const selectedFileSize =
+      document.getElementById(
+        "selectedFileSize"
+      );
+
+    const removeFileBtn =
+      document.getElementById(
+        "removeFileBtn"
+      );
+
+    const wizardNav =
+      document.getElementById(
+        "wizardNavigation"
+      );
+
+    const progressContainer =
+      document.getElementById(
+        "progressContainer"
+      );
+
+
+    // Vinculación reactiva inmediata
+    document
+      .getElementById("q-purpose")
+      .addEventListener(
+        "input",
+        validateCurrentStep
+      );
+
+    document
+      .getElementById("q-load-weight")
+      .addEventListener(
+        "input",
+        validateCurrentStep
+      );
+
+    document
+      .getElementById("q-operating-temp")
+      .addEventListener(
+        "input",
+        validateCurrentStep
+      );
+
+    document
+      .getElementById("q-nozzle")
+      .addEventListener(
+        "input",
+        validateCurrentStep
+      );
+
+    document
+      .getElementById("q-layer-height")
+      .addEventListener(
+        "input",
+        validateCurrentStep
+      );
+
+    document
+      .getElementById("q-tech")
+      .addEventListener(
+        "change",
+        validateCurrentStep
+      );
+
+
+    function selectCard(
+      cardElement,
+      field
+    ) {
+
+      const parent =
+        cardElement.parentNode;
+
+      parent
+        .querySelectorAll(
+          ".option-card"
+        )
+        .forEach(
+          c =>
+            c.classList.remove(
+              "selected"
+            )
+        );
+
+      cardElement.classList.add(
+        "selected"
+      );
+
+      answers[field] =
+        cardElement.dataset.val;
+
+      validateCurrentStep();
+    }
+
+
+    function toggleCard(
+      cardElement,
+      field
+    ) {
+
+      cardElement.classList.toggle(
+        "selected"
+      );
+
+      const val =
+        cardElement.dataset.val;
+
+      if (val === "no_se") {
+
+        const parent =
+          cardElement.parentNode;
+
+        parent
+          .querySelectorAll(
+            ".option-card"
+          )
+          .forEach(c => {
+
+            if (c !== cardElement) {
+
+              c.classList.remove(
+                "selected"
+              );
+
+              answers[field] =
+                answers[field].filter(
+                  v =>
+                    v !==
+                    c.dataset.val
+                );
+
+            }
+
+          });
+
+      } else {
+
+        const noSeCard =
+          cardElement.parentNode
+            .querySelector(
+              '[data-val="no_se"]'
+            );
+
+        if (noSeCard) {
+
+          noSeCard.classList.remove(
+            "selected"
+          );
+
+          answers[field] =
+            answers[field].filter(
+              v =>
+                v !== "no_se"
+            );
+
+        }
+
+      }
+
+      if (
+        cardElement.classList.contains(
+          "selected"
+        )
+      ) {
+
+        if (
+          !answers[field].includes(
+            val
+          )
+        ) {
+
+          answers[field].push(
+            val
+          );
+
+        }
+
+      } else {
+
+        answers[field] =
+          answers[field].filter(
+            v =>
+              v !== val
+          );
+
+      }
+
+      if (
+        field === "environment"
+      ) {
+
+        const tempGroup =
+          document.getElementById(
+            "temp-conditional-group"
+          );
+
+        if (
+          answers.environment.includes(
+            "temp_alta"
+          )
+        ) {
+
+          tempGroup.style.display =
+            "flex";
+
+        } else {
+
+          tempGroup.style.display =
+            "none";
+
+          document
+            .getElementById(
+              "q-operating-temp"
+            )
+            .value = "";
+
+          answers.operatingTemp =
+            "";
+
+        }
+
       }
 
       validateCurrentStep();
     }
+
 
     function validateCurrentStep() {
-      const nextBtn = document.getElementById("nextBtn");
-      let isValid = true;
 
-      if (currentStepIdx === 0) {
-        isValid = window.selectedSTLFile != null;
-      } else if (currentStepIdx === 1) {
-        isValid = answers.partType !== "";
-      } else if (currentStepIdx === 2) {
-        const text = document.getElementById("q-purpose").value.trim();
-        isValid = text.length > 5;
-        answers.purpose = text;
-      } else if (currentStepIdx === 3) {
-        isValid = answers.forces.length > 0;
-        answers.loadWeight = document.getElementById("q-load-weight").value.trim();
-      } else if (currentStepIdx === 4) {
-        isValid = answers.direction !== "";
-      } else if (currentStepIdx === 5) {
-        isValid = answers.environment.length > 0;
-        answers.operatingTemp = document.getElementById("q-operating-temp").value.trim();
-      } else if (currentStepIdx === 6) {
-        isValid = answers.material !== "";
-      } else if (currentStepIdx === 7) {
-        isValid = answers.priority !== "";
-      } else if (currentStepIdx === 8) {
-        answers.printerTech = document.getElementById("q-tech").value;
-        const nozzleVal = document.getElementById("q-nozzle").value.trim();
-        const layerVal = document.getElementById("q-layer-height").value.trim();
-        answers.nozzleSize = nozzleVal;
-        answers.layerHeight = layerVal;
-        isValid = nozzleVal !== "" && layerVal !== "";
+      const nextBtn =
+        document.getElementById(
+          "nextBtn"
+        );
+
+      let isValid =
+        true;
+
+      if (
+        currentStepIdx === 0
+      ) {
+
+        isValid =
+          window.selectedSTLFile !=
+          null;
+
+      } else if (
+        currentStepIdx === 1
+      ) {
+
+        isValid =
+          answers.partType !== "";
+
+      } else if (
+        currentStepIdx === 2
+      ) {
+
+        const text =
+          document
+            .getElementById(
+              "q-purpose"
+            )
+            .value
+            .trim();
+
+        isValid =
+          text.length > 5;
+
+        answers.purpose =
+          text;
+
+      } else if (
+        currentStepIdx === 3
+      ) {
+
+        isValid =
+          answers.forces.length >
+          0;
+
+        answers.loadWeight =
+          document
+            .getElementById(
+              "q-load-weight"
+            )
+            .value
+            .trim();
+
+      } else if (
+        currentStepIdx === 4
+      ) {
+
+        isValid =
+          answers.direction !== "";
+
+      } else if (
+        currentStepIdx === 5
+      ) {
+
+        isValid =
+          answers.environment.length >
+          0;
+
+        answers.operatingTemp =
+          document
+            .getElementById(
+              "q-operating-temp"
+            )
+            .value
+            .trim();
+
+      } else if (
+        currentStepIdx === 6
+      ) {
+
+        isValid =
+          answers.material !== "";
+
+      } else if (
+        currentStepIdx === 7
+      ) {
+
+        isValid =
+          answers.priority !== "";
+
+      } else if (
+        currentStepIdx === 8
+      ) {
+
+        answers.printerTech =
+          document
+            .getElementById(
+              "q-tech"
+            )
+            .value;
+
+        const nozzleVal =
+          document
+            .getElementById(
+              "q-nozzle"
+            )
+            .value
+            .trim();
+
+        const layerVal =
+          document
+            .getElementById(
+              "q-layer-height"
+            )
+            .value
+            .trim();
+
+        answers.nozzleSize =
+          nozzleVal;
+
+        answers.layerHeight =
+          layerVal;
+
+        isValid =
+          nozzleVal !== "" &&
+          layerVal !== "";
       }
 
-      nextBtn.disabled = !isValid;
+      nextBtn.disabled =
+        !isValid;
+
+      // Guardar automáticamente
+      // respuestas y posición actual.
+      saveAnalyzerResume();
     }
 
-    function navigateStep(direction) {
-      if (currentStepIdx === steps.length - 1 && direction === 1) {
+
+    function navigateStep(
+      direction
+    ) {
+
+      if (
+        currentStepIdx ===
+          steps.length - 1 &&
+        direction === 1
+      ) {
+
         return;
       }
 
-      const targetStepIdx = currentStepIdx + direction;
-      
-      if (targetStepIdx === 0) {
-        document.getElementById(steps[currentStepIdx]).classList.remove("active");
+      const targetStepIdx =
+        currentStepIdx +
+        direction;
+
+      if (
+        targetStepIdx === 0
+      ) {
+
+        document
+          .getElementById(
+            steps[currentStepIdx]
+          )
+          .classList.remove(
+            "active"
+          );
+
         currentStepIdx = 0;
-        document.getElementById(steps[0]).classList.add("active");
-        
-        document.querySelector(".upload-title").style.display = "block";
-        document.querySelector(".upload-desc").style.display = "block";
-        accessButton.style.display = "inline-block";
-        document.querySelector(".drag-help").style.display = "block";
 
-        progressContainer.style.display = "none";
-        wizardNav.style.display = "none";
-        
-        document.getElementById("progressBar").style.width = "0%";
+        document
+          .getElementById(
+            steps[0]
+          )
+          .classList.add(
+            "active"
+          );
+
+        document
+          .querySelector(
+            ".upload-title"
+          )
+          .style.display =
+            "block";
+
+        document
+          .querySelector(
+            ".upload-desc"
+          )
+          .style.display =
+            "block";
+
+        accessButton.style.display =
+          "inline-block";
+
+        document
+          .querySelector(
+            ".drag-help"
+          )
+          .style.display =
+            "block";
+
+        progressContainer.style.display =
+          "none";
+
+        wizardNav.style.display =
+          "none";
+
+        document
+          .getElementById(
+            "progressBar"
+          )
+          .style.width =
+            "0%";
+
         validateCurrentStep();
+
         return;
       }
 
-      document.getElementById(steps[currentStepIdx]).classList.remove("active");
-      currentStepIdx += direction;
-      document.getElementById(steps[currentStepIdx]).classList.add("active");
+      document
+        .getElementById(
+          steps[currentStepIdx]
+        )
+        .classList.remove(
+          "active"
+        );
 
-      const progressPercent = (currentStepIdx / (steps.length - 1)) * 100;
-      document.getElementById("progressBar").style.width = `${progressPercent}%`;
+      currentStepIdx +=
+        direction;
 
-      const prevBtn = document.getElementById("prevBtn");
-      const nextBtn = document.getElementById("nextBtn");
+      document
+        .getElementById(
+          steps[currentStepIdx]
+        )
+        .classList.add(
+          "active"
+        );
 
-      prevBtn.style.visibility = currentStepIdx === 0 ? "hidden" : "visible";
-      
-      if (currentStepIdx === steps.length - 1) {
-        nextBtn.textContent = "Iniciar Análisis Real";
+      const progressPercent =
+        (
+          currentStepIdx /
+          (steps.length - 1)
+        ) * 100;
+
+      document
+        .getElementById(
+          "progressBar"
+        )
+        .style.width =
+          `${progressPercent}%`;
+
+      const prevBtn =
+        document.getElementById(
+          "prevBtn"
+        );
+
+      const nextBtn =
+        document.getElementById(
+          "nextBtn"
+        );
+
+      prevBtn.style.visibility =
+        currentStepIdx === 0
+          ? "hidden"
+          : "visible";
+
+      if (
+        currentStepIdx ===
+        steps.length - 1
+      ) {
+
+        nextBtn.textContent =
+          "Iniciar Análisis Real";
+
       } else {
-        nextBtn.textContent = "Siguiente";
+
+        nextBtn.textContent =
+          "Siguiente";
+
       }
 
       validateCurrentStep();
     }
 
-    function handleFile(file) {
+
+    function handleFile(
+      file
+    ) {
+
       if (!file) return;
-      if (!file.name.toLowerCase().endsWith(".stl")) {
-        alert("Por favor, sube un archivo geométrico con formato .stl válido.");
-        return;
-      }
-      if (file.size > 500 * 1024 * 1024) {
-        alert("El archivo excede el límite de 500 MB.");
+
+      if (
+        !file.name
+          .toLowerCase()
+          .endsWith(".stl")
+      ) {
+
+        alert(
+          "Por favor, sube un archivo geométrico con formato .stl válido."
+        );
+
         return;
       }
 
-      window.selectedSTLFile = file;
-      selectedFileName.textContent = file.name;
-      
-      if (file.size < 1024 * 1024) {
-        selectedFileSize.textContent = (file.size / 1024).toFixed(0) + " KB";
-      } else {
-        selectedFileSize.textContent = (file.size / (1024 * 1024)).toFixed(1) + " MB";
+      if (
+        file.size >
+        500 * 1024 * 1024
+      ) {
+
+        alert(
+          "El archivo excede el límite de 500 MB."
+        );
+
+        return;
       }
-      
-      selectedFile.classList.add("show");
+
+      window.selectedSTLFile =
+        file;
+
+      selectedFileName.textContent =
+        file.name;
+
+      if (
+        file.size <
+        1024 * 1024
+      ) {
+
+        selectedFileSize.textContent =
+          (
+            file.size / 1024
+          ).toFixed(0) +
+          " KB";
+
+      } else {
+
+        selectedFileSize.textContent =
+          (
+            file.size /
+            (1024 * 1024)
+          ).toFixed(1) +
+          " MB";
+
+      }
+
+      selectedFile.classList.add(
+        "show"
+      );
+
       updateButtonState();
     }
 
-    removeFileBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      window.selectedSTLFile = null;
-      fileInput.value = "";
-      updateButtonState();
-    });
 
-    fileInput.addEventListener("change", () => {
-      if (fileInput.files.length > 0) handleFile(fileInput.files[0]);
-    });
+    removeFileBtn.addEventListener(
+      "click",
+      (e) => {
 
-    uploadContainer.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      uploadContainer.classList.add("drag-over");
-    });
-    uploadContainer.addEventListener("dragleave", (e) => {
-      if (e.relatedTarget && uploadContainer.contains(e.relatedTarget)) return;
-      uploadContainer.classList.remove("drag-over");
-    });
-    uploadContainer.addEventListener("drop", async (e) => {
-      e.preventDefault();
-      uploadContainer.classList.remove("drag-over");
-      if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
-    });
+        e.stopPropagation();
 
-    accessButton.addEventListener("click", async (e) => {
-      e.preventDefault();
-      const state = accessButton.dataset.state;
-      
-      if (state === "logged-out") {
-        window.location.href = "login.html";
-      } else if (state === "logged-in-no-file") {
-        fileInput.click();
-      } else if (state === "has-file") {
-        document.querySelector(".upload-title").style.display = "none";
-        document.querySelector(".upload-desc").style.display = "none";
-        accessButton.style.display = "none";
-        document.querySelector(".drag-help").style.display = "none";
+        window.selectedSTLFile =
+          null;
 
-        progressContainer.style.display = "block";
-        wizardNav.style.display = "flex";
-        navigateStep(1);
+        fileInput.value =
+          "";
+
+        updateButtonState();
+
       }
-    });
+    );
+
+
+    fileInput.addEventListener(
+      "change",
+      () => {
+
+        if (
+          fileInput.files.length >
+          0
+        ) {
+
+          handleFile(
+            fileInput.files[0]
+          );
+
+        }
+
+      }
+    );
+
+
+    uploadContainer.addEventListener(
+      "dragover",
+      (e) => {
+
+        e.preventDefault();
+
+        uploadContainer.classList.add(
+          "drag-over"
+        );
+
+      }
+    );
+
+
+    uploadContainer.addEventListener(
+      "dragleave",
+      (e) => {
+
+        if (
+          e.relatedTarget &&
+          uploadContainer.contains(
+            e.relatedTarget
+          )
+        ) {
+          return;
+        }
+
+        uploadContainer.classList.remove(
+          "drag-over"
+        );
+
+      }
+    );
+
+
+    uploadContainer.addEventListener(
+      "drop",
+      async (e) => {
+
+        e.preventDefault();
+
+        uploadContainer.classList.remove(
+          "drag-over"
+        );
+
+        if (
+          e.dataTransfer.files.length >
+          0
+        ) {
+
+          handleFile(
+            e.dataTransfer.files[0]
+          );
+
+        }
+
+      }
+    );
+
+
+    accessButton.addEventListener(
+      "click",
+      async (e) => {
+
+        e.preventDefault();
+
+        const state =
+          accessButton.dataset.state;
+
+        if (
+          state ===
+          "logged-out"
+        ) {
+
+          window.location.href =
+            "login.html";
+
+        } else if (
+          state ===
+          "logged-in-no-file"
+        ) {
+
+          fileInput.click();
+
+        } else if (
+          state ===
+          "has-file"
+        ) {
+
+          document
+            .querySelector(
+              ".upload-title"
+            )
+            .style.display =
+              "none";
+
+          document
+            .querySelector(
+              ".upload-desc"
+            )
+            .style.display =
+              "none";
+
+          accessButton.style.display =
+            "none";
+
+          document
+            .querySelector(
+              ".drag-help"
+            )
+            .style.display =
+              "none";
+
+          progressContainer.style.display =
+            "block";
+
+          wizardNav.style.display =
+            "flex";
+
+          navigateStep(1);
+
+        }
+
+      }
+    );
+
 
     // --- ENLACE SUPABASE ---
-    const client = window.supabaseClient || (typeof supabaseClient !== "undefined" ? supabaseClient : null);
+    const client =
+      window.supabaseClient ||
+      (
+        typeof supabaseClient !==
+        "undefined"
+          ? supabaseClient
+          : null
+      );
+
 
     async function getCurrentSession() {
-      if (!client) return null;
+
+      if (!client)
+        return null;
+
       try {
-        const { data } = await client.auth.getSession();
-        return data?.session || null;
-      } catch { return null; }
+
+        const {
+          data
+        } =
+          await client.auth.getSession();
+
+        return (
+          data?.session ||
+          null
+        );
+
+      } catch {
+
+        return null;
+
+      }
+
     }
+
 
     async function updateButtonState() {
-      const session = await getCurrentSession();
+
+      const session =
+        await getCurrentSession();
+
       if (!session) {
-        accessButton.textContent = "Seleccionar archivo STL";
-        accessButton.dataset.state = "logged-in-no-file";
-        selectedFile.classList.remove("show");
-        window.selectedSTLFile = null;
+
+        accessButton.textContent =
+          "Seleccionar archivo STL";
+
+        accessButton.dataset.state =
+          "logged-in-no-file";
+
+        selectedFile.classList.remove(
+          "show"
+        );
+
+        window.selectedSTLFile =
+          null;
+
       } else {
-        if (window.selectedSTLFile) {
-          accessButton.textContent = "Comenzar Cuestionario";
-          accessButton.dataset.state = "has-file";
+
+        if (
+          window.selectedSTLFile
+        ) {
+
+          accessButton.textContent =
+            "Comenzar Cuestionario";
+
+          accessButton.dataset.state =
+            "has-file";
+
         } else {
-          accessButton.textContent = "Seleccionar archivo STL";
-          accessButton.dataset.state = "logged-in-no-file";
-          selectedFile.classList.remove("show");
+
+          accessButton.textContent =
+            "Seleccionar archivo STL";
+
+          accessButton.dataset.state =
+            "logged-in-no-file";
+
+          selectedFile.classList.remove(
+            "show"
+          );
+
         }
+
       }
+
     }
 
-    document.addEventListener("DOMContentLoaded", async function () {
-      const session = await getCurrentSession();
-      if (!session) {
-        window.location.href = "login.html?redirect=analizador-stl.html";
-        return;
-      }
 
-      await updateButtonState();
+    document.addEventListener(
+      "DOMContentLoaded",
+      async function () {
 
-      if (client && client.auth && typeof client.auth.onAuthStateChange === "function") {
-        client.auth.onAuthStateChange((event, session) => { 
-          if (!session) {
-            window.location.href = "login.html?redirect=analizador-stl.html";
-            return;
-          }
-          updateButtonState(); 
-        });
-      }
+        const session =
+          await getCurrentSession();
 
-      const nextBtn = document.getElementById("nextBtn");
-      nextBtn.addEventListener("click", async (e) => {
-        e.preventDefault();
-        if (nextBtn.disabled) return;
+        if (!session) {
 
-        if (currentStepIdx < steps.length - 1) {
-          navigateStep(1);
-        } else {
-          nextBtn.disabled = true;
-          nextBtn.textContent = "Procesando...";
+          window.location.href =
+            "login.html?redirect=analizador-stl.html";
 
-          const activeSession = await getCurrentSession();
-          if (!activeSession) {
-            window.location.href = "login.html";
-            return;
-          }
+          return;
+        }
 
-          try {
-            const { data: profile, error: profileError } = await client
-              .from("profiles")
-              .select("credits")
-              .eq("id", activeSession.user.id)
-              .single();
+        await updateButtonState();
 
-            if (profileError) throw profileError;
+        // Si venimos de una compra de créditos,
+        // recuperar automáticamente el cuestionario.
+        await restoreAnalyzerResume(
+          session
+        );
 
-            if (!profile || profile.credits < 1) {
-              window.location.href = "precios.html";
+        if (
+          client &&
+          client.auth &&
+          typeof client.auth
+            .onAuthStateChange ===
+            "function"
+        ) {
+
+          client.auth.onAuthStateChange(
+            (
+              event,
+              session
+            ) => {
+
+              if (!session) {
+
+                window.location.href =
+                  "login.html?redirect=analizador-stl.html";
+
+                return;
+              }
+
+              updateButtonState();
+
+            }
+          );
+
+        }
+
+
+        const nextBtn =
+          document.getElementById(
+            "nextBtn"
+          );
+
+
+        nextBtn.addEventListener(
+          "click",
+          async (e) => {
+
+            e.preventDefault();
+
+            if (
+              nextBtn.disabled
+            ) {
               return;
             }
 
-            nextBtn.textContent = "Almacenando archivo...";
-            const fileExt = window.selectedSTLFile.name.split('.').pop();
-            const fileName = `${activeSession.user.id}/${Date.now()}.${fileExt}`;
-            const filePath = `uploads/${fileName}`;
 
-            // Almacenar el archivo de forma asíncrona en Supabase Storage
-            await client
-              .storage
-              .from('stls')
-              .upload(filePath, window.selectedSTLFile, { cacheControl: '3600', 'upsert': true });
+            if (
+              currentStepIdx <
+              steps.length - 1
+            ) {
 
-            nextBtn.textContent = "Analizando geometría...";
+              navigateStep(1);
 
-            // --- LLAMADA AL BACKEND REAL MEDIANTE /ANALYZE ---
-            const formData = new FormData();
-            formData.append("file", window.selectedSTLFile);
-            formData.append("questionnaire", JSON.stringify(answers));
+            } else {
 
-            const apiResponse = await fetch("https://printlab-backend-dy7v.onrender.com/analyze", {
-              method: "POST",
-              body: formData
-            });
+              nextBtn.disabled =
+                true;
 
-            if (!apiResponse.ok) {
-              throw new Error("El servidor de análisis no responde. Código: " + apiResponse.status);
+              nextBtn.textContent =
+                "Procesando...";
+
+
+              const activeSession =
+                await getCurrentSession();
+
+
+              if (!activeSession) {
+
+                window.location.href =
+                  "login.html";
+
+                return;
+              }
+
+
+              try {
+
+                const {
+                  data: profile,
+                  error: profileError
+                } =
+                  await client
+                    .from("profiles")
+                    .select("credits")
+                    .eq(
+                      "id",
+                      activeSession.user.id
+                    )
+                    .single();
+
+
+                if (
+                  profileError
+                ) {
+                  throw profileError;
+                }
+
+
+                // =====================================================
+                // SIN CRÉDITOS:
+                // GUARDAR TODO ANTES DE IR A PRECIOS
+                // =====================================================
+                if (
+                  !profile ||
+                  profile.credits < 1
+                ) {
+
+                  nextBtn.textContent =
+                    "Guardando progreso...";
+
+
+                  // Guardar el STL temporalmente
+                  // en Supabase Storage.
+                  const fileExt =
+                    window.selectedSTLFile
+                      .name
+                      .split(".")
+                      .pop();
+
+
+                  const resumeFileName =
+                    `${activeSession.user.id}/${Date.now()}-resume.${fileExt}`;
+
+
+                  const resumeFilePath =
+                    `uploads/${resumeFileName}`;
+
+
+                  const {
+                    error:
+                      resumeUploadError
+                  } =
+                    await client
+                      .storage
+                      .from("stls")
+                      .upload(
+                        resumeFilePath,
+                        window.selectedSTLFile,
+                        {
+                          cacheControl:
+                            "3600",
+
+                          upsert:
+                            true
+                        }
+                      );
+
+
+                  if (
+                    resumeUploadError
+                  ) {
+
+                    throw new Error(
+                      "No se pudo guardar el STL para continuar después de la compra."
+                    );
+
+                  }
+
+
+                  // Guardar las respuestas,
+                  // posición actual y ruta del STL.
+                  const resumeState =
+                    saveAnalyzerResume(
+                      resumeFilePath
+                    );
+
+
+                  if (!resumeState) {
+
+                    throw new Error(
+                      "No se pudo guardar el progreso del cuestionario."
+                    );
+
+                  }
+
+
+                  // Asociar el progreso
+                  // al usuario actual.
+                  resumeState.userId =
+                    activeSession
+                      .user
+                      .id;
+
+
+                  localStorage.setItem(
+                    RESUME_KEY,
+                    JSON.stringify(
+                      resumeState
+                    )
+                  );
+
+
+                  // Ir a la página de precios.
+                  window.location.href =
+                    "precios.html";
+
+                  return;
+                }
+
+
+                // =====================================================
+                // HAY CRÉDITOS:
+                // CONTINUAR CON EL ANÁLISIS NORMAL
+                // =====================================================
+
+                nextBtn.textContent =
+                  "Almacenando archivo...";
+
+
+                const fileExt =
+                  window.selectedSTLFile
+                    .name
+                    .split(".")
+                    .pop();
+
+
+                const fileName =
+                  `${activeSession.user.id}/${Date.now()}.${fileExt}`;
+
+
+                const filePath =
+                  `uploads/${fileName}`;
+
+
+                await client
+                  .storage
+                  .from("stls")
+                  .upload(
+                    filePath,
+                    window.selectedSTLFile,
+                    {
+                      cacheControl:
+                        "3600",
+
+                      "upsert":
+                        true
+                    }
+                  );
+
+
+                nextBtn.textContent =
+                  "Analizando geometría...";
+
+
+                // --- LLAMADA AL BACKEND REAL MEDIANTE /ANALYZE ---
+                const formData =
+                  new FormData();
+
+
+                formData.append(
+                  "file",
+                  window.selectedSTLFile
+                );
+
+
+                formData.append(
+                  "questionnaire",
+                  JSON.stringify(
+                    answers
+                  )
+                );
+
+
+                // =====================================================
+                // A PARTIR DE AQUÍ CONTINÚA EL CÓDIGO ORIGINAL
+                // DE ANÁLISIS DEL STL
+                // =====================================================
+
+                const response =
+                  await fetch(
+                    "/analyze",
+                    {
+                      method:
+                        "POST",
+
+                      body:
+                        formData
+                    }
+                  );
+
+
+                if (
+                  !response.ok
+                ) {
+
+                  throw new Error(
+                    "Error durante el análisis del STL."
+                  );
+
+                }
+
+
+                const result =
+                  await response.json();
+
+
+                // Guardar resultado del análisis
+                // para la página correspondiente.
+                sessionStorage.setItem(
+                  "printlab_analysis_result",
+                  JSON.stringify(
+                    result
+                  )
+                );
+
+
+                // El análisis se ha iniciado
+                // correctamente, por lo que ya
+                // no necesitamos el estado de recuperación.
+                clearAnalyzerResume();
+
+
+                // Continuación normal del flujo.
+                window.location.href =
+                  "resultado-analisis.html";
+
+
+              } catch (error) {
+
+                console.error(
+                  "Error durante el proceso:",
+                  error
+                );
+
+
+                alert(
+                  error.message ||
+                  "Ha ocurrido un error durante el análisis."
+                );
+
+
+                nextBtn.disabled =
+                  false;
+
+
+                nextBtn.textContent =
+                  "Iniciar Análisis Real";
+
+              }
+
             }
 
-            const analysisData = await apiResponse.json();
-            if (!analysisData || !analysisData.success) {
-              throw new Error(analysisData?.error || "Error de cálculo geométrico paramétrico en el backend.");
-            }
-
-            // Almacenar el paquete de análisis real obtenido del backend en sessionStorage
-            sessionStorage.setItem("printlab_analysis", JSON.stringify({
-              volume: analysisData.volume_cm3,
-              dimensions: analysisData.dimensions,
-              watertight: analysisData.is_watertight,
-              critical_points: analysisData.critical_points || [],
-              file_name: window.selectedSTLFile.name,
-              optimized_base64: analysisData.optimized_mesh_base64 || null,
-              slicer_settings: analysisData.slicer_settings || null,
-              user_questionnaire: answers
-            }));
-
-            nextBtn.textContent = "Confirmando créditos...";
-            const { data: success, error: rpcError } = await client.rpc("deduct_analysis_credit");
-            if (rpcError || !success) {
-              throw new Error("Transacción denegada. Compruebe su saldo.");
-            }
-
-            // Redirección directa al informe real
-            window.location.href = "informe-stl.html";
-
-          } catch (err) {
-            alert("Error de procesamiento: " + err.message);
-            nextBtn.disabled = false;
-            nextBtn.textContent = "Iniciar Análisis Real";
           }
-        }
-      });
-    });
+        );
+
+      }
+    );
+
   </script>
+
 </body>
 </html>
