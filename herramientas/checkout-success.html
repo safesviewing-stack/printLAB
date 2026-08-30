@@ -116,8 +116,8 @@
       </div>
     </div>
 
-    <!-- EL BOTÓN SE ENCARGARÁ DE TODO AUTOMÁTICAMENTE CUANDO VUELVA -->
-    <a href="analizador-stl.html" class="btn-action">Ir al Analizador STL</a>
+    <!-- BOTÓN INTELIGENTE -->
+    <a href="analizador-stl.html" class="btn-action" id="btnSmartAction">Ir al Analizador STL</a>
   </div>
 </main>
 
@@ -199,6 +199,16 @@ const PLANS = {
 })();
 
 document.addEventListener("DOMContentLoaded", async () => {
+  
+  // === LÓGICA DEL BOTÓN INTELIGENTE ===
+  const btnSmartAction = document.getElementById("btnSmartAction");
+  if (sessionStorage.getItem("printlab_resume_analysis") === "true") {
+    btnSmartAction.textContent = "Retomar Análisis Pendiente";
+  } else {
+    btnSmartAction.textContent = "Nuevo Análisis STL";
+  }
+  // ====================================
+
   const urlParams = new URLSearchParams(window.location.search);
   const planId = urlParams.get("plan") || sessionStorage.getItem("printlab_purchase_plan") || "pro";
   const plan = PLANS[planId] || PLANS.pro;
