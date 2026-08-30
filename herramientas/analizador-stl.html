@@ -14,7 +14,6 @@
     a{color:inherit;text-decoration:none}
     .wrap{max-width:var(--max);margin:auto;padding:0 40px}
     
-    /* CABECERA EXCELENTE CON MENÚ HAMBURGUESA */
     .top{position:sticky;top:0;z-index:100;background:rgba(246,247,244,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
     nav{min-height:95px;display:flex;align-items:center;justify-content:space-between;}
     .header-left{display:flex;align-items:center;gap:24px;}
@@ -26,7 +25,6 @@
     .hamburger span{display:block;width:26px;height:3px;background:var(--ink);border-radius:2px; transition: 0.3s;}
     .hamburger:hover span { background: var(--muted); }
     
-    /* DESPLEGABLE DE HAMBURGUESA */
     .dropdown-content{display:none;position:absolute;top:110%;left:0;background-color:var(--card);min-width:240px;box-shadow:0 20px 40px rgba(0,0,0,.1);border:1.5px solid var(--line);border-radius:16px;z-index:200;flex-direction:column;padding:12px 0}
     .dropdown-content.show{display:flex;animation:slideDown .2s ease}
     .dropdown-content a { padding: 14px 24px; color: var(--muted); font-weight: 700; font-size:15px; transition: 0.15s; }
@@ -39,7 +37,6 @@
     .btn-auth.light:hover{transform:translateY(-1px); box-shadow:0 4px 0 var(--ink)}
     .btn-auth.green{background:var(--accent); color:var(--ink); box-shadow:0 3px 0 var(--ink)}
 
-    /* WIZARD MÁS COMPACTO */
     .upload-container{
       max-width:740px; 
       margin:60px auto;
@@ -202,7 +199,6 @@
     .progress-container{height:6px; background:var(--line); border-radius:3px; margin-bottom:28px; overflow:hidden;}
     .progress-bar{height:100%; background:var(--ink); width:0%; transition:width 0.3s ease;}
 
-    /* FOOTER TRES COLUMNAS */
     .footer { background: var(--bg); border-top: 1px solid var(--line); padding: 80px 0 40px; color: var(--muted); font-size: 14px; line-height: 1.6; }
     .footergrid { display: grid; grid-template-columns: 1.3fr 0.85fr 0.85fr; gap: 60px; margin-bottom: 48px; }
     .footer-col h3 { font-size: 16px; font-weight: 800; color: var(--ink); margin: 0 0 20px; letter-spacing: -0.3px; }
@@ -228,7 +224,6 @@
     }
     @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
 
-    /* REGLA FORZADA PARA EL INDICADOR DE CRÉDITOS */
     #authHeaderContainer span[style*="background" i],
     #authHeaderContainer span[style*="accent" i],
     #authHeaderContainer span:nth-child(2),
@@ -255,7 +250,6 @@
       white-space: nowrap !important;
     }
 
-    /* REGLA FORZADA PARA EL SALUDO DE USUARIO */
     #authHeaderContainer .user-greeting,
     #authHeaderContainer span:nth-child(1),
     #authHeaderContainer div span:nth-child(1),
@@ -270,12 +264,10 @@
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- Sincronización directa de la sesión de auth-helper -->
   <script src="../assets/js/auth-helper.js?v=11"></script>
 </head>
 <body>
 
-  <!-- CABECERA ADAPTADA -->
   <header class="top">
     <div class="wrap">
       <nav>
@@ -337,7 +329,7 @@
         <div class="drag-help" style="text-align:center;">También puedes arrastrar y soltar aquí tu archivo STL.</div>
       </div>
 
-      <!-- PASO 1: ¿QUÉ TIPO DE PIEZA ES? -->
+      <!-- PASO 1: TIPO DE PIEZA -->
       <div class="wizard-step" id="step-part-type">
         <div class="step-title"><span>¿Qué tipo de pieza vas a fabricar?</span> <span style="font-size:14px; color:var(--muted);">1 / 8</span></div>
         <div class="step-subtitle">Selecciona la clasificación que mejor se adapte a su funcionamiento real.</div>
@@ -380,7 +372,7 @@
         </div>
       </div>
 
-      <!-- PASO 2: ¿PARA QUÉ SIRVE LA PIEZA? -->
+      <!-- PASO 2: PROPÓSITO -->
       <div class="wizard-step" id="step-purpose">
         <div class="step-title"><span>¿Para qué sirve la pieza?</span> <span style="font-size:14px; color:var(--muted);">2 / 8</span></div>
         <div class="step-subtitle">Describe brevemente su función real para aportar contexto de ingeniería al análisis.</div>
@@ -390,7 +382,7 @@
         </div>
       </div>
 
-      <!-- PASO 3: ¿QUÉ ESFUERZOS SOPORTARÁ? -->
+      <!-- PASO 3: ESFUERZOS -->
       <div class="wizard-step" id="step-forces">
         <div class="step-title"><span>¿Qué tipo de esfuerzos soportará?</span> <span style="font-size:14px; color:var(--muted);">3 / 8</span></div>
         <div class="step-subtitle">Selecciona todas las solicitaciones mecánicas que afectarán al modelo.</div>
@@ -437,7 +429,7 @@
         </div>
       </div>
 
-      <!-- PASO 4: DIRECCIÓN DE LA FUERZA -->
+      <!-- PASO 4: DIRECCIÓN -->
       <div class="wizard-step" id="step-direction">
         <div class="step-title"><span>¿Cómo se aplicará la fuerza?</span> <span style="font-size:14px; color:var(--muted);">4 / 8</span></div>
         <div class="step-subtitle">Indica la dirección principal de la carga para definir la orientación óptima de las capas.</div>
@@ -470,7 +462,7 @@
         </div>
       </div>
 
-      <!-- PASO 5: CONDICIONES DE FUNCIONAMIENTO -->
+      <!-- PASO 5: CONDICIONES -->
       <div class="wizard-step" id="step-conditions">
         <div class="step-title"><span>¿En qué condiciones funcionará?</span> <span style="font-size:14px; color:var(--muted);">5 / 8</span></div>
         <div class="step-subtitle">Selecciona los factores ambientales del entorno de trabajo de la pieza.</div>
@@ -512,7 +504,7 @@
         </div>
       </div>
 
-      <!-- PASO 6: MATERIAL PROPUESTO -->
+      <!-- PASO 6: MATERIAL -->
       <div class="wizard-step" id="step-material">
         <div class="step-title"><span>¿Qué material tienes previsto utilizar?</span> <span style="font-size:14px; color:var(--muted);">6 / 8</span></div>
         <div class="step-subtitle">La IA evaluará si es la elección correcta o te propondrá una alternativa más fiable.</div>
@@ -555,7 +547,7 @@
         </div>
       </div>
 
-      <!-- PASO 7: PRIORIDAD DE LAMINACIÓN -->
+      <!-- PASO 7: PRIORIDAD -->
       <div class="wizard-step" id="step-priority">
         <div class="step-title"><span>¿Qué quieres priorizar en el análisis?</span> <span style="font-size:14px; color:var(--muted);">7 / 8</span></div>
         <div class="step-subtitle">Indica cuál es el factor de fabricación que requiere la máxima optimización.</div>
@@ -588,7 +580,7 @@
         </div>
       </div>
 
-      <!-- PASO 8: DETALLES DE LA IMPRESORA (OBLIGATORIO) -->
+      <!-- PASO 8: DETALLES IMPRESORA -->
       <div class="wizard-step" id="step-printer">
         <div class="step-title"><span>¿Qué impresora 3D utilizarás?</span> <span style="font-size:14px; color:var(--muted);">8 / 8</span></div>
         <div class="step-subtitle">Aporta las especificaciones técnicas de tu máquina de forma obligatoria para calibrar los flujos volumétricos.</div>
@@ -612,7 +604,7 @@
         </div>
       </div>
 
-      <!-- BOTONES DE NAVEGACIÓN -->
+      <!-- BOTONES NAVEGACIÓN -->
       <div class="wizard-nav-buttons" id="wizardNavigation" style="display:none;">
         <button class="btn-secondary" id="prevBtn" onclick="navigateStep(-1)">Atrás</button>
         <button class="btn-green" id="nextBtn">Siguiente</button>
@@ -621,7 +613,6 @@
     </div>
   </main>
 
-  <!-- PIE DE PÁGINA UNIFICADO COPIADO DE LA REFERENCIA -->
   <footer class="footer">
     <div class="wrap">
       <div class="footergrid">
@@ -676,7 +667,6 @@
     }
   </script>
 
-  <!-- LÓGICA DE EVENTOS DE ENTRADA E INICIALIZACIÓN -->
   <script>
     const answers = {
       partType: "",
@@ -706,6 +696,75 @@
     ];
     let currentStepIdx = 0;
 
+    // === IndexedDB Helpers para guardar estado (Archivo STL + Respuestas) ===
+    const IDB_DB_NAME = "PrintLabDB";
+    const IDB_STORE_NAME = "pendingAnalysis";
+
+    function saveStateToIDB(file, answers, step) {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(IDB_DB_NAME, 1);
+        req.onupgradeneeded = e => {
+          e.target.result.createObjectStore(IDB_STORE_NAME);
+        };
+        req.onsuccess = e => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(IDB_STORE_NAME)) {
+             const version = db.version + 1;
+             db.close();
+             const req2 = indexedDB.open(IDB_DB_NAME, version);
+             req2.onupgradeneeded = e2 => e2.target.result.createObjectStore(IDB_STORE_NAME);
+             req2.onsuccess = e2 => {
+                 const db2 = e2.target.result;
+                 const tx = db2.transaction(IDB_STORE_NAME, "readwrite");
+                 tx.objectStore(IDB_STORE_NAME).put({ file, answers, step }, "currentState");
+                 tx.oncomplete = () => resolve();
+             };
+             return;
+          }
+          const tx = db.transaction(IDB_STORE_NAME, "readwrite");
+          const store = tx.objectStore(IDB_STORE_NAME);
+          store.put({ file, answers, step }, "currentState");
+          tx.oncomplete = () => resolve();
+          tx.onerror = () => reject(tx.error);
+        };
+        req.onerror = e => reject(e.target.error);
+      });
+    }
+
+    function loadStateFromIDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(IDB_DB_NAME, 1);
+        req.onupgradeneeded = e => {
+          e.target.result.createObjectStore(IDB_STORE_NAME);
+        };
+        req.onsuccess = e => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(IDB_STORE_NAME)) {
+            resolve(null);
+            return;
+          }
+          const tx = db.transaction(IDB_STORE_NAME, "readonly");
+          const store = tx.objectStore(IDB_STORE_NAME);
+          const getReq = store.get("currentState");
+          getReq.onsuccess = () => resolve(getReq.result);
+          getReq.onerror = () => reject(getReq.error);
+        };
+        req.onerror = e => reject(e.target.error);
+      });
+    }
+
+    function clearStateFromIDB() {
+      const req = indexedDB.open(IDB_DB_NAME, 1);
+      req.onsuccess = e => {
+        const db = e.target.result;
+        if (db.objectStoreNames.contains(IDB_STORE_NAME)) {
+          const tx = db.transaction(IDB_STORE_NAME, "readwrite");
+          tx.objectStore(IDB_STORE_NAME).delete("currentState");
+        }
+      };
+    }
+    // =========================================================================
+
     const accessButton = document.getElementById("analyzerAccessButton");
     const fileInput = document.getElementById("stlFile");
     const uploadContainer = document.getElementById("uploadContainer");
@@ -717,7 +776,6 @@
     const wizardNav = document.getElementById("wizardNavigation");
     const progressContainer = document.getElementById("progressContainer");
 
-    // Vinculación reactiva inmediata (Siempre responde)
     document.getElementById("q-purpose").addEventListener("input", validateCurrentStep);
     document.getElementById("q-load-weight").addEventListener("input", validateCurrentStep);
     document.getElementById("q-operating-temp").addEventListener("input", validateCurrentStep);
@@ -924,7 +982,6 @@
       }
     });
 
-    // --- ENLACE SUPABASE ---
     const client = window.supabaseClient || (typeof supabaseClient !== "undefined" ? supabaseClient : null);
 
     async function getCurrentSession() {
@@ -961,7 +1018,113 @@
         return;
       }
 
-      await updateButtonState();
+      // Recuperar estado guardado si venimos de comprar créditos
+      if (sessionStorage.getItem("printlab_resume_analysis") === "true") {
+        sessionStorage.removeItem("printlab_resume_analysis");
+        try {
+          const savedState = await loadStateFromIDB();
+          if (savedState && savedState.file) {
+             window.selectedSTLFile = savedState.file;
+             Object.assign(answers, savedState.answers);
+             
+             // Restaurar UI del archivo STL
+             selectedFileName.textContent = savedState.file.name;
+             if (savedState.file.size < 1024 * 1024) {
+               selectedFileSize.textContent = (savedState.file.size / 1024).toFixed(0) + " KB";
+             } else {
+               selectedFileSize.textContent = (savedState.file.size / (1024 * 1024)).toFixed(1) + " MB";
+             }
+             selectedFile.classList.add("show");
+             await updateButtonState();
+
+             // Restaurar cuestionario en el DOM
+             if(answers.partType) {
+               const card = document.querySelector(`.option-card[data-val="${answers.partType}"]`);
+               if(card) {
+                  card.parentNode.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+                  card.classList.add('selected');
+               }
+             }
+             if(answers.purpose) document.getElementById("q-purpose").value = answers.purpose;
+             
+             if(answers.forces && answers.forces.length > 0) {
+               document.querySelectorAll('#step-forces .option-card').forEach(c => {
+                  if(answers.forces.includes(c.dataset.val)) c.classList.add('selected');
+               });
+             }
+             if(answers.loadWeight) document.getElementById("q-load-weight").value = answers.loadWeight;
+
+             if(answers.direction) {
+                const card = document.querySelector(`#step-direction .option-card[data-val="${answers.direction}"]`);
+                if(card) {
+                   card.parentNode.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+                   card.classList.add('selected');
+                }
+             }
+
+             if(answers.environment && answers.environment.length > 0) {
+                document.querySelectorAll('#step-conditions .option-card').forEach(c => {
+                   if(answers.environment.includes(c.dataset.val)) c.classList.add('selected');
+                });
+                if(answers.environment.includes("temp_alta")) {
+                   document.getElementById("temp-conditional-group").style.display = "flex";
+                }
+             }
+             if(answers.operatingTemp) document.getElementById("q-operating-temp").value = answers.operatingTemp;
+
+             if(answers.material) {
+                const card = document.querySelector(`#step-material .option-card[data-val="${answers.material}"]`);
+                if(card) {
+                   card.parentNode.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+                   card.classList.add('selected');
+                }
+             }
+
+             if(answers.priority) {
+                const card = document.querySelector(`#step-priority .option-card[data-val="${answers.priority}"]`);
+                if(card) {
+                   card.parentNode.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+                   card.classList.add('selected');
+                }
+             }
+
+             if(answers.printerTech) document.getElementById("q-tech").value = answers.printerTech;
+             if(answers.nozzleSize) document.getElementById("q-nozzle").value = answers.nozzleSize;
+             if(answers.layerHeight) document.getElementById("q-layer-height").value = answers.layerHeight;
+
+             // Hacer la transición visual al Paso 8
+             document.querySelector(".upload-title").style.display = "none";
+             document.querySelector(".upload-desc").style.display = "none";
+             accessButton.style.display = "none";
+             document.querySelector(".drag-help").style.display = "none";
+
+             progressContainer.style.display = "block";
+             wizardNav.style.display = "flex";
+             
+             document.getElementById(steps[currentStepIdx]).classList.remove("active");
+             currentStepIdx = 8;
+             document.getElementById(steps[currentStepIdx]).classList.add("active");
+             
+             const progressPercent = (currentStepIdx / (steps.length - 1)) * 100;
+             document.getElementById("progressBar").style.width = `${progressPercent}%`;
+             
+             const prevBtn = document.getElementById("prevBtn");
+             const nextBtn = document.getElementById("nextBtn");
+             prevBtn.style.visibility = "visible";
+             nextBtn.textContent = "Iniciar Análisis Real";
+
+             validateCurrentStep();
+             clearStateFromIDB();
+          } else {
+             await updateButtonState();
+          }
+        } catch (e) {
+          console.error("Error al recuperar estado de IndexedDB:", e);
+          await updateButtonState();
+        }
+      } else {
+        await updateButtonState();
+      }
 
       if (client && client.auth && typeof client.auth.onAuthStateChange === "function") {
         client.auth.onAuthStateChange((event, session) => { 
@@ -999,7 +1162,11 @@
 
             if (profileError) throw profileError;
 
+            // Si el usuario no tiene saldo, guardar archivo y respuestas temporalmente
             if (!profile || profile.credits < 1) {
+              nextBtn.textContent = "Guardando progreso...";
+              await saveStateToIDB(window.selectedSTLFile, answers, currentStepIdx);
+              sessionStorage.setItem("printlab_resume_analysis", "true");
               window.location.href = "precios.html";
               return;
             }
@@ -1009,7 +1176,6 @@
             const fileName = `${activeSession.user.id}/${Date.now()}.${fileExt}`;
             const filePath = `uploads/${fileName}`;
 
-            // Almacenar el archivo de forma asíncrona en Supabase Storage
             await client
               .storage
               .from('stls')
@@ -1017,7 +1183,6 @@
 
             nextBtn.textContent = "Analizando geometría...";
 
-            // --- LLAMADA AL BACKEND REAL MEDIANTE /ANALYZE ---
             const formData = new FormData();
             formData.append("file", window.selectedSTLFile);
             formData.append("questionnaire", JSON.stringify(answers));
@@ -1036,7 +1201,6 @@
               throw new Error(analysisData?.error || "Error de cálculo geométrico paramétrico en el backend.");
             }
 
-            // Almacenar el paquete de análisis real obtenido del backend en sessionStorage
             sessionStorage.setItem("printlab_analysis", JSON.stringify({
               volume: analysisData.volume_cm3,
               dimensions: analysisData.dimensions,
@@ -1054,7 +1218,6 @@
               throw new Error("Transacción denegada. Compruebe su saldo.");
             }
 
-            // Redirección directa al informe real
             window.location.href = "informe-stl.html";
 
           } catch (err) {
