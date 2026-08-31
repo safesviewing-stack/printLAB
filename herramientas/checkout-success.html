@@ -116,8 +116,8 @@
       </div>
     </div>
 
-    <!-- BOTÓN INTELIGENTE (TEXTO EXACTO SOLICITADO) -->
-    <a href="analizador-stl.html" class="btn-action" id="btnSmartAction">Empezar análisis</a>
+    <!-- BOTÓN INTELIGENTE (Textos e Href dinámicos) -->
+    <a href="analizador-stl.html" class="btn-action" id="btnSmartAction">Cargando...</a>
   </div>
 </main>
 
@@ -144,7 +144,7 @@
       <div class="footer-col">
         <h3>Soporte y Legal</h3>
         <div class="footer-links">
-          <!-- LIMPIAMOS LA HUELLA SI VAN DESDE EL FOOTER -->
+          <!-- HUELLA PROTEGIDA: Si pulsan en el footer, rompemos el guardado -->
           <a href="precios.html" onclick="sessionStorage.removeItem('printlab_resume_analysis');">→ Precios y Suscripciones</a>
           <a href="contacto.html">→ Contacto y Soporte</a>
           <a href="../condiciones-compra.html">→ Condiciones de Compra</a>
@@ -201,14 +201,16 @@ const PLANS = {
 
 document.addEventListener("DOMContentLoaded", async () => {
   
-  // === LÓGICA DEL BOTÓN INTELIGENTE (Textos solicitados) ===
+  // === LÓGICA DEL BOTÓN INTELIGENTE (Action y Texto Exacto) ===
   const btnSmartAction = document.getElementById("btnSmartAction");
   if (sessionStorage.getItem("printlab_resume_analysis") === "true") {
     btnSmartAction.textContent = "Continuar análisis";
+    btnSmartAction.href = "analizador-stl.html?action=resume";
   } else {
     btnSmartAction.textContent = "Empezar análisis";
+    btnSmartAction.href = "analizador-stl.html";
   }
-  // ====================================
+  // ============================================================
 
   const urlParams = new URLSearchParams(window.location.search);
   const planId = urlParams.get("plan") || sessionStorage.getItem("printlab_purchase_plan") || "pro";
