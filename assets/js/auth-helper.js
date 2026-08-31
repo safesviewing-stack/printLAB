@@ -5,15 +5,32 @@
 // =====================================================
 (function() {
   const originalGetItem = localStorage.getItem;
+
   localStorage.getItem = function(key) {
-    if (key && key.includes("auth-token") && sessionStorage.getItem("printlab_recovery_mode") === "true") {
+
+    if (
+      key &&
+      key.includes("auth-token") &&
+      sessionStorage.getItem("printlab_recovery_mode") === "true"
+    ) {
+
       // Permitir lectura única en login.html para que el formulario de recuperación pueda procesar updateUser
-      if (!window.location.pathname.toLowerCase().includes("login.html")) {
+      if (
+        !window.location.pathname
+          .toLowerCase()
+          .includes("login.html")
+      ) {
+
         return null;
+
       }
+
     }
+
     return originalGetItem.apply(this, arguments);
+
   };
+
 })();
 
 
@@ -27,17 +44,19 @@ const SUPABASE_URL =
 const SUPABASE_ANON_KEY =
   "sb_publishable_kelRYJ3Fa56DXY3GhxWLHQ_YiLJzStR";
 
-const supabaseClient = supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY
-);
+const supabaseClient =
+  supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+  );
 
 
 // =====================================================
 // ACCESO GLOBAL AL CLIENTE SUPABASE
 // =====================================================
 
-window.supabaseClient = supabaseClient;
+window.supabaseClient =
+  supabaseClient;
 
 
 // =====================================================
@@ -48,16 +67,27 @@ window.handleLogout = async function() {
 
   const btn =
     document.getElementById("btn-logout") ||
-    document.querySelector(".user-header-info button");
+    document.querySelector(
+      ".user-header-info button"
+    );
+
 
   if (btn) {
+
     btn.disabled = true;
-    btn.textContent = "Cerrando sesión...";
+
+    btn.textContent =
+      "Cerrando sesión...";
+
   }
+
+
+  // ---------------------------------------------------
+  // CERRAR SESIÓN EN SUPABASE
+  // ---------------------------------------------------
 
   try {
 
-    // Cerrar sesión
     await supabaseClient.auth.signOut();
 
   } catch (error) {
@@ -67,42 +97,91 @@ window.handleLogout = async function() {
       error
     );
 
-  } finally {
-
-    // Limpiar datos guardados
-    localStorage.removeItem(
-      "sb-jmwprzgfdkphbxryjbnr-auth-token"
-    );
-
-    localStorage.removeItem(
-      "printlab_cached_name"
-    );
-
-    localStorage.removeItem(
-      "printlab_cached_credits"
-    );
-
-    sessionStorage.removeItem(
-      "printlab_recovery_mode"
-    );
-
-    sessionStorage.removeItem(
-      "printlab_auth_redirect"
-    );
+  }
 
 
-    // IR AL INDEX PRINCIPAL
-    window.location.href = "/index.html";
+  // ---------------------------------------------------
+  // LIMPIAR DATOS LOCALES
+  // ---------------------------------------------------
+
+  localStorage.removeItem(
+    "sb-jmwprzgfdkphbxryjbnr-auth-token"
+  );
+
+  localStorage.removeItem(
+    "printlab_cached_name"
+  );
+
+  localStorage.removeItem(
+    "printlab_cached_credits"
+  );
+
+  sessionStorage.removeItem(
+    "printlab_recovery_mode"
+  );
+
+  sessionStorage.removeItem(
+    "printlab_auth_redirect"
+  );
+
+
+  // ---------------------------------------------------
+  // DETERMINAR DÓNDE ESTAMOS
+  // ---------------------------------------------------
+
+  const currentPath =
+    window.location.pathname.toLowerCase();
+
+
+  /*
+    Si estamos dentro de una carpeta:
+    
+    /herramientas/analizador-stl.html
+    /guias/...
+    /materiales/...
+
+    necesitamos subir un nivel.
+
+    Si estamos en el index principal:
+
+    /index.html
+
+    simplemente usamos index.html.
+  */
+
+  let indexUrl =
+    "index.html";
+
+
+  if (
+    currentPath.includes("/herramientas/") ||
+    currentPath.includes("/guias/") ||
+    currentPath.includes("/materiales/")
+  ) {
+
+    indexUrl =
+      "../index.html";
 
   }
 
+
+  // ---------------------------------------------------
+  // VOLVER AL INDEX PRINCIPAL
+  // ---------------------------------------------------
+
+  window.location.href =
+    indexUrl;
+
 };
+
+
 // =====================================================
 // ESTILOS DEL HEADER DEL USUARIO Y BOTONES DE CABECERA
 // =====================================================
 
 const authHeaderStyles =
   document.createElement("style");
+
 
 authHeaderStyles.textContent = `
 
@@ -113,6 +192,7 @@ authHeaderStyles.textContent = `
   }
 
   /* ESTILO UNIFICADO CON SOMBREADO 3D PARA BOTONES DE LOGOUT */
+
   .btn-auth {
     display: inline-flex !important;
     align-items: center !important;
@@ -122,7 +202,9 @@ authHeaderStyles.textContent = `
     font-weight: 800 !important;
     font-size: 14px !important;
     cursor: pointer !important;
-    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease !important;
     text-decoration: none !important;
     border: 2px solid var(--ink) !important;
   }
@@ -195,7 +277,9 @@ authHeaderStyles.textContent = `
     border-radius: 9999px !important;
     font-weight: 800 !important;
     border: 2px solid var(--ink) !important;
-    transition: transform .2s ease, box-shadow .2s ease !important;
+    transition:
+      transform .2s ease,
+      box-shadow .2s ease !important;
     box-shadow: 0 3px 0 var(--ink) !important;
   }
 
@@ -224,7 +308,7 @@ authHeaderStyles.textContent = `
       padding:4px 10px;
       min-height:auto;
       font-size:13px;
-      border-radius: 9999px;
+      border-radius:9999px;
     }
 
     .user-header-info .btn-auth.light{
@@ -235,6 +319,7 @@ authHeaderStyles.textContent = `
   }
 
 `;
+
 
 document.head.appendChild(
   authHeaderStyles
@@ -261,7 +346,8 @@ document.addEventListener(
 
     if (!prefersReduced) {
 
-      document.body.style.opacity = "0";
+      document.body.style.opacity =
+        "0";
 
       document.body.style.transition =
         "opacity 0.2s ease-in-out";
@@ -269,7 +355,8 @@ document.addEventListener(
 
       setTimeout(() => {
 
-        document.body.style.opacity = "1";
+        document.body.style.opacity =
+          "1";
 
       }, 50);
 
@@ -294,6 +381,7 @@ async function initAuth() {
 
   let user = null;
 
+
   // ===================================================
   // ELEMENTOS DE LA PÁGINA
   // ===================================================
@@ -311,40 +399,87 @@ async function initAuth() {
 
 
   // ===================================================
-  // DETECTOR DE RUTAS JERÁRQUICAS (Previene errores 404)
+  // DETECTOR DE RUTAS JERÁRQUICAS
   // ===================================================
 
-  const currentPathname = window.location.pathname.toLowerCase();
-  let pathPrefix = "";
+  const currentPathname =
+    window.location.pathname.toLowerCase();
 
-  if (currentPathname.includes("/herramientas/")) {
-    pathPrefix = "";
-  } else if (currentPathname.includes("/guias/") || currentPathname.includes("/materiales/")) {
-    pathPrefix = "../herramientas/";
+
+  let pathPrefix =
+    "";
+
+
+  if (
+    currentPathname.includes(
+      "/herramientas/"
+    )
+  ) {
+
+    pathPrefix =
+      "";
+
+  } else if (
+    currentPathname.includes(
+      "/guias/"
+    ) ||
+    currentPathname.includes(
+      "/materiales/"
+    )
+  ) {
+
+    pathPrefix =
+      "../herramientas/";
+
   } else {
-    // Si no está en ninguna carpeta, asume que está en el directorio raíz (index.html)
-    pathPrefix = "herramientas/";
+
+    // Estamos en el directorio raíz
+    pathPrefix =
+      "herramientas/";
+
   }
 
 
   // ===================================================
-  // DETECCIÓN GLOBAL DE MODO DE RECUPERACIÓN (Inmune a la navegación)
+  // DETECCIÓN GLOBAL DE MODO DE RECUPERACIÓN
   // ===================================================
 
   const isRecovery =
-    window.location.hash.includes("type=recovery") ||
-    window.location.hash.includes("access_token=") ||
-    window.location.search.includes("type=recovery") ||
-    sessionStorage.getItem("printlab_recovery_mode") === "true";
+    window.location.hash.includes(
+      "type=recovery"
+    ) ||
+
+    window.location.hash.includes(
+      "access_token="
+    ) ||
+
+    window.location.search.includes(
+      "type=recovery"
+    ) ||
+
+    sessionStorage.getItem(
+      "printlab_recovery_mode"
+    ) === "true";
 
 
   if (
-    window.location.hash.includes("type=recovery") ||
-    window.location.hash.includes("access_token=") ||
-    window.location.search.includes("type=recovery")
+    window.location.hash.includes(
+      "type=recovery"
+    ) ||
+
+    window.location.hash.includes(
+      "access_token="
+    ) ||
+
+    window.location.search.includes(
+      "type=recovery"
+    )
   ) {
 
-    sessionStorage.setItem("printlab_recovery_mode", "true");
+    sessionStorage.setItem(
+      "printlab_recovery_mode",
+      "true"
+    );
 
   }
 
@@ -353,26 +488,61 @@ async function initAuth() {
   // PRE-CARGA SÍNCRONA DE SESIÓN MEDIANTE CACHÉ LOCAL
   // ===================================================
 
-  const tokenStr = localStorage.getItem("sb-jmwprzgfdkphbxryjbnr-auth-token");
+  const tokenStr =
+    localStorage.getItem(
+      "sb-jmwprzgfdkphbxryjbnr-auth-token"
+    );
 
-  if (tokenStr && !isRecovery) {
+
+  if (
+    tokenStr &&
+    !isRecovery
+  ) {
 
     try {
 
-      const tokenData = JSON.parse(tokenStr);
-      const sessionUser = tokenData?.user;
+      const tokenData =
+        JSON.parse(tokenStr);
+
+
+      const sessionUser =
+        tokenData?.user;
+
 
       if (sessionUser) {
 
-        user = sessionUser; // Pre-cargar el usuario síncronamente
+        user =
+          sessionUser;
 
 
-        // Recuperar valores de caché síncronos para eliminar el parpadeo de "85"
-        const cachedName = localStorage.getItem("printlab_cached_name") || user.user_metadata?.full_name || user.email?.split("@")[0] || "Usuario";
-        const cachedCredits = localStorage.getItem("printlab_cached_credits") || "...";
+        // ------------------------------------------------
+        // RECUPERAR DATOS EN CACHÉ
+        // ------------------------------------------------
+
+        const cachedName =
+          localStorage.getItem(
+            "printlab_cached_name"
+          ) ||
+
+          user.user_metadata?.full_name ||
+
+          user.email?.split("@")[0] ||
+
+          "Usuario";
 
 
-        // Pintar la cabecera síncronamente en el acto
+        const cachedCredits =
+          localStorage.getItem(
+            "printlab_cached_credits"
+          ) ||
+
+          "...";
+
+
+        // ------------------------------------------------
+        // PINTAR CABECERA INMEDIATAMENTE
+        // ------------------------------------------------
+
         if (authButtons) {
 
           authButtons.innerHTML = `
@@ -400,22 +570,45 @@ async function initAuth() {
 
           `;
 
-          authButtons.style.opacity = "1";
-          authButtons.style.visibility = "visible";
+
+          authButtons.style.opacity =
+            "1";
+
+
+          authButtons.style.visibility =
+            "visible";
 
         }
 
 
-        // Pintar el dashboard de bienvenida de inmediato
+        // ------------------------------------------------
+        // DASHBOARD
+        // ------------------------------------------------
+
         if (greetingDashboard) {
 
-          const creditsText = cachedCredits !== "..." ? `Dispones de ${cachedCredits} créditos` : "Cargando créditos...";
+          const creditsText =
+            cachedCredits !== "..."
+              ? `Dispones de ${cachedCredits} créditos`
+              : "Cargando créditos...";
 
-          greetingDashboard.innerHTML = `Hola, ${cachedName} | ${creditsText}`;
 
-          greetingDashboard.style.setProperty("background", "rgba(184, 255, 61, 0.2)", "important");
+          greetingDashboard.innerHTML =
+            `Hola, ${cachedName} | ${creditsText}`;
 
-          greetingDashboard.style.setProperty("color", "var(--ink)", "important");
+
+          greetingDashboard.style.setProperty(
+            "background",
+            "rgba(184, 255, 61, 0.2)",
+            "important"
+          );
+
+
+          greetingDashboard.style.setProperty(
+            "color",
+            "var(--ink)",
+            "important"
+          );
 
         }
 
@@ -423,7 +616,10 @@ async function initAuth() {
 
     } catch (e) {
 
-      console.warn("Error en pre-carga de sesión:", e);
+      console.warn(
+        "Error en pre-carga de sesión:",
+        e
+      );
 
     }
 
@@ -438,8 +634,8 @@ async function initAuth() {
 
     if (isRecovery) {
 
-      // Bloquear cualquier comprobación de usuario si estamos en modo recuperación
-      user = null;
+      user =
+        null;
 
     } else {
 
@@ -457,7 +653,9 @@ async function initAuth() {
           error
         );
 
-        user = null; // Si da error, limpiamos el estado síncrono
+
+        user =
+          null;
 
       } else {
 
@@ -475,18 +673,21 @@ async function initAuth() {
       error
     );
 
-    user = null;
+
+    user =
+      null;
 
   }
 
 
   // ===================================================
-  // USUARIO LOGUEADO (Actualiza la caché con los datos del servidor)
+  // USUARIO LOGUEADO
   // ===================================================
 
   if (user) {
 
-    let profile = null;
+    let profile =
+      null;
 
 
     // -------------------------------------------------
@@ -528,7 +729,9 @@ async function initAuth() {
 
     const name =
       profile?.full_name ||
+
       user.email?.split("@")[0] ||
+
       "Usuario";
 
 
@@ -540,27 +743,48 @@ async function initAuth() {
       profile?.credits ?? 0;
 
 
-    // --- PROTECCIÓN OPTIMISTA SÍNCRONA ---
-    // Si estamos en la página de éxito de checkout, no permitimos que un saldo desactualizado (menor) de la base de datos
-    // machaque el saldo optimista actualizado de la caché.
-    if (window.location.pathname.toLowerCase().includes("checkout-success.html")) {
+    // -------------------------------------------------
+    // PROTECCIÓN OPTIMISTA EN CHECKOUT SUCCESS
+    // -------------------------------------------------
 
-      const cached = parseInt(
-        localStorage.getItem("printlab_cached_credits")
-      );
+    if (
+      window.location.pathname
+        .toLowerCase()
+        .includes(
+          "checkout-success.html"
+        )
+    ) {
 
-      if (!isNaN(cached) && cached > credits) {
-        credits = cached;
+      const cached =
+        parseInt(
+          localStorage.getItem(
+            "printlab_cached_credits"
+          )
+        );
+
+
+      if (
+        !isNaN(cached) &&
+        cached > credits
+      ) {
+
+        credits =
+          cached;
+
       }
 
     }
 
 
-    // Actualizar la caché local para el siguiente refresco instantáneo
+    // -------------------------------------------------
+    // ACTUALIZAR CACHÉ
+    // -------------------------------------------------
+
     localStorage.setItem(
       "printlab_cached_name",
       name
     );
+
 
     localStorage.setItem(
       "printlab_cached_credits",
@@ -569,7 +793,7 @@ async function initAuth() {
 
 
     // =================================================
-    // ACTUALIZAR HEADER CON DATOS REALES
+    // ACTUALIZAR HEADER
     // =================================================
 
     if (authButtons) {
@@ -582,11 +806,9 @@ async function initAuth() {
             Hola, ${name}
           </span>
 
-
           <span class="credits-badge">
             Créditos: ${credits}
           </span>
-
 
           <button
             id="btn-logout"
@@ -601,32 +823,45 @@ async function initAuth() {
 
       `;
 
-      // Hace visible la cabecera una vez determinado el estado de la sesión
-      authButtons.style.opacity = "1";
-      authButtons.style.visibility = "visible";
+
+      authButtons.style.opacity =
+        "1";
+
+
+      authButtons.style.visibility =
+        "visible";
 
     }
 
 
     // =================================================
-    // DASHBOARD (Unificado en una sola línea y fondo verde)
+    // DASHBOARD
     // =================================================
 
     if (greetingDashboard) {
 
-      greetingDashboard.innerHTML = `Hola, ${name} | Dispones de ${credits} créditos`;
-      
-      greetingDashboard.style.setProperty("background", "rgba(184, 255, 61, 0.2)", "important");
+      greetingDashboard.innerHTML =
+        `Hola, ${name} | Dispones de ${credits} créditos`;
 
-      greetingDashboard.style.setProperty("color", "var(--ink)", "important");
+
+      greetingDashboard.style.setProperty(
+        "background",
+        "rgba(184, 255, 61, 0.2)",
+        "important"
+      );
+
+
+      greetingDashboard.style.setProperty(
+        "color",
+        "var(--ink)",
+        "important"
+      );
 
     }
 
 
     // -------------------------------------------------
-    // IMPORTANTE:
-    // Si hay usuario, terminamos aquí.
-    // No tocamos ningún formulario de login.
+    // SI HAY USUARIO, TERMINAMOS
     // -------------------------------------------------
 
     return;
@@ -635,7 +870,7 @@ async function initAuth() {
 
 
   // ===================================================
-  // USUARIO SIN SESIÓN (Se resuelven las rutas según la carpeta)
+  // USUARIO SIN SESIÓN
   // ===================================================
 
   const currentPage =
@@ -652,16 +887,23 @@ async function initAuth() {
       <a
         href="${pathPrefix}login.html"
         class="btn-auth light"
-        onclick="sessionStorage.removeItem('printlab_recovery_mode'); localStorage.removeItem('sb-jmwprzgfdkphbxryjbnr-auth-token');"
+        onclick="
+          sessionStorage.removeItem('printlab_recovery_mode');
+          localStorage.removeItem('sb-jmwprzgfdkphbxryjbnr-auth-token');
+        "
       >
         Iniciar Sesión
       </a>
+
 
       <a
         href="${pathPrefix}registro.html"
         id="header-register-link"
         class="btn-auth green"
-        onclick="sessionStorage.removeItem('printlab_recovery_mode'); localStorage.removeItem('sb-jmwprzgfdkphbxryjbnr-auth-token');"
+        onclick="
+          sessionStorage.removeItem('printlab_recovery_mode');
+          localStorage.removeItem('sb-jmwprzgfdkphbxryjbnr-auth-token');
+        "
       >
         Registrarse
       </a>
@@ -669,11 +911,15 @@ async function initAuth() {
     `;
 
 
-    // Si estamos en login o registro, ajustar el enlace dinámico de la cabecera
+    // -------------------------------------------------
+    // AJUSTAR ENLACE DE REGISTRO
+    // -------------------------------------------------
+
     const headerRegLink =
       document.getElementById(
         "header-register-link"
       );
+
 
     if (headerRegLink) {
 
@@ -682,12 +928,18 @@ async function initAuth() {
           window.location.search
         );
 
+
       let redir =
-        loginParams.get("redirect") ||
+        loginParams.get(
+          "redirect"
+        ) ||
+
         sessionStorage.getItem(
           "printlab_auth_redirect"
         ) ||
+
         "../index.html";
+
 
       headerRegLink.href =
         `${pathPrefix}registro.html?redirect=${encodeURIComponent(redir)}`;
@@ -695,18 +947,29 @@ async function initAuth() {
     }
 
 
-    // Hace visible la cabecera en el estado deslogueado
-    authButtons.style.opacity = "1";
-    authButtons.style.visibility = "visible";
+    // -------------------------------------------------
+    // MOSTRAR BOTONES
+    // -------------------------------------------------
+
+    authButtons.style.opacity =
+      "1";
+
+
+    authButtons.style.visibility =
+      "visible";
 
   }
 
 
   // ===================================================
-  // SOLO INFORME PRIVADO (Búsqueda por coincidencia de cadena)
+  // SOLO INFORME PRIVADO
   // ===================================================
 
-  if (currentPathname.includes("informe-stl")) {
+  if (
+    currentPathname.includes(
+      "informe-stl"
+    )
+  ) {
 
     const redirect =
       encodeURIComponent(
@@ -715,7 +978,8 @@ async function initAuth() {
 
 
     window.location.href =
-      pathPrefix + "login.html?redirect=" +
+      pathPrefix +
+      "login.html?redirect=" +
       redirect;
 
   }
