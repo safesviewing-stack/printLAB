@@ -57,56 +57,19 @@ window.handleLogout = async function() {
 
   try {
 
-    // Cerrar sesión en Supabase
+    // Cerrar sesión
     await supabaseClient.auth.signOut();
-
-    // Limpiar datos guardados de la sesión
-    localStorage.removeItem(
-      "sb-jmwprzgfdkphbxryjbnr-auth-token"
-    );
-
-    localStorage.removeItem(
-      "printlab_cached_name"
-    );
-
-    localStorage.removeItem(
-      "printlab_cached_credits"
-    );
-
-    sessionStorage.removeItem(
-      "printlab_recovery_mode"
-    );
-
-    sessionStorage.removeItem(
-      "printlab_auth_redirect"
-    );
-
-    // Volver al INDEX PRINCIPAL
-    const currentPath =
-      window.location.pathname.toLowerCase();
-
-    if (
-      currentPath.includes("/herramientas/") ||
-      currentPath.includes("/guias/") ||
-      currentPath.includes("/materiales/")
-    ) {
-
-      window.location.href = "../index.html";
-
-    } else {
-
-      window.location.href = "index.html";
-
-    }
 
   } catch (error) {
 
     console.error(
-      "Error cerrando sesión:",
+      "Error al cerrar sesión:",
       error
     );
 
-    // Limpiar sesión aunque Supabase falle
+  } finally {
+
+    // Limpiar datos guardados
     localStorage.removeItem(
       "sb-jmwprzgfdkphbxryjbnr-auth-token"
     );
@@ -127,28 +90,13 @@ window.handleLogout = async function() {
       "printlab_auth_redirect"
     );
 
-    // Volver igualmente al index principal
-    const currentPath =
-      window.location.pathname.toLowerCase();
 
-    if (
-      currentPath.includes("/herramientas/") ||
-      currentPath.includes("/guias/") ||
-      currentPath.includes("/materiales/")
-    ) {
-
-      window.location.href = "../index.html";
-
-    } else {
-
-      window.location.href = "index.html";
-
-    }
+    // IR AL INDEX PRINCIPAL
+    window.location.href = "/index.html";
 
   }
 
 };
-
 // =====================================================
 // ESTILOS DEL HEADER DEL USUARIO Y BOTONES DE CABECERA
 // =====================================================
