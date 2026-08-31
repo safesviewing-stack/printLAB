@@ -116,8 +116,8 @@
       </div>
     </div>
 
-    <!-- BOTÓN INTELIGENTE -->
-    <a href="analizador-stl.html" class="btn-action" id="btnSmartAction">Ir al Analizador STL</a>
+    <!-- BOTÓN INTELIGENTE (TEXTO EXACTO SOLICITADO) -->
+    <a href="analizador-stl.html" class="btn-action" id="btnSmartAction">Empezar análisis</a>
   </div>
 </main>
 
@@ -144,7 +144,8 @@
       <div class="footer-col">
         <h3>Soporte y Legal</h3>
         <div class="footer-links">
-          <a href="precios.html">→ Precios y Suscripciones</a>
+          <!-- LIMPIAMOS LA HUELLA SI VAN DESDE EL FOOTER -->
+          <a href="precios.html" onclick="sessionStorage.removeItem('printlab_resume_analysis');">→ Precios y Suscripciones</a>
           <a href="contacto.html">→ Contacto y Soporte</a>
           <a href="../condiciones-compra.html">→ Condiciones de Compra</a>
           <a href="../terminos.html">→ Términos y Condiciones</a>
@@ -200,12 +201,12 @@ const PLANS = {
 
 document.addEventListener("DOMContentLoaded", async () => {
   
-  // === LÓGICA DEL BOTÓN INTELIGENTE ===
+  // === LÓGICA DEL BOTÓN INTELIGENTE (Textos solicitados) ===
   const btnSmartAction = document.getElementById("btnSmartAction");
   if (sessionStorage.getItem("printlab_resume_analysis") === "true") {
-    btnSmartAction.textContent = "Retomar Análisis Pendiente";
+    btnSmartAction.textContent = "Continuar análisis";
   } else {
-    btnSmartAction.textContent = "Nuevo Análisis STL";
+    btnSmartAction.textContent = "Empezar análisis";
   }
   // ====================================
 
@@ -222,19 +223,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     let finalCredits = 0;
 
-    // 1. Mirar si la base de datos ya se actualizó
     const { data, error } = await supabaseClient.from("profiles").select("credits").eq("id", user.id).single();
     if(!error && data && typeof data.credits === "number"){
       finalCredits = data.credits;
     }
 
-    // 2. CORRECCIÓN OPTIMISTA: Si la DB devuelve el valor viejo porque el webhook fue lento, priorizamos el valor pre-calculado del checkout.
     const cachedCredits = parseInt(localStorage.getItem("printlab_cached_credits"));
     if (!isNaN(cachedCredits) && cachedCredits > finalCredits) {
       finalCredits = cachedCredits;
     }
 
-    // 3. Pintamos los créditos correctos al momento (sin necesidad de F5)
     document.getElementById("item-credits").textContent = finalCredits + " Créditos";
     document.getElementById("preRenderedCredits").textContent = "Créditos: " + finalCredits;
     localStorage.setItem("printlab_cached_credits", String(finalCredits));
