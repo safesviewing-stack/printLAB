@@ -57,10 +57,10 @@ window.handleLogout = async function() {
 
   try {
 
-    // 1. Cerrar sesión oficialmente en Supabase
+    // Cerrar sesión en Supabase
     await supabaseClient.auth.signOut();
 
-    // 2. Limpiar cachés locales
+    // Limpiar datos guardados de la sesión
     localStorage.removeItem(
       "sb-jmwprzgfdkphbxryjbnr-auth-token"
     );
@@ -81,8 +81,23 @@ window.handleLogout = async function() {
       "printlab_auth_redirect"
     );
 
-    // 3. IR SIEMPRE AL INDEX PRINCIPAL
-    window.location.href = "/index.html";
+    // Volver al INDEX PRINCIPAL
+    const currentPath =
+      window.location.pathname.toLowerCase();
+
+    if (
+      currentPath.includes("/herramientas/") ||
+      currentPath.includes("/guias/") ||
+      currentPath.includes("/materiales/")
+    ) {
+
+      window.location.href = "../index.html";
+
+    } else {
+
+      window.location.href = "index.html";
+
+    }
 
   } catch (error) {
 
@@ -91,7 +106,7 @@ window.handleLogout = async function() {
       error
     );
 
-    // Aunque falle signOut, limpiar y volver al inicio
+    // Limpiar sesión aunque Supabase falle
     localStorage.removeItem(
       "sb-jmwprzgfdkphbxryjbnr-auth-token"
     );
@@ -112,8 +127,26 @@ window.handleLogout = async function() {
       "printlab_auth_redirect"
     );
 
-    window.location.href = "/index.html";
+    // Volver igualmente al index principal
+    const currentPath =
+      window.location.pathname.toLowerCase();
+
+    if (
+      currentPath.includes("/herramientas/") ||
+      currentPath.includes("/guias/") ||
+      currentPath.includes("/materiales/")
+    ) {
+
+      window.location.href = "../index.html";
+
+    } else {
+
+      window.location.href = "index.html";
+
+    }
+
   }
+
 };
 
 // =====================================================
