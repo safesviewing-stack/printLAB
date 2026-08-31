@@ -45,7 +45,10 @@ window.supabaseClient = supabaseClient;
 // =====================================================
 
 window.handleLogout = async function() {
-  const btn = document.getElementById("btn-logout") || document.querySelector(".user-header-info button");
+
+  const btn =
+    document.getElementById("btn-logout") ||
+    document.querySelector(".user-header-info button");
 
   if (btn) {
     btn.disabled = true;
@@ -53,28 +56,65 @@ window.handleLogout = async function() {
   }
 
   try {
-    // 1. Forzar destrucción síncrona inmediata del token de sesión de Supabase
-    localStorage.removeItem("sb-jmwprzgfdkphbxryjbnr-auth-token");
 
-    // 2. Limpiar caché síncrono al cerrar sesión de forma segura
-    localStorage.removeItem("printlab_cached_name");
-    localStorage.removeItem("printlab_cached_credits");
-    sessionStorage.removeItem("printlab_recovery_mode");
-    sessionStorage.removeItem("printlab_auth_redirect");
-
-    // 3. Ejecutar el signOut asíncrono oficial
+    // 1. Cerrar sesión oficialmente en Supabase
     await supabaseClient.auth.signOut();
 
-    // 4. Volver siempre al index.html principal
-    sessionStorage.removeItem("printlab_auth_redirect");
-    window.location.href = "../index.html";
+    // 2. Limpiar cachés locales
+    localStorage.removeItem(
+      "sb-jmwprzgfdkphbxryjbnr-auth-token"
+    );
+
+    localStorage.removeItem(
+      "printlab_cached_name"
+    );
+
+    localStorage.removeItem(
+      "printlab_cached_credits"
+    );
+
+    sessionStorage.removeItem(
+      "printlab_recovery_mode"
+    );
+
+    sessionStorage.removeItem(
+      "printlab_auth_redirect"
+    );
+
+    // 3. IR SIEMPRE AL INDEX PRINCIPAL
+    window.location.href = "/index.html";
 
   } catch (error) {
-    console.error("Error cerrando sesión, recargando de seguridad:", error);
-    window.location.reload();
+
+    console.error(
+      "Error cerrando sesión:",
+      error
+    );
+
+    // Aunque falle signOut, limpiar y volver al inicio
+    localStorage.removeItem(
+      "sb-jmwprzgfdkphbxryjbnr-auth-token"
+    );
+
+    localStorage.removeItem(
+      "printlab_cached_name"
+    );
+
+    localStorage.removeItem(
+      "printlab_cached_credits"
+    );
+
+    sessionStorage.removeItem(
+      "printlab_recovery_mode"
+    );
+
+    sessionStorage.removeItem(
+      "printlab_auth_redirect"
+    );
+
+    window.location.href = "/index.html";
   }
 };
-
 
 // =====================================================
 // ESTILOS DEL HEADER DEL USUARIO Y BOTONES DE CABECERA
