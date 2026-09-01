@@ -53,7 +53,7 @@
     .engine-list li strong { font-weight: 800; color: var(--ink); }
 
     /* Visor 3D y Panel de Selección */
-    .mesh-canvas { background: #161d1a; border-radius: 16px; height: 450px; display: flex; align-items: center; justify-content: center; border: 1.5px solid var(--line); position: relative; overflow: hidden; margin-bottom:12px;}
+    .mesh-canvas { background: #161d1a; border-radius: 16px; height: 450px; display: flex; align-items: center; justify-content: center; border: 1.5px solid var(--line); overflow: hidden; margin-bottom: 0;}
     .viewer-legend { display: flex; flex-wrap: wrap; gap: 14px 18px; align-items: center; font-size: 13px; font-weight: 700; color: var(--muted); }
     
     #face-info-panel { position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.95); padding: 20px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); font-size: 14px; display: none; width: 280px; border: 2px solid #2688d8; backdrop-filter: blur(5px); z-index:10;}
@@ -188,7 +188,10 @@
       <section style="margin-bottom: 24px;">
         <h3 style="font-size:20px; font-weight:800; margin-bottom:12px;">Visor Interactivo de Diagnóstico 3D</h3>
         
-        <div class="mesh-canvas" id="canvas3dContainer">
+        <!-- Contenedor Relativo para que el panel flote correctamente sin ser borrado por ThreeJS -->
+        <div style="position: relative; margin-bottom: 12px;">
+          <div class="mesh-canvas" id="canvas3dContainer"></div>
+          
           <!-- OVERLAY DE CARA SELECCIONADA -->
           <div id="face-info-panel">
             <h4 style="margin:0 0 12px; font-size:12px; color:var(--muted); font-weight:800; border-bottom:1px dashed var(--line); padding-bottom:6px;">SUPERFICIE SELECCIONADA</h4>
@@ -277,7 +280,7 @@
       <div class="footergrid">
         <div class="footer-col">
           <h3>PrintLab — Ingeniería 3D</h3>
-          <p>Plataforma profesional de análisis y optimización STL mediante Inteligencia Artificial y simuladores paramétricos. Transformamos modelos 3D con problemas en geometrías perfectas.</p>
+          <p>Plataforma profesional de análisis y optimización STL mediante Inteligencia Artificial y simuladores paramétricos.</p>
         </div>
       </div>
     </div>
@@ -287,7 +290,7 @@
     function toggleMenu() { document.getElementById('mainMenu').classList.toggle('show'); }
   </script>
 
-  <!-- LÓGICA CORE THREEJS + INTERACCIÓN MANUAL -->
+  <!-- LÓGICA CORE THREEJS + INTERACCIÓN MANUAL (RESTAURADA A LA ORIGINAL) -->
   <script>
     let scene, camera, renderer, controls, activeMesh;
     let viewerState = null;
@@ -296,29 +299,25 @@
     function init3DViewer(containerId, base64Data, criticalPoints, recommendedRotMatrix, supportSurface, overhangAnalysis, criticalFaceIndices, analysisObject) {
       const container = document.getElementById(containerId);
       if (!container || !base64Data) return;
-      container.innerHTML = "";
       
-      const facePanel = document.createElement('div');
-      facePanel.id = "face-info-panel";
-      facePanel.innerHTML = `
-        <h4 style="margin:0 0 12px; font-size:12px; color:var(--muted); font-weight:800; border-bottom:1px dashed var(--line); padding-bottom:6px;">SUPERFICIE SELECCIONADA</h4>
-        <p style="margin:0 0 6px;"><strong>Área estimada:</strong> <span id="selected-face-area">-</span> cm²</p>
-        <p style="margin:0 0 6px;"><strong>Inclinación:</strong> <span id="selected-face-angle">-</span>°</p>
-        <button id="btn-use-as-base">Usar como superficie de apoyo</button>
-      `;
-      container.appendChild(facePanel);
+      // Limpiamos los canvas por si recarga, pero sin tocar el HTML adyacente
+      const oldCanvases = container.getElementsByTagName("canvas");
+      while (oldCanvases.length > 0) {
+        oldCanvases[0].parentNode.removeChild(oldCanvases[0]);
+      }
 
       viewerState = null;
       scene = new THREE.Scene();
       scene.background = new THREE.Color(0x161d1a);
 
-      const width = container.clientWidth;
-      const height = container.clientHeight;
+      const width = Math.max(container.clientWidth, 1);
+      const height = Math.max(container.clientHeight, 1);
       camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 10000);
 
       renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
       renderer.setSize(width, height);
+      renderer.outputEncoding = THREE.sRGBEncoding; // Restaurado de tu código
       container.appendChild(renderer.domElement);
 
       scene.add(new THREE.HemisphereLight(0xffffff, 0x202520, 1.35));
@@ -326,7 +325,17 @@
       const light2 = new THREE.DirectionalLight(0xffffff, 0.55); light2.position.set(-2, -1, 1); scene.add(light2);
 
       controls = new THREE.OrbitControls(camera, renderer.domElement);
-      controls.enableDamping = true; controls.dampingFactor = 0.06;
+      controls.enableDamping = true; controls.dampingFactor = 0.06; controls.enablePan = true;
+
+      // Evento de resize de pantalla Restaurado
+      const onResize = () => {
+        if (!camera || !renderer || !container) return;
+        const w = Math.max(container.clientWidth, 1);
+        const h = Math.max(container.clientHeight, 1);
+        camera.aspect = w / h; camera.updateProjectionMatrix();
+        renderer.setSize(w, h);
+      };
+      window.addEventListener('resize', onResize);
 
       const loader = new THREE.STLLoader();
       try {
@@ -363,20 +372,37 @@
         }
 
         geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-        const material = new THREE.MeshPhongMaterial({ vertexColors: true, side: THREE.DoubleSide });
+        const material = new THREE.MeshPhongMaterial({ vertexColors: true, side: THREE.DoubleSide, specular: 0x111111, shininess: 75 });
         activeMesh = new THREE.Mesh(geometry, material);
         scene.add(activeMesh);
 
         viewerState = { geometry, position, baseColors, faceCount, selectionMode: false, hoveredFace: -1, selectedFace: -1, analysisObject };
 
-        geometry.computeBoundingBox();
+        // Dibujar los puntos críticos (las esferitas rojas originales)
+        if (Array.isArray(criticalPoints) && criticalPoints.length > 0) {
+            geometry.computeBoundingBox();
+            const meshDiagonal = geometry.boundingBox ? geometry.boundingBox.getSize(new THREE.Vector3()).length() : 100;
+            criticalPoints.forEach(pt => {
+               if (pt && Number.isFinite(Number(pt.x))) {
+                   const sphereGeo = new THREE.SphereGeometry(Math.max(meshDiagonal * 0.012, 0.8), 16, 16);
+                   const sphereMat = new THREE.MeshBasicMaterial({ color: 0xd9432f, depthTest: false });
+                   const sphere = new THREE.Mesh(sphereGeo, sphereMat);
+                   sphere.position.set(Number(pt.x), Number(pt.y), Number(pt.z));
+                   sphere.renderOrder = 20;
+                   scene.add(sphere);
+               }
+            });
+        }
+
+        if(!geometry.boundingBox) geometry.computeBoundingBox();
         const center = new THREE.Vector3(); geometry.boundingBox.getCenter(center);
         const size = geometry.boundingBox.getSize(new THREE.Vector3()).length() || 100;
         controls.target.copy(center);
         camera.position.set(center.x + size * 0.85, center.y + size * 0.75, center.z + size * 0.85);
+        controls.update();
         
         setupFaceSelection(container, analysisObject);
-      } catch (err) { console.error(err); }
+      } catch (err) { console.error("ThreeJS Error:", err); }
 
       function animate() { requestAnimationFrame(animate); if(controls) controls.update(); renderer.render(scene, camera); }
       animate();
@@ -585,7 +611,7 @@
           mkRow("Área de Soportes Necesarios", (autoData.overhang_analysis?.area_cm2 || 0) + " cm²", (analysis.overhang_analysis?.area_cm2 || 0) + " cm²") +
           mkRow("Porcentaje de Voladizos", (autoData.overhang_analysis?.percentage || 0) + "%", (analysis.overhang_analysis?.percentage || 0) + "%") +
           mkRow("Estabilidad Calculada", (autoData.orientation_analysis?.stability_score || 0) + "/100", (analysis.orientation_analysis?.stability_score || 0) + "/100") +
-          mkRow("PrintLab Score Global", autoData.printlab_score + "/100", analysis.printlab_score + "/100");
+          mkRow("PrintLab Score Global", (autoData.printlab_score || "--") + "/100", (analysis.printlab_score || "--") + "/100");
       }
 
       // Descargas
@@ -602,9 +628,9 @@
          const { jsPDF } = window.jspdf || window.jsPDF; const doc = new jsPDF();
          doc.setFillColor(17, 23, 21); doc.rect(0, 0, 210, 40, 'F');
          doc.setFont("helvetica", "bold"); doc.setFontSize(22); doc.setTextColor(255, 255, 255); doc.text("PRINTLAB INFORME INTELIGENTE", 15, 25);
-         doc.setFontSize(12); doc.setTextColor(0,0,0); doc.text("Score Global: " + analysis.printlab_score, 15, 55);
-         doc.text("Riesgo: " + analysis.risk_analysis, 15, 65);
-         doc.text("Conclusión: " + analysis.explanation, 15, 75, {maxWidth: 180});
+         doc.setFontSize(12); doc.setTextColor(0,0,0); doc.text("Score Global: " + (analysis.printlab_score || "--"), 15, 55);
+         doc.text("Riesgo: " + (analysis.risk_analysis || "MEDIO"), 15, 65);
+         doc.text("Conclusión: " + (analysis.explanation || "Diagnóstico completado."), 15, 75, {maxWidth: 180});
          doc.save("PrintLab_Report.pdf");
       });
     });
