@@ -455,8 +455,15 @@
         // Pieza A (Macho)
         const geoA = parseBase64STL(meshData.part_a.base64);
         if (geoA) {
-          const matA = new THREE.MeshPhongMaterial({ color: 0x2eaf68, side: THREE.DoubleSide, specular: 0x111111, shininess: 75 });
+          geoA.computeVertexNormals();
+          const matA = new THREE.MeshPhongMaterial({ color: 0x2eaf68, side: THREE.DoubleSide, specular: 0x111111, shininess: 75, flatShading: false });
           const meshA = new THREE.Mesh(geoA, matA);
+          
+          // Contornos CAD limpios
+          const edgesA = new THREE.EdgesGeometry(geoA, 15);
+          const lineA = new THREE.LineSegments(edgesA, new THREE.LineBasicMaterial({ color: 0x0c0f0d, linewidth: 1.5 }));
+          meshA.add(lineA);
+
           scene.add(meshA);
           loadedParts.push({ mesh: meshA, dir: slicePlaneNormal.clone() });
           activeMesh = meshA;
@@ -465,8 +472,15 @@
         // Pieza B (Hembra)
         const geoB = parseBase64STL(meshData.part_b.base64);
         if (geoB) {
-          const matB = new THREE.MeshPhongMaterial({ color: 0x2688d8, side: THREE.DoubleSide, specular: 0x111111, shininess: 75 });
+          geoB.computeVertexNormals();
+          const matB = new THREE.MeshPhongMaterial({ color: 0x2688d8, side: THREE.DoubleSide, specular: 0x111111, shininess: 75, flatShading: false });
           const meshB = new THREE.Mesh(geoB, matB);
+          
+          // Contornos CAD limpios
+          const edgesB = new THREE.EdgesGeometry(geoB, 15);
+          const lineB = new THREE.LineSegments(edgesB, new THREE.LineBasicMaterial({ color: 0x0c0f0d, linewidth: 1.5 }));
+          meshB.add(lineB);
+
           scene.add(meshB);
           loadedParts.push({ mesh: meshB, dir: slicePlaneNormal.clone().negate() });
         }
@@ -478,7 +492,6 @@
           if (geo) {
             geo.computeVertexNormals();
 
-            // Configurar sombreadores por vértices del análisis original
             const position = geo.attributes.position;
             const colors = new Float32Array(position.count * 3);
             const baseColors = new Float32Array(position.count * 3);
@@ -487,11 +500,75 @@
             const supportFaces = new Set(meshData.support_surface?.face_indices || []);
             const overhangFaces = new Set(meshData.overhang_analysis?.face_indices || []);
 
-            for (let face = 0; face < Math.floor(position.count / 3); face++) {
-              let col = new THREE.Color(0x2eaf68);
-              if (criticalFaces.has(face)) col = new THREE.Color(0xd9432f);
-              else if (supportFaces.has(face)) col = new THREE.Color(0x2688d8);
-              else if (overhangFaces.has(face)) col = new THREE.Color(0xf2bd00);
+            const faceCount = Math.floor(position.count / 3);
+            const normals = [];
+            const centers = [];
+            const _a = new THREE.Vector3(), _b = new THREE.Vector3(), _c = new THREE.Vector3();
+
+            for (let i = 0; i < faceCount; i++) {
+              _a.fromBufferAttribute(position, i * 3);
+              _b.fromBufferAttribute(position, i * 3 + 1);
+              _c.fromBufferAttribute(position, i * 3 + 2);
+              const _ab = new THREE.Vector3().subVectors(_b, _a);
+              const _ac = new THREE.Vector3().subVectors(_c, _a);
+              normals.push(new THREE.Vector3().crossVectors(_ab, _ac).normalize());
+              centers.push(new THREE.Vector3().addVectors(_a, _b).add(_c).divideScalar(3));
+            }
+
+            // Agrupación de caras planas coplanares para eliminar el patchwork de triángulos individuales
+            const coplanarGroups = [];
+            const visited = new Uint8Array(faceCount);
+
+            for (let i = 0; i < faceCount; i++) {
+              if (visited[i]) continue;
+              const group = [i];
+              visited[i] = 1;
+              const normI = normals[i];
+              const centI = centers[i];
+
+              for (let j = i + 1; j < faceCount; j++) {
+                if (visited[j]) continue;
+                if (Math.abs(normals[j].dot(normI)) > 0.999) {
+                  const dist = Math.abs(new THREE.Vector3().subVectors(centers[j], centI).dot(normI));
+                  if (dist < 0.25) { // Tolerancia de planitud (0.25mm)
+                    group.push(j);
+                    visited[j] = 1;
+                  }
+                }
+              }
+              coplanarGroups.push(group);
+            }
+
+            // Unificar clasificaciones a nivel de cara completa
+            const unifiedSupport = new Set();
+            const unifiedOverhang = new Set();
+            const unifiedCritical = new Set();
+
+            coplanarGroups.forEach(group => {
+              let isSupport = false;
+              let isOverhang = false;
+              let isCritical = false;
+
+              for (let i = 0; i < group.length; i++) {
+                const face = group[i];
+                if (criticalFaces.has(face)) isCritical = true;
+                if (supportFaces.has(face)) isSupport = true;
+                if (overhangFaces.has(face)) isOverhang = true;
+              }
+
+              group.forEach(face => {
+                if (isCritical) unifiedCritical.add(face);
+                else if (isSupport) unifiedSupport.add(face);
+                else if (isOverhang) unifiedOverhang.add(face);
+              });
+            });
+
+            // Asignación de colores sólidos y limpios por cara unificada
+            for (let face = 0; face < faceCount; face++) {
+              let col = new THREE.Color(0x2eaf68); // Normal
+              if (unifiedCritical.has(face)) col = new THREE.Color(0xd9432f); // Crítica
+              else if (unifiedSupport.has(face)) col = new THREE.Color(0x2688d8); // Superficie plana apoyada
+              else if (unifiedOverhang.has(face)) col = new THREE.Color(0xf2bd00); // Voladizo
 
               for (let j = 0; j < 3; j++) {
                 const k = (face * 3 + j) * 3;
@@ -501,21 +578,20 @@
             }
 
             geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-            const mat = new THREE.MeshPhongMaterial({ vertexColors: true, side: THREE.DoubleSide, specular: 0x111111, shininess: 75 });
+            
+            // Renderizar con sombreado Phong y normales suavizadas (flatShading: false)
+            const mat = new THREE.MeshPhongMaterial({ vertexColors: true, side: THREE.DoubleSide, specular: 0x111111, shininess: 75, flatShading: false });
             activeMesh = new THREE.Mesh(geo, mat);
+
+            // Inyectar contorno CAD preciso para ocultar las subdivisiones internas de triángulos
+            const edges = new THREE.EdgesGeometry(geo, 15); // Umbral de 15 grados
+            const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x0c0f0d, linewidth: 1.5 }));
+            activeMesh.add(line);
+
             scene.add(activeMesh);
             loadedParts.push({ mesh: activeMesh, dir: new THREE.Vector3(0,0,0) });
 
-            viewerState = { geometry: geo, position, baseColors, faceCount: Math.floor(position.count/3), normals: [], centers: [] };
-            
-            // Precalcular normales
-            const _a = new THREE.Vector3(), _b = new THREE.Vector3(), _c = new THREE.Vector3();
-            for(let i=0; i<viewerState.faceCount; i++){
-              _a.fromBufferAttribute(position, i*3); _b.fromBufferAttribute(position, i*3+1); _c.fromBufferAttribute(position, i*3+2);
-              const _ab = new THREE.Vector3().subVectors(_b, _a); const _ac = new THREE.Vector3().subVectors(_c, _a);
-              viewerState.normals.push(new THREE.Vector3().crossVectors(_ab, _ac).normalize());
-              viewerState.centers.push(new THREE.Vector3().addVectors(_a, _b).add(_c).divideScalar(3));
-            }
+            viewerState = { geometry: geo, position, baseColors, faceCount, normals, centers };
           }
         }
       }
