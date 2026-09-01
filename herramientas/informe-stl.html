@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Prepare Studio — PrintLab</title>
+  <title>Laminador Studio — PrintLab</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -15,7 +15,7 @@
     body{margin:0; background:var(--bg); color:var(--ink); font-family:"Plus Jakarta Sans", sans-serif; -webkit-font-smoothing:antialiased;}
     .wrap{max-width:var(--max);margin:auto;padding:0 40px}
     
-    /* CABECERA Y NAVEGACIÓN */
+    /* CABECERA */
     .top{position:sticky;top:0;z-index:100;background:rgba(246,247,244,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
     nav{min-height:95px;display:flex;align-items:center;justify-content:space-between;}
     .header-left{display:flex; align-items:center; gap:24px;}
@@ -29,113 +29,43 @@
     .dropdown-content { display: none; position: absolute; top: 110%; left: 0; background-color: var(--card); min-width: 240px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); border: 1.5px solid var(--line); border-radius: 16px; z-index: 200; flex-direction: column; padding: 12px 0; }
     .dropdown-content.show { display: flex; animation: slideDown 0.2s ease; }
     .dropdown-content a { padding: 14px 24px; color: var(--muted); font-weight: 700; font-size:15px; }
-    .dropdown-content a:hover { color: var(--ink); background: rgba(0,0,0,0.03); }
-
-    .auth-buttons { display:flex; gap:12px; align-items:center; }
-    .btn-auth { display: inline-flex; align-items: center; justify-content: center; padding: 12px 24px; border-radius: 9999px; font-weight: 800; font-size: 14px; cursor: pointer; transition: .2s ease; text-decoration: none; border: 2px solid var(--ink); }
-    .btn-auth.light { background: #fff; color: var(--ink); box-shadow: 0 3px 0px var(--ink); }
-    .btn-auth.light:hover { transform: translateY(-1px); box-shadow: 0 4px 0px var(--ink); }
-    .btn-auth.green { background: var(--accent); color: var(--ink); box-shadow: 0 3px 0px var(--ink); }
 
     /* CAD WORKSPACE SPLIT */
-    .workspace-layout { display: grid; grid-template-columns: 1fr 400px; gap: 30px; margin: 20px 0 40px; }
+    .workspace-layout { display: grid; grid-template-columns: 1fr 420px; gap: 30px; margin: 20px 0 40px; }
     @media(max-width:992px) { .workspace-layout { grid-template-columns: 1fr; } }
 
-    .pipeline-flow { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; background: var(--bg); padding: 10px; border-radius: 12px; border: 1.5px solid var(--line); }
-    .step-badge { font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; }
-    .step-badge.active { color: var(--ink); background: var(--accent); padding: 4px 8px; border-radius: 6px; }
-    .step-arrow { color: var(--muted); font-size: 11px; }
+    /* TABS LAMINADOR */
+    .slicer-tabs { display: flex; border-bottom: 2px solid var(--line); margin-bottom: 16px; }
+    .slicer-tab { padding: 10px 14px; font-weight: 800; font-size: 13.5px; color: var(--muted); cursor: pointer; border-bottom: 3px solid transparent; transition: 0.15s; }
+    .slicer-tab.active { color: var(--ink); border-bottom-color: #1a9e86; }
+
+    .param-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 13.5px; }
+    .param-label { font-weight: 600; color: var(--ink); }
+    .param-value { font-weight: 800; color: #1a9e86; background: #e8f5f1; padding: 4px 10px; border-radius: 6px; }
 
     .btn-cad-action { width: 100%; padding: 12px; border-radius: 10px; font-weight: 800; font-size: 13.5px; cursor: pointer; border: 1.5px solid var(--ink); box-shadow: 0 3px 0 var(--ink); transition: transform 0.15s, box-shadow 0.15s; }
-    .btn-cad-action:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 0 var(--ink); }
-    .btn-cad-action:active:not(:disabled) { transform: translateY(1px); box-shadow: 0 1px 0 var(--ink); }
-    .btn-cad-action:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
-    .btn-cad-action.primary { background: #fff; color: var(--ink); }
-    .btn-cad-action.warning { background: var(--warning); color: #fff; }
+    .btn-cad-action:hover { transform: translateY(-1px); box-shadow: 0 4px 0 var(--ink); }
     .btn-cad-action.accent { background: var(--accent); color: var(--ink); }
 
-    .cad-section { border-top: 1px dashed var(--line); padding-top: 15px; margin-top: 15px; }
-    .cad-section-title { font-size: 13.5px; font-weight: 800; margin: 0 0 4px; }
-    .cad-section-desc { font-size: 11px; color: var(--muted); margin: 0 0 10px; line-height: 1.4; }
-    .cad-input { width: 100%; padding: 8px; border: 1.5px solid var(--line); border-radius: 8px; font-size: 13px; font-weight: 700; background: var(--bg); color: var(--ink); outline: none; }
-
-    /* MOTOR DE DECISIÓN */
-    .engine-header { display: flex; justify-content: space-between; align-items: center; background: #fff; border: 1.5px solid var(--line); border-radius: 20px; padding: 30px; margin: 40px 0 30px; flex-wrap: wrap; gap: 20px;}
-    .engine-title { margin: 0; font-size: 32px; font-weight: 800; letter-spacing: -1px; }
-    .engine-subtitle { margin: 8px 0 0; color: var(--muted); font-size: 16px; max-width: 600px;}
-    
-    .score-circle { width: 100px; height: 100px; border-radius: 50%; border: 6px solid var(--ink); display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 800; margin: 0 auto 10px; color: var(--ink); }
-    .risk-badge { display: inline-block; padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 800; text-transform: uppercase; color: #fff; background: var(--muted); }
-    .risk-badge.BAJO { background: #2eaf68; } .risk-badge.MEDIO { background: var(--warning); } .risk-badge.ALTO { background: var(--error); }
-
-    .engine-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
-    .engine-card { background: var(--card); border: 1.5px solid var(--line); border-radius: 20px; padding: 24px; }
-    .engine-card h3 { font-size: 18px; font-weight: 800; margin: 0 0 16px; display:flex; align-items:center; gap:8px;}
-    .engine-list { list-style: none; padding: 0; margin: 0; display:flex; flex-direction:column; gap:12px; }
-    .engine-list li { display: flex; justify-content: space-between; font-size: 14.5px; border-bottom: 1px dashed var(--line); padding-bottom: 8px; }
-    .engine-list li strong { font-weight: 800; color: var(--ink); text-align: right; max-width: 60%; }
-
-    /* Visor 3D y Panel */
     .mesh-canvas { background: #161d1a; border-radius: 16px; height: 480px; display: block; border: 1.5px solid var(--line); overflow: hidden; width: 100%; cursor: grab;}
-    .mesh-canvas:active { cursor: grabbing; }
-    .viewer-legend { display: flex; flex-wrap: wrap; gap: 14px 18px; align-items: center; font-size: 13px; font-weight: 700; color: var(--muted); }
-    
     #face-info-panel { position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.95); padding: 20px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); font-size: 14px; display: none; width: 280px; border: 2px solid #2688d8; backdrop-filter: blur(5px); z-index:10;}
-    #btn-use-as-base { width: 100%; margin-top: 16px; background: #2688d8; color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: 800; cursor: pointer; transition: 0.2s; }
+    #btn-use-as-base { width: 100%; margin-top: 16px; background: #2688d8; color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: 800; cursor: pointer; }
 
-    /* Recomendación PrintLab */
-    .recommendation-box { background: var(--dark); color: #fff; border-radius: 20px; padding: 30px; margin-bottom: 24px; }
-    .recommendation-box h3 { color: var(--accent); margin-top: 0; font-size: 22px; }
-    .reasons-list { list-style: none; padding: 0; margin: 16px 0 0; display:flex; flex-direction:column; gap:10px; }
-    .reasons-list li { font-size: 15px; font-weight: 500; display:flex; gap:8px; align-items:flex-start; line-height: 1.4; color: #dce4df;}
-
-    .download-panel{text-align:center; background:var(--card); border:1.5px solid var(--line); border-radius:20px; padding:36px; margin-top:24px;}
-    .btn-download-stl{display:inline-flex; align-items:center; justify-content:center; gap:10px; padding:16px 30px; background:var(--ink); color:#fff; border:2px solid var(--ink); border-radius:12px; font-weight:800; font-size:15px; cursor:pointer;}
-
-    /* FALLBACKS */
     .no-session-card { text-align: center; padding: 60px 40px; background: var(--card); border: 1.5px solid var(--line); border-radius: 24px; max-width: 580px; margin: 80px auto; }
-
-    /* FOOTER */
-    .footer { background: var(--bg); border-top: 1px solid var(--line); padding: 80px 0 40px; margin-top: 60px; color: var(--muted); font-size: 14px; line-height: 1.6; }
-    .footergrid { display: grid; grid-template-columns: 1.3fr 0.85fr 0.85fr; gap: 60px; margin-bottom: 48px; }
-    .footer-col h3 { font-size: 16px; font-weight: 800; color: var(--ink); margin: 0 0 20px; }
-    .footer-col p { margin: 0 0 16px; color: var(--muted); }
-    .footer-links { display: flex; flex-direction: column; gap: 10px; }
-    .footer-links a { color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
-    .footer-bottom { border-top: 1px solid var(--line); padding-top: 24px; text-align:center; font-size: 13px; color: #7d8782;}
-
-    @media(max-width:992px) { .footergrid { grid-template-columns: 1.2fr 1fr; gap: 40px; } }
-    @media(max-width:768px){ .wrap{padding:0 24px} .auth-buttons { display: none; } }
+    .footer { background: var(--bg); border-top: 1px solid var(--line); padding: 60px 0 40px; margin-top: 60px; color: var(--muted); font-size: 14px; text-align: center; }
   </style>
 
-  <!-- LIBRERÍAS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/STLLoader.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/controls/OrbitControls.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../assets/js/auth-helper.js?v=11"></script>
 </head>
 <body>
 
-  <!-- CABECERA -->
   <header class="top">
     <div class="wrap">
       <nav>
         <div class="header-left">
-          <div class="menu-dropdown">
-            <button class="hamburger" onclick="toggleMenu()" aria-label="Abrir menú"><span></span><span></span><span></span></button>
-            <div class="dropdown-content" id="mainMenu">
-              <a href="../index.html#portada">Inicio</a>
-              <a href="analizador-stl.html" class="active">Analizador STL</a>
-              <a href="../index.html#simulador">Simulador</a>
-            </div>
-          </div>
           <a class="brand" href="../index.html#portada">PRINT<span>LAB</span></a>
-        </div>
-        <div class="auth-buttons" id="authHeaderContainer" style="opacity: 0; visibility: hidden; transition: 0.15s ease;">
-          <a href="login.html" class="btn-auth light">Iniciar Sesión</a>
-          <a href="registro.html" class="btn-auth green">Registrarse</a>
         </div>
       </nav>
     </div>
@@ -145,21 +75,14 @@
     <div class="no-session-card" id="noSessionFallback" style="display:none;">
       <h2>No se ha encontrado ningún análisis activo</h2>
       <p style="color:var(--muted); margin-bottom:20px;">Realiza un cuestionario y procesa una pieza para visualizar el informe inteligente.</p>
-      <a href="analizador-stl.html" class="btn-auth green">Ir al Analizador STL</a>
+      <a href="analizador-stl.html" class="btn-auth green" style="background:var(--accent); color:var(--ink); padding:10px 20px; border-radius:99px; border:2px solid var(--ink); text-decoration:none; font-weight:800;">Ir al Analizador STL</a>
     </div>
 
     <div id="reportMainContent" style="display:none;">
       
-      <section class="engine-header">
-        <div>
-          <h1 class="engine-title">Prepare Studio y Procesamiento Paramétrico</h1>
-          <p class="engine-subtitle">Lanza la preparación total de tu modelo según las prioridades del cuestionario.</p>
-        </div>
-        <div style="text-align:center;">
-          <div style="font-size:12px; font-weight:800; color:var(--muted); text-transform:uppercase; margin-bottom:8px;">PrintLab Score</div>
-          <div class="score-circle" id="printlab-score-value">--</div>
-          <div class="risk-badge" id="risk-badge">Calculando...</div>
-        </div>
+      <section style="margin: 30px 0 10px;">
+        <h1 style="font-size: 28px; font-weight: 800; margin: 0; letter-spacing: -1px;">Laminador Studio</h1>
+        <p style="color:var(--muted); margin: 6px 0 0;">Orienta tu pieza sobre la cama y obtén los parámetros de laminación calibrados en base real.</p>
       </section>
 
       <!-- CAD WORKSPACE CON DISTRIBUCIÓN SPLIT -->
@@ -171,9 +94,9 @@
             
             <div id="face-info-panel">
               <h4 style="margin:0 0 12px; font-size:12px; color:var(--muted); font-weight:800; border-bottom:1px dashed var(--line); padding-bottom:6px;">SUPERFICIE PLANA DETECTADA</h4>
-              <p style="margin:0 0 6px;"><strong>Área del plano:</strong> <span id="selected-face-area">-</span> cm²</p>
-              <p style="margin:0 0 6px;"><strong>Ángulo Z:</strong> <span id="selected-face-angle">-</span>º</p>
-              <button id="btn-use-as-base">Apoyar esta cara en la cama</button>
+              <p style="margin:0 0 6px;"><strong>Área de contacto:</strong> <span id="selected-face-area">-</span> cm²</p>
+              <p style="margin:0 0 6px;"><strong>Inclinación:</strong> <span id="selected-face-angle">-</span>º</p>
+              <button id="btn-use-as-base">Colocar boca abajo contra la cama</button>
             </div>
           </div>
 
@@ -182,156 +105,61 @@
               👆 Elegir cara plana manualmente
             </button>
             <button id="autoSupportBtn" type="button" style="border:1.5px solid var(--line); background:var(--card); color:var(--ink); border-radius:999px; padding:10px 16px; font-weight:800; font-size:13px; cursor:pointer;">
-              ↺ Orientación por Defecto
+              ↺ Orientación automática recomendada
             </button>
-          </div>
-
-          <!-- Slider de Vista Explosionada (Dinámico para piezas divididas) -->
-          <div id="explosionControlContainer" style="display:none; margin-top:20px; background:var(--card); padding:16px; border-radius:16px; border:1.5px solid var(--line);">
-            <div style="display:flex; justify-content:space-between; font-weight:800; font-size:13px;">
-              <span>💥 Desplazamiento de Ensamblado (Vista Explosionada)</span>
-              <span id="explosionVal">0%</span>
-            </div>
-            <input type="range" id="explosionSlider" min="0" max="100" value="0" style="width:100%; margin-top:10px;">
           </div>
         </div>
 
-        <!-- Columna Derecha: PrintLab CAD Studio Panel -->
-        <div class="engine-card" style="padding:20px;">
-          <h3 style="margin-top:0; font-size:18px;">🛠️ PrintLab CAD Studio</h3>
-          <p style="font-size:12px; color:var(--muted); margin-top:-10px; margin-bottom:15px;">Prepara y optimiza de manera automatizada la geometría de tu STL.</p>
+        <!-- Columna Derecha: Parámetros del Laminador Calibrados -->
+        <div style="background:var(--card); border:1.5px solid var(--line); border-radius:20px; padding:20px;">
+          <h3 style="margin-top:0; font-size:17px; display:flex; align-items:center; gap:8px;">⚙️ Perfil de Laminación Inteligente</h3>
           
-          <!-- ACCIÓN PRINCIPAL CENTRAL -->
-          <div style="margin-bottom:20px;">
-            <button id="btn-pipeline-prepare" class="btn-cad-action accent" style="padding:16px; font-size:15px; border-color:var(--ink); text-transform:uppercase; letter-spacing:0.5px;">
-              🚀 PREPARAR MI STL
-            </button>
+          <div class="slicer-tabs">
+            <div class="slicer-tab active" onclick="switchTab('calidad')">Calidad</div>
+            <div class="slicer-tab" onclick="switchTab('fuerza')">Fuerza</div>
+            <div class="slicer-tab" onclick="switchTab('velocidad')">Velocidad</div>
+            <div class="slicer-tab" onclick="switchTab('soportes')">Soportes</div>
           </div>
 
-          <!-- Pipeline visual de estados -->
-          <div class="pipeline-flow">
-            <span class="step-badge active" id="badge-orig">Original</span>
-            <span class="step-arrow">➔</span>
-            <span class="step-badge" id="badge-repaired">Reparado</span>
-            <span class="step-arrow">➔</span>
-            <span class="step-badge" id="badge-oriented">Orientado</span>
-            <span class="step-arrow">➔</span>
-            <span class="step-badge" id="badge-split">Dividido</span>
+          <!-- Pestaña 1: Calidad -->
+          <div id="tab-calidad" class="slicer-tab-content">
+            <div class="param-row"><span class="param-label">Altura de la capa</span><span class="param-value" id="val-layer-height">0.2 mm</span></div>
+            <div class="param-row"><span class="param-label">Altura de la primera capa</span><span class="param-value" id="val-first-layer">0.2 mm</span></div>
+            <h4 style="margin: 15px 0 8px; font-size:11px; text-transform:uppercase; color:var(--muted);">Anchos de línea (Extrusión)</h4>
+            <div class="param-row"><span class="param-label">Por defecto</span><span class="param-value" id="val-w-default">0.46 mm</span></div>
+            <div class="param-row"><span class="param-label">Capa inicial</span><span class="param-value" id="val-w-first">0.46 mm</span></div>
+            <div class="param-row"><span class="param-label">Perímetro externo</span><span class="param-value" id="val-w-outer">0.42 mm</span></div>
+            <div class="param-row"><span class="param-label">Perímetro interno</span><span class="param-value" id="val-w-inner">0.45 mm</span></div>
+            <div class="param-row"><span class="param-label">Relleno sólido superior</span><span class="param-value" id="val-w-top">0.42 mm</span></div>
+            <div class="param-row"><span class="param-label">Relleno poco denso</span><span class="param-value" id="val-w-sparse">0.45 mm</span></div>
           </div>
 
-          <!-- Historial Deshacer / Rehacer -->
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;">
-            <button id="btn-undo" class="btn-cad-action primary" style="padding:8px; font-size:12px;" disabled>↩ Deshacer</button>
-            <button id="btn-redo" class="btn-cad-action primary" style="padding:8px; font-size:12px;" disabled>↪ Rehacer</button>
+          <!-- Pestaña 2: Fuerza -->
+          <div id="tab-fuerza" class="slicer-tab-content" style="display:none;">
+            <div class="param-row"><span class="param-label">Bucles de pared (Perímetros)</span><span class="param-value" id="val-wall-loops">3</span></div>
+            <div class="param-row"><span class="param-label">Densidad de relleno</span><span class="param-value" id="val-infill-density">15 %</span></div>
+            <div class="param-row"><span class="param-label">Patrón de relleno</span><span class="param-value" id="val-infill-pattern">Giroide</span></div>
           </div>
 
-          <!-- Módulo: Reparación -->
-          <div class="cad-section">
-            <h4 class="cad-section-title">✨ Reparación de Malla Física</h4>
-            <p class="cad-section-desc">Cierra aberturas poligonalmente, corrige normales invertidas y elimina caras degeneradas.</p>
-            <button id="btn-real-repair" class="btn-cad-action primary">🔧 Ejecutar Reparación Real</button>
+          <!-- Pestaña 3: Velocidad -->
+          <div id="tab-velocidad" class="slicer-tab-content" style="display:none;">
+            <div class="param-row"><span class="param-label">Perímetro externo</span><span class="param-value" id="val-spd-outer">60 mm/s</span></div>
+            <div class="param-row"><span class="param-label">Perímetro interno</span><span class="param-value" id="val-spd-inner">100 mm/s</span></div>
+            <div class="param-row"><span class="param-label">Relleno poco denso</span><span class="param-value" id="val-spd-sparse">120 mm/s</span></div>
+            <div class="param-row"><span class="param-label">Desplazamiento (Viaje)</span><span class="param-value" id="val-spd-travel">150 mm/s</span></div>
           </div>
 
-          <!-- Módulo: División Inteligente -->
-          <div class="cad-section">
-            <h4 class="cad-section-title">✂️ División Automática por Cama</h4>
-            <p class="cad-section-desc">¿Supera el volumen útil? Divide físicamente el modelo en mitades imprimibles.</p>
-            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; margin-bottom:10px;">
-              <div>
-                <label style="font-size:9px; font-weight:800; display:block;">Cama X (mm)</label>
-                <input type="number" id="printer-x" value="256" class="cad-input">
-              </div>
-              <div>
-                <label style="font-size:9px; font-weight:800; display:block;">Cama Y (mm)</label>
-                <input type="number" id="printer-y" value="256" class="cad-input">
-              </div>
-              <div>
-                <label style="font-size:9px; font-weight:800; display:block;">Cama Z (mm)</label>
-                <input type="number" id="printer-z" value="256" class="cad-input">
-              </div>
-            </div>
-            <button id="btn-real-split" class="btn-cad-action warning">✂️ Dividir Geometría</button>
+          <!-- Pestaña 4: Soportes -->
+          <div id="tab-soportes" class="slicer-tab-content" style="display:none;">
+            <div class="param-row"><span class="param-label">Habilitar soportes</span><span class="param-value" id="val-supp-enable">No necesario</span></div>
+            <div class="param-row"><span class="param-label">Tipo de soporte</span><span class="param-value" id="val-supp-type">Normal (auto)</span></div>
+            <div class="param-row"><span class="param-label">Ángulo umbral</span><span class="param-value">45º</span></div>
           </div>
 
-          <!-- Módulo: Generación de Pines -->
-          <div class="cad-section" id="unionSection" style="display:none;">
-            <h4 class="cad-section-title">🔩 Generación de Clavijas y Pines</h4>
-            <p class="cad-section-desc">Genera espigas macho en un fragmento y ranuras hembra con tolerancia en el otro.</p>
-            <div style="margin-bottom:10px;">
-              <label style="font-size:11px; font-weight:800;">Holgura / Tolerancia</label>
-              <select id="pin-tolerance" class="cad-input" style="padding:6px; font-size:12px;">
-                <option value="0.08">Preciso (0.08 mm)</option>
-                <option value="0.15" selected>Normal (0.15 mm)</option>
-                <option value="0.25">Deslizable (0.25 mm)</option>
-              </select>
-            </div>
-            <button id="btn-generate-pins" class="btn-cad-action accent">🔩 Inyectar Pines Mecánicos</button>
-          </div>
-
-          <!-- Módulo: Mecanizado de Orificios -->
-          <div class="cad-section">
-            <h4 class="cad-section-title">🧲 Taladrado Booleano y Cavidades</h4>
-            <p class="cad-section-desc">Selecciona un tipo de mecanizado, haz clic sobre una faceta del visor e inyecta la cavidad.</p>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:10px;">
-              <div>
-                <label style="font-size:10px; font-weight:800; display:block;">Diámetro (mm)</label>
-                <input type="number" id="tool-diameter" value="6.0" class="cad-input">
-              </div>
-              <div>
-                <label style="font-size:10px; font-weight:800; display:block;">Profundidad (mm)</label>
-                <input type="number" id="tool-depth" value="3.0" class="cad-input">
-              </div>
-            </div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
-              <button id="btn-tool-hole" class="btn-cad-action primary" style="padding:6px 10px; font-size:11px;">🕳️ Agujero Ciego</button>
-              <button id="btn-tool-magnet" class="btn-cad-action primary" style="padding:6px 10px; font-size:11px;">🧲 Hueco Imán</button>
-            </div>
-            <div id="selectionModeIndicator" style="display:none; color:#2688d8; font-size:11px; font-weight:800; text-align:center; margin-top:8px;"></div>
+          <div style="margin-top:20px;">
+            <button id="btn-download-profile" class="btn-cad-action accent">📥 Importar Perfil en OrcaSlicer / Bambu (.json)</button>
           </div>
         </div>
-      </section>
-
-      <!-- SECCIÓN: CAMBIOS GEOMÉTRICOS REALIZADOS -->
-      <section class="engine-card" style="margin-bottom:24px; display:none;" id="section-executed-changes">
-        <h3 style="margin-top:0;">📝 Cambios de Ingeniería Realizados</h3>
-        <ul id="list-executed-changes" style="padding-left:20px; font-size:14.5px; line-height:1.6; color:var(--ink);">
-          <!-- Se rellena de manera dinámica -->
-        </ul>
-      </section>
-
-      <!-- Comparación de Métricas -->
-      <section class="engine-grid">
-        <div class="engine-card">
-          <h3>📐 Datos Geométricos (Original vs Preparado)</h3>
-          <ul class="engine-list">
-            <li><span>Dimensiones (Original)</span> <strong id="dim-bounds-orig">-</strong></li>
-            <li><span>Dimensiones (Preparado)</span> <strong id="dim-bounds">-</strong></li>
-            <li><span>Volumen (Original)</span> <strong><span id="volumen-value-orig">-</span> cm³</strong></li>
-            <li><span>Volumen (Preparado)</span> <strong><span id="volumen-value">-</span> cm³</strong></li>
-            <li><span>Integridad Sólido</span> <strong id="manifold-status">-</strong></li>
-          </ul>
-        </div>
-        <div class="engine-card">
-          <h3>🎯 Especificación de Fabricación</h3>
-          <ul class="engine-list">
-            <li><span>Prioridad de la Orden</span> <strong id="user-priority">-</strong></li>
-            <li><span>Material Solicitado</span> <strong id="user-material" style="color:var(--accent); background:var(--ink); padding:2px 8px; border-radius:4px;">-</strong></li>
-            <li><span>Solicitación Mecánica</span> <strong id="user-forces">-</strong></li>
-            <li><span>Eje de Esfuerzo</span> <strong id="user-direction">-</strong></li>
-            <li><span>Entorno de Trabajo</span> <strong id="user-environment">-</strong></li>
-          </ul>
-        </div>
-      </section>
-
-      <section class="recommendation-box">
-        <h3>Diagnóstico del Motor CAD</h3>
-        <p id="recommendation-conclusion" style="font-size:17px; font-weight:700; margin:0 0 16px;">Analizando la topología...</p>
-        <ul class="reasons-list" id="reasons-list"></ul>
-      </section>
-
-      <!-- Panel de Descarga / Pipeline Final -->
-      <section class="download-panel">
-        <!-- Render dinámico desde JavaScript -->
       </section>
 
     </div>
@@ -339,51 +167,67 @@
 
   <footer class="footer">
     <div class="wrap">
-      <div class="footergrid">
-        <div class="footer-col">
-          <h3>PrintLab — Ingeniería 3D</h3>
-          <p>Estudio profesional de validación, reparación y ensamblado geométrico de archivos STL.</p>
-        </div>
-        <div class="footer-col">
-          <h3>Herramientas</h3>
-          <div class="footer-links">
-            <a href="analizador-stl.html">Analizador STL IA</a>
-            <a href="../index.html#simulador">Simulador de Extrusión</a>
-          </div>
-        </div>
-        <div class="footer-col">
-          <h3>Legal</h3>
-          <div class="footer-links">
-            <a href="precios.html">Precios y Planes</a>
-          </div>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <div>© 2026 PrintLab.</div>
-      </div>
+      <p>© 2026 PrintLab. Calibrado paramétrico directo para manufactura 3D.</p>
     </div>
   </footer>
 
   <script>
-    function toggleMenu() { document.getElementById('mainMenu').classList.toggle('show'); }
+    let activeProfileData = null;
+
+    function switchTab(tabId) {
+      document.querySelectorAll(".slicer-tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll(".slicer-tab-content").forEach(c => c.style.display = "none");
+      
+      const targetTab = Array.from(document.querySelectorAll(".slicer-tab")).find(t => t.innerText.toLowerCase() === tabId);
+      if (targetTab) targetTab.classList.add("active");
+      
+      const content = document.getElementById("tab-" + tabId);
+      if (content) content.style.display = "block";
+    }
+
+    // Genera el perfil de importación formal para OrcaSlicer/Bambu Studio
+    function downloadSlicerProfile(profile, filename) {
+      const orcaProfile = {
+        "type": "process",
+        "setting_id": "printlab_optimized_profile",
+        "name": "PrintLab " + (filename.replace(".json", "")),
+        "from": "user",
+        "instantiation": "true",
+        "inherits": "0.20mm Standard @BBL X1C",
+        "layer_height": profile.layer_height.toString(),
+        "first_layer_height": profile.first_layer_height.toString(),
+        "line_width": profile.line_widths.default.toString(),
+        "initial_layer_line_width": profile.line_widths.first_layer.toString(),
+        "outer_wall_line_width": profile.line_widths.outer_wall.toString(),
+        "inner_wall_line_width": profile.line_widths.inner_wall.toString(),
+        "top_surface_line_width": profile.line_widths.top_solid_infill.toString(),
+        "sparse_infill_line_width": profile.line_widths.sparse_infill.toString(),
+        "wall_loops": profile.wall_loops.toString(),
+        "sparse_infill_density": profile.infill_density.toString() + "%",
+        "sparse_infill_pattern": profile.infill_pattern === "giroide" ? "gyroid" : (profile.infill_pattern === "rectilineo" ? "rectilinear" : "cubic"),
+        "outer_wall_speed": profile.speeds.outer_wall.toString(),
+        "inner_wall_speed": profile.speeds.inner_wall.toString(),
+        "sparse_infill_speed": profile.speeds.sparse_infill.toString(),
+        "travel_speed": profile.speeds.travel.toString(),
+        "enable_support": profile.supports.enable,
+        "support_type": profile.supports.type.includes("árbol") ? "tree_auto" : "normal_auto"
+      };
+      
+      const blob = new Blob([JSON.stringify(orcaProfile, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      a.click();
+    }
   </script>
 
   <!-- LÓGICA ESTUDIO CAD + THREE.JS MULTI-MESH -->
   <script>
     let scene, camera, renderer, controls, activeMesh;
-    let loader = new THREE.STLLoader();
     let loadedParts = [];
-    let slicePlaneNormal = null;
     let viewerState = null;
-    let booleanSelectionMode = null;
-    
-    // Historial del Pipeline (Deshacer / Rehacer)
-    let stateHistory = [];
-    let currentHistoryIndex = -1;
-
     const PRINTLAB_API = "https://printlab-backend-dy7v.onrender.com";
 
-    // Decodifica la base64 de manera segura convirtiéndola a Uint8Array (ArrayBuffer)
     function parseBase64STL(b64) {
       try {
         const binaryStr = atob(b64);
@@ -396,23 +240,6 @@
         console.error("Error al decodificar y parsear la geometría base64:", e);
         return null;
       }
-    }
-
-    function pushState(stateName, analysisObject) {
-      if (currentHistoryIndex < stateHistory.length - 1) {
-        stateHistory = stateHistory.slice(0, currentHistoryIndex + 1);
-      }
-      stateHistory.push({ name: stateName, analysis: JSON.parse(JSON.stringify(analysisObject)) });
-      currentHistoryIndex = stateHistory.length - 1;
-      updateUIForState();
-    }
-
-    function undo() {
-      if (currentHistoryIndex > 0) { currentHistoryIndex--; updateUIForState(); }
-    }
-
-    function redo() {
-      if (currentHistoryIndex < stateHistory.length - 1) { currentHistoryIndex++; updateUIForState(); }
     }
 
     function init3DViewer(containerId) {
@@ -462,145 +289,102 @@
       loadedParts = [];
       activeMesh = null;
 
-      if (meshData.part_a && meshData.part_b) {
-        document.getElementById("explosionControlContainer").style.display = "block";
-        slicePlaneNormal = new THREE.Vector3().fromArray(meshData.displacement_vector || [0,0,1]);
+      const b64 = meshData.optimized_base64 || meshData.optimized_mesh_base64;
+      if (b64) {
+        const geo = parseBase64STL(b64);
+        if (geo) {
+          geo.computeVertexNormals();
 
-        // Pieza A (Macho)
-        const geoA = parseBase64STL(meshData.part_a.base64);
-        if (geoA) {
-          geoA.computeVertexNormals();
-          const matA = new THREE.MeshPhongMaterial({ color: 0x2eaf68, side: THREE.DoubleSide, specular: 0x111111, shininess: 75, flatShading: false });
-          const meshA = new THREE.Mesh(geoA, matA);
-          
-          const edgesA = new THREE.EdgesGeometry(geoA, 15);
-          const lineA = new THREE.LineSegments(edgesA, new THREE.LineBasicMaterial({ color: 0x0c0f0d, linewidth: 1.5 }));
-          meshA.add(lineA);
+          const position = geo.attributes.position;
+          const colors = new Float32Array(position.count * 3);
+          const baseColors = new Float32Array(position.count * 3);
 
-          scene.add(meshA);
-          loadedParts.push({ mesh: meshA, dir: slicePlaneNormal.clone() });
-          activeMesh = meshA;
-        }
+          const supportFaces = new Set(meshData.support_surface?.face_indices || []);
+          const overhangFaces = new Set(meshData.overhang_analysis?.face_indices || []);
 
-        // Pieza B (Hembra)
-        const geoB = parseBase64STL(meshData.part_b.base64);
-        if (geoB) {
-          geoB.computeVertexNormals();
-          const matB = new THREE.MeshPhongMaterial({ color: 0x2688d8, side: THREE.DoubleSide, specular: 0x111111, shininess: 75, flatShading: false });
-          const meshB = new THREE.Mesh(geoB, matB);
-          
-          const edgesB = new THREE.EdgesGeometry(geoB, 15);
-          const lineB = new THREE.LineSegments(edgesB, new THREE.LineBasicMaterial({ color: 0x0c0f0d, linewidth: 1.5 }));
-          meshB.add(lineB);
+          const faceCount = Math.floor(position.count / 3);
+          const normals = [];
+          const centers = [];
+          const _a = new THREE.Vector3(), _b = new THREE.Vector3(), _c = new THREE.Vector3();
 
-          scene.add(meshB);
-          loadedParts.push({ mesh: meshB, dir: slicePlaneNormal.clone().negate() });
-        }
-      } else {
-        document.getElementById("explosionControlContainer").style.display = "none";
-        const b64 = meshData.optimized_base64 || meshData.optimized_mesh_base64;
-        if (b64) {
-          const geo = parseBase64STL(b64);
-          if (geo) {
-            geo.computeVertexNormals();
+          for (let i = 0; i < faceCount; i++) {
+            _a.fromBufferAttribute(position, i * 3);
+            _b.fromBufferAttribute(position, i * 3 + 1);
+            _c.fromBufferAttribute(position, i * 3 + 2);
+            const _ab = new THREE.Vector3().subVectors(_b, _a);
+            const _ac = new THREE.Vector3().subVectors(_c, _a);
+            normals.push(new THREE.Vector3().crossVectors(_ab, _ac).normalize());
+            centers.push(new THREE.Vector3().addVectors(_a, _b).add(_c).divideScalar(3));
+          }
 
-            const position = geo.attributes.position;
-            const colors = new Float32Array(position.count * 3);
-            const baseColors = new Float32Array(position.count * 3);
+          // Agrupación de caras planas coplanares
+          const coplanarGroups = [];
+          const visited = new Uint8Array(faceCount);
 
-            const criticalFaces = new Set(meshData.critical_face_indices || []);
-            const supportFaces = new Set(meshData.support_surface?.face_indices || []);
-            const overhangFaces = new Set(meshData.overhang_analysis?.face_indices || []);
+          for (let i = 0; i < faceCount; i++) {
+            if (visited[i]) continue;
+            const group = [i];
+            visited[i] = 1;
+            const normI = normals[i];
+            const centI = centers[i];
 
-            const faceCount = Math.floor(position.count / 3);
-            const normals = [];
-            const centers = [];
-            const _a = new THREE.Vector3(), _b = new THREE.Vector3(), _c = new THREE.Vector3();
-
-            for (let i = 0; i < faceCount; i++) {
-              _a.fromBufferAttribute(position, i * 3);
-              _b.fromBufferAttribute(position, i * 3 + 1);
-              _c.fromBufferAttribute(position, i * 3 + 2);
-              const _ab = new THREE.Vector3().subVectors(_b, _a);
-              const _ac = new THREE.Vector3().subVectors(_c, _a);
-              normals.push(new THREE.Vector3().crossVectors(_ab, _ac).normalize());
-              centers.push(new THREE.Vector3().addVectors(_a, _b).add(_c).divideScalar(3));
-            }
-
-            // Agrupación de caras planas coplanares para eliminar el patchwork de triángulos individuales
-            const coplanarGroups = [];
-            const visited = new Uint8Array(faceCount);
-
-            for (let i = 0; i < faceCount; i++) {
-              if (visited[i]) continue;
-              const group = [i];
-              visited[i] = 1;
-              const normI = normals[i];
-              const centI = centers[i];
-
-              for (let j = i + 1; j < faceCount; j++) {
-                if (visited[j]) continue;
-                if (Math.abs(normals[j].dot(normI)) > 0.999) {
-                  const dist = Math.abs(new THREE.Vector3().subVectors(centers[j], centI).dot(normI));
-                  if (dist < 0.25) { 
-                    group.push(j);
-                    visited[j] = 1;
-                  }
+            for (let j = i + 1; j < faceCount; j++) {
+              if (visited[j]) continue;
+              if (Math.abs(normals[j].dot(normI)) > 0.999) {
+                const dist = Math.abs(new THREE.Vector3().subVectors(centers[j], centI).dot(normI));
+                if (dist < 0.25) { 
+                  group.push(j);
+                  visited[j] = 1;
                 }
               }
-              coplanarGroups.push(group);
             }
-
-            const unifiedSupport = new Set();
-            const unifiedOverhang = new Set();
-            const unifiedCritical = new Set();
-
-            coplanarGroups.forEach(group => {
-              let isSupport = false;
-              let isOverhang = false;
-              let isCritical = false;
-
-              for (let i = 0; i < group.length; i++) {
-                const face = group[i];
-                if (criticalFaces.has(face)) isCritical = true;
-                if (supportFaces.has(face)) isSupport = true;
-                if (overhangFaces.has(face)) isOverhang = true;
-              }
-
-              group.forEach(face => {
-                if (isCritical) unifiedCritical.add(face);
-                else if (isSupport) unifiedSupport.add(face);
-                else if (isOverhang) unifiedOverhang.add(face);
-              });
-            });
-
-            for (let face = 0; face < faceCount; face++) {
-              let col = new THREE.Color(0x2eaf68); // Normal
-              if (unifiedCritical.has(face)) col = new THREE.Color(0xd9432f); // Crítica
-              else if (unifiedSupport.has(face)) col = new THREE.Color(0x2688d8); // Superficie plana apoyada
-              else if (unifiedOverhang.has(face)) col = new THREE.Color(0xf2bd00); // Voladizo
-
-              for (let j = 0; j < 3; j++) {
-                const k = (face * 3 + j) * 3;
-                colors[k] = col.r; colors[k + 1] = col.g; colors[k + 2] = col.b;
-                baseColors[k] = col.r; baseColors[k + 1] = col.g; baseColors[k + 2] = col.b;
-              }
-            }
-
-            geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-            
-            const mat = new THREE.MeshPhongMaterial({ vertexColors: true, side: THREE.DoubleSide, specular: 0x111111, shininess: 75, flatShading: false });
-            activeMesh = new THREE.Mesh(geo, mat);
-
-            const edges = new THREE.EdgesGeometry(geo, 15); 
-            const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x0c0f0d, linewidth: 1.5 }));
-            activeMesh.add(line);
-
-            scene.add(activeMesh);
-            loadedParts.push({ mesh: activeMesh, dir: new THREE.Vector3(0,0,0) });
-
-            viewerState = { geometry: geo, position, baseColors, faceCount, normals, centers };
+            coplanarGroups.push(group);
           }
+
+          const unifiedSupport = new Set();
+          const unifiedOverhang = new Set();
+
+          coplanarGroups.forEach(group => {
+            let isSupport = false;
+            let isOverhang = false;
+
+            for (let i = 0; i < group.length; i++) {
+              const face = group[i];
+              if (supportFaces.has(face)) isSupport = true;
+              if (overhangFaces.has(face)) isOverhang = true;
+            }
+
+            group.forEach(face => {
+              if (isSupport) unifiedSupport.add(face);
+              else if (isOverhang) unifiedOverhang.add(face);
+            });
+          });
+
+          for (let face = 0; face < faceCount; face++) {
+            let col = new THREE.Color(0x2eaf68); // Normal
+            if (unifiedSupport.has(face)) col = new THREE.Color(0x2688d8); // Superficie plana apoyada
+            else if (unifiedOverhang.has(face)) col = new THREE.Color(0xf2bd00); // Voladizo
+
+            for (let j = 0; j < 3; j++) {
+              const k = (face * 3 + j) * 3;
+              colors[k] = col.r; colors[k + 1] = col.g; colors[k + 2] = col.b;
+              baseColors[k] = col.r; baseColors[k + 1] = col.g; baseColors[k + 2] = col.b;
+            }
+          }
+
+          geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+          const mat = new THREE.MeshPhongMaterial({ vertexColors: true, side: THREE.DoubleSide, specular: 0x111111, shininess: 75, flatShading: false });
+          activeMesh = new THREE.Mesh(geo, mat);
+
+          // Contorno CAD limpio
+          const edges = new THREE.EdgesGeometry(geo, 15);
+          const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x0c0f0d, linewidth: 1.5 }));
+          activeMesh.add(line);
+
+          scene.add(activeMesh);
+          loadedParts.push({ mesh: activeMesh });
+
+          viewerState = { geometry: geo, position, baseColors, faceCount, normals, centers };
         }
       }
 
@@ -631,74 +415,25 @@
         const targetMeshes = loadedParts.map(p => p.mesh);
         const hits = raycaster.intersectObjects(targetMeshes, false);
 
-        if (hits.length > 0) {
+        if (hits.length > 0 && viewerState && viewerState.selectionMode) {
           const hit = hits[0];
+          const faceIdx = Math.floor(hit.faceIndex);
+          const normal = viewerState.normals[faceIdx];
+          const angle = Math.round(Math.acos(Math.abs(normal.z)) * 180 / Math.PI);
 
-          if (booleanSelectionMode) {
-            const clickedPoint = hit.point.toArray();
-            const clickedNormal = hit.face.normal.toArray();
-            const diam = parseFloat(document.getElementById("tool-diameter").value);
-            const dep = parseFloat(document.getElementById("tool-depth").value);
-            
-            document.getElementById("selectionModeIndicator").innerText = "⏳ Computando operación booleana...";
-            const activeState = stateHistory[currentHistoryIndex].analysis;
-            const b64 = activeState.optimized_base64 || activeState.optimized_mesh_base64;
+          let totalArea = 0;
+          const coplanars = getCoplanarFaces(faceIdx);
+          const pos = viewerState.geometry.attributes.position;
+          const _a = new THREE.Vector3(), _b = new THREE.Vector3(), _c = new THREE.Vector3();
+          coplanars.forEach(f => {
+            _a.fromBufferAttribute(pos, f*3); _b.fromBufferAttribute(pos, f*3+1); _c.fromBufferAttribute(pos, f*3+2);
+            totalArea += new THREE.Vector3().crossVectors(new THREE.Vector3().subVectors(_b,_a), new THREE.Vector3().subVectors(_c,_a)).length() / 2;
+          });
 
-            try {
-              const res = await fetch(PRINTLAB_API + '/add_hole_or_magnet', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  stl_base64: b64,
-                  point: clickedPoint,
-                  normal: clickedNormal,
-                  diameter: diam,
-                  depth: dep,
-                  is_magnet: booleanSelectionMode === 'magnet'
-                })
-              });
-              const data = await res.json();
-              if (data.success) {
-                const newState = {
-                  ...activeState,
-                  optimized_base64: data.modified_base64,
-                  optimized_mesh_base64: data.modified_base64,
-                  volume_cm3: data.volume_cm3,
-                  dimensions: data.dimensions,
-                  is_watertight: data.is_watertight
-                };
-                pushState("Mecanizado (" + (booleanSelectionMode==='magnet' ? "Imán":"Orificio") + ")", newState);
-              } else {
-                alert(data.error);
-              }
-            } catch (err) {
-              alert("Error de conexión con el núcleo CAD: " + err.message);
-            } finally {
-              booleanSelectionMode = null;
-              document.getElementById("selectionModeIndicator").style.display = "none";
-            }
-            return;
-          }
-
-          if (viewerState && viewerState.selectionMode) {
-            const faceIdx = Math.floor(hit.faceIndex);
-            const normal = viewerState.normals[faceIdx];
-            const angle = Math.round(Math.acos(Math.abs(normal.z)) * 180 / Math.PI);
-
-            let totalArea = 0;
-            const coplanars = getCoplanarFaces(faceIdx);
-            const pos = viewerState.geometry.attributes.position;
-            const _a = new THREE.Vector3(), _b = new THREE.Vector3(), _c = new THREE.Vector3();
-            coplanars.forEach(f => {
-              _a.fromBufferAttribute(pos, f*3); _b.fromBufferAttribute(pos, f*3+1); _c.fromBufferAttribute(pos, f*3+2);
-              totalArea += new THREE.Vector3().crossVectors(new THREE.Vector3().subVectors(_b,_a), new THREE.Vector3().subVectors(_c,_a)).length() / 2;
-            });
-
-            document.getElementById('selected-face-area').innerText = (totalArea / 100).toFixed(2);
-            document.getElementById('selected-face-angle').innerText = angle;
-            document.getElementById('face-info-panel').style.display = 'block';
-            viewerState.selectedFaceIdx = faceIdx;
-          }
+          document.getElementById('selected-face-area').innerText = (totalArea / 100).toFixed(2);
+          document.getElementById('selected-face-angle').innerText = angle;
+          document.getElementById('face-info-panel').style.display = 'block';
+          viewerState.selectedFaceIdx = faceIdx;
         }
       });
     }
@@ -719,7 +454,7 @@
     }
   </script>
 
-  <!-- CONTROLADORES CAD & ESTADOS -->
+  <!-- SINCRONIZACIÓN DE PARÁMETROS -->
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       const storedAnalysis = sessionStorage.getItem("printlab_analysis");
@@ -728,209 +463,21 @@
         return;
       }
 
-      // 1. Mostrar la estructura de la página ANTES de inicializar Three.js
       document.getElementById("reportMainContent").style.display = "block";
-      
-      // 2. Ahora inicializar el visor 3D para que capture las dimensiones reales calculadas en el DOM
       init3DViewer("canvas3dContainer");
 
       const analysis = JSON.parse(storedAnalysis);
-      
-      // Inicializar Pipeline en su estado Original
-      pushState("Original", analysis);
+      renderModel(analysis);
+      syncSlicerParameters(analysis.slicer_settings);
 
-      // Eventos Historial
-      document.getElementById("btn-undo").addEventListener("click", undo);
-      document.getElementById("btn-redo").addEventListener("click", redo);
-
-      // ============================================================
-      // ACCIÓN CENTRAL: PREPARAR MI STL
-      // ============================================================
-      document.getElementById("btn-pipeline-prepare").addEventListener("click", async () => {
-        const btn = document.getElementById("btn-pipeline-prepare");
-        btn.innerText = "🚀 PROCESANDO PIPELINE..."; btn.disabled = true;
-        const activeState = stateHistory[currentHistoryIndex].analysis;
-        const baseStl = analysis.optimized_mesh_base64 || activeState.optimized_mesh_base64 || activeState.optimized_base64;
-
-        try {
-          const res = await fetch(PRINTLAB_API + '/prepare', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              stl_base64: baseStl,
-              questionnaire: analysis.user_questionnaire || {},
-              printer_config: {
-                printer_x: parseFloat(document.getElementById("printer-x").value),
-                printer_y: parseFloat(document.getElementById("printer-y").value),
-                printer_z: parseFloat(document.getElementById("printer-z").value)
-              }
-            })
-          });
-          const data = await res.json();
-          if (data.success) {
-            const newState = {
-              ...activeState,
-              printlab_score: data.printlab_score,
-              dimensions: data.prepared.dimensions_mm.join(" x ") + " mm",
-              volume_cm3: data.prepared.volume_cm3,
-              is_watertight: data.prepared.watertight,
-              overhang_analysis: data.overhangs,
-              support_surface: data.contact_surface,
-              executed_changes: data.changes,
-              executed_warnings: data.warnings
-            };
-
-            if (data.split_data) {
-              newState.part_a = data.split_data.part_a;
-              newState.part_b = data.split_data.part_b;
-              newState.displacement_vector = data.split_data.displacement_vector;
-              newState.split_axis = data.split_data.axis;
-            } else {
-              newState.optimized_base64 = data.prepared_base64;
-              newState.optimized_mesh_base64 = data.prepared_base64;
-              newState.part_a = null;
-              newState.part_b = null;
-            }
-
-            pushState("Validado", newState);
-            alert("🚀 Pipeline completado correctamente de extremo a extremo.");
-          } else {
-            alert("❌ No se pudo completar la preparación: " + data.error);
-          }
-        } catch (err) {
-          alert("Error de red al conectar con el servidor: " + err.message);
-        } finally {
-          btn.innerText = "🚀 PREPARAR MI STL"; btn.disabled = false;
+      // Botón descarga de perfil JSON
+      document.getElementById("btn-download-profile").addEventListener("click", () => {
+        if (activeProfileData) {
+          downloadSlicerProfile(activeProfileData, (analysis.file_name || "perfil") + "_orca_profile.json");
         }
       });
 
-      // Evento: Reparación Real Manual
-      document.getElementById("btn-real-repair").addEventListener("click", async () => {
-        const btn = document.getElementById("btn-real-repair");
-        btn.innerText = "Reconstruyendo..."; btn.disabled = true;
-        const activeState = stateHistory[currentHistoryIndex].analysis;
-        const b64 = activeState.optimized_base64 || activeState.optimized_mesh_base64;
-
-        try {
-          const res = await fetch(PRINTLAB_API + '/repair', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ stl_base64: b64 })
-          });
-          const data = await res.json();
-          if (data.success) {
-            const newState = {
-              ...activeState,
-              optimized_base64: data.repaired_base64,
-              optimized_mesh_base64: data.repaired_base64,
-              is_watertight: data.repaired_watertight,
-              volume_cm3: data.volume_cm3,
-              dimensions: data.dimensions
-            };
-            pushState("Reparado", newState);
-            alert("Malla reparada con éxito. Acciones ejecutadas: \n- " + data.repair_actions.join("\n- "));
-          } else {
-            alert(data.error);
-          }
-        } catch {
-          alert("Error de conexión.");
-        } finally {
-          btn.innerText = "🔧 Ejecutar Reparación Real"; btn.disabled = false;
-        }
-      });
-
-      // Evento: División Inteligente Manual
-      document.getElementById("btn-real-split").addEventListener("click", async () => {
-        const btn = document.getElementById("btn-real-split");
-        btn.innerText = "Dividiendo..."; btn.disabled = true;
-        const activeState = stateHistory[currentHistoryIndex].analysis;
-        const b64 = activeState.optimized_base64 || activeState.optimized_mesh_base64;
-
-        try {
-          const res = await fetch(PRINTLAB_API + '/split', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              stl_base64: b64,
-              printer_x: parseFloat(document.getElementById("printer-x").value),
-              printer_y: parseFloat(document.getElementById("printer-y").value),
-              printer_z: parseFloat(document.getElementById("printer-z").value),
-              axis: "auto"
-            })
-          });
-          const data = await res.json();
-          if (data.success) {
-            const newState = {
-              ...activeState,
-              part_a: data.part_a,
-              part_b: data.part_b,
-              displacement_vector: data.displacement_vector,
-              split_axis: data.axis
-            };
-            pushState("Dividido", newState);
-          } else {
-            alert(data.error);
-          }
-        } catch {
-          alert("Error en la conexión del servidor.");
-        } finally {
-          btn.innerText = "✂️ Dividir Geometría"; btn.disabled = false;
-        }
-      });
-
-      // Evento: Pines de Unión
-      document.getElementById("btn-generate-pins").addEventListener("click", async () => {
-        const btn = document.getElementById("btn-generate-pins");
-        btn.innerText = "Generando..."; btn.disabled = true;
-        const activeState = stateHistory[currentHistoryIndex].analysis;
-
-        try {
-          const res = await fetch(PRINTLAB_API + '/add_pins', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              part_a_base64: activeState.part_a.base64,
-              part_b_base64: activeState.part_b.base64,
-              axis: activeState.split_axis || "Z",
-              pin_diameter: 6.0,
-              pin_depth: 10.0,
-              tolerance: parseFloat(document.getElementById("pin-tolerance").value)
-            })
-          });
-          const data = await res.json();
-          if (data.success) {
-            const newState = {
-              ...activeState,
-              part_a: data.part_a,
-              part_b: data.part_b
-            };
-            pushState("Uniones Generadas", newState);
-          } else {
-            alert(data.error);
-          }
-        } catch {
-          alert("Error de procesamiento.");
-        } finally {
-          btn.innerText = "🔩 Inyectar Pines Mecánicos"; btn.disabled = false;
-        }
-      });
-
-      // Eventos: Herramientas de Perforación
-      document.getElementById("btn-tool-hole").addEventListener("click", () => {
-        booleanSelectionMode = "hole";
-        const ind = document.getElementById("selectionModeIndicator");
-        ind.innerText = "🟢 Modo Agujero: Haz clic en una cara plana en el visor.";
-        ind.style.display = "block";
-      });
-
-      document.getElementById("btn-tool-magnet").addEventListener("click", () => {
-        booleanSelectionMode = "magnet";
-        const ind = document.getElementById("selectionModeIndicator");
-        ind.innerText = "🟢 Modo Imán: Haz clic en una cara plana en el visor.";
-        ind.style.display = "block";
-      });
-
-      // Control de Selección de Caras de Apoyo
+      // Orientación manual
       const selectBtn = document.getElementById('selectSupportBtn');
       selectBtn.addEventListener('click', () => {
         if (viewerState) {
@@ -941,188 +488,65 @@
 
       document.getElementById('btn-use-as-base').addEventListener('click', async () => {
         if (viewerState && viewerState.selectedFaceIdx !== undefined) {
-          const activeState = stateHistory[currentHistoryIndex].analysis;
-          const q = activeState.user_questionnaire || {};
-          
           try {
             const res = await fetch(PRINTLAB_API + '/orient', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
-                stl_base64: activeState.optimized_base64 || activeState.optimized_mesh_base64,
+                stl_base64: analysis.optimized_base64 || analysis.optimized_mesh_base64,
                 face_index: viewerState.selectedFaceIdx,
-                questionnaire: q
+                questionnaire: analysis.user_questionnaire || {}
               })
             });
             const data = await res.json();
             if (data.success) {
-              const newState = { ...activeState, ...data };
-              pushState("Orientación Personalizada", newState);
+              renderModel(data);
+              syncSlicerParameters(data.slicer_settings);
               document.getElementById('face-info-panel').style.display = 'none';
               viewerState.selectionMode = false;
               selectBtn.innerText = "👆 Elegir cara plana manualmente";
             }
           } catch {
-            alert("Error al rotar.");
+            alert("Error de procesamiento al reorientar.");
           }
         }
       });
 
       document.getElementById('autoSupportBtn').addEventListener('click', () => {
-        // Restaurar estado Original del pipeline
-        currentHistoryIndex = 0;
-        updateUIForState();
-      });
-
-      // Deslizador de Ensamblado (Vista Explosionada)
-      document.getElementById("explosionSlider").addEventListener("input", (e) => {
-        const val = parseFloat(e.target.value);
-        document.getElementById("explosionVal").innerText = val + "%";
-        loadedParts.forEach(p => {
-          p.mesh.position.copy(p.dir.clone().multiplyScalar(val * 0.3));
-        });
+        renderModel(analysis);
+        syncSlicerParameters(analysis.slicer_settings);
       });
     });
 
-    // populateMetrics actualiza toda la telemetría dinámica de la pieza
-    function populateMetrics(analysis) {
-      const id = (elId, val) => { const el = document.getElementById(elId); if(el) el.innerText = val; };
-      id("printlab-score-value", analysis.printlab_score !== undefined ? analysis.printlab_score : "--");
-      const riskBadge = document.getElementById("risk-badge");
-      if(riskBadge) {
-          riskBadge.innerText = "Riesgo " + (analysis.risk_analysis || "MEDIO");
-          riskBadge.className = "risk-badge " + (analysis.risk_analysis || "MEDIO");
-      }
+    // Rellena la tabla paramétrica emulando OrcaSlicer/Bambu Studio
+    function syncSlicerParameters(settings) {
+      if (!settings) return;
+      activeProfileData = settings;
 
-      // Tabla Comparativa
-      id("dim-bounds-orig", stateHistory[0]?.analysis.dimensions || "Desconocidas");
-      id("dim-bounds", analysis.dimensions || "Desconocidas");
-      id("volumen-value-orig", stateHistory[0]?.analysis.volume_cm3 || "0");
-      id("volumen-value", analysis.volume_cm3 || "0");
-      id("manifold-status", analysis.is_watertight ? "Sí (Malla Cerrada)" : "No (Requiere Reparación)");
+      // 1. Calidad
+      document.getElementById("val-layer-height").innerText = settings.layer_height + " mm";
+      document.getElementById("val-first-layer").innerText = settings.first_layer_height + " mm";
+      document.getElementById("val-w-default").innerText = settings.line_widths.default + " mm";
+      document.getElementById("val-w-first").innerText = settings.line_widths.first_layer + " mm";
+      document.getElementById("val-w-outer").innerText = settings.line_widths.outer_wall + " mm";
+      document.getElementById("val-w-inner").innerText = settings.line_widths.inner_wall + " mm";
+      document.getElementById("val-w-top").innerText = settings.line_widths.top_solid_infill + " mm";
+      document.getElementById("val-w-sparse").innerText = settings.line_widths.sparse_infill + " mm";
 
-      const q = analysis.user_questionnaire || {};
-      id("user-priority", q.priority === "max_strength" ? "Máxima Resistencia" : (q.priority === "fast_print" ? "Rapidez / Tiempo" : (q.priority === "low_cost" ? "Ahorro / Menor Coste" : "Equilibrio Óptimo")));
-      id("user-material", q.material || "PETG");
-      id("user-forces", q.forces ? q.forces.join(", ") : "Ninguno");
-      id("user-direction", q.direction || "No indicada");
-      id("user-environment", q.environment ? q.environment.join(", ") : "Estándar");
+      // 2. Fuerza
+      document.getElementById("val-wall-loops").innerText = settings.wall_loops;
+      document.getElementById("val-infill-density").innerText = settings.infill_density + " %";
+      document.getElementById("val-infill-pattern").innerText = settings.infill_pattern.charAt(0).toUpperCase() + settings.infill_pattern.slice(1);
 
-      id("recommendation-conclusion", analysis.explanation || "Diagnóstico completado.");
-      const reasonsList = document.getElementById("reasons-list");
-      if(reasonsList && analysis.recommendations) {
-        reasonsList.innerHTML = analysis.recommendations.map(r => `<li>${r}</li>`).join("");
-      }
+      // 3. Velocidad
+      document.getElementById("val-spd-outer").innerText = settings.speeds.outer_wall + " mm/s";
+      document.getElementById("val-spd-inner").innerText = settings.speeds.inner_wall + " mm/s";
+      document.getElementById("val-spd-sparse").innerText = settings.speeds.sparse_infill + " mm/s";
+      document.getElementById("val-spd-travel").innerText = settings.speeds.travel + " mm/s";
 
-      // Sección de Cambios Realizados por el Pipeline
-      const changesSection = document.getElementById("section-executed-changes");
-      const changesList = document.getElementById("list-executed-changes");
-      if (analysis.executed_changes && analysis.executed_changes.length > 0) {
-        changesSection.style.display = "block";
-        changesList.innerHTML = analysis.executed_changes.map(c => `<li>✓ ${c}</li>`).join("");
-        if (analysis.executed_warnings && analysis.executed_warnings.length > 0) {
-          changesList.innerHTML += analysis.executed_warnings.map(w => `<li style="color:var(--warning);">⚠️ Alerta: ${w}</li>`).join("");
-        }
-      } else {
-        changesSection.style.display = "none";
-      }
-    }
-
-    // Actualiza la interfaz del pipeline en base al estado activo
-    function updateUIForState() {
-      const current = stateHistory[currentHistoryIndex];
-      if (!current) return;
-
-      renderModel(current.analysis);
-      populateMetrics(current.analysis);
-
-      document.getElementById("btn-undo").disabled = currentHistoryIndex <= 0;
-      document.getElementById("btn-redo").disabled = currentHistoryIndex >= stateHistory.length - 1;
-
-      // Badges activos
-      document.querySelectorAll(".step-badge").forEach(b => b.classList.remove("active"));
-      if (current.name === "Original") document.getElementById("badge-orig").classList.add("active");
-      else if (current.name === "Reparado") document.getElementById("badge-repaired").classList.add("active");
-      else if (current.name.includes("Orientación") || current.name.includes("Personalizada")) document.getElementById("badge-oriented").classList.add("active");
-      else if (current.name.includes("Dividido") || current.name.includes("Uniones") || current.name.includes("Validado")) document.getElementById("badge-split").classList.add("active");
-
-      // Renderizar paneles de descarga en función de si es monopieza o multipieza
-      if (current.analysis.part_a && current.analysis.part_b) {
-        document.getElementById("unionSection").style.display = "block";
-        renderMultiPartsDownloadPanel(current.analysis);
-      } else {
-        document.getElementById("unionSection").style.display = "none";
-        renderSinglePartDownloadPanel(current.analysis);
-      }
-    }
-
-    function renderSinglePartDownloadPanel(analysis) {
-      const container = document.querySelector(".download-panel");
-      container.innerHTML = `
-        <h3 style="font-size:24px; font-weight:800; margin:0 0 8px;">🚀 TU STL ESTÁ PREPARADO</h3>
-        <p style="color:var(--muted); margin:0 auto 24px; max-width:700px;">La geometría de este componente cumple con las especificaciones de la orden de fabricación y ha superado la validación.</p>
-        <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap;">
-          <button class="btn-download-stl" id="downloadStlBtn">Descargar STL Final</button>
-          <button class="btn-download-stl" id="downloadPdfBtn" style="background:#fff; color:var(--ink); border-color:var(--line);">Generar Informe PDF</button>
-        </div>
-      `;
-      document.getElementById("downloadStlBtn").addEventListener("click", () => {
-        downloadBase64STL(analysis.optimized_base64 || analysis.optimized_mesh_base64, "modelo_final_preparado.stl");
-      });
-      document.getElementById("downloadPdfBtn").addEventListener("click", () => {
-        const { jsPDF } = window.jspdf || window.jsPDF; const doc = new jsPDF();
-        doc.setFillColor(17, 23, 21); doc.rect(0, 0, 210, 40, 'F');
-        doc.setFont("helvetica", "bold"); doc.setFontSize(22); doc.setTextColor(255, 255, 255); doc.text("PRINTLAB PREPARE INFORME", 15, 25);
-        doc.setFontSize(12); doc.setTextColor(0,0,0); doc.text("Score de Fabricación: " + (analysis.printlab_score || "--"), 15, 55);
-        doc.text("Riesgo de Fabricación: " + (analysis.risk_analysis || "BAJO"), 15, 65);
-        doc.text("Conclusión del Análisis: " + (analysis.explanation || "Modelo geométricamente estanco."), 15, 75, {maxWidth: 180});
-        doc.save("PrintLab_Report.pdf");
-      });
-    }
-
-    function renderMultiPartsDownloadPanel(analysis) {
-      const container = document.querySelector(".download-panel");
-      container.innerHTML = `
-        <h3 style="font-size:24px; font-weight:800; margin:0 0 8px;">🚀 TUS COMPONENTES ESTÁN PREPARADOS</h3>
-        <p style="color:var(--muted); margin:0 auto 24px; max-width:700px;">La pieza requería división para caber en la impresora. Se han generado dos piezas STL reales con encajes físicos moldeados.</p>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; max-width:800px; margin:0 auto 24px; text-align:left;">
-          <div style="background:var(--bg); padding:16px; border-radius:12px; border:1px solid var(--line);">
-            <strong style="color:var(--ink); display:block; margin-bottom:4px;">🧩 PIEZA A (Macho)</strong>
-            <p style="font-size:12px; color:var(--muted); margin:0 0 12px;">Dim: ${analysis.part_a.dimensions} | Vol: ${analysis.part_a.volume_cm3} cm³</p>
-            <button class="btn-cad-action primary" id="btn-dl-part-a" style="padding:10px;">Descargar Parte A</button>
-          </div>
-          <div style="background:var(--bg); padding:16px; border-radius:12px; border:1px solid var(--line);">
-            <strong style="color:var(--ink); display:block; margin-bottom:4px;">🧩 PIEZA B (Hembra)</strong>
-            <p style="font-size:12px; color:var(--muted); margin:0 0 12px;">Dim: ${analysis.part_b.dimensions} | Vol: ${analysis.part_b.volume_cm3} cm³</p>
-            <button class="btn-cad-action warning" id="btn-dl-part-b" style="padding:10px;">Descargar Parte B</button>
-          </div>
-        </div>
-        
-        <div style="background:var(--dark); color:#fff; border-radius:12px; padding:20px; text-align:left; margin-bottom:24px; max-width:800px; margin:0 auto 24px;">
-          <h4 style="color:var(--accent); margin-top:0;">📝 Guía Mecánica de Acoplamiento</h4>
-          <p style="font-size:13px; color:#dce4df; line-height:1.5; margin:0;">
-            1. Retira soportes si existen, limpia las rebabas y costuras de capa en los bordes de la línea divisoria.<br>
-            2. Introduce los pines/clavijas cilíndricas del Componente A sobre las cavidades del Componente B.<br>
-            3. Se ha implementado una holgura volumétrica de seguridad de <b>${document.getElementById("pin-tolerance").value} mm</b>. Esto garantiza que las dos partes encajen sin necesidad de lijado manual en impresoras calibradas.
-          </p>
-        </div>
-      `;
-      document.getElementById("btn-dl-part-a").addEventListener("click", () => {
-        downloadBase64STL(analysis.part_a.base64, "parte_A_macho.stl");
-      });
-      document.getElementById("btn-dl-part-b").addEventListener("click", () => {
-        downloadBase64STL(analysis.part_b.base64, "parte_B_hembra.stl");
-      });
-    }
-
-    function downloadBase64STL(b64, filename) {
-      const bin = atob(b64);
-      const bytes = new Uint8Array(bin.length);
-      for(let i=0; i<bin.length; i++) bytes[i] = bin.charCodeAt(i);
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(new Blob([bytes.buffer], {type:"model/stl"}));
-      a.download = filename;
-      a.click();
+      // 4. Soportes
+      document.getElementById("val-supp-enable").innerText = settings.supports.enable === "1" ? "Habilitado (auto)" : "No necesario";
+      document.getElementById("val-supp-type").innerText = settings.supports.type.includes("árbol") ? "Árbol (auto)" : "Normal (auto)";
     }
   </script>
 </body>
