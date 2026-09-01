@@ -282,6 +282,8 @@
               <a href="../index.html#portada">Inicio</a>
               <a href="analizador-stl.html" class="active">Analizador STL</a>
               <a href="../index.html#simulador">Simulador</a>
+              <a href="../index.html#herramientas">Herramientas</a>
+              <a href="../index.html#guias">Guías</a>
             </div>
           </div>
           <a class="brand" href="../index.html#portada">PRINT<span>LAB</span></a>
@@ -616,8 +618,37 @@
       <div class="footergrid">
         <div class="footer-col">
           <h3>PrintLab — Ingeniería 3D</h3>
-          <p>Plataforma profesional de análisis y optimización STL mediante Inteligencia Artificial y simuladores paramétricos.</p>
+          <p>Plataforma profesional de análisis y optimización STL mediante Inteligencia Artificial y simuladores paramétricos. Transformamos modelos 3D con problemas en geometrías perfectas listas para fabricar, ahorrando tiempo, material y costes en entornos industriales.</p>
+          <p class="footer-secondary-text">Desarrollado bajo principios de Privacy by Design. Los datos y archivos STL se procesan con estricta confidencialidad.</p>
         </div>
+        
+        <div class="footer-col">
+          <h3>Recursos y Herramientas</h3>
+          <div class="footer-links">
+            <a href="../index.html#analizador"><span class="arrow">→</span> Analizador STL IA</a>
+            <a href="../index.html#simulador"><span class="arrow">→</span> Simulador de Extrusión</a>
+            <a href="calculadora-coste.html"><span class="arrow">→</span> Calculadoras de Coste y Masa</a>
+            <a href="../index.html#guias"><span class="arrow">→</span> Base de Conocimiento</a>
+            <a href="../materiales/index.html"><span class="arrow">→</span> Atlas de Materiales</a>
+          </div>
+        </div>
+        
+        <div class="footer-col">
+          <h3>Soporte y Legal</h3>
+          <div class="footer-links">
+            <!-- HUELLA PROTEGIDA: Si hacen clic, se olvida que había un análisis a medias -->
+            <a href="precios.html" onclick="sessionStorage.removeItem('printlab_resume_analysis');"><span class="arrow">→</span> Precios y Suscripciones</a>
+            <a href="contacto.html"><span class="arrow">→</span> Contacto y Soporte</a>
+            <a href="../condiciones-compra.html"><span class="arrow">→</span> Condiciones de Compra</a>
+            <a href="../terminos.html"><span class="arrow">→</span> Términos y Condiciones</a>
+            <a href="../privacidad.html"><span class="arrow">→</span> Política de Privacidad</a>
+            <a href="../cookies.html"><span class="arrow">→</span> Política de Cookies</a>
+          </div>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <div class="footer-bottom-text">© 2026 PrintLab.</div>
       </div>
     </div>
   </footer>
@@ -672,7 +703,9 @@
     function saveStateToIDB(file, answers, step) {
       return new Promise((resolve, reject) => {
         const req = indexedDB.open(IDB_DB_NAME, 1);
-        req.onupgradeneeded = e => { e.target.result.createObjectStore(IDB_STORE_NAME); };
+        req.onupgradeneeded = e => {
+          e.target.result.createObjectStore(IDB_STORE_NAME);
+        };
         req.onsuccess = e => {
           const db = e.target.result;
           if (!db.objectStoreNames.contains(IDB_STORE_NAME)) {
@@ -701,10 +734,15 @@
     function loadStateFromIDB() {
       return new Promise((resolve, reject) => {
         const req = indexedDB.open(IDB_DB_NAME, 1);
-        req.onupgradeneeded = e => { e.target.result.createObjectStore(IDB_STORE_NAME); };
+        req.onupgradeneeded = e => {
+          e.target.result.createObjectStore(IDB_STORE_NAME);
+        };
         req.onsuccess = e => {
           const db = e.target.result;
-          if (!db.objectStoreNames.contains(IDB_STORE_NAME)) { resolve(null); return; }
+          if (!db.objectStoreNames.contains(IDB_STORE_NAME)) {
+            resolve(null);
+            return;
+          }
           const tx = db.transaction(IDB_STORE_NAME, "readonly");
           const store = tx.objectStore(IDB_STORE_NAME);
           const getReq = store.get("currentState");
@@ -796,22 +834,27 @@
       const nextBtn = document.getElementById("nextBtn");
       let isValid = true;
 
-      if (currentStepIdx === 0) isValid = window.selectedSTLFile != null;
-      else if (currentStepIdx === 1) isValid = answers.partType !== "";
-      else if (currentStepIdx === 2) {
+      if (currentStepIdx === 0) {
+        isValid = window.selectedSTLFile != null;
+      } else if (currentStepIdx === 1) {
+        isValid = answers.partType !== "";
+      } else if (currentStepIdx === 2) {
         const text = document.getElementById("q-purpose").value.trim();
         isValid = text.length > 5;
         answers.purpose = text;
       } else if (currentStepIdx === 3) {
         isValid = answers.forces.length > 0;
         answers.loadWeight = document.getElementById("q-load-weight").value.trim();
-      } else if (currentStepIdx === 4) isValid = answers.direction !== "";
-      else if (currentStepIdx === 5) {
+      } else if (currentStepIdx === 4) {
+        isValid = answers.direction !== "";
+      } else if (currentStepIdx === 5) {
         isValid = answers.environment.length > 0;
         answers.operatingTemp = document.getElementById("q-operating-temp").value.trim();
-      } else if (currentStepIdx === 6) isValid = answers.material !== "";
-      else if (currentStepIdx === 7) isValid = answers.priority !== "";
-      else if (currentStepIdx === 8) {
+      } else if (currentStepIdx === 6) {
+        isValid = answers.material !== "";
+      } else if (currentStepIdx === 7) {
+        isValid = answers.priority !== "";
+      } else if (currentStepIdx === 8) {
         answers.printerTech = document.getElementById("q-tech").value;
         const nozzleVal = document.getElementById("q-nozzle").value.trim();
         const layerVal = document.getElementById("q-layer-height").value.trim();
@@ -824,7 +867,9 @@
     }
 
     function navigateStep(direction) {
-      if (currentStepIdx === steps.length - 1 && direction === 1) return;
+      if (currentStepIdx === steps.length - 1 && direction === 1) {
+        return;
+      }
 
       const targetStepIdx = currentStepIdx + direction;
       
@@ -858,22 +903,34 @@
 
       prevBtn.style.visibility = currentStepIdx === 0 ? "hidden" : "visible";
       
-      if (currentStepIdx === steps.length - 1) nextBtn.textContent = "Iniciar Análisis Real";
-      else nextBtn.textContent = "Siguiente";
+      if (currentStepIdx === steps.length - 1) {
+        nextBtn.textContent = "Iniciar Análisis Real";
+      } else {
+        nextBtn.textContent = "Siguiente";
+      }
 
       validateCurrentStep();
     }
 
     function handleFile(file) {
       if (!file) return;
-      if (!file.name.toLowerCase().endsWith(".stl")) { alert("Sube un archivo con formato .stl válido."); return; }
-      if (file.size > 500 * 1024 * 1024) { alert("El archivo excede el límite de 500 MB."); return; }
+      if (!file.name.toLowerCase().endsWith(".stl")) {
+        alert("Por favor, sube un archivo geométrico con formato .stl válido.");
+        return;
+      }
+      if (file.size > 500 * 1024 * 1024) {
+        alert("El archivo excede el límite de 500 MB.");
+        return;
+      }
 
       window.selectedSTLFile = file;
       selectedFileName.textContent = file.name;
       
-      if (file.size < 1024 * 1024) selectedFileSize.textContent = (file.size / 1024).toFixed(0) + " KB";
-      else selectedFileSize.textContent = (file.size / (1024 * 1024)).toFixed(1) + " MB";
+      if (file.size < 1024 * 1024) {
+        selectedFileSize.textContent = (file.size / 1024).toFixed(0) + " KB";
+      } else {
+        selectedFileSize.textContent = (file.size / (1024 * 1024)).toFixed(1) + " MB";
+      }
       
       selectedFile.classList.add("show");
       updateButtonState();
@@ -891,14 +948,16 @@
     });
 
     uploadContainer.addEventListener("dragover", (e) => {
-      e.preventDefault(); uploadContainer.classList.add("drag-over");
+      e.preventDefault();
+      uploadContainer.classList.add("drag-over");
     });
     uploadContainer.addEventListener("dragleave", (e) => {
       if (e.relatedTarget && uploadContainer.contains(e.relatedTarget)) return;
       uploadContainer.classList.remove("drag-over");
     });
     uploadContainer.addEventListener("drop", async (e) => {
-      e.preventDefault(); uploadContainer.classList.remove("drag-over");
+      e.preventDefault();
+      uploadContainer.classList.remove("drag-over");
       if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
     });
 
@@ -906,9 +965,11 @@
       e.preventDefault();
       const state = accessButton.dataset.state;
       
-      if (state === "logged-out") window.location.href = "login.html";
-      else if (state === "logged-in-no-file") fileInput.click();
-      else if (state === "has-file") {
+      if (state === "logged-out") {
+        window.location.href = "login.html";
+      } else if (state === "logged-in-no-file") {
+        fileInput.click();
+      } else if (state === "has-file") {
         document.querySelector(".upload-title").style.display = "none";
         document.querySelector(".upload-desc").style.display = "none";
         accessButton.style.display = "none";
@@ -968,40 +1029,62 @@
              Object.assign(answers, savedState.answers);
              
              selectedFileName.textContent = savedState.file.name;
-             if (savedState.file.size < 1024 * 1024) selectedFileSize.textContent = (savedState.file.size / 1024).toFixed(0) + " KB";
-             else selectedFileSize.textContent = (savedState.file.size / (1024 * 1024)).toFixed(1) + " MB";
+             if (savedState.file.size < 1024 * 1024) {
+               selectedFileSize.textContent = (savedState.file.size / 1024).toFixed(0) + " KB";
+             } else {
+               selectedFileSize.textContent = (savedState.file.size / (1024 * 1024)).toFixed(1) + " MB";
+             }
              selectedFile.classList.add("show");
              await updateButtonState();
 
              if(answers.partType) {
                const card = document.querySelector(`.option-card[data-val="${answers.partType}"]`);
-               if(card) { card.parentNode.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected')); card.classList.add('selected'); }
+               if(card) {
+                  card.parentNode.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+                  card.classList.add('selected');
+               }
              }
              if(answers.purpose) document.getElementById("q-purpose").value = answers.purpose;
+             
              if(answers.forces && answers.forces.length > 0) {
                document.querySelectorAll('#step-forces .option-card').forEach(c => {
                   if(answers.forces.includes(c.dataset.val)) c.classList.add('selected');
                });
              }
              if(answers.loadWeight) document.getElementById("q-load-weight").value = answers.loadWeight;
+
              if(answers.direction) {
                 const card = document.querySelector(`#step-direction .option-card[data-val="${answers.direction}"]`);
-                if(card) { card.parentNode.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected')); card.classList.add('selected'); }
+                if(card) {
+                   card.parentNode.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+                   card.classList.add('selected');
+                }
              }
+
              if(answers.environment && answers.environment.length > 0) {
                 document.querySelectorAll('#step-conditions .option-card').forEach(c => {
                    if(answers.environment.includes(c.dataset.val)) c.classList.add('selected');
                 });
-                if(answers.environment.includes("temp_alta")) document.getElementById("temp-conditional-group").style.display = "flex";
+                if(answers.environment.includes("temp_alta")) {
+                   document.getElementById("temp-conditional-group").style.display = "flex";
+                }
              }
              if(answers.operatingTemp) document.getElementById("q-operating-temp").value = answers.operatingTemp;
+
              if(answers.material) {
                 const card = document.querySelector(`#step-material .option-card[data-val="${answers.material}"]`);
-                if(card) { card.parentNode.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected')); card.classList.add('selected'); }
+                if(card) {
+                   card.parentNode.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+                   card.classList.add('selected');
+                }
              }
+
              if(answers.priority) {
                 const card = document.querySelector(`#step-priority .option-card[data-val="${answers.priority}"]`);
-                if(card) { card.parentNode.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected')); card.classList.add('selected'); }
+                if(card) {
+                   card.parentNode.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+                   card.classList.add('selected');
+                }
              }
 
              if(answers.printerTech) document.getElementById("q-tech").value = answers.printerTech;
@@ -1020,9 +1103,13 @@
              currentStepIdx = 8;
              document.getElementById(steps[currentStepIdx]).classList.add("active");
              
-             document.getElementById("progressBar").style.width = "100%";
-             document.getElementById("prevBtn").style.visibility = "visible";
-             document.getElementById("nextBtn").textContent = "Iniciar Análisis Real";
+             const progressPercent = (currentStepIdx / (steps.length - 1)) * 100;
+             document.getElementById("progressBar").style.width = `${progressPercent}%`;
+             
+             const prevBtn = document.getElementById("prevBtn");
+             const nextBtn = document.getElementById("nextBtn");
+             prevBtn.style.visibility = "visible";
+             nextBtn.textContent = "Iniciar Análisis Real";
 
              validateCurrentStep();
              clearStateFromIDB();
@@ -1041,7 +1128,10 @@
 
       if (client && client.auth && typeof client.auth.onAuthStateChange === "function") {
         client.auth.onAuthStateChange((event, session) => { 
-          if (!session) { window.location.href = "login.html?redirect=analizador-stl.html"; return; }
+          if (!session) {
+            window.location.href = "login.html?redirect=analizador-stl.html";
+            return;
+          }
           updateButtonState(); 
         });
       }
@@ -1058,10 +1148,18 @@
           nextBtn.textContent = "Procesando...";
 
           const activeSession = await getCurrentSession();
-          if (!activeSession) { window.location.href = "login.html"; return; }
+          if (!activeSession) {
+            window.location.href = "login.html";
+            return;
+          }
 
           try {
-            const { data: profile, error: profileError } = await client.from("profiles").select("credits").eq("id", activeSession.user.id).single();
+            const { data: profile, error: profileError } = await client
+              .from("profiles")
+              .select("credits")
+              .eq("id", activeSession.user.id)
+              .single();
+
             if (profileError) throw profileError;
 
             if (!profile || profile.credits < 1) {
@@ -1077,7 +1175,10 @@
             const fileName = `${activeSession.user.id}/${Date.now()}.${fileExt}`;
             const filePath = `uploads/${fileName}`;
 
-            await client.storage.from('stls').upload(filePath, window.selectedSTLFile, { cacheControl: '3600', 'upsert': true });
+            await client
+              .storage
+              .from('stls')
+              .upload(filePath, window.selectedSTLFile, { cacheControl: '3600', 'upsert': true });
 
             nextBtn.textContent = "Analizando geometría...";
 
@@ -1085,23 +1186,29 @@
             formData.append("file", window.selectedSTLFile);
             formData.append("questionnaire", JSON.stringify(answers));
 
-            // Asegúrate de que el backend en Render se ha actualizado con el nuevo main.py
             const apiResponse = await fetch("https://printlab-backend-dy7v.onrender.com/analyze", {
               method: "POST",
               body: formData
             });
 
-            if (!apiResponse.ok) throw new Error("El servidor de análisis no responde. Código: " + apiResponse.status);
+            if (!apiResponse.ok) {
+              throw new Error("El servidor de análisis no responde. Código: " + apiResponse.status);
+            }
 
             const analysisData = await apiResponse.json();
-            if (!analysisData || !analysisData.success) throw new Error(analysisData?.error || "Error de cálculo en el backend.");
+            if (!analysisData || !analysisData.success) {
+              throw new Error(analysisData?.error || "Error de cálculo geométrico paramétrico en el backend.");
+            }
 
-            // GUARDAR LA RESPUESTA ENTERA (Incluyendo printlab_score)
+            // GUARDAMOS LA RESPUESTA COMPLETA DEL MOTOR (Evita el "Análisis Antiguo")
+            analysisData.user_questionnaire = answers; 
             sessionStorage.setItem("printlab_analysis", JSON.stringify(analysisData));
 
             nextBtn.textContent = "Confirmando créditos...";
             const { data: success, error: rpcError } = await client.rpc("deduct_analysis_credit");
-            if (rpcError || !success) throw new Error("Transacción denegada. Compruebe su saldo.");
+            if (rpcError || !success) {
+              throw new Error("Transacción denegada. Compruebe su saldo.");
+            }
 
             window.location.href = "informe-stl.html";
 
