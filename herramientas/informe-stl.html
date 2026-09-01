@@ -1,3 +1,4 @@
+<!-- informe-stl.html -->
 <!doctype html>
 <html lang="es">
 <head>
@@ -36,7 +37,29 @@
     .btn-auth.light:hover { transform: translateY(-1px); box-shadow: 0 4px 0px var(--ink); }
     .btn-auth.green { background: var(--accent); color: var(--ink); box-shadow: 0 3px 0px var(--ink); }
 
-    /* MOTOR DE DECISIÓN - ESTRUCTURA UI */
+    /* CAD WORKSPACE SPLIT */
+    .workspace-layout { display: grid; grid-template-columns: 1fr 400px; gap: 30px; margin: 20px 0 40px; }
+    @media(max-width:992px) { .workspace-layout { grid-template-columns: 1fr; } }
+
+    .pipeline-flow { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; background: var(--bg); padding: 10px; border-radius: 12px; border: 1.5px solid var(--line); }
+    .step-badge { font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; }
+    .step-badge.active { color: var(--ink); background: var(--accent); padding: 4px 8px; border-radius: 6px; }
+    .step-arrow { color: var(--muted); font-size: 11px; }
+
+    .btn-cad-action { width: 100%; padding: 12px; border-radius: 10px; font-weight: 800; font-size: 13.5px; cursor: pointer; border: 1.5px solid var(--ink); box-shadow: 0 3px 0 var(--ink); transition: transform 0.15s, box-shadow 0.15s; }
+    .btn-cad-action:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 0 var(--ink); }
+    .btn-cad-action:active:not(:disabled) { transform: translateY(1px); box-shadow: 0 1px 0 var(--ink); }
+    .btn-cad-action:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+    .btn-cad-action.primary { background: #fff; color: var(--ink); }
+    .btn-cad-action.warning { background: var(--warning); color: #fff; }
+    .btn-cad-action.accent { background: var(--accent); color: var(--ink); }
+
+    .cad-section { border-top: 1px dashed var(--line); padding-top: 15px; margin-top: 15px; }
+    .cad-section-title { font-size: 13.5px; font-weight: 800; margin: 0 0 4px; }
+    .cad-section-desc { font-size: 11px; color: var(--muted); margin: 0 0 10px; line-height: 1.4; }
+    .cad-input { width: 100%; padding: 8px; border: 1.5px solid var(--line); border-radius: 8px; font-size: 13px; font-weight: 700; background: var(--bg); color: var(--ink); outline: none; }
+
+    /* MOTOR DE DECISIÓN */
     .engine-header { display: flex; justify-content: space-between; align-items: center; background: #fff; border: 1.5px solid var(--line); border-radius: 20px; padding: 30px; margin: 40px 0 30px; flex-wrap: wrap; gap: 20px;}
     .engine-title { margin: 0; font-size: 32px; font-weight: 800; letter-spacing: -1px; }
     .engine-subtitle { margin: 8px 0 0; color: var(--muted); font-size: 16px; max-width: 600px;}
@@ -52,19 +75,13 @@
     .engine-list li { display: flex; justify-content: space-between; font-size: 14.5px; border-bottom: 1px dashed var(--line); padding-bottom: 8px; }
     .engine-list li strong { font-weight: 800; color: var(--ink); text-align: right; max-width: 60%; }
 
-    /* Alerta Material */
-    .material-alert { background: #fcebe8; border: 2px solid var(--error); border-radius: 12px; padding: 16px; margin-top: 16px; display: none; }
-    .material-alert strong { color: var(--error); display: block; margin-bottom: 4px; font-size: 15px;}
-    .material-alert p { margin: 0; font-size: 13.5px; color: #8a2a1b; }
-
-    /* Visor 3D y Panel de Selección */
-    .mesh-canvas { background: #161d1a; border-radius: 16px; height: 450px; display: block; border: 1.5px solid var(--line); overflow: hidden; margin-bottom: 0; width: 100%; cursor: grab;}
+    /* Visor 3D y Panel */
+    .mesh-canvas { background: #161d1a; border-radius: 16px; height: 480px; display: block; border: 1.5px solid var(--line); overflow: hidden; width: 100%; cursor: grab;}
     .mesh-canvas:active { cursor: grabbing; }
     .viewer-legend { display: flex; flex-wrap: wrap; gap: 14px 18px; align-items: center; font-size: 13px; font-weight: 700; color: var(--muted); }
     
     #face-info-panel { position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.95); padding: 20px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); font-size: 14px; display: none; width: 280px; border: 2px solid #2688d8; backdrop-filter: blur(5px); z-index:10;}
     #btn-use-as-base { width: 100%; margin-top: 16px; background: #2688d8; color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: 800; cursor: pointer; transition: 0.2s; }
-    #btn-use-as-base:hover { background: #1a6ab0; transform:translateY(-1px);}
 
     /* Recomendación PrintLab */
     .recommendation-box { background: var(--dark); color: #fff; border-radius: 20px; padding: 30px; margin-bottom: 24px; }
@@ -72,50 +89,23 @@
     .reasons-list { list-style: none; padding: 0; margin: 16px 0 0; display:flex; flex-direction:column; gap:10px; }
     .reasons-list li { font-size: 15px; font-weight: 500; display:flex; gap:8px; align-items:flex-start; line-height: 1.4; color: #dce4df;}
 
-    /* Guía de Diseño Visual */
-    .design-tips-box { background: #fdfdfc; border: 2px dashed #b8c0bb; border-radius: 20px; padding: 24px; margin-bottom: 24px; display:none; }
-    .design-tips-box h3 { font-size: 18px; font-weight: 800; margin: 0 0 16px; color: var(--ink); }
-    .tip-card { display: flex; gap: 16px; align-items: center; background: #fff; border: 1.5px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
-    .tip-icon { width: 60px; height: 60px; background: #f6f7f4; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid var(--line); font-size:24px;}
-    .tip-text strong { display: block; font-size: 15px; color: var(--ink); margin-bottom: 4px; }
-    .tip-text p { margin: 0; font-size: 13.5px; color: var(--muted); }
-
-    /* Tabla de Comparación */
-    .comparison-wrapper { overflow-x: auto; margin-bottom: 24px; background:var(--card); border:1.5px solid var(--line); border-radius:20px; padding:24px; display:none; }
-    .comparison-table { width: 100%; border-collapse: collapse; font-size: 14.5px; text-align: left; }
-    .comparison-table th { padding: 12px; border-bottom: 2px solid var(--line); font-weight: 800; color:var(--muted);}
-    .comparison-table td { padding: 14px 12px; border-bottom: 1px solid var(--line); font-weight: 600; }
-    .auto-col { color: #2688d8; } .manual-col { color: #1a9e86; }
-
     .download-panel{text-align:center; background:var(--card); border:1.5px solid var(--line); border-radius:20px; padding:36px; margin-top:24px;}
     .btn-download-stl{display:inline-flex; align-items:center; justify-content:center; gap:10px; padding:16px 30px; background:var(--ink); color:#fff; border:2px solid var(--ink); border-radius:12px; font-weight:800; font-size:15px; cursor:pointer;}
 
     /* FALLBACKS */
     .no-session-card { text-align: center; padding: 60px 40px; background: var(--card); border: 1.5px solid var(--line); border-radius: 24px; max-width: 580px; margin: 80px auto; }
-    .no-session-card h2 { font-size: 26px; font-weight: 800; margin: 0 0 12px; }
 
     /* FOOTER */
     .footer { background: var(--bg); border-top: 1px solid var(--line); padding: 80px 0 40px; margin-top: 60px; color: var(--muted); font-size: 14px; line-height: 1.6; }
     .footergrid { display: grid; grid-template-columns: 1.3fr 0.85fr 0.85fr; gap: 60px; margin-bottom: 48px; }
     .footer-col h3 { font-size: 16px; font-weight: 800; color: var(--ink); margin: 0 0 20px; }
     .footer-col p { margin: 0 0 16px; color: var(--muted); }
-    .footer-secondary-text { font-size: 12.5px; line-height: 1.5; color: #7d8782; margin-top: 12px; }
     .footer-links { display: flex; flex-direction: column; gap: 10px; }
-    .footer-links a { color: var(--muted); transition: color 0.15s ease; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
-    .footer-links a:hover { color: var(--ink); transform: translateX(2px); }
-    .footer-links a span.arrow { transition: color 0.15s ease; }
-    .footer-links a:hover span.arrow { color: var(--accent); }
-    .footer-bottom { border-top: 1px solid var(--line); padding-top: 24px; display:flex; justify-content:center; align-items:center; text-align:center; font-size: 13px; color: #7d8782;}
+    .footer-links a { color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
+    .footer-bottom { border-top: 1px solid var(--line); padding-top: 24px; text-align:center; font-size: 13px; color: #7d8782;}
 
-    @media(max-width:992px) { .engine-grid { grid-template-columns: 1fr; } .footergrid { grid-template-columns: 1.2fr 1fr; gap: 40px; } }
-    @media(max-width:768px){ .wrap{padding:0 24px} .auth-buttons { display: none; } .footergrid { grid-template-columns: 1fr; gap: 36px; } }
-    
-    #authHeaderContainer span[style*="background" i],
-    #authHeaderContainer span[style*="accent" i],
-    #authHeaderContainer span:nth-child(2),
-    #authHeaderContainer div span:nth-child(2) {
-      background: var(--accent) !important; color: var(--ink) !important; padding: 8px 18px !important; border-radius: 9999px !important; font-weight: 800 !important; font-size: 15px !important; border: none !important; box-shadow: none !important; display: inline-flex !important; align-items: center !important; justify-content: center !important;
-    }
+    @media(max-width:992px) { .footergrid { grid-template-columns: 1.2fr 1fr; gap: 40px; } }
+    @media(max-width:768px){ .wrap{padding:0 24px} .auth-buttons { display: none; } }
   </style>
 
   <!-- LIBRERÍAS -->
@@ -162,8 +152,8 @@
       
       <section class="engine-header">
         <div>
-          <h1 class="engine-title">Diagnóstico y Optimización de Malla</h1>
-          <p class="engine-subtitle">Análisis avanzado basado en geometría, esfuerzos mecánicos y material.</p>
+          <h1 class="engine-title">Estudio CAD y Optimización Física</h1>
+          <p class="engine-subtitle">Mecaniza, orienta, repara y divide tu malla utilizando geometría física real.</p>
         </div>
         <div style="text-align:center;">
           <div style="font-size:12px; font-weight:800; color:var(--muted); text-transform:uppercase; margin-bottom:8px;">PrintLab Score</div>
@@ -172,126 +162,161 @@
         </div>
       </section>
 
+      <!-- CAD WORKSPACE CON DISTRIBUCIÓN SPLIT -->
+      <section class="workspace-layout">
+        <!-- Columna Izquierda: Visor 3D y Controles de Vista -->
+        <div>
+          <div style="position: relative; width: 100%;">
+            <div class="mesh-canvas" id="canvas3dContainer"></div>
+            
+            <div id="face-info-panel">
+              <h4 style="margin:0 0 12px; font-size:12px; color:var(--muted); font-weight:800; border-bottom:1px dashed var(--line); padding-bottom:6px;">SUPERFICIE PLANA DETECTADA</h4>
+              <p style="margin:0 0 6px;"><strong>Área del plano:</strong> <span id="selected-face-area">-</span> cm²</p>
+              <p style="margin:0 0 6px;"><strong>Ángulo Z:</strong> <span id="selected-face-angle">-</span>º</p>
+              <button id="btn-use-as-base">Apoyar esta cara en la cama</button>
+            </div>
+          </div>
+
+          <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:15px;">
+            <button id="selectSupportBtn" type="button" style="border:none; background:#2688d8; color:#fff; border-radius:999px; padding:10px 16px; font-weight:800; font-size:13px; cursor:pointer;">
+              👆 Elegir cara plana manualmente
+            </button>
+            <button id="autoSupportBtn" type="button" style="border:1.5px solid var(--line); background:var(--card); color:var(--ink); border-radius:999px; padding:10px 16px; font-weight:800; font-size:13px; cursor:pointer;">
+              ↺ Orientación por Defecto
+            </button>
+          </div>
+
+          <!-- Slider de Vista Explosionada (Dinámico para piezas divididas) -->
+          <div id="explosionControlContainer" style="display:none; margin-top:20px; background:var(--card); padding:16px; border-radius:16px; border:1.5px solid var(--line);">
+            <div style="display:flex; justify-content:space-between; font-weight:800; font-size:13px;">
+              <span>💥 Desplazamiento de Ensamblado (Vista Explosionada)</span>
+              <span id="explosionVal">0%</span>
+            </div>
+            <input type="range" id="explosionSlider" min="0" max="100" value="0" style="width:100%; margin-top:10px;">
+          </div>
+        </div>
+
+        <!-- Columna Derecha: PrintLab CAD Studio Panel -->
+        <div class="engine-card" style="padding:20px;">
+          <h3 style="margin-top:0; font-size:18px;">🛠️ PrintLab CAD Studio</h3>
+          <p style="font-size:12px; color:var(--muted); margin-top:-10px; margin-bottom:15px;">Modifica, reorienta y divide la geometría del STL de forma real.</p>
+          
+          <!-- Pipeline visual de estados -->
+          <div class="pipeline-flow">
+            <span class="step-badge active" id="badge-orig">Original</span>
+            <span class="step-arrow">➔</span>
+            <span class="step-badge" id="badge-repaired">Reparado</span>
+            <span class="step-arrow">➔</span>
+            <span class="step-badge" id="badge-oriented">Orientado</span>
+            <span class="step-arrow">➔</span>
+            <span class="step-badge" id="badge-split">Dividido</span>
+          </div>
+
+          <!-- Historial Deshacer / Rehacer -->
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;">
+            <button id="btn-undo" class="btn-cad-action primary" style="padding:8px; font-size:12px;" disabled>↩ Deshacer</button>
+            <button id="btn-redo" class="btn-cad-action primary" style="padding:8px; font-size:12px;" disabled>↪ Rehacer</button>
+          </div>
+
+          <!-- Módulo: Reconstrucción/Reparación Real -->
+          <div class="cad-section">
+            <h4 class="cad-section-title">✨ Reparación de Malla Física</h4>
+            <p class="cad-section-desc">Cierra aberturas poligonalmente, corrige normales invertidas y elimina caras degeneradas.</p>
+            <button id="btn-real-repair" class="btn-cad-action primary">🔧 Ejecutar Reparación Real</button>
+          </div>
+
+          <!-- Módulo: División Inteligente por Tamaño de Cama -->
+          <div class="cad-section">
+            <h4 class="cad-section-title">✂️ División Automática por Cama</h4>
+            <p class="cad-section-desc">¿Supera el volumen útil? Divide físicamente el modelo en mitades imprimibles.</p>
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; margin-bottom:10px;">
+              <div>
+                <label style="font-size:9px; font-weight:800; display:block;">Cama X (mm)</label>
+                <input type="number" id="printer-x" value="256" class="cad-input">
+              </div>
+              <div>
+                <label style="font-size:9px; font-weight:800; display:block;">Cama Y (mm)</label>
+                <input type="number" id="printer-y" value="256" class="cad-input">
+              </div>
+              <div>
+                <label style="font-size:9px; font-weight:800; display:block;">Cama Z (mm)</label>
+                <input type="number" id="printer-z" value="256" class="cad-input">
+              </div>
+            </div>
+            <button id="btn-real-split" class="btn-cad-action warning">✂️ Dividir Geometría</button>
+          </div>
+
+          <!-- Módulo: Generación de Pines Físicos de Unión -->
+          <div class="cad-section" id="unionSection" style="display:none;">
+            <h4 class="cad-section-title">🔩 Generación de Clavijas y Pines</h4>
+            <p class="cad-section-desc">Genera espigas macho en un fragmento y ranuras hembra con tolerancia en el otro.</p>
+            <div style="margin-bottom:10px;">
+              <label style="font-size:11px; font-weight:800;">Holgura / Tolerancia</label>
+              <select id="pin-tolerance" class="cad-input" style="padding:6px; font-size:12px;">
+                <option value="0.08">Preciso (0.08 mm)</option>
+                <option value="0.15" selected>Normal (0.15 mm)</option>
+                <option value="0.25">Deslizable (0.25 mm)</option>
+              </select>
+            </div>
+            <button id="btn-generate-pins" class="btn-cad-action accent">🔩 Inyectar Pines Mecánicos</button>
+          </div>
+
+          <!-- Módulo: Mecanizado Booleano de Orificios -->
+          <div class="cad-section">
+            <h4 class="cad-section-title">🧲 Taladrado Booleano y Cavidades</h4>
+            <p class="cad-section-desc">Selecciona un tipo de mecanizado, haz clic sobre una faceta del visor e inyecta la cavidad.</p>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-bottom:10px;">
+              <div>
+                <label style="font-size:10px; font-weight:800; display:block;">Diámetro (mm)</label>
+                <input type="number" id="tool-diameter" value="6.0" class="cad-input">
+              </div>
+              <div>
+                <label style="font-size:10px; font-weight:800; display:block;">Profundidad (mm)</label>
+                <input type="number" id="tool-depth" value="3.0" class="cad-input">
+              </div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+              <button id="btn-tool-hole" class="btn-cad-action primary" style="padding:6px 10px; font-size:11px;">🕳️ Agujero Ciego</button>
+              <button id="btn-tool-magnet" class="btn-cad-action primary" style="padding:6px 10px; font-size:11px;">🧲 Hueco Imán</button>
+            </div>
+            <div id="selectionModeIndicator" style="display:none; color:#2688d8; font-size:11px; font-weight:800; text-align:center; margin-top:8px;"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Métricas de Diagnóstico -->
       <section class="engine-grid">
         <div class="engine-card">
-          <h3>📐 Datos Geométricos de la Pieza</h3>
+          <h3>📐 Datos Geométricos Calculados</h3>
           <ul class="engine-list">
             <li><span>Dimensiones (X/Y/Z)</span> <strong id="dim-bounds">-</strong></li>
-            <li><span>Volumen y Superficie</span> <strong><span id="volumen-value">-</span> cm³ / <span id="superficie-value">-</span> cm²</strong></li>
+            <li><span>Volumen</span> <strong><span id="volumen-value">-</span> cm³</strong></li>
+            <li><span>Superficie Total</span> <strong><span id="superficie-value">-</span> cm²</strong></li>
             <li><span>Masa estimada</span> <strong id="masa-value">- g</strong></li>
-            <li><span>Centro de gravedad [X, Y, Z]</span> <strong id="cg-value">-</strong></li>
-            <li><span>Integridad (Watertight)</span> <strong id="manifold-status">-</strong></li>
+            <li><span>Integridad de Sólido</span> <strong id="manifold-status">-</strong></li>
           </ul>
         </div>
         <div class="engine-card">
-          <h3>🎯 Tu Objetivo y Contexto</h3>
+          <h3>🎯 Requisitos e Impresora</h3>
           <ul class="engine-list">
-            <li><span>Prioridad</span> <strong id="user-priority" style="color:var(--ink);">-</strong></li>
-            <li><span>Material seleccionado</span> <strong id="user-material" style="color:var(--accent); background:var(--ink); padding:2px 8px; border-radius:4px;">-</strong></li>
-            <li><span>Esfuerzos soportados</span> <strong id="user-forces">-</strong></li>
-            <li><span>Dirección de carga</span> <strong id="user-direction">-</strong></li>
-            <li><span>Entorno / Temp</span> <strong id="user-environment">-</strong></li>
+            <li><span>Prioridad del Proyecto</span> <strong id="user-priority">-</strong></li>
+            <li><span>Material Recomendado</span> <strong id="user-material" style="color:var(--accent); background:var(--ink); padding:2px 8px; border-radius:4px;">-</strong></li>
+            <li><span>Esfuerzos Configurados</span> <strong id="user-forces">-</strong></li>
+            <li><span>Dirección de Carga</span> <strong id="user-direction">-</strong></li>
+            <li><span>Entorno de Trabajo</span> <strong id="user-environment">-</strong></li>
           </ul>
-          <!-- ALERTA DE MATERIAL INTELIGENTE -->
-          <div class="material-alert" id="material-warning-box">
-            <strong>⚠️ Alerta de Material Incompatible</strong>
-            <p id="material-warning-text">El material seleccionado no soportará las condiciones indicadas en el cuestionario. Deberías cambiar de polímero.</p>
-          </div>
         </div>
       </section>
 
       <section class="recommendation-box">
-        <h3>Recomendación PrintLab</h3>
-        <p id="recommendation-conclusion" style="font-size:17px; font-weight:700; margin:0 0 16px;">Analizando el objetivo y la geometría de la malla...</p>
+        <h3>Diagnóstico del Motor CAD</h3>
+        <p id="recommendation-conclusion" style="font-size:17px; font-weight:700; margin:0 0 16px;">Analizando la topología...</p>
         <ul class="reasons-list" id="reasons-list"></ul>
       </section>
 
-      <!-- NUEVO: CONSEJOS VISUALES DE REDISEÑO -->
-      <section class="design-tips-box" id="design-tips-section">
-        <h3>💡 Guía Rápida de Rediseño (Detección de fallos)</h3>
-        <p style="color:var(--muted); font-size:14px; margin-top:-10px; margin-bottom:16px;">Hemos detectado geometrías hostiles para impresión 3D. Modifica tu CAD siguiendo estas guías:</p>
-        <div id="design-tips-container">
-            <!-- Se inyectan tarjetas de consejos aquí -->
-        </div>
-      </section>
-
-      <section style="margin-bottom: 24px;">
-        <h3 style="font-size:20px; font-weight:800; margin-bottom:12px;">Visor Interactivo de Diagnóstico 3D</h3>
-        
-        <div style="position: relative; margin-bottom: 12px; width: 100%;">
-          <div class="mesh-canvas" id="canvas3dContainer"></div>
-          <div id="face-info-panel">
-            <h4 style="margin:0 0 12px; font-size:12px; color:var(--muted); font-weight:800; border-bottom:1px dashed var(--line); padding-bottom:6px;">SUPERFICIE PLANA DETECTADA</h4>
-            <p style="margin:0 0 6px;"><strong>Área del plano:</strong> <span id="selected-face-area">-</span> cm²</p>
-            <p style="margin:0 0 6px; font-size:12px; color:var(--muted);">El sistema ha agrupado automáticamente todos los triángulos de esta cara plana.</p>
-            <button id="btn-use-as-base">Apoyar esta cara en la cama</button>
-          </div>
-        </div>
-
-        <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
-          <button id="selectSupportBtn" type="button" style="border:none; background:#2688d8; color:#fff; border-radius:999px; padding:10px 16px; font-weight:800; font-size:13px; cursor:pointer; transition:.2s ease;">
-            👆 Elegir cara plana manualmente
-          </button>
-          <button id="autoSupportBtn" type="button" style="border:1.5px solid var(--line); background:var(--card); color:var(--ink); border-radius:999px; padding:10px 16px; font-weight:800; font-size:13px; cursor:pointer; transition:.2s ease;">
-            ↺ Volver a orientación automática
-          </button>
-          <span id="supportSelectionStatus" style="font-size:13px; color:var(--muted); margin-left:8px;">
-            El motor detectará toda la cara plana, no solo un triángulo suelto.
-          </span>
-        </div>
-
-        <div class="viewer-legend" style="margin-top:16px;">
-          <span><i style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#2eaf68;margin-right:7px;vertical-align:-1px;"></i>Normal</span>
-          <span><i style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#f2bd00;margin-right:7px;vertical-align:-1px;"></i>Voladizo (>45º)</span>
-          <span><i style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#d9432f;margin-right:7px;vertical-align:-1px;"></i>Esquina / Tensión Crítica</span>
-          <span><i style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#2688d8;margin-right:7px;vertical-align:-1px;"></i>Cara Apoyada</span>
-          <span><i style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#66c7ff;margin-right:7px;vertical-align:-1px;"></i>Hover (Plano Completo)</span>
-        </div>
-      </section>
-
-      <section class="comparison-wrapper" id="section-comparison">
-        <h3 style="font-size:20px; font-weight:800; margin:0 0 16px;">Comparación de Orientaciones</h3>
-        <table class="comparison-table">
-          <thead>
-            <tr>
-              <th>Métrica Calculada</th>
-              <th class="auto-col">Automática (PrintLab)</th>
-              <th class="manual-col">Manual (Tu Elección)</th>
-            </tr>
-          </thead>
-          <tbody id="comparison-table-body"></tbody>
-        </table>
-      </section>
-
-      <section class="engine-grid">
-        <div class="engine-card" style="border-color:var(--error); border-left: 6px solid var(--error);">
-          <h3 style="color:var(--error);">Riesgos y Soportes Detectados</h3>
-          <ul class="engine-list">
-            <li><span>Riesgo Geométrico Nivel</span> <strong id="risk-text-value">-</strong></li>
-            <li><span>Zonas con concentración de tensión</span> <strong id="critical-overhangs-count">-</strong></li>
-            <li><span>Superficie afectada por voladizo</span> <strong id="support-area">- cm² (<span id="support-percent">-</span>%)</strong></li>
-          </ul>
-        </div>
-        <div class="engine-card" style="background:#fcfdfc;">
-          <h3>⚙️ Recomendaciones de Laminado</h3>
-          <p style="font-size:13px; color:var(--muted); margin-top:-10px; margin-bottom:12px;">Parámetros sugeridos basados en tus objetivos.</p>
-          <ul class="engine-list">
-            <li><span>Paredes / Perímetros</span> <strong id="slice-walls">-</strong></li>
-            <li><span>Relleno (Densidad/Patrón)</span> <strong><span id="slice-infill">-</span>% (<span id="slice-pattern">-</span>)</strong></li>
-            <li><span>Velocidad orientativa</span> <strong id="slice-speed">- mm/s</strong></li>
-            <li><span>Temperaturas (Nozzle/Cama)</span> <strong><span id="slice-temp-n">-</span>ºC / <span id="slice-temp-b">-</span>ºC</strong></li>
-          </ul>
-        </div>
-      </section>
-
+      <!-- Panel de Descarga / Pipeline Final -->
       <section class="download-panel">
-        <h3 style="font-size:24px; font-weight:800; margin:0 0 8px;">Conclusión y STL Optimizado</h3>
-        <p style="color:var(--muted); margin:0 auto 24px; max-width:700px;" id="final-desc-text">El archivo ha sido reorientado sobre el eje Z=0 utilizando la rotación matemáticamente más favorable.</p>
-        
-        <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap;">
-          <button class="btn-download-stl" id="downloadStlBtn">Descargar STL Orientado</button>
-          <button class="btn-download-stl" id="downloadPdfBtn" style="background:#fff; color:var(--ink); border-color:var(--line);">Generar Informe PDF</button>
-        </div>
+        <!-- Render dinámico desde JavaScript -->
       </section>
 
     </div>
@@ -302,26 +327,24 @@
       <div class="footergrid">
         <div class="footer-col">
           <h3>PrintLab — Ingeniería 3D</h3>
-          <p>Plataforma profesional de análisis y optimización STL mediante Inteligencia Artificial y simuladores paramétricos.</p>
+          <p>Estudio profesional de validación, reparación y ensamblado geométrico de archivos STL.</p>
         </div>
         <div class="footer-col">
-          <h3>Recursos y Herramientas</h3>
+          <h3>Herramientas</h3>
           <div class="footer-links">
-            <a href="../index.html#analizador">Analizador STL IA</a>
+            <a href="analizador-stl.html">Analizador STL IA</a>
             <a href="../index.html#simulador">Simulador de Extrusión</a>
-            <a href="calculadora-coste.html">Calculadoras de Coste y Masa</a>
           </div>
         </div>
         <div class="footer-col">
-          <h3>Soporte y Legal</h3>
+          <h3>Legal</h3>
           <div class="footer-links">
-            <a href="precios.html">Precios y Suscripciones</a>
-            <a href="contacto.html">Contacto y Soporte</a>
+            <a href="precios.html">Precios y Planes</a>
           </div>
         </div>
       </div>
       <div class="footer-bottom">
-        <div class="footer-bottom-text">© 2026 PrintLab.</div>
+        <div>© 2026 PrintLab.</div>
       </div>
     </div>
   </footer>
@@ -330,35 +353,50 @@
     function toggleMenu() { document.getElementById('mainMenu').classList.toggle('show'); }
   </script>
 
-  <!-- LÓGICA CORE THREEJS + SELECCIÓN COPLANAR (CARAS PLANAS) -->
+  <!-- LÓGICA ESTUDIO CAD + THREE.JS MULTI-MESH -->
   <script>
     let scene, camera, renderer, controls, activeMesh;
+    let loader = new THREE.STLLoader();
+    let loadedParts = [];
+    let slicePlaneNormal = null;
     let viewerState = null;
+    let booleanSelectionMode = null;
+    
+    // Historial del Pipeline (Deshacer / Rehacer)
+    let stateHistory = [];
+    let currentHistoryIndex = -1;
+
     const PRINTLAB_API = "https://printlab-backend-dy7v.onrender.com";
 
-    function init3DViewer(containerId, base64Data, criticalPoints, recommendedRotMatrix, supportSurface, overhangAnalysis, criticalFaceIndices, analysisObject) {
-      const container = document.getElementById(containerId);
-      if (!container || !base64Data) return;
-      
-      const oldCanvases = container.getElementsByTagName("canvas");
-      while (oldCanvases.length > 0) oldCanvases[0].parentNode.removeChild(oldCanvases[0]);
+    function pushState(stateName, analysisObject) {
+      if (currentHistoryIndex < stateHistory.length - 1) {
+        stateHistory = stateHistory.slice(0, currentHistoryIndex + 1);
+      }
+      stateHistory.push({ name: stateName, analysis: JSON.parse(JSON.stringify(analysisObject)) });
+      currentHistoryIndex = stateHistory.length - 1;
+      updateUIForState();
+    }
 
-      viewerState = null;
+    function undo() {
+      if (currentHistoryIndex > 0) { currentHistoryIndex--; updateUIForState(); }
+    }
+
+    function redo() {
+      if (currentHistoryIndex < stateHistory.length - 1) { currentHistoryIndex++; updateUIForState(); }
+    }
+
+    function init3DViewer(containerId) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+
       scene = new THREE.Scene();
       scene.background = new THREE.Color(0x161d1a);
 
-      const width = Math.max(container.clientWidth, 800);
-      const height = Math.max(container.clientHeight, 450);
-      camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 10000);
-
+      camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 10000);
       renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-      renderer.setSize(width, height);
-      renderer.outputEncoding = THREE.sRGBEncoding; 
-      
-      renderer.domElement.style.width = '100%';
-      renderer.domElement.style.height = '100%';
-      renderer.domElement.style.display = 'block';
+      renderer.setSize(container.clientWidth, container.clientHeight);
+      renderer.outputEncoding = THREE.sRGBEncoding;
       container.appendChild(renderer.domElement);
 
       scene.add(new THREE.HemisphereLight(0xffffff, 0x202520, 1.35));
@@ -366,422 +404,540 @@
       const light2 = new THREE.DirectionalLight(0xffffff, 0.55); light2.position.set(-2, -1, 1); scene.add(light2);
 
       controls = new THREE.OrbitControls(camera, renderer.domElement);
-      controls.enableDamping = true; controls.dampingFactor = 0.06; controls.enablePan = true;
+      controls.enableDamping = true; controls.dampingFactor = 0.06;
 
-      const onResize = () => {
-        if (!camera || !renderer || !container) return;
-        const w = container.clientWidth; const h = container.clientHeight;
-        if(w === 0 || h === 0) return;
-        camera.aspect = w / h; camera.updateProjectionMatrix(); renderer.setSize(w, h);
-      };
-      window.addEventListener('resize', onResize);
+      window.addEventListener('resize', () => {
+        camera.aspect = container.clientWidth / container.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(container.clientWidth, container.clientHeight);
+      });
 
-      const loader = new THREE.STLLoader();
-      try {
-        const binaryStr = atob(base64Data);
-        const bytes = new Uint8Array(binaryStr.length);
-        for (let i = 0; i < binaryStr.length; i++) bytes[i] = binaryStr.charCodeAt(i);
-
-        const geometry = loader.parse(bytes.buffer);
-        geometry.computeVertexNormals();
-
-        const position = geometry.attributes.position;
-        const vertexCount = position.count;
-        const faceCount = Math.floor(vertexCount / 3);
-
-        // Precalcular normales y centros para el algoritmo coplanar ultrarrápido
-        const normals = []; const centers = [];
-        const _a = new THREE.Vector3(), _b = new THREE.Vector3(), _c = new THREE.Vector3();
-        for(let i=0; i<faceCount; i++){
-            _a.fromBufferAttribute(position, i*3); _b.fromBufferAttribute(position, i*3+1); _c.fromBufferAttribute(position, i*3+2);
-            const _ab = new THREE.Vector3().subVectors(_b, _a); const _ac = new THREE.Vector3().subVectors(_c, _a);
-            normals.push(new THREE.Vector3().crossVectors(_ab, _ac).normalize());
-            centers.push(new THREE.Vector3().addVectors(_a, _b).add(_c).divideScalar(3));
-        }
-
-        const supportFaces = new Set(supportSurface && supportSurface.face_indices ? supportSurface.face_indices.map(Number) : []);
-        const overhangFaces = new Set(overhangAnalysis && overhangAnalysis.face_indices ? overhangAnalysis.face_indices.map(Number) : []);
-        const criticalFaces = new Set(criticalFaceIndices ? criticalFaceIndices.map(Number) : []);
-
-        const colors = new Float32Array(vertexCount * 3);
-        const baseColors = new Float32Array(vertexCount * 3);
-
-        for (let face = 0; face < faceCount; face++) {
-          const i = face * 3;
-          let col = new THREE.Color(0x2eaf68); 
-          if (criticalFaces.has(face)) col = new THREE.Color(0xd9432f); 
-          else if (supportFaces.has(face)) col = new THREE.Color(0x2688d8); 
-          else if (overhangFaces.has(face)) col = new THREE.Color(0xf2bd00); 
-
-          for (let j = 0; j < 3; j++) {
-            const k = (i + j) * 3;
-            colors[k] = col.r; colors[k + 1] = col.g; colors[k + 2] = col.b;
-            baseColors[k] = col.r; baseColors[k + 1] = col.g; baseColors[k + 2] = col.b;
-          }
-        }
-
-        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-        const material = new THREE.MeshPhongMaterial({ vertexColors: true, side: THREE.DoubleSide, specular: 0x111111, shininess: 75 });
-        activeMesh = new THREE.Mesh(geometry, material);
-        scene.add(activeMesh);
-
-        viewerState = { geometry, position, baseColors, faceCount, normals, centers, selectionMode: false, hoveredFaces: [], selectedFaces: [], analysisObject };
-
-        if (Array.isArray(criticalPoints) && criticalPoints.length > 0) {
-            geometry.computeBoundingBox();
-            const meshDiagonal = geometry.boundingBox ? geometry.boundingBox.getSize(new THREE.Vector3()).length() : 100;
-            criticalPoints.forEach(pt => {
-               if (pt && Number.isFinite(Number(pt.x))) {
-                   const sphereGeo = new THREE.SphereGeometry(Math.max(meshDiagonal * 0.012, 0.8), 16, 16);
-                   const sphereMat = new THREE.MeshBasicMaterial({ color: 0xd9432f, depthTest: false });
-                   const sphere = new THREE.Mesh(sphereGeo, sphereMat);
-                   sphere.position.set(Number(pt.x), Number(pt.y), Number(pt.z));
-                   sphere.renderOrder = 20;
-                   scene.add(sphere);
-               }
-            });
-        }
-
-        if(!geometry.boundingBox) geometry.computeBoundingBox();
-        const center = new THREE.Vector3(); geometry.boundingBox.getCenter(center);
-        const size = geometry.boundingBox.getSize(new THREE.Vector3()).length() || 100;
-        controls.target.copy(center);
-        camera.position.set(center.x + size * 0.85, center.y + size * 0.75, center.z + size * 0.85);
-        controls.update();
-        
-        setupFaceSelection(container, analysisObject);
-      } catch (err) { console.error("ThreeJS Error:", err); }
-
-      function animate() { requestAnimationFrame(animate); if(controls) controls.update(); renderer.render(scene, camera); }
+      setupInteractions(container);
       animate();
     }
 
-    function setupFaceSelection(container, analysisObject) {
-      const selectBtn = document.getElementById('selectSupportBtn');
-      const autoBtn = document.getElementById('autoSupportBtn');
-      const status = document.getElementById('supportSelectionStatus');
-      const panel = document.getElementById('face-info-panel');
-      const applyBtn = document.getElementById('btn-use-as-base');
-      
+    function animate() {
+      requestAnimationFrame(animate);
+      if(controls) controls.update();
+      renderer.render(scene, camera);
+    }
+
+    function renderModel(meshData) {
+      loadedParts.forEach(p => scene.remove(p.mesh));
+      loadedParts = [];
+      activeMesh = null;
+
+      if (meshData.part_a && meshData.part_b) {
+        document.getElementById("explosionControlContainer").style.display = "block";
+        slicePlaneNormal = new THREE.Vector3().fromArray(meshData.displacement_vector || [0,0,1]);
+
+        // Pieza A (Macho)
+        const geoA = loader.parse(atob(meshData.part_a.base64).buffer);
+        const matA = new THREE.MeshPhongMaterial({ color: 0x2eaf68, side: THREE.DoubleSide, specular: 0x111111, shininess: 75 });
+        const meshA = new THREE.Mesh(geoA, matA);
+        scene.add(meshA);
+        loadedParts.push({ mesh: meshA, dir: slicePlaneNormal.clone() });
+
+        // Pieza B (Hembra)
+        const geoB = loader.parse(atob(meshData.part_b.base64).buffer);
+        const matB = new THREE.MeshPhongMaterial({ color: 0x2688d8, side: THREE.DoubleSide, specular: 0x111111, shininess: 75 });
+        const meshB = new THREE.Mesh(geoB, matB);
+        scene.add(meshB);
+        loadedParts.push({ mesh: meshB, dir: slicePlaneNormal.clone().negate() });
+
+        activeMesh = meshA;
+      } else {
+        document.getElementById("explosionControlContainer").style.display = "none";
+        const b64 = meshData.optimized_base64 || meshData.optimized_mesh_base64;
+        if (b64) {
+          const geo = loader.parse(atob(b64).buffer);
+          geo.computeVertexNormals();
+
+          // Configurar sombreadores por vértices del análisis original
+          const position = geo.attributes.position;
+          const colors = new Float32Array(position.count * 3);
+          const baseColors = new Float32Array(position.count * 3);
+
+          const criticalFaces = new Set(meshData.critical_face_indices || []);
+          const supportFaces = new Set(meshData.support_surface?.face_indices || []);
+          const overhangFaces = new Set(meshData.overhang_analysis?.face_indices || []);
+
+          for (let face = 0; face < Math.floor(position.count / 3); face++) {
+            let col = new THREE.Color(0x2eaf68);
+            if (criticalFaces.has(face)) col = new THREE.Color(0xd9432f);
+            else if (supportFaces.has(face)) col = new THREE.Color(0x2688d8);
+            else if (overhangFaces.has(face)) col = new THREE.Color(0xf2bd00);
+
+            for (let j = 0; j < 3; j++) {
+              const k = (face * 3 + j) * 3;
+              colors[k] = col.r; colors[k + 1] = col.g; colors[k + 2] = col.b;
+              baseColors[k] = col.r; baseColors[k + 1] = col.g; baseColors[k + 2] = col.b;
+            }
+          }
+
+          geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+          const mat = new THREE.MeshPhongMaterial({ vertexColors: true, side: THREE.DoubleSide, specular: 0x111111, shininess: 75 });
+          activeMesh = new THREE.Mesh(geo, mat);
+          scene.add(activeMesh);
+          loadedParts.push({ mesh: activeMesh, dir: new THREE.Vector3(0,0,0) });
+
+          viewerState = { geometry: geo, position, baseColors, faceCount: Math.floor(position.count/3), normals: [], centers: [] };
+          
+          // Precalcular normales
+          const _a = new THREE.Vector3(), _b = new THREE.Vector3(), _c = new THREE.Vector3();
+          for(let i=0; i<viewerState.faceCount; i++){
+            _a.fromBufferAttribute(position, i*3); _b.fromBufferAttribute(position, i*3+1); _c.fromBufferAttribute(position, i*3+2);
+            const _ab = new THREE.Vector3().subVectors(_b, _a); const _ac = new THREE.Vector3().subVectors(_c, _a);
+            viewerState.normals.push(new THREE.Vector3().crossVectors(_ab, _ac).normalize());
+            viewerState.centers.push(new THREE.Vector3().addVectors(_a, _b).add(_c).divideScalar(3));
+          }
+        }
+      }
+
+      recenterCamera();
+    }
+
+    function recenterCamera() {
+      if (loadedParts.length === 0) return;
+      const box = new THREE.Box3();
+      loadedParts.forEach(p => box.expandByObject(p.mesh));
+      const center = new THREE.Vector3(); box.getCenter(center);
+      const size = box.getSize(new THREE.Vector3()).length() || 100;
+      controls.target.copy(center);
+      camera.position.set(center.x + size * 0.85, center.y + size * 0.75, center.z + size * 0.85);
+      controls.update();
+    }
+
+    function setupInteractions(container) {
       const raycaster = new THREE.Raycaster();
       const pointer = new THREE.Vector2();
-      const hoverColor = new THREE.Color(0x66c7ff);
 
-      // ALGORITMO COPLANAR
-      const getCoplanarFaces = (startFaceIndex) => {
-        if(startFaceIndex < 0) return [];
-        const startNormal = viewerState.normals[startFaceIndex];
-        const startCenter = viewerState.centers[startFaceIndex];
-        const coplanar = [];
-        // Tolerancias estrictas para reconocer caras 100% planas
-        const normalTol = 0.995; 
-        const distTol = 0.2; 
-        
-        for(let i=0; i<viewerState.faceCount; i++){
-            if(Math.abs(viewerState.normals[i].dot(startNormal)) > normalTol) {
-                const dist = Math.abs(new THREE.Vector3().subVectors(viewerState.centers[i], startCenter).dot(startNormal));
-                if(dist < distTol) coplanar.push(i);
-            }
-        }
-        return coplanar;
-      };
-
-      const restoreFaces = (faceIndices) => {
-        if (!faceIndices || faceIndices.length === 0) return;
-        const colorAttr = viewerState.geometry.attributes.color;
-        for(let i=0; i<faceIndices.length; i++) {
-            const start = faceIndices[i] * 9;
-            for (let j = 0; j < 9; j++) colorAttr.array[start + j] = viewerState.baseColors[start + j];
-        }
-      };
-
-      const highlightFaces = (faceIndices) => {
-        if (!faceIndices || faceIndices.length === 0) return;
-        const colorAttr = viewerState.geometry.attributes.color;
-        for(let i=0; i<faceIndices.length; i++) {
-            const start = faceIndices[i] * 9;
-            for (let j = 0; j < 3; j++) {
-              colorAttr.array[start + j*3] = hoverColor.r; colorAttr.array[start + j*3+1] = hoverColor.g; colorAttr.array[start + j*3+2] = hoverColor.b;
-            }
-        }
-        colorAttr.needsUpdate = true;
-      };
-
-      const getFaceFromEvent = (event) => {
+      renderer.domElement.addEventListener('click', async (event) => {
         const rect = renderer.domElement.getBoundingClientRect();
-        pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1; pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+        pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
         raycaster.setFromCamera(pointer, camera);
-        const hits = raycaster.intersectObject(activeMesh, false);
-        return hits.length ? Math.floor(hits[0].faceIndex) : -1;
-      };
 
-      const exitMode = () => {
-        viewerState.selectionMode = false;
-        restoreFaces(viewerState.hoveredFaces);
-        restoreFaces(viewerState.selectedFaces);
-        viewerState.hoveredFaces = []; viewerState.selectedFaces = [];
-        viewerState.geometry.attributes.color.needsUpdate = true;
-        panel.style.display = 'none';
-        renderer.domElement.style.cursor = 'grab';
-        selectBtn.textContent = '👆 Elegir cara plana manualmente';
-        status.textContent = 'El motor detectará toda la cara plana, no solo un triángulo suelto.';
-      };
+        const targetMeshes = loadedParts.map(p => p.mesh);
+        const hits = raycaster.intersectObjects(targetMeshes, false);
 
-      renderer.domElement.addEventListener('pointermove', (event) => {
-        if (!viewerState.selectionMode || viewerState.selectedFaces.length > 0) return;
-        const face = getFaceFromEvent(event);
-        if (face < 0) {
-            restoreFaces(viewerState.hoveredFaces);
-            viewerState.hoveredFaces = [];
-            viewerState.geometry.attributes.color.needsUpdate = true;
+        if (hits.length > 0) {
+          const hit = hits[0];
+
+          // Modo 1: Mecanizado Booleano Directo
+          if (booleanSelectionMode) {
+            const clickedPoint = hit.point.toArray();
+            const clickedNormal = hit.face.normal.toArray();
+            const diam = parseFloat(document.getElementById("tool-diameter").value);
+            const dep = parseFloat(document.getElementById("tool-depth").value);
+            
+            document.getElementById("selectionModeIndicator").innerText = "⏳ Computando operación booleana...";
+            const activeState = stateHistory[currentHistoryIndex].analysis;
+            const b64 = activeState.optimized_base64 || activeState.optimized_mesh_base64;
+
+            try {
+              const res = await fetch(PRINTLAB_API + '/add_hole_or_magnet', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  stl_base64: b64,
+                  point: clickedPoint,
+                  normal: clickedNormal,
+                  diameter: diam,
+                  depth: dep,
+                  is_magnet: booleanSelectionMode === 'magnet'
+                })
+              });
+              const data = await res.json();
+              if (data.success) {
+                const newState = {
+                  ...activeState,
+                  optimized_base64: data.modified_base64,
+                  optimized_mesh_base64: data.modified_base64,
+                  volume_cm3: data.volume_cm3,
+                  dimensions: data.dimensions,
+                  is_watertight: data.is_watertight
+                };
+                pushState("Mecanizado (" + (booleanSelectionMode==='magnet' ? "Imán":"Orificio") + ")", newState);
+              } else {
+                alert(data.error);
+              }
+            } catch (err) {
+              alert("Error de conexión con el núcleo CAD: " + err.message);
+            } finally {
+              booleanSelectionMode = null;
+              document.getElementById("selectionModeIndicator").style.display = "none";
+            }
             return;
-        }
-        if (viewerState.hoveredFaces.includes(face)) return; // Ya estamos en la misma cara plana
-        
-        restoreFaces(viewerState.hoveredFaces);
-        const planeFaces = getCoplanarFaces(face);
-        viewerState.hoveredFaces = planeFaces;
-        highlightFaces(planeFaces);
-      });
+          }
 
-      renderer.domElement.addEventListener('click', (event) => {
-        if (!viewerState.selectionMode) return;
-        const face = getFaceFromEvent(event);
-        if (face < 0) return;
-        
-        restoreFaces(viewerState.selectedFaces);
-        const planeFaces = getCoplanarFaces(face);
-        viewerState.selectedFaces = planeFaces;
-        highlightFaces(planeFaces);
+          // Modo 2: Selección de caras de orientación
+          if (viewerState && viewerState.selectionMode) {
+            const faceIdx = Math.floor(hit.faceIndex);
+            const normal = viewerState.normals[faceIdx];
+            const angle = Math.round(Math.acos(Math.abs(normal.z)) * 180 / Math.PI);
 
-        // Calcular Area Total del Plano (Sumar los triangulos)
-        let totalArea = 0;
-        const pos = viewerState.geometry.attributes.position;
-        const a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3();
-        for(let i=0; i<planeFaces.length; i++) {
-            const fIdx = planeFaces[i];
-            a.fromBufferAttribute(pos, fIdx*3); b.fromBufferAttribute(pos, fIdx*3+1); c.fromBufferAttribute(pos, fIdx*3+2);
-            const ab = new THREE.Vector3().subVectors(b, a); const ac = new THREE.Vector3().subVectors(c, a);
-            totalArea += new THREE.Vector3().crossVectors(ab, ac).length() / 2;
-        }
-        const areaCm2 = totalArea / 100;
-        
-        const normal = viewerState.normals[face];
-        const angle = Math.round(Math.acos(Math.abs(normal.z)) * 180 / Math.PI);
+            // Calcular área aproximada de la cara coplanar seleccionada
+            let totalArea = 0;
+            const coplanars = getCoplanarFaces(faceIdx);
+            const pos = viewerState.geometry.attributes.position;
+            const _a = new THREE.Vector3(), _b = new THREE.Vector3(), _c = new THREE.Vector3();
+            coplanars.forEach(f => {
+              _a.fromBufferAttribute(pos, f*3); _b.fromBufferAttribute(pos, f*3+1); _c.fromBufferAttribute(pos, f*3+2);
+              totalArea += new THREE.Vector3().crossVectors(new THREE.Vector3().subVectors(_b,_a), new THREE.Vector3().subVectors(_c,_a)).length() / 2;
+            });
 
-        document.getElementById('selected-face-area').innerText = areaCm2.toFixed(2);
-        document.getElementById('selected-face-angle').innerText = angle;
-        panel.style.display = 'block';
-      });
-
-      applyBtn.addEventListener('click', async () => {
-        if(viewerState.selectedFaces.length === 0) return;
-        const rootFace = viewerState.selectedFaces[0]; // Mandamos el primero, el backend buscará el resto
-        applyBtn.innerText = "Calculando Rotación..."; applyBtn.disabled = true;
-        try { await applyManualSupportFace(rootFace, analysisObject); } 
-        catch (err) { alert(err.message); exitMode(); applyBtn.innerText = "Apoyar esta cara en la cama"; applyBtn.disabled = false;}
-      });
-
-      selectBtn.addEventListener('click', () => {
-        if(viewerState.selectionMode) exitMode();
-        else { 
-            viewerState.selectionMode = true; 
-            renderer.domElement.style.cursor = 'crosshair';
-            selectBtn.textContent = 'Cancelar selección'; 
-            status.textContent = 'Pasa el ratón para ver cómo el sistema agrupa los triángulos coplanares.';
+            document.getElementById('selected-face-area').innerText = (totalArea / 100).toFixed(2);
+            document.getElementById('selected-face-angle').innerText = angle;
+            document.getElementById('face-info-panel').style.display = 'block';
+            viewerState.selectedFaceIdx = faceIdx;
+          }
         }
       });
-      autoBtn.addEventListener('click', restoreAutomaticOrientation);
     }
 
-    async function applyManualSupportFace(faceIndex, analysisObject) {
-      const q = analysisObject.user_questionnaire || {};
-      const response = await fetch(PRINTLAB_API + '/orient', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ stl_base64: analysisObject.optimized_base64 || analysisObject.optimized_mesh_base64, face_index: faceIndex, questionnaire: q })
-      });
-      if (!response.ok) throw new Error('Fallo en el backend.');
-      
-      const data = await response.json();
-      if (!data.success) throw new Error(data.error);
-
-      const updated = { ...analysisObject, ...data };
-      updated.manual_orientation_active = true;
-      sessionStorage.setItem('printlab_analysis', JSON.stringify(updated));
-      window.location.reload();
-    }
-
-    function restoreAutomaticOrientation() {
-      const autoSnapshot = sessionStorage.getItem('printlab_auto_orientation');
-      if (autoSnapshot) {
-        sessionStorage.setItem('printlab_analysis', autoSnapshot);
-        window.location.reload();
+    function getCoplanarFaces(startIdx) {
+      if (!viewerState || startIdx < 0) return [];
+      const startNormal = viewerState.normals[startIdx];
+      const startCenter = viewerState.centers[startIdx];
+      const coplanar = [];
+      for(let i=0; i<viewerState.faceCount; i++){
+        if(Math.abs(viewerState.normals[i].dot(startNormal)) > 0.995) {
+          if(Math.abs(new THREE.Vector3().subVectors(viewerState.centers[i], startCenter).dot(startNormal)) < 0.2) {
+            coplanar.push(i);
+          }
+        }
       }
+      return coplanar;
     }
   </script>
 
-  <!-- LÓGICA DE DATOS E INTERFAZ -->
+  <!-- CONTROLADORES CAD & ESTADOS -->
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      try {
-          const storedAnalysis = sessionStorage.getItem("printlab_analysis");
-          if (!storedAnalysis) {
-            document.getElementById("noSessionFallback").style.display = "block";
-            return;
-          }
-          
-          document.getElementById("reportMainContent").style.display = "block";
-          const analysis = JSON.parse(storedAnalysis);
-          
-          if(analysis.printlab_score === undefined) {
-              document.getElementById("recommendation-conclusion").innerHTML = "<strong>⚠️ Estás viendo los resultados de un análisis antiguo.</strong><br>Tu navegador guardó la pieza anterior antes de que actualizáramos el Motor de PrintLab.<br>Para ver todas las puntuaciones, ve al Analizador y vuelve a procesar tu pieza.";
-              document.getElementById("recommendation-conclusion").style.color = "#d9432f";
-          }
+      init3DViewer("canvas3dContainer");
 
-          const q = analysis.user_questionnaire || {};
-          const slicer = analysis.slicer_settings || {};
-
-          if (!analysis.manual_orientation_active && !sessionStorage.getItem("printlab_auto_orientation")) {
-            sessionStorage.setItem("printlab_auto_orientation", storedAnalysis);
-          }
-
-          // POBLADO BÁSICO
-          const id = (elId, val) => { const el = document.getElementById(elId); if(el) el.innerText = val; };
-          
-          id("printlab-score-value", analysis.printlab_score !== undefined ? analysis.printlab_score : "--");
-          const riskBadge = document.getElementById("risk-badge");
-          if(riskBadge) {
-              riskBadge.innerText = "Riesgo " + (analysis.risk_analysis || "MEDIO");
-              riskBadge.className = "risk-badge " + (analysis.risk_analysis || "MEDIO");
-          }
-          id("risk-text-value", analysis.risk_analysis || "MEDIO");
-
-          id("dim-bounds", analysis.dimensions || "Desconocidas");
-          id("volumen-value", analysis.volume_cm3 || analysis.volume || "0");
-          id("superficie-value", analysis.surface_cm2 || "N/A");
-          id("masa-value", analysis.mass_g || "--");
-          id("manifold-status", analysis.is_watertight ? "Sí (Malla Cerrada)" : "No (Reparación Virtual)");
-          if(analysis.center_of_gravity) id("cg-value", `[${analysis.center_of_gravity.join(', ')}]`);
-
-          id("user-priority", q.priority === "max_strength" ? "Máxima Resistencia" : (q.priority === "fast_print" ? "Máxima Velocidad" : "Equilibrio Óptimo"));
-          id("user-material", slicer.material || "Desconocido");
-          id("user-forces", q.forces && q.forces.length > 0 ? q.forces.join(", ") : "Ninguno específico");
-          id("user-direction", q.direction || "No indicada");
-          id("user-environment", q.environment && q.environment.length > 0 ? q.environment.join(", ") : "Estándar");
-
-          // ALERTA DE MATERIAL INTELIGENTE
-          if (slicer.material_status === "no_adecuado") {
-            document.getElementById("material-warning-box").style.display = "block";
-            id("material-warning-text", slicer.material_reason || "El polímero elegido no soportará el entorno de trabajo.");
-          }
-
-          if(analysis.printlab_score !== undefined) {
-             id("recommendation-conclusion", analysis.explanation || "Diagnóstico completado.");
-          }
-          
-          const reasonsList = document.getElementById("reasons-list");
-          if(reasonsList && analysis.recommendations && analysis.recommendations.length > 0) {
-            reasonsList.innerHTML = analysis.recommendations.map(r => `<li>${r}</li>`).join("");
-          }
-
-          // SISTEMA DE GUÍAS DE REDISEÑO VISUAL (NUEVO)
-          const overhangs = analysis.overhang_analysis || {};
-          const overhangPercent = overhangs.percentage || 0;
-          const criticalPointsCount = (analysis.critical_points || []).length;
-          
-          const tipsContainer = document.getElementById("design-tips-container");
-          let hasTips = false;
-
-          if (overhangPercent > 15) {
-             hasTips = true;
-             tipsContainer.innerHTML += `
-               <div class="tip-card">
-                 <div class="tip-icon text-blue-500">📐</div>
-                 <div class="tip-text">
-                    <strong>Sustituye voladizos por chaflanes</strong>
-                    <p>Gran parte de la pieza requiere soportes de impresión (>${overhangPercent}% del área). En tu software CAD, intenta cambiar ángulos rectos (90º) en las bases suspendidas por <b>chaflanes de 45º</b> o perfiles de lágrima. Se imprimirán en el aire sin material de soporte, ahorrando coste y tiempo.</p>
-                 </div>
-               </div>
-             `;
-          }
-          
-          if (criticalPointsCount > 0) {
-             hasTips = true;
-             tipsContainer.innerHTML += `
-               <div class="tip-card">
-                 <div class="tip-icon text-red-500">🔄</div>
-                 <div class="tip-text">
-                    <strong>Añade empalmes (Fillets) en esquinas críticas</strong>
-                    <p>Se han detectado ${criticalPointsCount} puntos rojos donde la geometría genera gran tensión de capa. Vuelve a tu CAD y añade un "Fillet" (redondeo) en las esquinas interiores de 90 grados. Distribuirá la fuerza mecánica y evitará roturas por estrés tangencial.</p>
-                 </div>
-               </div>
-             `;
-          }
-
-          if(hasTips) document.getElementById("design-tips-section").style.display = "block";
-
-          id("support-area", overhangs.area_cm2 || "0");
-          id("support-percent", overhangPercent);
-          id("critical-overhangs-count", criticalPointsCount);
-          
-          id("slice-walls", slicer.perimeters || 3);
-          id("slice-infill", slicer.infill_density || 20);
-          id("slice-pattern", slicer.infill_pattern || "giroide");
-          id("slice-speed", slicer.print_speed || 60);
-          id("slice-temp-n", slicer.nozzle_temp || "--");
-          id("slice-temp-b", slicer.bed_temp || "--");
-
-          const stlBase64 = analysis.optimized_base64 || analysis.optimized_mesh_base64;
-          if (stlBase64) {
-            setTimeout(() => {
-                init3DViewer("canvas3dContainer", stlBase64, analysis.critical_points, slicer.recommended_rot_matrix, analysis.support_surface, overhangs, analysis.critical_face_indices, analysis);
-            }, 150);
-          }
-
-          // TABLA DE COMPARACIÓN
-          if (analysis.manual_orientation_active) {
-            const autoDataStr = sessionStorage.getItem("printlab_auto_orientation");
-            if(autoDataStr) {
-                const autoData = JSON.parse(autoDataStr);
-                document.getElementById("section-comparison").style.display = "block";
-                const tbody = document.getElementById("comparison-table-body");
-                
-                const mkRow = (label, vAuto, vMan) => `<tr><td>${label}</td><td class="auto-col">${vAuto}</td><td class="manual-col">${vMan}</td></tr>`;
-                
-                tbody.innerHTML = 
-                  mkRow("Área de Apoyo (Estabilidad)", (autoData.orientation_analysis?.contact_area_cm2 || 0) + " cm²", (analysis.orientation_analysis?.contact_area_cm2 || 0) + " cm²") +
-                  mkRow("Área de Soportes Necesarios", (autoData.overhang_analysis?.area_cm2 || 0) + " cm²", (analysis.overhang_analysis?.area_cm2 || 0) + " cm²") +
-                  mkRow("Porcentaje de Voladizos", (autoData.overhang_analysis?.percentage || 0) + "%", (analysis.overhang_analysis?.percentage || 0) + "%") +
-                  mkRow("Estabilidad Calculada", (autoData.orientation_analysis?.stability_score || 0) + "/100", (analysis.orientation_analysis?.stability_score || 0) + "/100") +
-                  mkRow("PrintLab Score Global", (autoData.printlab_score || "--") + "/100", (analysis.printlab_score || "--") + "/100");
-            }
-          }
-
-          document.getElementById("downloadStlBtn").addEventListener("click", () => {
-            const b64 = analysis.optimized_base64 || analysis.optimized_mesh_base64;
-            const bin = atob(b64); const bytes = new Uint8Array(bin.length);
-            for(let i=0; i<bin.length; i++) bytes[i] = bin.charCodeAt(i);
-            const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([bytes.buffer], {type:"model/stl"}));
-            a.download = (analysis.file_name||"pieza").replace(/\.[^/.]+$/, "") + (analysis.manual_orientation_active?"_manual.stl":"_opt.stl");
-            a.click();
-          });
-          
-          document.getElementById("downloadPdfBtn").addEventListener("click", () => {
-             const { jsPDF } = window.jspdf || window.jsPDF; const doc = new jsPDF();
-             doc.setFillColor(17, 23, 21); doc.rect(0, 0, 210, 40, 'F');
-             doc.setFont("helvetica", "bold"); doc.setFontSize(22); doc.setTextColor(255, 255, 255); doc.text("PRINTLAB INFORME INTELIGENTE", 15, 25);
-             doc.setFontSize(12); doc.setTextColor(0,0,0); doc.text("Score Global: " + (analysis.printlab_score || "--"), 15, 55);
-             doc.text("Riesgo: " + (analysis.risk_analysis || "MEDIO"), 15, 65);
-             doc.text("Conclusión: " + (analysis.explanation || "Diagnóstico completado."), 15, 75, {maxWidth: 180});
-             doc.save("PrintLab_Report.pdf");
-          });
-          
-      } catch (err) {
-          console.error("Error cargando informe: ", err);
-          document.getElementById("noSessionFallback").style.display = "block";
-          document.getElementById("reportMainContent").style.display = "none";
+      const storedAnalysis = sessionStorage.getItem("printlab_analysis");
+      if (!storedAnalysis) {
+        document.getElementById("noSessionFallback").style.display = "block";
+        return;
       }
+
+      document.getElementById("reportMainContent").style.display = "block";
+      const analysis = JSON.parse(storedAnalysis);
+      
+      // Inicializar Pipeline
+      pushState("Original", analysis);
+
+      // Eventos Historial
+      document.getElementById("btn-undo").addEventListener("click", undo);
+      document.getElementById("btn-redo").addEventListener("click", redo);
+
+      // Evento: Reparación Real
+      document.getElementById("btn-real-repair").addEventListener("click", async () => {
+        const btn = document.getElementById("btn-real-repair");
+        btn.innerText = "Reconstruyendo..."; btn.disabled = true;
+        const activeState = stateHistory[currentHistoryIndex].analysis;
+        const b64 = activeState.optimized_base64 || activeState.optimized_mesh_base64;
+
+        try {
+          const res = await fetch(PRINTLAB_API + '/repair', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ stl_base64: b64 })
+          });
+          const data = await res.json();
+          if (data.success) {
+            const newState = {
+              ...activeState,
+              optimized_base64: data.repaired_base64,
+              optimized_mesh_base64: data.repaired_base64,
+              is_watertight: data.repaired_watertight,
+              volume_cm3: data.volume_cm3,
+              dimensions: data.dimensions
+            };
+            pushState("Reparado", newState);
+            alert("Malla reparada con éxito. Acciones ejecutadas: \n- " + data.repair_actions.join("\n- "));
+          } else {
+            alert(data.error);
+          }
+        } catch {
+          alert("Error de conexión.");
+        } finally {
+          btn.innerText = "🔧 Ejecutar Reparación Real"; btn.disabled = false;
+        }
+      });
+
+      // Evento: División Inteligente
+      document.getElementById("btn-real-split").addEventListener("click", async () => {
+        const btn = document.getElementById("btn-real-split");
+        btn.innerText = "Dividiendo..."; btn.disabled = true;
+        const activeState = stateHistory[currentHistoryIndex].analysis;
+        const b64 = activeState.optimized_base64 || activeState.optimized_mesh_base64;
+
+        try {
+          const res = await fetch(PRINTLAB_API + '/split', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              stl_base64: b64,
+              printer_x: parseFloat(document.getElementById("printer-x").value),
+              printer_y: parseFloat(document.getElementById("printer-y").value),
+              printer_z: parseFloat(document.getElementById("printer-z").value),
+              axis: "auto"
+            })
+          });
+          const data = await res.json();
+          if (data.success) {
+            const newState = {
+              ...activeState,
+              part_a: data.part_a,
+              part_b: data.part_b,
+              displacement_vector: data.displacement_vector,
+              split_axis: data.axis
+            };
+            pushState("Dividido", newState);
+          } else {
+            alert(data.error);
+          }
+        } catch {
+          alert("Error en la conexión del servidor.");
+        } finally {
+          btn.innerText = "✂️ Dividir Geometría"; btn.disabled = false;
+        }
+      });
+
+      // Evento: Pines de Unión
+      document.getElementById("btn-generate-pins").addEventListener("click", async () => {
+        const btn = document.getElementById("btn-generate-pins");
+        btn.innerText = "Generando..."; btn.disabled = true;
+        const activeState = stateHistory[currentHistoryIndex].analysis;
+
+        try {
+          const res = await fetch(PRINTLAB_API + '/add_pins', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              part_a_base64: activeState.part_a.base64,
+              part_b_base64: activeState.part_b.base64,
+              axis: activeState.split_axis || "Z",
+              pin_diameter: 6.0,
+              pin_depth: 10.0,
+              tolerance: parseFloat(document.getElementById("pin-tolerance").value)
+            })
+          });
+          const data = await res.json();
+          if (data.success) {
+            const newState = {
+              ...activeState,
+              part_a: data.part_a,
+              part_b: data.part_b
+            };
+            pushState("Uniones Generadas", newState);
+          } else {
+            alert(data.error);
+          }
+        } catch {
+          alert("Error de procesamiento.");
+        } finally {
+          btn.innerText = "🔩 Inyectar Pines Mecánicos"; btn.disabled = false;
+        }
+      });
+
+      // Eventos: Herramientas de Perforación
+      document.getElementById("btn-tool-hole").addEventListener("click", () => {
+        booleanSelectionMode = "hole";
+        const ind = document.getElementById("selectionModeIndicator");
+        ind.innerText = "🟢 Modo Agujero: Haz clic en una cara plana en el visor.";
+        ind.style.display = "block";
+      });
+
+      document.getElementById("btn-tool-magnet").addEventListener("click", () => {
+        booleanSelectionMode = "magnet";
+        const ind = document.getElementById("selectionModeIndicator");
+        ind.innerText = "🟢 Modo Imán: Haz clic en una cara plana en el visor.";
+        ind.style.display = "block";
+      });
+
+      // Control de Selección de Caras de Apoyo
+      const selectBtn = document.getElementById('selectSupportBtn');
+      selectBtn.addEventListener('click', () => {
+        if (viewerState) {
+          viewerState.selectionMode = !viewerState.selectionMode;
+          selectBtn.innerText = viewerState.selectionMode ? "Cancelar Selección" : "👆 Elegir cara plana manualmente";
+        }
+      });
+
+      document.getElementById('btn-use-as-base').addEventListener('click', async () => {
+        if (viewerState && viewerState.selectedFaceIdx !== undefined) {
+          const activeState = stateHistory[currentHistoryIndex].analysis;
+          const q = activeState.user_questionnaire || {};
+          
+          try {
+            const res = await fetch(PRINTLAB_API + '/orient', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                stl_base64: activeState.optimized_base64 || activeState.optimized_mesh_base64,
+                face_index: viewerState.selectedFaceIdx,
+                questionnaire: q
+              })
+            });
+            const data = await res.json();
+            if (data.success) {
+              const newState = { ...activeState, ...data };
+              pushState("Orientación Personalizada", newState);
+              document.getElementById('face-info-panel').style.display = 'none';
+              viewerState.selectionMode = false;
+              selectBtn.innerText = "👆 Elegir cara plana manualmente";
+            }
+          } catch {
+            alert("Error al rotar.");
+          }
+        }
+      });
+
+      document.getElementById('autoSupportBtn').addEventListener('click', () => {
+        // Restaurar estado Original del pipeline
+        currentHistoryIndex = 0;
+        updateUIForState();
+      });
+
+      // Deslizador de Ensamblado (Vista Explosionada)
+      document.getElementById("explosionSlider").addEventListener("input", (e) => {
+        const val = parseFloat(e.target.value);
+        document.getElementById("explosionVal").innerText = val + "%";
+        loadedParts.forEach(p => {
+          p.mesh.position.copy(p.dir.clone().multiplyScalar(val * 0.3));
+        });
+      });
     });
+
+    // populateMetrics actualiza toda la telemetría dinámica de la pieza
+    function populateMetrics(analysis) {
+      const id = (elId, val) => { const el = document.getElementById(elId); if(el) el.innerText = val; };
+      id("printlab-score-value", analysis.printlab_score !== undefined ? analysis.printlab_score : "--");
+      const riskBadge = document.getElementById("risk-badge");
+      if(riskBadge) {
+          riskBadge.innerText = "Riesgo " + (analysis.risk_analysis || "MEDIO");
+          riskBadge.className = "risk-badge " + (analysis.risk_analysis || "MEDIO");
+      }
+      id("dim-bounds", analysis.dimensions || "Desconocidas");
+      id("volumen-value", analysis.volume_cm3 || "0");
+      id("superficie-value", analysis.surface_cm2 || "N/A");
+      id("masa-value", analysis.mass_g || "--");
+      id("manifold-status", analysis.is_watertight ? "Sí (Malla Cerrada)" : "No (Requiere Reparación)");
+
+      const q = analysis.user_questionnaire || {};
+      id("user-priority", q.priority === "max_strength" ? "Máxima Resistencia" : "Equilibrio");
+      id("user-material", analysis.slicer_settings?.material || "PETG");
+      id("user-forces", q.forces ? q.forces.join(", ") : "Ninguno");
+      id("user-direction", q.direction || "No indicada");
+      id("user-environment", q.environment ? q.environment.join(", ") : "Estándar");
+
+      id("recommendation-conclusion", analysis.explanation || "Diagnóstico completado.");
+      const reasonsList = document.getElementById("reasons-list");
+      if(reasonsList && analysis.recommendations) {
+        reasonsList.innerHTML = analysis.recommendations.map(r => `<li>${r}</li>`).join("");
+      }
+    }
+
+    // Actualiza la interfaz del pipeline en base al estado activo
+    function updateUIForState() {
+      const current = stateHistory[currentHistoryIndex];
+      if (!current) return;
+
+      renderModel(current.analysis);
+      populateMetrics(current.analysis);
+
+      document.getElementById("btn-undo").disabled = currentHistoryIndex <= 0;
+      document.getElementById("btn-redo").disabled = currentHistoryIndex >= stateHistory.length - 1;
+
+      // Badges activos
+      document.querySelectorAll(".step-badge").forEach(b => b.classList.remove("active"));
+      if (current.name === "Original") document.getElementById("badge-orig").classList.add("active");
+      else if (current.name === "Reparado") document.getElementById("badge-repaired").classList.add("active");
+      else if (current.name.includes("Orientación")) document.getElementById("badge-oriented").classList.add("active");
+      else if (current.name.includes("Dividido") || current.name.includes("Uniones")) document.getElementById("badge-split").classList.add("active");
+
+      // Renderizar paneles de descarga en función de si es monopieza o multipieza
+      if (current.analysis.part_a && current.analysis.part_b) {
+        document.getElementById("unionSection").style.display = "block";
+        renderMultiPartsDownloadPanel(current.analysis);
+      } else {
+        document.getElementById("unionSection").style.display = "none";
+        renderSinglePartDownloadPanel(current.analysis);
+      }
+    }
+
+    function renderSinglePartDownloadPanel(analysis) {
+      const container = document.querySelector(".download-panel");
+      container.innerHTML = `
+        <h3 style="font-size:24px; font-weight:800; margin:0 0 8px;">Conclusión y STL Optimizado</h3>
+        <p style="color:var(--muted); margin:0 auto 24px; max-width:700px;">El archivo ha sido completamente corregido y procesado geométricamente.</p>
+        <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap;">
+          <button class="btn-download-stl" id="downloadStlBtn">Descargar STL Optimizado</button>
+          <button class="btn-download-stl" id="downloadPdfBtn" style="background:#fff; color:var(--ink); border-color:var(--line);">Generar Informe PDF</button>
+        </div>
+      `;
+      document.getElementById("downloadStlBtn").addEventListener("click", () => {
+        downloadBase64STL(analysis.optimized_base64 || analysis.optimized_mesh_base64, "modelo_optimizado.stl");
+      });
+      document.getElementById("downloadPdfBtn").addEventListener("click", () => {
+        const { jsPDF } = window.jspdf || window.jsPDF; const doc = new jsPDF();
+        doc.setFillColor(17, 23, 21); doc.rect(0, 0, 210, 40, 'F');
+        doc.setFont("helvetica", "bold"); doc.setFontSize(22); doc.setTextColor(255, 255, 255); doc.text("PRINTLAB INFORME INTELIGENTE", 15, 25);
+        doc.setFontSize(12); doc.setTextColor(0,0,0); doc.text("Score Global: " + (analysis.printlab_score || "--"), 15, 55);
+        doc.text("Riesgo de Fabricación: " + (analysis.risk_analysis || "MEDIO"), 15, 65);
+        doc.text("Diagnóstico: " + (analysis.explanation || "Diagnóstico completado."), 15, 75, {maxWidth: 180});
+        doc.save("PrintLab_Report.pdf");
+      });
+    }
+
+    function renderMultiPartsDownloadPanel(analysis) {
+      const container = document.querySelector(".download-panel");
+      container.innerHTML = `
+        <h3 style="font-size:24px; font-weight:800; margin:0 0 8px;">Planos de Ensamblado y División</h3>
+        <p style="color:var(--muted); margin:0 auto 24px; max-width:700px;">El modelo original ha sido dividido mecánicamente en dos fragmentos listos para laminación.</p>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; max-width:800px; margin:0 auto 24px; text-align:left;">
+          <div style="background:var(--bg); padding:16px; border-radius:12px; border:1px solid var(--line);">
+            <strong style="color:var(--ink); display:block; margin-bottom:4px;">🧩 COMPONENTE A (Macho)</strong>
+            <p style="font-size:12px; color:var(--muted); margin:0 0 12px;">Dim: ${analysis.part_a.dimensions} | Vol: ${analysis.part_a.volume_cm3} cm³</p>
+            <button class="btn-cad-action primary" id="btn-dl-part-a" style="padding:10px;">Descargar Parte A</button>
+          </div>
+          <div style="background:var(--bg); padding:16px; border-radius:12px; border:1px solid var(--line);">
+            <strong style="color:var(--ink); display:block; margin-bottom:4px;">🧩 COMPONENTE B (Hembra)</strong>
+            <p style="font-size:12px; color:var(--muted); margin:0 0 12px;">Dim: ${analysis.part_b.dimensions} | Vol: ${analysis.part_b.volume_cm3} cm³</p>
+            <button class="btn-cad-action warning" id="btn-dl-part-b" style="padding:10px;">Descargar Parte B</button>
+          </div>
+        </div>
+        
+        <div style="background:var(--dark); color:#fff; border-radius:12px; padding:20px; text-align:left; margin-bottom:24px; max-width:800px; margin:0 auto 24px;">
+          <h4 style="color:var(--accent); margin-top:0;">📝 Guía Mecánica de Acoplamiento</h4>
+          <p style="font-size:13px; color:#dce4df; line-height:1.5; margin:0;">
+            1. Limpia las rebabas y costuras tridimensionales en los bordes interiores del plano de corte de ambas piezas.<br>
+            2. Encaja las espigas mecánicas del Componente A sobre las cavidades del Componente B.<br>
+            3. Se ha implementado una holgura volumétrica de seguridad de <b>${document.getElementById("pin-tolerance").value} mm</b>. Esto garantiza que las dos partes encajen sin necesidad de limado manual en impresoras calibradas.
+          </p>
+        </div>
+      `;
+      document.getElementById("btn-dl-part-a").addEventListener("click", () => {
+        downloadBase64STL(analysis.part_a.base64, "parte_A_macho.stl");
+      });
+      document.getElementById("btn-dl-part-b").addEventListener("click", () => {
+        downloadBase64STL(analysis.part_b.base64, "parte_B_hembra.stl");
+      });
+    }
+
+    function downloadBase64STL(b64, filename) {
+      const bin = atob(b64);
+      const bytes = new Uint8Array(bin.length);
+      for(let i=0; i<bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([bytes.buffer], {type:"model/stl"}));
+      a.download = filename;
+      a.click();
+    }
   </script>
 </body>
 </html>
