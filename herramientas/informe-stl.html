@@ -52,8 +52,14 @@
     .engine-list li { display: flex; justify-content: space-between; font-size: 14.5px; border-bottom: 1px dashed var(--line); padding-bottom: 8px; }
     .engine-list li strong { font-weight: 800; color: var(--ink); text-align: right; max-width: 60%; }
 
+    /* Alerta Material */
+    .material-alert { background: #fcebe8; border: 2px solid var(--error); border-radius: 12px; padding: 16px; margin-top: 16px; display: none; }
+    .material-alert strong { color: var(--error); display: block; margin-bottom: 4px; font-size: 15px;}
+    .material-alert p { margin: 0; font-size: 13.5px; color: #8a2a1b; }
+
     /* Visor 3D y Panel de Selección */
-    .mesh-canvas { background: #161d1a; border-radius: 16px; height: 450px; display: block; border: 1.5px solid var(--line); overflow: hidden; margin-bottom: 0; width: 100%;}
+    .mesh-canvas { background: #161d1a; border-radius: 16px; height: 450px; display: block; border: 1.5px solid var(--line); overflow: hidden; margin-bottom: 0; width: 100%; cursor: grab;}
+    .mesh-canvas:active { cursor: grabbing; }
     .viewer-legend { display: flex; flex-wrap: wrap; gap: 14px 18px; align-items: center; font-size: 13px; font-weight: 700; color: var(--muted); }
     
     #face-info-panel { position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.95); padding: 20px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); font-size: 14px; display: none; width: 280px; border: 2px solid #2688d8; backdrop-filter: blur(5px); z-index:10;}
@@ -65,6 +71,14 @@
     .recommendation-box h3 { color: var(--accent); margin-top: 0; font-size: 22px; }
     .reasons-list { list-style: none; padding: 0; margin: 16px 0 0; display:flex; flex-direction:column; gap:10px; }
     .reasons-list li { font-size: 15px; font-weight: 500; display:flex; gap:8px; align-items:flex-start; line-height: 1.4; color: #dce4df;}
+
+    /* Guía de Diseño Visual */
+    .design-tips-box { background: #fdfdfc; border: 2px dashed #b8c0bb; border-radius: 20px; padding: 24px; margin-bottom: 24px; display:none; }
+    .design-tips-box h3 { font-size: 18px; font-weight: 800; margin: 0 0 16px; color: var(--ink); }
+    .tip-card { display: flex; gap: 16px; align-items: center; background: #fff; border: 1.5px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+    .tip-icon { width: 60px; height: 60px; background: #f6f7f4; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid var(--line); font-size:24px;}
+    .tip-text strong { display: block; font-size: 15px; color: var(--ink); margin-bottom: 4px; }
+    .tip-text p { margin: 0; font-size: 13.5px; color: var(--muted); }
 
     /* Tabla de Comparación */
     .comparison-wrapper { overflow-x: auto; margin-bottom: 24px; background:var(--card); border:1.5px solid var(--line); border-radius:20px; padding:24px; display:none; }
@@ -87,7 +101,7 @@
     .footer-col p { margin: 0 0 16px; color: var(--muted); }
     .footer-secondary-text { font-size: 12.5px; line-height: 1.5; color: #7d8782; margin-top: 12px; }
     .footer-links { display: flex; flex-direction: column; gap: 10px; }
-    .footer-links a { color: var(--muted); transition: color 0.15s ease, transform 0.15s ease; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+    .footer-links a { color: var(--muted); transition: color 0.15s ease; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
     .footer-links a:hover { color: var(--ink); transform: translateX(2px); }
     .footer-links a span.arrow { transition: color 0.15s ease; }
     .footer-links a:hover span.arrow { color: var(--accent); }
@@ -96,7 +110,6 @@
     @media(max-width:992px) { .engine-grid { grid-template-columns: 1fr; } .footergrid { grid-template-columns: 1.2fr 1fr; gap: 40px; } }
     @media(max-width:768px){ .wrap{padding:0 24px} .auth-buttons { display: none; } .footergrid { grid-template-columns: 1fr; gap: 36px; } }
     
-    /* Overrides for header UI fix */
     #authHeaderContainer span[style*="background" i],
     #authHeaderContainer span[style*="accent" i],
     #authHeaderContainer span:nth-child(2),
@@ -105,7 +118,7 @@
     }
   </style>
 
-  <!-- LIBRERÍAS (Three.js, jsPDF, Supabase) -->
+  <!-- LIBRERÍAS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/STLLoader.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/controls/OrbitControls.js"></script>
@@ -126,8 +139,6 @@
               <a href="../index.html#portada">Inicio</a>
               <a href="analizador-stl.html" class="active">Analizador STL</a>
               <a href="../index.html#simulador">Simulador</a>
-              <a href="../index.html#herramientas">Herramientas</a>
-              <a href="../index.html#guias">Guías</a>
             </div>
           </div>
           <a class="brand" href="../index.html#portada">PRINT<span>LAB</span></a>
@@ -141,17 +152,14 @@
   </header>
 
   <main class="wrap" id="mainContentContainer">
-    <!-- CONTINGENCIA NO SESION -->
     <div class="no-session-card" id="noSessionFallback" style="display:none;">
       <h2>No se ha encontrado ningún análisis activo</h2>
       <p style="color:var(--muted); margin-bottom:20px;">Realiza un cuestionario y procesa una pieza para visualizar el informe inteligente.</p>
       <a href="analizador-stl.html" class="btn-auth green">Ir al Analizador STL</a>
     </div>
 
-    <!-- MOTOR DE DECISIÓN (REPORT) -->
     <div id="reportMainContent" style="display:none;">
       
-      <!-- 1. RESUMEN GLOBAL -->
       <section class="engine-header">
         <div>
           <h1 class="engine-title">Diagnóstico y Optimización de Malla</h1>
@@ -164,7 +172,6 @@
         </div>
       </section>
 
-      <!-- 2 y 3. DATOS PIEZA Y USUARIO -->
       <section class="engine-grid">
         <div class="engine-card">
           <h3>📐 Datos Geométricos de la Pieza</h3>
@@ -182,58 +189,66 @@
             <li><span>Prioridad</span> <strong id="user-priority" style="color:var(--ink);">-</strong></li>
             <li><span>Material seleccionado</span> <strong id="user-material" style="color:var(--accent); background:var(--ink); padding:2px 8px; border-radius:4px;">-</strong></li>
             <li><span>Esfuerzos soportados</span> <strong id="user-forces">-</strong></li>
-            <li><span>Dirección de la carga principal</span> <strong id="user-direction">-</strong></li>
+            <li><span>Dirección de carga</span> <strong id="user-direction">-</strong></li>
             <li><span>Entorno / Temp</span> <strong id="user-environment">-</strong></li>
           </ul>
+          <!-- ALERTA DE MATERIAL INTELIGENTE -->
+          <div class="material-alert" id="material-warning-box">
+            <strong>⚠️ Alerta de Material Incompatible</strong>
+            <p id="material-warning-text">El material seleccionado no soportará las condiciones indicadas en el cuestionario. Deberías cambiar de polímero.</p>
+          </div>
         </div>
       </section>
 
-      <!-- 10 y 11. INFORME INTELIGENTE (CEREBRO) -->
       <section class="recommendation-box">
         <h3>Recomendación PrintLab</h3>
         <p id="recommendation-conclusion" style="font-size:17px; font-weight:700; margin:0 0 16px;">Analizando el objetivo y la geometría de la malla...</p>
-        <ul class="reasons-list" id="reasons-list">
-          <!-- Motivos inyectados por JS -->
-        </ul>
+        <ul class="reasons-list" id="reasons-list"></ul>
       </section>
 
-      <!-- 12. VISOR 3D COMO DIAGNÓSTICO -->
+      <!-- NUEVO: CONSEJOS VISUALES DE REDISEÑO -->
+      <section class="design-tips-box" id="design-tips-section">
+        <h3>💡 Guía Rápida de Rediseño (Detección de fallos)</h3>
+        <p style="color:var(--muted); font-size:14px; margin-top:-10px; margin-bottom:16px;">Hemos detectado geometrías hostiles para impresión 3D. Modifica tu CAD siguiendo estas guías:</p>
+        <div id="design-tips-container">
+            <!-- Se inyectan tarjetas de consejos aquí -->
+        </div>
+      </section>
+
       <section style="margin-bottom: 24px;">
         <h3 style="font-size:20px; font-weight:800; margin-bottom:12px;">Visor Interactivo de Diagnóstico 3D</h3>
         
         <div style="position: relative; margin-bottom: 12px; width: 100%;">
           <div class="mesh-canvas" id="canvas3dContainer"></div>
-          <!-- OVERLAY DE CARA SELECCIONADA -->
           <div id="face-info-panel">
-            <h4 style="margin:0 0 12px; font-size:12px; color:var(--muted); font-weight:800; border-bottom:1px dashed var(--line); padding-bottom:6px;">SUPERFICIE SELECCIONADA</h4>
-            <p style="margin:0 0 6px;"><strong>Área estimada:</strong> <span id="selected-face-area">-</span> cm²</p>
-            <p style="margin:0 0 6px;"><strong>Inclinación base:</strong> <span id="selected-face-angle">-</span>°</p>
-            <button id="btn-use-as-base">Usar como superficie de apoyo</button>
+            <h4 style="margin:0 0 12px; font-size:12px; color:var(--muted); font-weight:800; border-bottom:1px dashed var(--line); padding-bottom:6px;">SUPERFICIE PLANA DETECTADA</h4>
+            <p style="margin:0 0 6px;"><strong>Área del plano:</strong> <span id="selected-face-area">-</span> cm²</p>
+            <p style="margin:0 0 6px; font-size:12px; color:var(--muted);">El sistema ha agrupado automáticamente todos los triángulos de esta cara plana.</p>
+            <button id="btn-use-as-base">Apoyar esta cara en la cama</button>
           </div>
         </div>
 
         <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
           <button id="selectSupportBtn" type="button" style="border:none; background:#2688d8; color:#fff; border-radius:999px; padding:10px 16px; font-weight:800; font-size:13px; cursor:pointer; transition:.2s ease;">
-            👆 Elegir superficie de apoyo manual
+            👆 Elegir cara plana manualmente
           </button>
           <button id="autoSupportBtn" type="button" style="border:1.5px solid var(--line); background:var(--card); color:var(--ink); border-radius:999px; padding:10px 16px; font-weight:800; font-size:13px; cursor:pointer; transition:.2s ease;">
             ↺ Volver a orientación automática
           </button>
           <span id="supportSelectionStatus" style="font-size:13px; color:var(--muted); margin-left:8px;">
-            Activa el modo selección y haz clic en una cara para reorientar.
+            El motor detectará toda la cara plana, no solo un triángulo suelto.
           </span>
         </div>
 
         <div class="viewer-legend" style="margin-top:16px;">
           <span><i style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#2eaf68;margin-right:7px;vertical-align:-1px;"></i>Normal</span>
-          <span><i style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#f2bd00;margin-right:7px;vertical-align:-1px;"></i>Voladizo / advertencia</span>
-          <span><i style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#d9432f;margin-right:7px;vertical-align:-1px;"></i>Zona Crítica (Riesgo)</span>
-          <span><i style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#2688d8;margin-right:7px;vertical-align:-1px;"></i>Superficie de apoyo</span>
-          <span><i style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#66c7ff;margin-right:7px;vertical-align:-1px;"></i>Cara seleccionada</span>
+          <span><i style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#f2bd00;margin-right:7px;vertical-align:-1px;"></i>Voladizo (>45º)</span>
+          <span><i style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#d9432f;margin-right:7px;vertical-align:-1px;"></i>Esquina / Tensión Crítica</span>
+          <span><i style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#2688d8;margin-right:7px;vertical-align:-1px;"></i>Cara Apoyada</span>
+          <span><i style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#66c7ff;margin-right:7px;vertical-align:-1px;"></i>Hover (Plano Completo)</span>
         </div>
       </section>
 
-      <!-- 8. COMPARACIÓN AUTOMÁTICA VS MANUAL -->
       <section class="comparison-wrapper" id="section-comparison">
         <h3 style="font-size:20px; font-weight:800; margin:0 0 16px;">Comparación de Orientaciones</h3>
         <table class="comparison-table">
@@ -244,13 +259,10 @@
               <th class="manual-col">Manual (Tu Elección)</th>
             </tr>
           </thead>
-          <tbody id="comparison-table-body">
-            <!-- Rellenado por JS -->
-          </tbody>
+          <tbody id="comparison-table-body"></tbody>
         </table>
       </section>
 
-      <!-- RIESGOS, SOPORTES Y SLICER -->
       <section class="engine-grid">
         <div class="engine-card" style="border-color:var(--error); border-left: 6px solid var(--error);">
           <h3 style="color:var(--error);">Riesgos y Soportes Detectados</h3>
@@ -264,18 +276,17 @@
           <h3>⚙️ Recomendaciones de Laminado</h3>
           <p style="font-size:13px; color:var(--muted); margin-top:-10px; margin-bottom:12px;">Parámetros sugeridos basados en tus objetivos.</p>
           <ul class="engine-list">
-            <li><span>Paredes / Perímetros recomendados</span> <strong id="slice-walls">-</strong></li>
-            <li><span>Densidad y Patrón de Relleno</span> <strong><span id="slice-infill">-</span>% (<span id="slice-pattern">-</span>)</strong></li>
-            <li><span>Velocidad orientativa base</span> <strong id="slice-speed">- mm/s</strong></li>
-            <li><span>Temperaturas (Boquilla / Cama)</span> <strong><span id="slice-temp-n">-</span>ºC / <span id="slice-temp-b">-</span>ºC</strong></li>
+            <li><span>Paredes / Perímetros</span> <strong id="slice-walls">-</strong></li>
+            <li><span>Relleno (Densidad/Patrón)</span> <strong><span id="slice-infill">-</span>% (<span id="slice-pattern">-</span>)</strong></li>
+            <li><span>Velocidad orientativa</span> <strong id="slice-speed">- mm/s</strong></li>
+            <li><span>Temperaturas (Nozzle/Cama)</span> <strong><span id="slice-temp-n">-</span>ºC / <span id="slice-temp-b">-</span>ºC</strong></li>
           </ul>
         </div>
       </section>
 
-      <!-- 17 Y 15. DESCARGA Y CONCLUSIÓN -->
       <section class="download-panel">
         <h3 style="font-size:24px; font-weight:800; margin:0 0 8px;">Conclusión y STL Optimizado</h3>
-        <p style="color:var(--muted); margin:0 auto 24px; max-width:700px;" id="final-desc-text">El archivo ha sido reorientado sobre el eje Z=0 utilizando la rotación matemáticamente más favorable para la construcción en capas de las zonas críticas.</p>
+        <p style="color:var(--muted); margin:0 auto 24px; max-width:700px;" id="final-desc-text">El archivo ha sido reorientado sobre el eje Z=0 utilizando la rotación matemáticamente más favorable.</p>
         
         <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap;">
           <button class="btn-download-stl" id="downloadStlBtn">Descargar STL Orientado</button>
@@ -286,40 +297,29 @@
     </div>
   </main>
 
-  <!-- FOOTER 100% ORIGINAL Y COMPLETO -->
   <footer class="footer">
     <div class="wrap">
       <div class="footergrid">
         <div class="footer-col">
           <h3>PrintLab — Ingeniería 3D</h3>
-          <p>Plataforma profesional de análisis y optimización STL mediante Inteligencia Artificial y simuladores paramétricos. Transformamos modelos 3D con problemas en geometrías perfectas listas para fabricar, ahorrando tiempo, material y costes en entornos industriales.</p>
-          <p class="footer-secondary-text">Desarrollado bajo principios de Privacy by Design. Los datos y archivos STL se procesan con estricta confidencialidad.</p>
+          <p>Plataforma profesional de análisis y optimización STL mediante Inteligencia Artificial y simuladores paramétricos.</p>
         </div>
-        
         <div class="footer-col">
           <h3>Recursos y Herramientas</h3>
           <div class="footer-links">
-            <a href="../index.html#analizador"><span class="arrow">→</span> Analizador STL IA</a>
-            <a href="../index.html#simulador"><span class="arrow">→</span> Simulador de Extrusión</a>
-            <a href="calculadora-coste.html"><span class="arrow">→</span> Calculadoras de Coste y Masa</a>
-            <a href="../index.html#guias"><span class="arrow">→</span> Base de Conocimiento</a>
-            <a href="../materiales/index.html"><span class="arrow">→</span> Atlas de Materiales</a>
+            <a href="../index.html#analizador">Analizador STL IA</a>
+            <a href="../index.html#simulador">Simulador de Extrusión</a>
+            <a href="calculadora-coste.html">Calculadoras de Coste y Masa</a>
           </div>
         </div>
-        
         <div class="footer-col">
           <h3>Soporte y Legal</h3>
           <div class="footer-links">
-            <a href="precios.html"><span class="arrow">→</span> Precios y Suscripciones</a>
-            <a href="contacto.html"><span class="arrow">→</span> Contacto y Soporte</a>
-            <a href="../condiciones-compra.html"><span class="arrow">→</span> Condiciones de Compra</a>
-            <a href="../terminos.html"><span class="arrow">→</span> Términos y Condiciones</a>
-            <a href="../privacidad.html"><span class="arrow">→</span> Política de Privacidad</a>
-            <a href="../cookies.html"><span class="arrow">→</span> Política de Cookies</a>
+            <a href="precios.html">Precios y Suscripciones</a>
+            <a href="contacto.html">Contacto y Soporte</a>
           </div>
         </div>
       </div>
-      
       <div class="footer-bottom">
         <div class="footer-bottom-text">© 2026 PrintLab.</div>
       </div>
@@ -328,17 +328,9 @@
 
   <script>
     function toggleMenu() { document.getElementById('mainMenu').classList.toggle('show'); }
-    window.onclick = function(event) {
-      if (!event.target.closest('.menu-dropdown') && !event.target.closest('.hamburger')) {
-        var dropdowns = document.getElementsByClassName("dropdown-content");
-        for (var i = 0; i < dropdowns.length; i++) {
-          if (dropdowns[i].classList.contains('show')) dropdowns[i].classList.remove('show');
-        }
-      }
-    }
   </script>
 
-  <!-- LÓGICA CORE THREEJS + INTERACCIÓN MANUAL -->
+  <!-- LÓGICA CORE THREEJS + SELECCIÓN COPLANAR (CARAS PLANAS) -->
   <script>
     let scene, camera, renderer, controls, activeMesh;
     let viewerState = null;
@@ -349,9 +341,7 @@
       if (!container || !base64Data) return;
       
       const oldCanvases = container.getElementsByTagName("canvas");
-      while (oldCanvases.length > 0) {
-        oldCanvases[0].parentNode.removeChild(oldCanvases[0]);
-      }
+      while (oldCanvases.length > 0) oldCanvases[0].parentNode.removeChild(oldCanvases[0]);
 
       viewerState = null;
       scene = new THREE.Scene();
@@ -380,11 +370,9 @@
 
       const onResize = () => {
         if (!camera || !renderer || !container) return;
-        const w = container.clientWidth;
-        const h = container.clientHeight;
+        const w = container.clientWidth; const h = container.clientHeight;
         if(w === 0 || h === 0) return;
-        camera.aspect = w / h; camera.updateProjectionMatrix();
-        renderer.setSize(w, h);
+        camera.aspect = w / h; camera.updateProjectionMatrix(); renderer.setSize(w, h);
       };
       window.addEventListener('resize', onResize);
 
@@ -400,6 +388,16 @@
         const position = geometry.attributes.position;
         const vertexCount = position.count;
         const faceCount = Math.floor(vertexCount / 3);
+
+        // Precalcular normales y centros para el algoritmo coplanar ultrarrápido
+        const normals = []; const centers = [];
+        const _a = new THREE.Vector3(), _b = new THREE.Vector3(), _c = new THREE.Vector3();
+        for(let i=0; i<faceCount; i++){
+            _a.fromBufferAttribute(position, i*3); _b.fromBufferAttribute(position, i*3+1); _c.fromBufferAttribute(position, i*3+2);
+            const _ab = new THREE.Vector3().subVectors(_b, _a); const _ac = new THREE.Vector3().subVectors(_c, _a);
+            normals.push(new THREE.Vector3().crossVectors(_ab, _ac).normalize());
+            centers.push(new THREE.Vector3().addVectors(_a, _b).add(_c).divideScalar(3));
+        }
 
         const supportFaces = new Set(supportSurface && supportSurface.face_indices ? supportSurface.face_indices.map(Number) : []);
         const overhangFaces = new Set(overhangAnalysis && overhangAnalysis.face_indices ? overhangAnalysis.face_indices.map(Number) : []);
@@ -427,7 +425,7 @@
         activeMesh = new THREE.Mesh(geometry, material);
         scene.add(activeMesh);
 
-        viewerState = { geometry, position, baseColors, faceCount, selectionMode: false, hoveredFace: -1, selectedFace: -1, analysisObject };
+        viewerState = { geometry, position, baseColors, faceCount, normals, centers, selectionMode: false, hoveredFaces: [], selectedFaces: [], analysisObject };
 
         if (Array.isArray(criticalPoints) && criticalPoints.length > 0) {
             geometry.computeBoundingBox();
@@ -469,18 +467,42 @@
       const pointer = new THREE.Vector2();
       const hoverColor = new THREE.Color(0x66c7ff);
 
-      const restoreFace = (faceIndex) => {
-        if (faceIndex < 0) return;
-        const colorAttr = viewerState.geometry.attributes.color;
-        const start = faceIndex * 9;
-        for (let j = 0; j < 9; j++) colorAttr.array[start + j] = viewerState.baseColors[start + j];
+      // ALGORITMO COPLANAR
+      const getCoplanarFaces = (startFaceIndex) => {
+        if(startFaceIndex < 0) return [];
+        const startNormal = viewerState.normals[startFaceIndex];
+        const startCenter = viewerState.centers[startFaceIndex];
+        const coplanar = [];
+        // Tolerancias estrictas para reconocer caras 100% planas
+        const normalTol = 0.995; 
+        const distTol = 0.2; 
+        
+        for(let i=0; i<viewerState.faceCount; i++){
+            if(Math.abs(viewerState.normals[i].dot(startNormal)) > normalTol) {
+                const dist = Math.abs(new THREE.Vector3().subVectors(viewerState.centers[i], startCenter).dot(startNormal));
+                if(dist < distTol) coplanar.push(i);
+            }
+        }
+        return coplanar;
       };
 
-      const highlightFace = (faceIndex) => {
+      const restoreFaces = (faceIndices) => {
+        if (!faceIndices || faceIndices.length === 0) return;
         const colorAttr = viewerState.geometry.attributes.color;
-        const start = faceIndex * 9;
-        for (let j = 0; j < 3; j++) {
-          colorAttr.array[start + j*3] = hoverColor.r; colorAttr.array[start + j*3+1] = hoverColor.g; colorAttr.array[start + j*3+2] = hoverColor.b;
+        for(let i=0; i<faceIndices.length; i++) {
+            const start = faceIndices[i] * 9;
+            for (let j = 0; j < 9; j++) colorAttr.array[start + j] = viewerState.baseColors[start + j];
+        }
+      };
+
+      const highlightFaces = (faceIndices) => {
+        if (!faceIndices || faceIndices.length === 0) return;
+        const colorAttr = viewerState.geometry.attributes.color;
+        for(let i=0; i<faceIndices.length; i++) {
+            const start = faceIndices[i] * 9;
+            for (let j = 0; j < 3; j++) {
+              colorAttr.array[start + j*3] = hoverColor.r; colorAttr.array[start + j*3+1] = hoverColor.g; colorAttr.array[start + j*3+2] = hoverColor.b;
+            }
         }
         colorAttr.needsUpdate = true;
       };
@@ -495,23 +517,31 @@
 
       const exitMode = () => {
         viewerState.selectionMode = false;
-        if (viewerState.hoveredFace >= 0) restoreFace(viewerState.hoveredFace);
-        if (viewerState.selectedFace >= 0) restoreFace(viewerState.selectedFace);
-        viewerState.hoveredFace = -1; viewerState.selectedFace = -1;
+        restoreFaces(viewerState.hoveredFaces);
+        restoreFaces(viewerState.selectedFaces);
+        viewerState.hoveredFaces = []; viewerState.selectedFaces = [];
         viewerState.geometry.attributes.color.needsUpdate = true;
         panel.style.display = 'none';
-        selectBtn.textContent = '👆 Elegir superficie de apoyo manual';
-        status.textContent = 'Activa el modo selección y haz clic en una cara para reorientar.';
+        renderer.domElement.style.cursor = 'grab';
+        selectBtn.textContent = '👆 Elegir cara plana manualmente';
+        status.textContent = 'El motor detectará toda la cara plana, no solo un triángulo suelto.';
       };
 
       renderer.domElement.addEventListener('pointermove', (event) => {
-        if (!viewerState.selectionMode || viewerState.selectedFace >= 0) return;
+        if (!viewerState.selectionMode || viewerState.selectedFaces.length > 0) return;
         const face = getFaceFromEvent(event);
-        if (face === viewerState.hoveredFace) return;
-        if (viewerState.hoveredFace >= 0) restoreFace(viewerState.hoveredFace);
-        viewerState.hoveredFace = face;
-        if (face >= 0) highlightFace(face);
-        viewerState.geometry.attributes.color.needsUpdate = true;
+        if (face < 0) {
+            restoreFaces(viewerState.hoveredFaces);
+            viewerState.hoveredFaces = [];
+            viewerState.geometry.attributes.color.needsUpdate = true;
+            return;
+        }
+        if (viewerState.hoveredFaces.includes(face)) return; // Ya estamos en la misma cara plana
+        
+        restoreFaces(viewerState.hoveredFaces);
+        const planeFaces = getCoplanarFaces(face);
+        viewerState.hoveredFaces = planeFaces;
+        highlightFaces(planeFaces);
       });
 
       renderer.domElement.addEventListener('click', (event) => {
@@ -519,38 +549,47 @@
         const face = getFaceFromEvent(event);
         if (face < 0) return;
         
-        if (viewerState.selectedFace >= 0) restoreFace(viewerState.selectedFace);
-        viewerState.selectedFace = face;
-        highlightFace(face);
-        viewerState.geometry.attributes.color.needsUpdate = true;
+        restoreFaces(viewerState.selectedFaces);
+        const planeFaces = getCoplanarFaces(face);
+        viewerState.selectedFaces = planeFaces;
+        highlightFaces(planeFaces);
 
-        const a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3();
+        // Calcular Area Total del Plano (Sumar los triangulos)
+        let totalArea = 0;
         const pos = viewerState.geometry.attributes.position;
-        a.fromBufferAttribute(pos, face*3); b.fromBufferAttribute(pos, face*3+1); c.fromBufferAttribute(pos, face*3+2);
+        const a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3();
+        for(let i=0; i<planeFaces.length; i++) {
+            const fIdx = planeFaces[i];
+            a.fromBufferAttribute(pos, fIdx*3); b.fromBufferAttribute(pos, fIdx*3+1); c.fromBufferAttribute(pos, fIdx*3+2);
+            const ab = new THREE.Vector3().subVectors(b, a); const ac = new THREE.Vector3().subVectors(c, a);
+            totalArea += new THREE.Vector3().crossVectors(ab, ac).length() / 2;
+        }
+        const areaCm2 = totalArea / 100;
         
-        const ab = new THREE.Vector3().subVectors(b, a);
-        const ac = new THREE.Vector3().subVectors(c, a);
-        const area = new THREE.Vector3().crossVectors(ab, ac).length() / 200; 
-        
-        const normal = new THREE.Vector3().crossVectors(ab, ac).normalize();
+        const normal = viewerState.normals[face];
         const angle = Math.round(Math.acos(Math.abs(normal.z)) * 180 / Math.PI);
 
-        document.getElementById('selected-face-area').innerText = area.toFixed(2);
+        document.getElementById('selected-face-area').innerText = areaCm2.toFixed(2);
         document.getElementById('selected-face-angle').innerText = angle;
         panel.style.display = 'block';
       });
 
       applyBtn.addEventListener('click', async () => {
-        const face = viewerState.selectedFace;
-        if(face < 0) return;
-        applyBtn.innerText = "Calculando..."; applyBtn.disabled = true;
-        try { await applyManualSupportFace(face, analysisObject); } 
-        catch (err) { alert(err.message); exitMode(); applyBtn.innerText = "Usar como superficie de apoyo"; applyBtn.disabled = false;}
+        if(viewerState.selectedFaces.length === 0) return;
+        const rootFace = viewerState.selectedFaces[0]; // Mandamos el primero, el backend buscará el resto
+        applyBtn.innerText = "Calculando Rotación..."; applyBtn.disabled = true;
+        try { await applyManualSupportFace(rootFace, analysisObject); } 
+        catch (err) { alert(err.message); exitMode(); applyBtn.innerText = "Apoyar esta cara en la cama"; applyBtn.disabled = false;}
       });
 
       selectBtn.addEventListener('click', () => {
         if(viewerState.selectionMode) exitMode();
-        else { viewerState.selectionMode = true; selectBtn.textContent = 'Cancelar selección'; status.textContent = 'Pasa el ratón sobre la malla y haz clic en la base ideal.';}
+        else { 
+            viewerState.selectionMode = true; 
+            renderer.domElement.style.cursor = 'crosshair';
+            selectBtn.textContent = 'Cancelar selección'; 
+            status.textContent = 'Pasa el ratón para ver cómo el sistema agrupa los triángulos coplanares.';
+        }
       });
       autoBtn.addEventListener('click', restoreAutomaticOrientation);
     }
@@ -581,7 +620,7 @@
     }
   </script>
 
-  <!-- LÓGICA DEL CEREBRO (Protegida contra fallos) -->
+  <!-- LÓGICA DE DATOS E INTERFAZ -->
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       try {
@@ -595,7 +634,7 @@
           const analysis = JSON.parse(storedAnalysis);
           
           if(analysis.printlab_score === undefined) {
-              document.getElementById("recommendation-conclusion").innerHTML = "<strong>⚠️ Estás viendo los resultados de un análisis antiguo.</strong><br>Para ver todas las puntuaciones, ve al Analizador y vuelve a procesar tu pieza con el nuevo Cerebro.";
+              document.getElementById("recommendation-conclusion").innerHTML = "<strong>⚠️ Estás viendo los resultados de un análisis antiguo.</strong><br>Tu navegador guardó la pieza anterior antes de que actualizáramos el Motor de PrintLab.<br>Para ver todas las puntuaciones, ve al Analizador y vuelve a procesar tu pieza.";
               document.getElementById("recommendation-conclusion").style.color = "#d9432f";
           }
 
@@ -606,11 +645,10 @@
             sessionStorage.setItem("printlab_auto_orientation", storedAnalysis);
           }
 
-          // Poblado UI Seguro
+          // POBLADO BÁSICO
           const id = (elId, val) => { const el = document.getElementById(elId); if(el) el.innerText = val; };
           
           id("printlab-score-value", analysis.printlab_score !== undefined ? analysis.printlab_score : "--");
-          
           const riskBadge = document.getElementById("risk-badge");
           if(riskBadge) {
               riskBadge.innerText = "Riesgo " + (analysis.risk_analysis || "MEDIO");
@@ -631,6 +669,12 @@
           id("user-direction", q.direction || "No indicada");
           id("user-environment", q.environment && q.environment.length > 0 ? q.environment.join(", ") : "Estándar");
 
+          // ALERTA DE MATERIAL INTELIGENTE
+          if (slicer.material_status === "no_adecuado") {
+            document.getElementById("material-warning-box").style.display = "block";
+            id("material-warning-text", slicer.material_reason || "El polímero elegido no soportará el entorno de trabajo.");
+          }
+
           if(analysis.printlab_score !== undefined) {
              id("recommendation-conclusion", analysis.explanation || "Diagnóstico completado.");
           }
@@ -640,10 +684,45 @@
             reasonsList.innerHTML = analysis.recommendations.map(r => `<li>${r}</li>`).join("");
           }
 
+          // SISTEMA DE GUÍAS DE REDISEÑO VISUAL (NUEVO)
           const overhangs = analysis.overhang_analysis || {};
+          const overhangPercent = overhangs.percentage || 0;
+          const criticalPointsCount = (analysis.critical_points || []).length;
+          
+          const tipsContainer = document.getElementById("design-tips-container");
+          let hasTips = false;
+
+          if (overhangPercent > 15) {
+             hasTips = true;
+             tipsContainer.innerHTML += `
+               <div class="tip-card">
+                 <div class="tip-icon text-blue-500">📐</div>
+                 <div class="tip-text">
+                    <strong>Sustituye voladizos por chaflanes</strong>
+                    <p>Gran parte de la pieza requiere soportes de impresión (>${overhangPercent}% del área). En tu software CAD, intenta cambiar ángulos rectos (90º) en las bases suspendidas por <b>chaflanes de 45º</b> o perfiles de lágrima. Se imprimirán en el aire sin material de soporte, ahorrando coste y tiempo.</p>
+                 </div>
+               </div>
+             `;
+          }
+          
+          if (criticalPointsCount > 0) {
+             hasTips = true;
+             tipsContainer.innerHTML += `
+               <div class="tip-card">
+                 <div class="tip-icon text-red-500">🔄</div>
+                 <div class="tip-text">
+                    <strong>Añade empalmes (Fillets) en esquinas críticas</strong>
+                    <p>Se han detectado ${criticalPointsCount} puntos rojos donde la geometría genera gran tensión de capa. Vuelve a tu CAD y añade un "Fillet" (redondeo) en las esquinas interiores de 90 grados. Distribuirá la fuerza mecánica y evitará roturas por estrés tangencial.</p>
+                 </div>
+               </div>
+             `;
+          }
+
+          if(hasTips) document.getElementById("design-tips-section").style.display = "block";
+
           id("support-area", overhangs.area_cm2 || "0");
-          id("support-percent", overhangs.percentage || "0");
-          id("critical-overhangs-count", (analysis.critical_points || []).length);
+          id("support-percent", overhangPercent);
+          id("critical-overhangs-count", criticalPointsCount);
           
           id("slice-walls", slicer.perimeters || 3);
           id("slice-infill", slicer.infill_density || 20);
@@ -659,6 +738,7 @@
             }, 150);
           }
 
+          // TABLA DE COMPARACIÓN
           if (analysis.manual_orientation_active) {
             const autoDataStr = sessionStorage.getItem("printlab_auto_orientation");
             if(autoDataStr) {
@@ -697,7 +777,7 @@
           });
           
       } catch (err) {
-          console.error("Error catastrofico parseando datos del informe: ", err);
+          console.error("Error cargando informe: ", err);
           document.getElementById("noSessionFallback").style.display = "block";
           document.getElementById("reportMainContent").style.display = "none";
       }
