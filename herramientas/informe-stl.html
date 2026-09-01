@@ -21,7 +21,6 @@
       --max:1200px;
       --error:#9e3223;
       --warning:#c47100;
-      --success:#2a694b;
     }
 
     *{box-sizing:border-box}
@@ -29,7 +28,7 @@
 
     a{
       color:inherit;
-      text-decoration:none;
+      text-decoration:none
     }
 
     body{
@@ -43,12 +42,10 @@
     .wrap{
       max-width:var(--max);
       margin:auto;
-      padding:0 40px;
+      padding:0 40px
     }
 
-    /* =========================================================
-       CABECERA — NO MODIFICADA
-       ========================================================= */
+    /* CABECERA Y NAVEGACIÓN HAMBURGUESA */
 
     .top{
       position:sticky;
@@ -56,7 +53,7 @@
       z-index:100;
       background:rgba(246,247,244,.9);
       backdrop-filter:blur(16px);
-      border-bottom:1px solid var(--line);
+      border-bottom:1px solid var(--line)
     }
 
     nav{
@@ -75,7 +72,7 @@
     .brand{
       font-size:26px;
       font-weight:800;
-      letter-spacing:-1px;
+      letter-spacing:-1px
     }
 
     .brand span{
@@ -83,7 +80,7 @@
       padding:5px 12px;
       border-radius:10px;
       margin-left:6px;
-      color:var(--ink);
+      color:var(--ink)
     }
 
     .menu-dropdown{
@@ -147,6 +144,8 @@
       background:rgba(0,0,0,.03);
     }
 
+    /* Botones de Autenticación Premium */
+
     .auth-buttons{
       display:flex;
       gap:12px;
@@ -170,23 +169,21 @@
     .btn-auth.light{
       background:#fff;
       color:var(--ink);
-      box-shadow:0 3px 0 var(--ink);
+      box-shadow:0 3px 0px var(--ink);
     }
 
     .btn-auth.light:hover{
       transform:translateY(-1px);
-      box-shadow:0 4px 0 var(--ink);
+      box-shadow:0 4px 0px var(--ink);
     }
 
     .btn-auth.green{
       background:var(--accent);
       color:var(--ink);
-      box-shadow:0 3px 0 var(--ink);
+      box-shadow:0 3px 0px var(--ink);
     }
 
-    /* =========================================================
-       INFORME
-       ========================================================= */
+    /* TÍTULO PRINCIPAL */
 
     .tool-header{
       padding:60px 0 20px;
@@ -252,7 +249,29 @@
       z-index:50;
     }
 
-    /* PUNTUACIÓN */
+    .viewer-legend{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:14px;
+      font-size:12px;
+      color:#dce4df;
+    }
+
+    .legend-item{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+    }
+
+    .legend-dot{
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      display:inline-block;
+    }
+
+    /* Score Box */
 
     .score-card{
       background:var(--card);
@@ -279,13 +298,7 @@
       letter-spacing:-1px;
     }
 
-    .score-number{
-      font-size:14px;
-      font-weight:800;
-      color:var(--muted);
-    }
-
-    /* PROBLEMAS */
+    /* Problem Cards */
 
     .problem-list{
       display:flex;
@@ -311,16 +324,10 @@
       border-left-color:var(--muted);
     }
 
-    .prob-card.info-card{
-      border-color:#cfd8d2;
-      border-left-color:#65736b;
-    }
-
     .prob-header{
       display:flex;
       justify-content:space-between;
       align-items:center;
-      gap:15px;
       margin-bottom:16px;
     }
 
@@ -338,7 +345,33 @@
       padding:4px 10px;
       border-radius:6px;
       text-transform:uppercase;
-      white-space:nowrap;
+    }
+
+    .prob-data{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:16px;
+      margin-bottom:20px;
+      background:var(--bg);
+      padding:16px;
+      border-radius:12px;
+    }
+
+    .data-item{
+      display:flex;
+      flex-direction:column;
+    }
+
+    .data-item span{
+      font-size:12px;
+      color:var(--muted);
+      font-weight:700;
+      text-transform:uppercase;
+    }
+
+    .data-item strong{
+      font-size:15px;
+      font-weight:800;
     }
 
     .solution-box{
@@ -359,84 +392,34 @@
       font-size:15px;
       margin:8px 0;
       font-weight:700;
-      line-height:1.5;
     }
 
     .benefit-text{
       font-size:14px;
       color:var(--muted);
       margin:0;
-      line-height:1.5;
     }
 
-    /* DATOS TÉCNICOS */
-
-    .technical-card{
+    .support-card{
       margin-top:24px;
       padding:24px;
       background:var(--card);
       border:1.5px solid var(--line);
       border-radius:20px;
-      font-size:14.5px;
     }
 
-    .technical-card h4{
-      margin:0 0 16px;
-      font-weight:800;
-      font-size:16px;
-    }
-
-    .technical-row{
-      display:flex;
-      justify-content:space-between;
-      gap:20px;
-      margin-bottom:8px;
-      border-bottom:1px dashed var(--line);
-      padding-bottom:6px;
-    }
-
-    .technical-row:last-child{
-      margin-bottom:0;
-      border-bottom:none;
-    }
-
-    .technical-row span{
-      color:var(--muted);
-    }
-
-    .technical-row strong{
-      text-align:right;
-    }
-
-    /* MÉTRICAS */
-
-    .metric-grid{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:12px;
-    }
-
-    .metric{
-      background:var(--bg);
-      border-radius:12px;
-      padding:15px;
-    }
-
-    .metric-label{
-      display:block;
-      color:var(--muted);
-      font-size:11px;
-      font-weight:800;
-      text-transform:uppercase;
-      margin-bottom:5px;
-    }
-
-    .metric-value{
+    .support-card h4{
+      margin:0 0 10px;
       font-size:16px;
       font-weight:800;
     }
 
-    /* DESCARGAS */
+    .support-card p{
+      margin:7px 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.55;
+    }
 
     .download-panel{
       background:var(--card);
@@ -460,19 +443,9 @@
       font-weight:800;
       font-size:15px;
       cursor:pointer;
-      transition:.2s ease;
     }
 
-    .btn-download-stl:hover:not(:disabled){
-      transform:translateY(-1px);
-    }
-
-    .btn-download-stl:disabled{
-      opacity:.45;
-      cursor:not-allowed;
-    }
-
-    /* FALLBACK */
+    /* Vista de contingencia */
 
     .no-session-card{
       text-align:center;
@@ -499,9 +472,7 @@
       line-height:1.6;
     }
 
-    /* =========================================================
-       FOOTER — NO MODIFICADO
-       ========================================================= */
+    /* FOOTER */
 
     .footer{
       background:var(--bg);
@@ -591,7 +562,7 @@
 
     @media(max-width:768px){
       .wrap{
-        padding:0 24px;
+        padding:0 24px
       }
 
       .header-left{
@@ -615,19 +586,6 @@
         grid-template-columns:1fr;
         gap:36px;
       }
-
-      .technical-row{
-        flex-direction:column;
-        gap:3px;
-      }
-
-      .technical-row strong{
-        text-align:left;
-      }
-
-      .metric-grid{
-        grid-template-columns:1fr;
-      }
     }
   </style>
 
@@ -646,11 +604,15 @@
 <body>
 
   <!-- CABECERA -->
+
   <header class="top">
     <div class="wrap">
       <nav>
+
         <div class="header-left">
+
           <div class="menu-dropdown">
+
             <button class="hamburger" onclick="toggleMenu()" aria-label="Abrir menú">
               <span></span>
               <span></span>
@@ -664,11 +626,13 @@
               <a href="../index.html#herramientas">Herramientas</a>
               <a href="../index.html#guias">Guías</a>
             </div>
+
           </div>
 
           <a class="brand" href="../index.html#portada" title="Volver al inicio">
             PRINT<span>LAB</span>
           </a>
+
         </div>
 
         <div
@@ -679,6 +643,7 @@
           <a href="login.html" class="btn-auth light">Iniciar Sesión</a>
           <a href="registro.html" class="btn-auth green">Registrarse</a>
         </div>
+
       </nav>
     </div>
   </header>
@@ -686,8 +651,10 @@
 
   <main class="wrap" id="mainContentContainer">
 
-    <!-- FALLBACK -->
+    <!-- VISTA DE FALLO -->
+
     <div class="no-session-card" id="noSessionFallback" style="display:none;">
+
       <h2>No se ha encontrado ningún análisis activo</h2>
 
       <p>
@@ -702,10 +669,12 @@
       >
         Ir al Analizador STL
       </a>
+
     </div>
 
 
-    <!-- INFORME -->
+    <!-- CONTENEDOR PRINCIPAL -->
+
     <div id="reportMainContent" style="display:none;">
 
       <div class="tool-header">
@@ -731,8 +700,8 @@
         <h1>Informe de Optimización STL</h1>
 
         <p>
-          Análisis geométrico avanzado, detección de problemas de fabricación,
-          evaluación de laminabilidad y validación de posibles reparaciones.
+          Evaluación geométrica, orientación de fabricación,
+          estabilidad de impresión y recomendaciones de laminado.
         </p>
 
       </div>
@@ -740,9 +709,7 @@
 
       <div class="report-grid">
 
-        <!-- =====================================================
-             IZQUIERDA
-             ===================================================== -->
+        <!-- LADO IZQUIERDO -->
 
         <div>
 
@@ -754,7 +721,6 @@
                 display:flex;
                 justify-content:space-between;
                 align-items:center;
-                gap:15px;
               "
             >
 
@@ -788,125 +754,177 @@
 
             <div class="mesh-canvas" id="canvas3dContainer"></div>
 
+
+            <div class="viewer-legend">
+
+              <span class="legend-item">
+                <i
+                  class="legend-dot"
+                  style="background:#2a9d5b"
+                ></i>
+                Normal
+              </span>
+
+              <span class="legend-item">
+                <i
+                  class="legend-dot"
+                  style="background:#f0c400"
+                ></i>
+                Voladizo / advertencia
+              </span>
+
+              <span class="legend-item">
+                <i
+                  class="legend-dot"
+                  style="background:#d9432f"
+                ></i>
+                Riesgo geométrico
+              </span>
+
+              <span class="legend-item">
+                <i
+                  class="legend-dot"
+                  style="background:#3285d8"
+                ></i>
+                Superficie de apoyo
+              </span>
+
+            </div>
+
           </div>
 
 
           <!-- DATOS TÉCNICOS -->
 
-          <div class="technical-card">
+          <div
+            style="
+              margin-top:24px;
+              padding:24px;
+              background:var(--card);
+              border:1.5px solid var(--line);
+              border-radius:20px;
+              font-size:14.5px;
+            "
+          >
 
-            <h4>Datos Técnicos Estructurados</h4>
+            <h4
+              style="
+                margin:0 0 16px;
+                font-weight:800;
+                font-size:16px;
+              "
+            >
+              Datos Técnicos Estructurados
+            </h4>
 
-            <div class="technical-row">
+            <div
+              style="
+                display:flex;
+                justify-content:space-between;
+                margin-bottom:8px;
+                border-bottom:1px dashed var(--line);
+                padding-bottom:6px;
+              "
+            >
               <span>Volumen de la pieza:</span>
-              <strong id="reportVolume">...</strong>
+              <strong id="reportVolume">... cm³</strong>
             </div>
 
-            <div class="technical-row">
+            <div
+              style="
+                display:flex;
+                justify-content:space-between;
+                margin-bottom:8px;
+                border-bottom:1px dashed var(--line);
+                padding-bottom:6px;
+              "
+            >
               <span>Dimensiones límites:</span>
-              <strong id="reportDimensions">...</strong>
+              <strong id="reportDimensions">... mm</strong>
             </div>
 
-            <div class="technical-row">
-              <span>Superficie:</span>
-              <strong id="reportArea">...</strong>
-            </div>
-
-            <div class="technical-row">
-              <span>Caras:</span>
-              <strong id="reportFaces">...</strong>
-            </div>
-
-            <div class="technical-row">
-              <span>Vértices:</span>
-              <strong id="reportVertices">...</strong>
-            </div>
-
-            <div class="technical-row">
-              <span>Componentes:</span>
-              <strong id="reportComponents">...</strong>
-            </div>
-
-            <div class="technical-row">
-              <span>Tecnología evaluada:</span>
+            <div
+              style="
+                display:flex;
+                justify-content:space-between;
+                margin-bottom:8px;
+                border-bottom:1px dashed var(--line);
+                padding-bottom:6px;
+              "
+            >
+              <span>Tecnología idónea:</span>
               <strong>FDM (Extrusión termoplástica)</strong>
             </div>
 
-            <div class="technical-row">
+            <div
+              style="
+                display:flex;
+                justify-content:space-between;
+                margin-bottom:8px;
+                border-bottom:1px dashed var(--line);
+                padding-bottom:6px;
+              "
+            >
               <span>Material recomendado:</span>
+
               <strong
+                style="color:#2a694b"
                 id="reportMaterial"
-                style="color:var(--success);"
               >
                 ...
               </strong>
+
             </div>
 
-            <div class="technical-row">
-              <span>Temperatura de boquilla:</span>
-              <strong id="reportTemp">...</strong>
+            <div
+              style="
+                display:flex;
+                justify-content:space-between;
+                margin-bottom:8px;
+                border-bottom:1px dashed var(--line);
+                padding-bottom:6px;
+              "
+            >
+              <span>Temperatura de boquilla recomendada:</span>
+              <strong id="reportTemp">... ºC</strong>
             </div>
 
-            <div class="technical-row">
-              <span>Temperatura de cama:</span>
-              <strong id="reportBed">...</strong>
+            <div
+              style="
+                display:flex;
+                justify-content:space-between;
+              "
+            >
+              <span>Temperatura de cama recomendada:</span>
+              <strong id="reportBed">... ºC</strong>
             </div>
 
           </div>
 
 
-          <!-- MÉTRICAS GEOMÉTRICAS -->
+          <!-- SUPERFICIE DE APOYO -->
 
-          <div class="technical-card">
+          <div
+            class="support-card"
+            id="supportSurfaceCard"
+          >
 
-            <h4>Auditoría de geometría</h4>
+            <h4>
+              🔵 Superficie de apoyo recomendada
+            </h4>
 
-            <div class="metric-grid">
-
-              <div class="metric">
-                <span class="metric-label">Malla cerrada</span>
-                <span class="metric-value" id="metricWatertight">...</span>
-              </div>
-
-              <div class="metric">
-                <span class="metric-label">Aristas abiertas</span>
-                <span class="metric-value" id="metricBoundary">...</span>
-              </div>
-
-              <div class="metric">
-                <span class="metric-label">No manifold</span>
-                <span class="metric-value" id="metricNonManifold">...</span>
-              </div>
-
-              <div class="metric">
-                <span class="metric-label">Caras duplicadas</span>
-                <span class="metric-value" id="metricDuplicate">...</span>
-              </div>
-
-              <div class="metric">
-                <span class="metric-label">Caras degeneradas</span>
-                <span class="metric-value" id="metricDegenerate">...</span>
-              </div>
-
-              <div class="metric">
-                <span class="metric-label">Voladizos</span>
-                <span class="metric-value" id="metricOverhang">...</span>
-              </div>
-
-            </div>
+            <p id="supportSurfaceText">
+              Calculando la orientación más estable para la impresión...
+            </p>
 
           </div>
 
         </div>
 
 
-        <!-- =====================================================
-             DERECHA
-             ===================================================== -->
+        <!-- LADO DERECHO -->
 
         <div>
-
-          <!-- ESTADO -->
 
           <div class="score-card">
 
@@ -922,15 +940,8 @@
             </p>
 
             <p
-              class="score-number"
-              id="reportScoreNumber"
-            >
-              Puntuación: ...
-            </p>
-
-            <p
               style="
-                margin:12px 0 0;
+                margin:0;
                 color:var(--muted);
                 font-size:15px;
                 line-height:1.5;
@@ -943,15 +954,11 @@
           </div>
 
 
-          <!-- PROBLEMAS -->
-
           <div
             class="problem-list"
             id="problemListContainer"
           ></div>
 
-
-          <!-- DESCARGAS -->
 
           <div class="download-panel">
 
@@ -974,9 +981,8 @@
                 color:var(--ink);
                 border-color:var(--ink);
               "
-              disabled
             >
-              Preparando STL...
+              Descargar pieza (.STL)
             </button>
 
             <button
@@ -1001,7 +1007,8 @@
   </main>
 
 
-  <!-- PIE DE PÁGINA -->
+  <!-- FOOTER -->
+
   <footer class="footer">
 
     <div class="wrap">
@@ -1010,26 +1017,30 @@
 
         <div class="footer-col">
 
-          <h3>PrintLab — Ingeniería 3D</h3>
+          <h3>
+            PrintLab — Ingeniería 3D
+          </h3>
 
           <p>
             Plataforma profesional de análisis y optimización STL mediante
             Inteligencia Artificial y simuladores paramétricos. Transformamos
             modelos 3D con problemas en geometrías perfectas listas para
-            fabricar, ahorrando tiempo, material y costes en entornos
-            industriales.
+            fabricar, ahorrando tiempo, material y costes en entornos industriales.
           </p>
 
           <p class="footer-secondary-text">
-            Desarrollado bajo principios de Privacy by Design. Los datos y
-            archivos STL se procesan con estricta confidencialidad.
+            Desarrollado bajo principios de Privacy by Design.
+            Los datos y archivos STL se procesan con estricta confidencialidad.
           </p>
 
         </div>
 
+
         <div class="footer-col">
 
-          <h3>Recursos y Herramientas</h3>
+          <h3>
+            Recursos y Herramientas
+          </h3>
 
           <div class="footer-links">
 
@@ -1062,9 +1073,12 @@
 
         </div>
 
+
         <div class="footer-col">
 
-          <h3>Soporte y Legal</h3>
+          <h3>
+            Soporte y Legal
+          </h3>
 
           <div class="footer-links">
 
@@ -1106,9 +1120,11 @@
 
 
       <div class="footer-bottom">
+
         <div class="footer-bottom-text">
           © 2026 PrintLab.
         </div>
+
       </div>
 
     </div>
@@ -1118,102 +1134,83 @@
 
   <script>
 
-    /* =========================================================
-       MENÚ
-       ========================================================= */
-
-    function toggleMenu(){
-
-      const menu=document.getElementById("mainMenu");
-
-      if(menu){
-        menu.classList.toggle("show");
-      }
-
+    function toggleMenu() {
+      document.getElementById('mainMenu').classList.toggle('show');
     }
 
+    window.onclick = function(event) {
 
-    window.onclick=function(event){
+      if (
+        !event.target.closest('.menu-dropdown') &&
+        !event.target.closest('.hamburger')
+      ) {
 
-      if(
-        !event.target.closest(".menu-dropdown") &&
-        !event.target.closest(".hamburger")
-      ){
-
-        const dropdowns=
+        var dropdowns =
           document.getElementsByClassName("dropdown-content");
 
-        for(
-          let i=0;
-          i<dropdowns.length;
+        for (
+          var i = 0;
+          i < dropdowns.length;
           i++
-        ){
+        ) {
 
-          if(
-            dropdowns[i].classList.contains("show")
-          ){
-
-            dropdowns[i].classList.remove("show");
-
+          if (
+            dropdowns[i].classList.contains('show')
+          ) {
+            dropdowns[i].classList.remove('show');
           }
 
         }
 
       }
 
-    };
+    }
+
+  </script>
 
 
-    /* =========================================================
-       VISOR 3D
-       ========================================================= */
+  <!-- VISOR 3D -->
 
-    let scene;
-    let camera;
-    let renderer;
-    let controls;
-    let activeMesh;
-    let animationId;
+  <script>
+
+    let scene,
+        camera,
+        renderer,
+        controls,
+        activeMesh;
 
 
     function init3DViewer(
       containerId,
       base64Data,
       criticalPoints,
-      recommendedRotMatrix
-    ){
+      recommendedRotMatrix,
+      supportSurface,
+      overhangAnalysis
+    ) {
 
-      const container=
+      const container =
         document.getElementById(containerId);
 
-      if(
-        !container ||
-        !base64Data
-      ){
+      if (!container) return;
 
-        return;
-
-      }
+      container.innerHTML = "";
 
 
-      container.innerHTML="";
+      scene = new THREE.Scene();
 
-
-      scene=new THREE.Scene();
-
-      scene.background=
+      scene.background =
         new THREE.Color(0x161d1a);
 
 
-      camera=
+      camera =
         new THREE.PerspectiveCamera(
           45,
-          Math.max(container.clientWidth,1) /
-          Math.max(container.clientHeight,1),
-          .1,
+          container.clientWidth /
+            container.clientHeight,
+          0.1,
           10000
         );
-
 
       camera.position.set(
         0,
@@ -1222,257 +1219,309 @@
       );
 
 
-      renderer=
+      renderer =
         new THREE.WebGLRenderer({
           antialias:true
         });
-
-
-      renderer.setPixelRatio(
-        Math.min(
-          window.devicePixelRatio || 1,
-          2
-        )
-      );
-
 
       renderer.setSize(
         container.clientWidth,
         container.clientHeight
       );
 
-
       container.appendChild(
         renderer.domElement
       );
 
 
-      scene.add(
-        new THREE.HemisphereLight(
-          0xffffff,
-          0x202520,
-          1.4
-        )
-      );
-
-
-      const light=
+      const light =
         new THREE.DirectionalLight(
           0xffffff,
-          1.3
+          1.25
         );
-
 
       light.position.set(
         1,
-        2,
-        2
+        1,
+        1
       );
-
 
       scene.add(light);
 
 
-      controls=
+      scene.add(
+        new THREE.AmbientLight(
+          0x666666
+        )
+      );
+
+
+      controls =
         new THREE.OrbitControls(
           camera,
           renderer.domElement
         );
 
-
-      controls.enableDamping=true;
-      controls.dampingFactor=.06;
+      controls.enableDamping = true;
 
 
-      const mat=
+      const mat =
         new THREE.Matrix4();
 
 
-      if(
-        Array.isArray(
-          recommendedRotMatrix
-        )
-      ){
+      if (
+        recommendedRotMatrix &&
+        Array.isArray(recommendedRotMatrix)
+      ) {
 
-        try{
+        const flat =
+          recommendedRotMatrix.flat();
 
-          mat
-            .fromArray(
-              recommendedRotMatrix.flat()
-            )
-            .transpose();
+        if (flat.length === 16) {
 
-        }catch(e){
+          mat.fromArray(flat).transpose();
+
+        } else {
 
           mat.identity();
 
         }
 
-      }else{
+      } else {
 
         mat.identity();
 
       }
 
 
-      const loader=
+      const loader =
         new THREE.STLLoader();
 
 
-      try{
+      try {
 
-        const binaryStr=
+        const binaryStr =
           atob(base64Data);
 
-
-        const bytes=
+        const bytes =
           new Uint8Array(
             binaryStr.length
           );
 
 
-        for(
-          let i=0;
-          i<binaryStr.length;
+        for (
+          let i = 0;
+          i < binaryStr.length;
           i++
-        ){
+        ) {
 
-          bytes[i]=
+          bytes[i] =
             binaryStr.charCodeAt(i);
 
         }
 
 
-        const geometry=
+        const geometry =
           loader.parse(
             bytes.buffer
           );
 
 
-        const pos=
+        const pos =
           geometry.attributes.position;
 
 
-        const colors=[];
+        const colors = [];
+        const verts = [];
 
 
-        const a=
-          new THREE.Vector3();
-
-        const b=
-          new THREE.Vector3();
-
-        const c=
-          new THREE.Vector3();
-
-        const ab=
-          new THREE.Vector3();
-
-        const ac=
-          new THREE.Vector3();
-
-        const normal=
-          new THREE.Vector3();
+        let minZ = Infinity;
+        let maxZ = -Infinity;
 
 
-        for(
-          let i=0;
-          i<pos.count;
-          i+=3
-        ){
+        /*
+         * Transformamos primero todos los vértices.
+         * De esta forma la detección del plano de cama
+         * se realiza sobre la orientación recomendada.
+         */
 
-          a
-            .set(
+        for (
+          let i = 0;
+          i < pos.count;
+          i++
+        ) {
+
+          const v =
+            new THREE.Vector3(
               pos.getX(i),
               pos.getY(i),
               pos.getZ(i)
-            )
-            .applyMatrix4(mat);
+            ).applyMatrix4(mat);
 
 
-          b
-            .set(
-              pos.getX(i+1),
-              pos.getY(i+1),
-              pos.getZ(i+1)
-            )
-            .applyMatrix4(mat);
+          verts.push(v);
 
-
-          c
-            .set(
-              pos.getX(i+2),
-              pos.getY(i+2),
-              pos.getZ(i+2)
-            )
-            .applyMatrix4(mat);
-
-
-          ab.subVectors(b,a);
-
-          ac.subVectors(c,a);
-
-          normal
-            .crossVectors(ab,ac)
-            .normalize();
-
-
-          let col=
-            new THREE.Color(
-              0x2b8a63
+          minZ =
+            Math.min(
+              minZ,
+              v.z
             );
+
+          maxZ =
+            Math.max(
+              maxZ,
+              v.z
+            );
+
+        }
+
+
+        /*
+         * Tolerancia pequeña para detectar
+         * triángulos realmente apoyados.
+         */
+
+        const zTol =
+          Math.max(
+            (maxZ - minZ) * 0.003,
+            0.02
+          );
+
+
+        const supportFaces =
+          new Set(
+            (
+              supportSurface &&
+              Array.isArray(
+                supportSurface.face_indices
+              )
+            )
+              ? supportSurface.face_indices
+              : []
+          );
+
+
+        const overhangFaces =
+          new Set(
+            (
+              overhangAnalysis &&
+              Array.isArray(
+                overhangAnalysis.face_indices
+              )
+            )
+              ? overhangAnalysis.face_indices
+              : []
+          );
+
+
+        /*
+         * Coloreado por TRIÁNGULO,
+         * no por vértice individual.
+         */
+
+        for (
+          let i = 0;
+          i < pos.count;
+          i++
+        ) {
+
+          const face =
+            Math.floor(i / 3);
+
+          const i0 =
+            face * 3;
+
+          const i1 =
+            i0 + 1;
+
+          const i2 =
+            i0 + 2;
+
+
+          const va =
+            verts[i0];
+
+          const vb =
+            verts[i1];
+
+          const vc =
+            verts[i2];
+
+
+          const edge1 =
+            new THREE.Vector3()
+              .subVectors(
+                vb,
+                va
+              );
+
+          const edge2 =
+            new THREE.Vector3()
+              .subVectors(
+                vc,
+                va
+              );
+
+
+          const n =
+            new THREE.Vector3()
+              .crossVectors(
+                edge1,
+                edge2
+              )
+              .normalize();
+
+
+          const touchesBed =
+            Math.abs(
+              va.z - minZ
+            ) <= zTol &&
+            Math.abs(
+              vb.z - minZ
+            ) <= zTol &&
+            Math.abs(
+              vc.z - minZ
+            ) <= zTol &&
+            n.z < -0.55;
 
 
           /*
-             Verde:
-             superficie favorable.
+           * Verde = geometría normal
+           * Azul = superficie de apoyo
+           * Amarillo = voladizo
+           */
 
-             Amarillo:
-             zonas de posible voladizo.
-
-             Rojo:
-             voladizo más severo.
-          */
-
-          if(normal.z<-.707){
-
-            col=
-              new THREE.Color(
-                0xffc400
-              );
-
-          }
+          let color =
+            [0.16,0.62,0.36];
 
 
-          if(normal.z<-.82){
+          if (
+            supportFaces.has(face) ||
+            touchesBed
+          ) {
 
-            col=
-              new THREE.Color(
-                0xd9432f
-              );
+            color =
+              [0.20,0.52,0.85];
+
+          } else if (
+            overhangFaces.has(face)
+          ) {
+
+            color =
+              [0.94,0.76,0.05];
 
           }
 
 
-          for(
-            let j=0;
-            j<3;
-            j++
-          ){
-
-            colors.push(
-              col.r,
-              col.g,
-              col.b
-            );
-
-          }
+          colors.push(
+            ...color
+          );
 
         }
 
 
         geometry.setAttribute(
-          "color",
+          'color',
           new THREE.Float32BufferAttribute(
             colors,
             3
@@ -1480,64 +1529,74 @@
         );
 
 
-        activeMesh=
+        const material =
+          new THREE.MeshPhongMaterial({
+
+            vertexColors:true,
+
+            side:THREE.DoubleSide,
+
+            specular:0x111111,
+
+            shininess:70
+
+          });
+
+
+        activeMesh =
           new THREE.Mesh(
             geometry,
-            new THREE.MeshPhongMaterial({
-              vertexColors:true,
-              side:THREE.DoubleSide,
-              shininess:70
-            })
+            material
           );
 
 
-        scene.add(activeMesh);
+        scene.add(
+          activeMesh
+        );
 
 
         /*
-          Puntos críticos reales enviados
-          por el backend.
-        */
+         * Puntos geométricamente críticos.
+         * No se presentan como resultados FEM.
+         */
 
-        if(
-          Array.isArray(
-            criticalPoints
-          )
-        ){
+        if (
+          criticalPoints &&
+          criticalPoints.length
+        ) {
 
           criticalPoints.forEach(
-            pt=>{
+            pt => {
 
-              if(
-                pt &&
-                Number.isFinite(pt.x) &&
-                Number.isFinite(pt.y) &&
-                Number.isFinite(pt.z)
-              ){
-
-                const sphere=
-                  new THREE.Mesh(
-                    new THREE.SphereGeometry(
-                      1.4,
-                      12,
-                      12
-                    ),
-                    new THREE.MeshBasicMaterial({
-                      color:0xd9432f
-                    })
-                  );
-
-
-                sphere.position.set(
+              const v =
+                new THREE.Vector3(
                   pt.x,
                   pt.y,
                   pt.z
+                ).applyMatrix4(mat);
+
+
+              const sphere =
+                new THREE.Mesh(
+
+                  new THREE.SphereGeometry(
+                    1.5,
+                    12,
+                    12
+                  ),
+
+                  new THREE.MeshBasicMaterial({
+                    color:0xd9432f
+                  })
+
                 );
 
 
-                scene.add(sphere);
+              sphere.position.copy(v);
 
-              }
+              scene.add(
+                sphere
+              );
 
             }
           );
@@ -1548,7 +1607,7 @@
         geometry.computeBoundingBox();
 
 
-        const center=
+        const center =
           new THREE.Vector3();
 
 
@@ -1562,23 +1621,23 @@
         );
 
 
-        const size=
+        const size =
           geometry.boundingBox.getSize(
             new THREE.Vector3()
-          ).length() || 100;
+          ).length();
 
 
         camera.position.set(
-          center.x+size*.8,
-          center.y+size*.8,
-          center.z+size*.8
+          center.x + size * .8,
+          center.y + size * .8,
+          center.z + size * .8
         );
 
 
         controls.update();
 
 
-      }catch(err){
+      } catch(err) {
 
         console.error(
           "Error al renderizar el STL:",
@@ -1586,7 +1645,8 @@
         );
 
 
-        container.innerHTML=`
+        container.innerHTML = `
+
           <div
             style="
               color:#8f9892;
@@ -1595,33 +1655,27 @@
               font-size:13px;
             "
           >
-            ⚠️ No se ha podido renderizar el STL.
+            ⚠️ El visor 3D no puede renderizar el STL.
           </div>
+
         `;
 
       }
 
 
-      function animate(){
+      function animate() {
 
-        animationId=
-          requestAnimationFrame(
-            animate
-          );
+        requestAnimationFrame(
+          animate
+        );
 
 
-        if(controls){
+        if (
+          controls &&
+          renderer
+        ) {
 
           controls.update();
-
-        }
-
-
-        if(
-          renderer &&
-          scene &&
-          camera
-        ){
 
           renderer.render(
             scene,
@@ -1637,220 +1691,107 @@
 
     }
 
-
-    /* =========================================================
-       SEGURIDAD HTML
-       ========================================================= */
-
-    function escapeHtml(value){
-
-      return String(
-        value ?? ""
-      )
-      .replace(/&/g,"&amp;")
-      .replace(/</g,"&lt;")
-      .replace(/>/g,"&gt;")
-      .replace(/"/g,"&quot;")
-      .replace(/'/g,"&#039;");
-
-    }
+  </script>
 
 
-    /* =========================================================
-       TARJETA DE INCIDENCIA
-       ========================================================= */
+  <!-- CARGA DEL INFORME -->
 
-    function issueCard(issue){
-
-      const severity=
-        String(
-          issue?.severity || "warning"
-        ).toLowerCase();
-
-
-      const critical=
-        severity==="critical";
-
-
-      const title=
-        issue?.title ||
-        issue?.code ||
-        "Incidencia geométrica";
-
-
-      const description=
-        issue?.description ||
-        "Se ha detectado una condición que puede afectar a la fabricación.";
-
-
-      const solution=
-        issue?.solution ||
-        "Revisar la geometría antes de fabricar.";
-
-
-      const badge=
-        critical
-          ? "CRÍTICO"
-          : severity==="info"
-            ? "INFORMACIÓN"
-            : "ADVERTENCIA";
-
-
-      const border=
-        critical
-          ? "var(--error)"
-          : severity==="info"
-            ? "#65736b"
-            : "var(--warning)";
-
-
-      const background=
-        critical
-          ? "#fcebe8"
-          : severity==="info"
-            ? "#eef2ee"
-            : "#fff3cd";
-
-
-      const textColor=
-        critical
-          ? "#b42318"
-          : severity==="info"
-            ? "#65736b"
-            : "var(--warning)";
-
-
-      return `
-
-        <div
-          class="prob-card ${critical ? "" : severity==="info" ? "info-card" : "warn"}"
-          style="
-            border-color:${border};
-            border-left-color:${border};
-          "
-        >
-
-          <div class="prob-header">
-
-            <h3 class="prob-title">
-              ${escapeHtml(title)}
-            </h3>
-
-            <span
-              class="prob-badge"
-              style="
-                background:${background};
-                color:${textColor};
-              "
-            >
-              ${badge}
-            </span>
-
-          </div>
-
-          <div class="solution-box">
-
-            <p class="solution-text">
-              ${escapeHtml(description)}
-            </p>
-
-            <p class="benefit-text">
-              <strong>ACCIÓN</strong>
-              ${escapeHtml(solution)}
-            </p>
-
-          </div>
-
-        </div>
-
-      `;
-
-    }
-
-
-    /* =========================================================
-       FORMATEADORES
-       ========================================================= */
-
-    function formatNumber(value,decimals=2){
-
-      const n=Number(value);
-
-      if(!Number.isFinite(n)){
-
-        return "No disponible";
-
-      }
-
-      return n.toLocaleString(
-        "es-ES",
-        {
-          minimumFractionDigits:decimals,
-          maximumFractionDigits:decimals
-        }
-      );
-
-    }
-
-
-    function yesNo(value){
-
-      return value
-        ? "Sí"
-        : "No";
-
-    }
-
-
-    /* =========================================================
-       INICIO DEL INFORME
-       ========================================================= */
+  <script>
 
     document.addEventListener(
       "DOMContentLoaded",
-      ()=>{
+      () => {
 
-        const downloadStlBtn=
+        const downloadStlBtn =
           document.getElementById(
             "downloadStlBtn"
           );
 
 
-        const downloadPdfBtn=
+        const downloadPdfBtn =
           document.getElementById(
             "downloadPdfBtn"
           );
 
 
-        const noSessionFallback=
+        const noSessionFallback =
           document.getElementById(
             "noSessionFallback"
           );
 
 
-        const reportMainContent=
+        const reportMainContent =
           document.getElementById(
             "reportMainContent"
           );
 
 
-        const storedAnalysis=
+        const reportFileName =
+          document.getElementById(
+            "reportFileName"
+          );
+
+
+        const reportVolume =
+          document.getElementById(
+            "reportVolume"
+          );
+
+
+        const reportDimensions =
+          document.getElementById(
+            "reportDimensions"
+          );
+
+
+        const reportScore =
+          document.getElementById(
+            "reportScore"
+          );
+
+
+        const reportScoreDesc =
+          document.getElementById(
+            "reportScoreDesc"
+          );
+
+
+        const reportMaterial =
+          document.getElementById(
+            "reportMaterial"
+          );
+
+
+        const reportTemp =
+          document.getElementById(
+            "reportTemp"
+          );
+
+
+        const reportBed =
+          document.getElementById(
+            "reportBed"
+          );
+
+
+        const problemListContainer =
+          document.getElementById(
+            "problemListContainer"
+          );
+
+
+        const storedAnalysis =
           sessionStorage.getItem(
             "printlab_analysis"
           );
 
 
-        /*
-          Si no existe análisis,
-          mostramos la pantalla de contingencia.
-        */
+        if (!storedAnalysis) {
 
-        if(!storedAnalysis){
-
-          noSessionFallback.style.display=
+          noSessionFallback.style.display =
             "block";
 
-          reportMainContent.style.display=
+          reportMainContent.style.display =
             "none";
 
           return;
@@ -1861,25 +1802,25 @@
         let analysis;
 
 
-        try{
+        try {
 
-          analysis=
+          analysis =
             JSON.parse(
               storedAnalysis
             );
 
-        }catch(e){
+        } catch(e) {
 
           console.error(
-            "Error leyendo análisis:",
+            "Error al parsear el objeto de sessionStorage:",
             e
           );
 
 
-          noSessionFallback.style.display=
+          noSessionFallback.style.display =
             "block";
 
-          reportMainContent.style.display=
+          reportMainContent.style.display =
             "none";
 
           return;
@@ -1887,611 +1828,191 @@
         }
 
 
-        noSessionFallback.style.display=
+        noSessionFallback.style.display =
           "none";
 
-
-        reportMainContent.style.display=
+        reportMainContent.style.display =
           "block";
 
 
-        /* =====================================================
-           DATOS
-           ===================================================== */
-
-        const s=
+        const s =
           analysis.slicer_settings || {};
 
 
-        const repair=
-          analysis.repair || {};
+        const q =
+          analysis.user_questionnaire || {};
 
 
-        const quality=
-          analysis.mesh_quality || {};
-
-
-        const overhang=
-          analysis.overhang || {};
-
-
-        const issues=
-          Array.isArray(
-            analysis.issues
-          )
-            ? analysis.issues
-            : [];
-
-
-        /* =====================================================
-           IDENTIDAD
-           ===================================================== */
-
-        const reportFileName=
-          document.getElementById(
-            "reportFileName"
+        reportFileName.textContent =
+          "📄 " +
+          (
+            analysis.file_name ||
+            "Archivo de ingeniería"
           );
 
 
-        if(reportFileName){
-
-          reportFileName.textContent=
-            "📄 " +
-            (
-              analysis.file_name ||
-              "Archivo de ingeniería"
-            );
-
-        }
+        reportVolume.textContent =
+          analysis.volume !== undefined
+            ? `${analysis.volume} cm³`
+            : "No disponible en este análisis";
 
 
-        /* =====================================================
-           DATOS TÉCNICOS
-           ===================================================== */
-
-        const volume=
-          analysis.volume_cm3;
+        reportDimensions.textContent =
+          analysis.dimensions ||
+          "No disponible en este análisis";
 
 
-        const dimensions=
-          analysis.dimensions;
-
-
-        const area=
-          analysis.surface_area_cm2 ??
-          analysis.area_cm2;
-
-
-        document.getElementById(
-          "reportVolume"
-        ).textContent=
-          volume !== undefined
-            ? `${formatNumber(volume)} cm³`
-            : "No disponible";
-
-
-        document.getElementById(
-          "reportDimensions"
-        ).textContent=
-          dimensions ||
-          "No disponible";
-
-
-        document.getElementById(
-          "reportArea"
-        ).textContent=
-          area !== undefined
-            ? `${formatNumber(area)} cm²`
-            : "No disponible";
-
-
-        document.getElementById(
-          "reportFaces"
-        ).textContent=
-          quality.faces ??
-          "No disponible";
-
-
-        document.getElementById(
-          "reportVertices"
-        ).textContent=
-          quality.vertices ??
-          "No disponible";
-
-
-        document.getElementById(
-          "reportComponents"
-        ).textContent=
-          quality.components ??
-          "No disponible";
-
-
-        document.getElementById(
-          "reportMaterial"
-        ).textContent=
+        reportMaterial.textContent =
           s.material ||
           "No disponible";
 
 
-        document.getElementById(
-          "reportTemp"
-        ).textContent=
+        reportTemp.textContent =
           s.nozzle_temp !== undefined
             ? `${s.nozzle_temp} ºC`
             : "No disponible";
 
 
-        document.getElementById(
-          "reportBed"
-        ).textContent=
+        reportBed.textContent =
           s.bed_temp !== undefined
             ? `${s.bed_temp} ºC`
             : "No disponible";
 
 
-        /* =====================================================
-           AUDITORÍA
-           ===================================================== */
+        /*
+         * Estado general.
+         *
+         * Importante:
+         * critical_points NO se interpreta como
+         * una simulación FEM.
+         */
 
-        document.getElementById(
-          "metricWatertight"
-        ).textContent=
-          quality.watertight !== undefined
-            ? yesNo(
-                quality.watertight
-              )
-            : "—";
+        let stateText =
+          "APTO";
 
 
-        document.getElementById(
-          "metricBoundary"
-        ).textContent=
-          quality.boundary_edges ??
-          "—";
-
-
-        document.getElementById(
-          "metricNonManifold"
-        ).textContent=
-          quality.nonmanifold_edges ??
-          "—";
-
-
-        document.getElementById(
-          "metricDuplicate"
-        ).textContent=
-          quality.duplicate_faces ??
-          "—";
-
-
-        document.getElementById(
-          "metricDegenerate"
-        ).textContent=
-          quality.degenerate_faces ??
-          "—";
-
-
-        document.getElementById(
-          "metricOverhang"
-        ).textContent=
-          overhang.ratio !== undefined
-            ? `${(
-                Number(overhang.ratio)*100
-              ).toFixed(1)} %`
-            : "—";
-
-
-        /* =====================================================
-           PUNTUACIÓN
-           ===================================================== */
-
-        const score=
-          Number(
-            analysis.printability_score
-          );
-
-
-        const state=
-          analysis.printability_state ||
-          "NO EVALUADO";
-
-
-        const scoreElement=
-          document.getElementById(
-            "reportScore"
-          );
-
-
-        const scoreNumberElement=
-          document.getElementById(
-            "reportScoreNumber"
-          );
-
-
-        const scoreDescElement=
-          document.getElementById(
-            "reportScoreDesc"
-          );
-
-
-        let stateColor=
+        let stateColor =
           "var(--accent)";
 
 
-        if(
-          state.includes(
-            "REPARACIÓN"
-          )
-        ){
+        let stateDesc =
+          "La geometría presenta unas condiciones de fabricación favorables según los controles realizados.";
 
-          stateColor=
+
+        if (
+          analysis.watertight === false
+        ) {
+
+          stateText =
+            "REQUIERE REPARACIÓN";
+
+
+          stateColor =
             "var(--error)";
 
-        }
-        else if(
-          state.includes(
-            "REVISIÓN"
-          ) ||
-          state.includes(
-            "RECOMEND"
-          )
-        ){
 
-          stateColor=
+          stateDesc =
+            "La malla presenta problemas topológicos que requieren reparación antes de considerarla adecuada para fabricación.";
+
+        } else if (
+          analysis.critical_points &&
+          analysis.critical_points.length > 0
+        ) {
+
+          stateText =
+            "REQUIERE REVISIÓN";
+
+
+          stateColor =
             "var(--warning)";
 
+
+          stateDesc =
+            "Se han identificado zonas geométricamente sensibles que aconsejan revisar la orientación o los parámetros de fabricación.";
+
         }
 
 
-        scoreElement.textContent=
-          state;
+        reportScore.textContent =
+          stateText;
 
 
-        scoreElement.style.color=
+        reportScore.style.color =
           stateColor;
 
 
-        scoreNumberElement.textContent=
-          Number.isFinite(score)
-            ? `Puntuación geométrica: ${score}/100`
-            : "Puntuación no disponible";
+        reportScoreDesc.textContent =
+          stateDesc;
 
 
-        scoreDescElement.textContent=
-          Number.isFinite(score)
-            ? "La puntuación combina la calidad topológica de la malla, riesgos geométricos y condiciones de fabricación declaradas. No representa una simulación FEM de tensiones."
-            : "Se ha realizado una evaluación geométrica de la pieza.";
+        let htmlCards = "";
 
 
-        /* =====================================================
-           TARJETAS
-           ===================================================== */
+        /*
+         * ESTANQUEIDAD
+         */
 
-        let htmlCards="";
-
-
-        if(issues.length){
-
-          issues.forEach(
-            issue=>{
-
-              htmlCards +=
-                issueCard(issue);
-
-            }
-          );
-
-        }
-        else{
-
-          htmlCards += `
-
-            <div
-              class="prob-card success-card"
-            >
-
-              <div class="prob-header">
-
-                <h3 class="prob-title">
-                  No se han detectado incidencias principales
-                </h3>
-
-                <span
-                  class="prob-badge"
-                  style="
-                    background:#eef2ee;
-                    color:var(--success);
-                  "
-                >
-                  CORRECTO
-                </span>
-
-              </div>
-
-              <div class="solution-box">
-
-                <p class="solution-text">
-                  La auditoría no ha identificado problemas geométricos principales.
-                </p>
-
-                <p class="benefit-text">
-                  Aun así, el resultado del laminado final depende de la impresora,
-                  orientación, material y parámetros del slicer.
-                </p>
-
-              </div>
-
-            </div>
-
-          `;
-
-        }
-
-
-        /* =====================================================
-           AUDITORÍA
-           ===================================================== */
-
-        htmlCards += `
-
-          <div
-            class="prob-card success-card"
-          >
-
-            <div class="prob-header">
-
-              <h3 class="prob-title">
-                Auditoría geométrica
-              </h3>
-
-              <span
-                class="prob-badge"
-                style="
-                  background:#eef2ee;
-                  color:var(--muted);
-                "
-              >
-                ANALIZADO
-              </span>
-
-            </div>
-
-            <div class="solution-box">
-
-              <p class="solution-text">
-
-                ${quality.faces ?? "—"}
-                caras ·
-                ${quality.vertices ?? "—"}
-                vértices ·
-                ${quality.components ?? "—"}
-                componente(s).
-
-              </p>
-
-              <p class="benefit-text">
-
-                Malla cerrada:
-                ${quality.watertight ? "sí" : "no"}
-                · Aristas abiertas:
-                ${quality.boundary_edges ?? "—"}
-                · No manifold:
-                ${quality.nonmanifold_edges ?? "—"}
-                · Duplicadas:
-                ${quality.duplicate_faces ?? "—"}
-                · Degeneradas:
-                ${quality.degenerate_faces ?? "—"}.
-
-              </p>
-
-            </div>
-
-          </div>
-
-        `;
-
-
-        /* =====================================================
-           VOLADIZOS
-           ===================================================== */
-
-        const overhangRatio=
-          Number(
-            overhang.ratio || 0
-          );
-
-
-        const overhangProblem=
-          overhangRatio > .12;
-
-
-        htmlCards += `
-
-          <div
-            class="prob-card ${
-              overhangProblem
-                ? "warn"
-                : "success-card"
-            }"
-            style="
-              border-color:${
-                overhangProblem
-                  ? "var(--warning)"
-                  : "var(--line)"
-              };
-              border-left-color:${
-                overhangProblem
-                  ? "var(--warning)"
-                  : "var(--muted)"
-              };
-            "
-          >
-
-            <div class="prob-header">
-
-              <h3 class="prob-title">
-                Voladizos de fabricación
-              </h3>
-
-              <span
-                class="prob-badge"
-                style="
-                  background:${
-                    overhangProblem
-                      ? "#fff3cd"
-                      : "#eef2ee"
-                  };
-                  color:${
-                    overhangProblem
-                      ? "var(--warning)"
-                      : "var(--muted)"
-                  };
-                "
-              >
-                ${
-                  overhangProblem
-                    ? "REVISAR"
-                    : "CONTROLADO"
-                }
-              </span>
-
-            </div>
-
-            <div class="solution-box">
-
-              <p class="solution-text">
-
-                Área estimada de voladizo:
-                ${
-                  overhang.area_cm2 !== undefined
-                    ? formatNumber(
-                        overhang.area_cm2
-                      )
-                    : "0"
-                }
-                cm²
-                (
-                ${
-                  (
-                    overhangRatio*100
-                  ).toFixed(1)
-                }%
-                del área superficial).
-
-              </p>
-
-              <p class="benefit-text">
-
-                Evaluación geométrica mediante
-                un umbral aproximado de 45°.
-                La necesidad real de soportes debe
-                confirmarse en el slicer.
-
-              </p>
-
-            </div>
-
-          </div>
-
-        `;
-
-
-        /* =====================================================
-           REPARACIÓN
-           ===================================================== */
-
-        if(repair.attempted){
-
-          const repairAvailable=
-            Boolean(
-              repair.available
-            );
-
+        if (
+          analysis.watertight !== undefined
+        ) {
 
           htmlCards += `
 
             <div
               class="prob-card ${
-                repairAvailable
-                  ? "success-card"
-                  : "warn"
+                analysis.watertight
+                  ? 'success-card'
+                  : 'warn'
               }"
-              style="
-                border-color:${
-                  repairAvailable
-                    ? "var(--line)"
-                    : "var(--warning)"
-                };
-                border-left-color:${
-                  repairAvailable
-                    ? "var(--muted)"
-                    : "var(--warning)"
-                };
-              "
+              style="${
+                analysis.watertight
+                  ? ''
+                  : 'border-color:var(--warning);border-left-color:var(--warning);'
+              }"
             >
 
               <div class="prob-header">
 
                 <h3 class="prob-title">
-                  Motor de reparación
+                  Estanqueidad de Malla (Manifold)
                 </h3>
 
                 <span
                   class="prob-badge"
                   style="
                     background:${
-                      repairAvailable
-                        ? "#eef2ee"
-                        : "#fff3cd"
+                      analysis.watertight
+                        ? '#eef2ee'
+                        : '#fff3cd'
                     };
+
                     color:${
-                      repairAvailable
-                        ? "var(--muted)"
-                        : "var(--warning)"
+                      analysis.watertight
+                        ? 'var(--muted)'
+                        : 'var(--warning)'
                     };
                   "
                 >
                   ${
-                    repairAvailable
-                      ? "VALIDADA"
-                      : "NO ENTREGADA"
+                    analysis.watertight
+                      ? 'ESTANCO'
+                      : 'ABIERTO'
                   }
                 </span>
 
               </div>
+
 
               <div class="solution-box">
 
                 <p class="solution-text">
 
                   ${
-                    escapeHtml(
-                      (
-                        repair.actions || []
-                      ).join(". ")
-                      ||
-                      "Se ha ejecutado el proceso de reparación."
-                    )
-                  }
+                    analysis.watertight
 
-                </p>
+                      ? 'La geometría STL está completamente cerrada y puede utilizarse como volumen sólido.'
 
-                <p class="benefit-text">
-
-                  Validación posterior:
-                  malla cerrada =
-                  ${
-                    repair.validated_watertight
-                      ? "sí"
-                      : "no"
-                  }.
-
-                  ${
-                    repair.validation_message
-                      ? escapeHtml(
-                          repair.validation_message
-                        )
-                      : ""
+                      : 'Se han detectado aristas abiertas o discontinuidades en la malla. La pieza debería repararse antes de utilizarla como sólido.'
                   }
 
                 </p>
@@ -2505,199 +2026,319 @@
         }
 
 
-        /* =====================================================
-           RECOMENDACIONES DE LAMINADO
-           ===================================================== */
+        /*
+         * RIESGOS GEOMÉTRICOS
+         */
 
-        htmlCards += `
+        if (
+          analysis.critical_points !== undefined
+        ) {
 
-          <div
-            class="prob-card success-card"
-          >
+          const pointsCount =
+            analysis.critical_points.length;
 
-            <div class="prob-header">
 
-              <h3 class="prob-title">
-                Recomendaciones de laminado
-              </h3>
+          htmlCards += `
 
-              <span
-                class="prob-badge"
-                style="
-                  background:#eef2ee;
-                  color:var(--muted);
-                "
-              >
-                ORIENTATIVO
-              </span>
+            <div
+              class="prob-card ${
+                pointsCount === 0
+                  ? 'success-card'
+                  : 'warn'
+              }"
+              style="${
+                pointsCount === 0
+                  ? ''
+                  : 'border-color:var(--warning);border-left-color:var(--warning);'
+              }"
+            >
+
+              <div class="prob-header">
+
+                <h3 class="prob-title">
+                  Riesgos Geométricos
+                </h3>
+
+                <span
+                  class="prob-badge"
+                  style="
+                    background:${
+                      pointsCount === 0
+                        ? '#eef2ee'
+                        : '#fff3cd'
+                    };
+
+                    color:${
+                      pointsCount === 0
+                        ? 'var(--muted)'
+                        : 'var(--warning)'
+                    };
+                  "
+                >
+                  ${
+                    pointsCount === 0
+                      ? 'ESTABLE'
+                      : 'ADVERTENCIA'
+                  }
+                </span>
+
+              </div>
+
+
+              <div class="solution-box">
+
+                <p class="solution-text">
+
+                  ${
+                    pointsCount === 0
+
+                      ? 'No se han detectado zonas geométricamente especialmente sensibles según el análisis de la malla. Esto no sustituye un cálculo FEM.'
+
+                      : `Se han localizado ${pointsCount} zonas geométricamente sensibles según la curvatura de la superficie. Se recomienda revisar su función y el laminado.`
+                  }
+
+                </p>
+
+              </div>
 
             </div>
 
-            <div class="solution-box">
+          `;
 
-              <p class="solution-text">
+        }
 
-                ${
-                  escapeHtml(
-                    s.material_reason ||
-                    "Sin recomendación específica de material."
-                  )
-                }
 
-              </p>
+        /*
+         * MATERIAL
+         */
 
-              <p class="benefit-text">
+        if (
+          s.material_reason
+        ) {
 
-                Perímetros:
-                ${s.perimeters ?? "—"}
+          htmlCards += `
 
-                · Relleno:
-                ${s.infill_density ?? "—"}%
+            <div
+              class="prob-card ${
+                s.material_status ===
+                'no_adecuado'
+                  ? ''
+                  : 'success-card'
+              }"
+            >
 
-                · Patrón:
-                ${escapeHtml(
-                  s.infill_pattern || "—"
-                )}
+              <div class="prob-header">
 
-                · Velocidad:
-                ${s.print_speed ?? "—"} mm/s.
+                <h3 class="prob-title">
+                  Recomendaciones de Laminado
+                </h3>
 
-                · Orientación:
-                ${escapeHtml(
-                  analysis.recommended_orientation ||
-                  "original"
-                )}
+                <span
+                  class="prob-badge"
+                  style="
+                    background:${
+                      s.material_status ===
+                      'no_adecuado'
+                        ? '#fcebe8'
+                        : '#eef2ee'
+                    };
 
-              </p>
+                    color:${
+                      s.material_status ===
+                      'no_adecuado'
+                        ? '#b42318'
+                        : 'var(--muted)'
+                    };
+                  "
+                >
+                  ${
+                    s.material_status ===
+                    'no_adecuado'
+                      ? 'CRÍTICO'
+                      : 'RECOMENDADO'
+                  }
+                </span>
+
+              </div>
+
+
+              <div class="solution-box">
+
+                <p class="solution-text">
+                  ${s.material_reason}
+                </p>
+
+              </div>
 
             </div>
 
-          </div>
+          `;
 
-        `;
-
-
-        problemListContainer.innerHTML=
-          htmlCards;
+        }
 
 
-        /* =====================================================
-           VISOR
-           ===================================================== */
+        problemListContainer.innerHTML =
+          htmlCards ||
+          `
+            <p
+              style="
+                color:var(--muted);
+                text-align:center;
+              "
+            >
+              No se disponen de detalles de diagnóstico adicionales.
+            </p>
+          `;
 
-        const viewerBase64=
-          analysis.optimized_base64 ||
-          analysis.optimized_mesh_base64 ||
-          analysis.repaired_mesh_base64 ||
-          null;
+
+        /*
+         * SUPERFICIE DE APOYO
+         */
+
+        const supportText =
+          document.getElementById(
+            "supportSurfaceText"
+          );
 
 
-        if(viewerBase64){
+        const support =
+          analysis.support_surface ||
+          {};
+
+
+        const orient =
+          analysis.orientation_analysis ||
+          {};
+
+
+        if (supportText) {
+
+          if (
+            support.area_mm2 !== undefined
+          ) {
+
+            const area =
+              Number(
+                support.area_mm2
+              );
+
+
+            supportText.innerHTML = `
+
+              Se recomienda apoyar la pieza sobre
+              la superficie identificada en azul.
+
+              Área efectiva de contacto aproximada:
+
+              <strong>
+                ${(area / 100).toFixed(2)} cm²
+              </strong>.
+
+              ${
+                support.reason ||
+                orient.reason ||
+                "La orientación prioriza la estabilidad y la reducción de soportes."
+              }
+
+            `;
+
+          } else if (
+            orient.reason
+          ) {
+
+            supportText.textContent =
+              orient.reason;
+
+          } else {
+
+            supportText.textContent =
+              "El backend actual no ha devuelto una superficie de apoyo calculada. Se muestra una detección geométrica local del plano inferior cuando es posible.";
+
+          }
+
+        }
+
+
+        /*
+         * VISOR
+         */
+
+        if (
+          analysis.optimized_base64
+        ) {
 
           init3DViewer(
+
             "canvas3dContainer",
-            viewerBase64,
-            analysis.critical_points || [],
-            s.recommended_rot_matrix
-          );
 
-        }
+            analysis.optimized_base64,
 
+            analysis.critical_points,
 
-        /* =====================================================
-           DESCARGA STL
-           ===================================================== */
+            s.recommended_rot_matrix,
 
-        const repairedBase64=
-          analysis.repaired_mesh_base64 ||
-          null;
+            analysis.support_surface,
 
+            analysis.overhang_analysis
 
-        const downloadableBase64=
-          repairedBase64 ||
-          analysis.optimized_base64 ||
-          analysis.optimized_mesh_base64 ||
-          null;
-
-
-        const canDownload=
-          Boolean(
-            downloadableBase64
           );
 
 
-        downloadStlBtn.disabled=
-          !canDownload;
+          downloadStlBtn.disabled =
+            false;
 
 
-        downloadStlBtn.style.opacity=
-          canDownload
-            ? "1"
-            : ".45";
+          downloadStlBtn.style.opacity =
+            "1";
 
 
-        downloadStlBtn.style.cursor=
-          canDownload
-            ? "pointer"
-            : "not-allowed";
+          const isRepaired =
+            analysis.watertight === false;
 
 
-        if(repairedBase64){
-
-          downloadStlBtn.textContent=
-            "Descargar pieza reparada (.STL)";
-
-        }
-        else if(
-          analysis.optimized_base64 ||
-          analysis.optimized_mesh_base64
-        ){
-
-          downloadStlBtn.textContent=
-            "Descargar STL optimizado (.STL)";
-
-        }
-        else{
-
-          downloadStlBtn.textContent=
-            "STL reparado no disponible";
-
-        }
+          const fileSuffix =
+            isRepaired
+              ? "_reparado.stl"
+              : "_optimizado.stl";
 
 
-        if(canDownload){
+          downloadStlBtn.textContent =
+            isRepaired
+              ? "Descargar pieza reparada (.STL)"
+              : "Descargar pieza optimizada (.STL)";
+
 
           downloadStlBtn.addEventListener(
             "click",
-            ()=>{
+            () => {
 
-              try{
+              try {
 
-                const binaryStr=
+                const binaryStr =
                   atob(
-                    downloadableBase64
+                    analysis.optimized_base64
                   );
 
 
-                const bytes=
+                const bytes =
                   new Uint8Array(
                     binaryStr.length
                   );
 
 
-                for(
-                  let i=0;
-                  i<binaryStr.length;
+                for (
+                  let i = 0;
+                  i < binaryStr.length;
                   i++
-                ){
+                ) {
 
-                  bytes[i]=
+                  bytes[i] =
                     binaryStr.charCodeAt(i);
 
                 }
 
 
-                const blob=
+                const blob =
                   new Blob(
                     [bytes.buffer],
                     {
@@ -2706,69 +2347,62 @@
                   );
 
 
-                const url=
+                const localStlUrl =
                   URL.createObjectURL(
                     blob
                   );
 
 
-                const a=
+                const a =
                   document.createElement(
                     "a"
                   );
 
 
-                a.href=url;
+                a.href =
+                  localStlUrl;
 
 
-                const originalName=
-                  analysis.file_name ||
-                  "piece.stl";
-
-
-                const baseName=
-                  originalName
-                    .replace(
-                      /\.[^/.]+$/,
-                      ""
-                    );
-
-
-                a.download=
-                  baseName +
+                a.download =
                   (
-                    repairedBase64
-                      ? "_reparado.stl"
-                      : "_optimizado.stl"
-                  );
+                    analysis.file_name ||
+                    "piece.stl"
+                  ).replace(
+                    /\.[^/.]+$/,
+                    ""
+                  ) +
+                  fileSuffix;
 
 
-                document.body.appendChild(a);
+                document.body.appendChild(
+                  a
+                );
+
 
                 a.click();
 
-                a.remove();
+
+                document.body.removeChild(
+                  a
+                );
 
 
                 setTimeout(
-                  ()=>{
+                  () => {
+
                     URL.revokeObjectURL(
-                      url
+                      localStlUrl
                     );
+
                   },
-                  500
+                  100
                 );
 
 
-              }catch(err){
-
-                console.error(
-                  err
-                );
-
+              } catch(err) {
 
                 alert(
-                  "Error al procesar la descarga: " +
+                  "Error al procesar la descarga de la malla: " +
                   err.message
                 );
 
@@ -2777,45 +2411,71 @@
             }
           );
 
+
+        } else {
+
+          downloadStlBtn.disabled =
+            true;
+
+
+          downloadStlBtn.style.opacity =
+            "0.5";
+
+
+          downloadStlBtn.style.cursor =
+            "not-allowed";
+
+
+          downloadStlBtn.textContent =
+            "STL reparado/optimizado no disponible";
+
+
+          const canvasContainer =
+            document.getElementById(
+              "canvas3dContainer"
+            );
+
+
+          if (canvasContainer) {
+
+            canvasContainer.innerHTML = `
+
+              <div
+                style="
+                  color:#8f9892;
+                  font-size:13.5px;
+                  padding:20px;
+                  text-align:center;
+                "
+              >
+                📂 No se ha retornado ninguna reconstrucción sólida en este diagnóstico.
+              </div>
+
+            `;
+
+          }
+
         }
 
 
-        /* =====================================================
-           PDF
-           ===================================================== */
+        /*
+         * PDF
+         */
 
         downloadPdfBtn.addEventListener(
           "click",
-          ()=>{
+          () => {
 
-            const jspdf=
+            const {
+              jsPDF
+            } =
               window.jspdf ||
               window.jsPDF;
 
 
-            const JsPDF=
-              jspdf &&
-              jspdf.jsPDF
-                ? jspdf.jsPDF
-                : window.jsPDF;
+            const doc =
+              new jsPDF();
 
-
-            if(!JsPDF){
-
-              alert(
-                "No se ha podido cargar el generador PDF."
-              );
-
-              return;
-
-            }
-
-
-            const doc=
-              new JsPDF();
-
-
-            /* CABECERA */
 
             doc.setFillColor(
               17,
@@ -2829,7 +2489,7 @@
               0,
               210,
               40,
-              "F"
+              'F'
             );
 
 
@@ -2871,132 +2531,153 @@
 
 
             doc.text(
-              "INFORME DE INGENIERÍA Y ANÁLISIS GEOMÉTRICO",
+              "INFORME DE INGENIERÍA Y OPTIMIZACIÓN GEOMÉTRICA",
               15,
               28
             );
 
 
-            let y=55;
+            let y = 55;
 
 
-            function line(
-              label,
-              value
-            ){
-
-              doc.setFont(
-                "helvetica",
-                "bold"
-              );
-
-
-              doc.setTextColor(
-                13,
-                17,
-                16
-              );
-
-
-              doc.setFontSize(
-                10
-              );
-
-
-              doc.text(
-                label,
-                15,
-                y
-              );
-
-
-              doc.setFont(
-                "helvetica",
-                "normal"
-              );
-
-
-              doc.text(
-                String(
-                  value ??
-                  "No disponible"
-                ),
-                75,
-                y
-              );
-
-
-              y+=7;
-
-            }
-
-
-            line(
-              "Archivo:",
-              analysis.file_name
+            doc.setFontSize(
+              12
             );
 
 
-            line(
-              "Volumen:",
-              volume !== undefined
-                ? `${volume} cm3`
-                : "No disponible"
+            doc.setTextColor(
+              13,
+              17,
+              16
             );
 
 
-            line(
-              "Dimensiones:",
-              dimensions
+            doc.setFont(
+              "helvetica",
+              "bold"
             );
 
 
-            line(
-              "Estado:",
-              state
+            doc.text(
+              "Propiedades Físicas Calculadas",
+              15,
+              y
             );
 
 
-            line(
-              "Puntuación:",
-              Number.isFinite(score)
-                ? `${score}/100`
-                : "No disponible"
+            doc.setDrawColor(
+              223,
+              228,
+              223
             );
 
 
-            line(
-              "Malla cerrada:",
-              quality.watertight
-                ? "Sí"
-                : "No"
+            doc.line(
+              15,
+              y + 2,
+              195,
+              y + 2
             );
 
 
-            line(
-              "Aristas abiertas:",
-              quality.boundary_edges
+            y += 10;
+
+
+            doc.setFont(
+              "helvetica",
+              "normal"
             );
 
 
-            line(
-              "No manifold:",
-              quality.nonmanifold_edges
+            doc.setFontSize(
+              10
             );
 
 
-            line(
-              "Voladizos:",
-              overhang.area_cm2 !== undefined
-                ? `${overhang.area_cm2} cm2`
-                : "No disponible"
+            doc.setTextColor(
+              94,
+              102,
+              97
             );
 
 
-            y+=7;
+            const properties = [
+
+              [
+                "Archivo analizado:",
+                analysis.file_name ||
+                "No disponible"
+              ],
+
+              [
+                "Volumen del modelo:",
+                analysis.volume !== undefined
+                  ? `${analysis.volume} cm3`
+                  : "No disponible"
+              ],
+
+              [
+                "Dimensiones límites:",
+                analysis.dimensions ||
+                "No disponible"
+              ],
+
+              [
+                "Estado de estanqueidad:",
+                analysis.watertight !== undefined
+                  ? (
+                      analysis.watertight
+                        ? "Estanco (Manifold)"
+                        : "No estanco (Holes/Aristas libres)"
+                    )
+                  : "No disponible"
+              ],
+
+              [
+                "Estado de laminabilidad:",
+                stateText
+              ]
+
+            ];
 
 
-            /* DIAGNÓSTICO */
+            properties.forEach(
+              prop => {
+
+                doc.setFont(
+                  "helvetica",
+                  "bold"
+                );
+
+
+                doc.text(
+                  prop[0],
+                  15,
+                  y
+                );
+
+
+                doc.setFont(
+                  "helvetica",
+                  "normal"
+                );
+
+
+                doc.text(
+                  prop[1],
+                  75,
+                  y
+                );
+
+
+                y += 8;
+
+              }
+            );
+
+
+            y += 12;
+
 
             doc.setFont(
               "helvetica",
@@ -3009,14 +2690,29 @@
             );
 
 
+            doc.setTextColor(
+              13,
+              17,
+              16
+            );
+
+
             doc.text(
-              "Diagnóstico",
+              "Recomendaciones de Laminado y Slicing",
               15,
               y
             );
 
 
-            y+=7;
+            doc.line(
+              15,
+              y + 2,
+              195,
+              y + 2
+            );
+
+
+            y += 10;
 
 
             doc.setFont(
@@ -3026,106 +2722,16 @@
 
 
             doc.setFontSize(
-              9
+              10
             );
 
 
-            const issueText=
-              issues.length
-                ? issues
-                    .map(
-                      i=>
-                        `• ${
-                          i.title ||
-                          i.code ||
-                          "Incidencia"
-                        }: ${
-                          i.description ||
-                          ""
-                        }`
-                    )
-                    .join("\n")
-                : "No se han detectado incidencias principales.";
-
-
-            const issueLines=
-              doc.splitTextToSize(
-                issueText,
-                180
-              );
-
-
-            doc.text(
-              issueLines,
-              15,
-              y
+            doc.setTextColor(
+              13,
+              17,
+              16
             );
 
-
-            y+=
-              issueLines.length*5+
-              8;
-
-
-            /* REPARACIÓN */
-
-            if(repair.attempted){
-
-              doc.setFont(
-                "helvetica",
-                "bold"
-              );
-
-
-              doc.text(
-                "Reparación",
-                15,
-                y
-              );
-
-
-              y+=6;
-
-
-              doc.setFont(
-                "helvetica",
-                "normal"
-              );
-
-
-              const repairText=
-                (
-                  repair.actions || []
-                ).join(". ") +
-                `. Validación: ${
-                  repair.validated_watertight
-                    ? "malla cerrada"
-                    : "malla no cerrada"
-                }.`;
-
-
-              const repairLines=
-                doc.splitTextToSize(
-                  repairText,
-                  180
-                );
-
-
-              doc.text(
-                repairLines,
-                15,
-                y
-              );
-
-
-              y+=
-                repairLines.length*5+
-                8;
-
-            }
-
-
-            /* LAMINADO */
 
             doc.setFont(
               "helvetica",
@@ -3134,13 +2740,10 @@
 
 
             doc.text(
-              "Laminado orientativo",
+              "Configuración sugerida de temperaturas:",
               15,
               y
             );
-
-
-            y+=6;
 
 
             doc.setFont(
@@ -3149,58 +2752,211 @@
             );
 
 
-            const slicerText=
+            doc.text(
               `Material: ${
-                s.material || "—"
+                s.material ||
+                "No indicado"
               } | Boquilla: ${
-                s.nozzle_temp ?? "—"
-              } C | Cama: ${
-                s.bed_temp ?? "—"
-              } C | Perímetros: ${
-                s.perimeters ?? "—"
-              } | Relleno: ${
-                s.infill_density ?? "—"
-              }% | Patrón: ${
-                s.infill_pattern || "—"
-              }.`;
+                s.nozzle_temp !== undefined
+                  ? s.nozzle_temp + " C"
+                  : "No disponible"
+              } | Cama: ${
+                s.bed_temp !== undefined
+                  ? s.bed_temp + " C"
+                  : "No disponible"
+              }`,
+              15,
+              y + 6
+            );
 
 
-            const slicerLines=
-              doc.splitTextToSize(
-                slicerText,
-                180
+            y += 16;
+
+
+            if (
+              s.material_reason
+            ) {
+
+              doc.setFont(
+                "helvetica",
+                "bold"
               );
 
 
-            doc.text(
-              slicerLines,
-              15,
-              y
-            );
+              doc.text(
+                "Idoneidad del filamento:",
+                15,
+                y
+              );
 
 
-            doc.setFont(
-              "helvetica",
-              "italic"
-            );
+              doc.setFont(
+                "helvetica",
+                "normal"
+              );
 
 
-            doc.setFontSize(
-              8
-            );
+              const splitReason =
+                doc.splitTextToSize(
+                  s.material_reason,
+                  180
+                );
 
 
-            doc.text(
-              doc.splitTextToSize(
-                "Nota: este informe realiza un análisis geométrico y de fabricación. Los puntos críticos representan riesgos detectados en la geometría y no constituyen una simulación FEM de tensiones o deformaciones.",
-                180
-              ),
-              15,
-              280
-            );
+              doc.text(
+                splitReason,
+                15,
+                y + 6
+              );
 
 
-            const safeName=
+              y +=
+                (
+                  splitReason.length * 5
+                ) +
+                10;
+
+            }
+
+
+            if (
+              analysis.critical_points
+            ) {
+
+              doc.setFont(
+                "helvetica",
+                "bold"
+              );
+
+
+              doc.text(
+                "Análisis de riesgos geométricos:",
+                15,
+                y
+              );
+
+
+              doc.setFont(
+                "helvetica",
+                "normal"
+              );
+
+
+              const pointsCount =
+                analysis.critical_points.length;
+
+
+              const tensionText =
+                pointsCount === 0
+
+                  ? "No se han localizado zonas geométricamente sensibles según el análisis de la malla. Este resultado no sustituye una simulación FEM."
+
+                  : `Se han localizado ${pointsCount} zonas geométricamente sensibles. Se aconseja revisar su función y los parámetros de fabricación.`;
+
+
+              const splitTension =
+                doc.splitTextToSize(
+                  tensionText,
+                  180
+                );
+
+
+              doc.text(
+                splitTension,
+                15,
+                y + 6
+              );
+
+
+              y +=
+                (
+                  splitTension.length * 5
+                ) +
+                10;
+
+            }
+
+
+            /*
+             * SUPERFICIE DE APOYO EN PDF
+             */
+
+            if (
+              analysis.support_surface
+            ) {
+
+              y += 14;
+
+
+              doc.setFont(
+                "helvetica",
+                "bold"
+              );
+
+
+              doc.text(
+                "Superficie de apoyo recomendada:",
+                15,
+                y
+              );
+
+
+              doc.setFont(
+                "helvetica",
+                "normal"
+              );
+
+
+              const supportArea =
+                analysis.support_surface.area_mm2 !== undefined
+
+                  ? (
+                      Number(
+                        analysis.support_surface.area_mm2
+                      ) / 100
+                    ).toFixed(2) +
+                    " cm2"
+
+                  : "No disponible";
+
+
+              doc.text(
+                `Área de contacto: ${supportArea}`,
+                15,
+                y + 6
+              );
+
+
+              if (
+                analysis.support_surface.reason
+              ) {
+
+                const sr =
+                  doc.splitTextToSize(
+                    analysis.support_surface.reason,
+                    180
+                  );
+
+
+                doc.text(
+                  sr,
+                  15,
+                  y + 12
+                );
+
+
+                y +=
+                  (
+                    sr.length * 5
+                  ) +
+                  10;
+
+              }
+
+            }
+
+
+            const safeName =
               (
                 analysis.file_name ||
                 "piece"
