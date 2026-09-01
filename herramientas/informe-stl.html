@@ -368,6 +368,21 @@
 
     const PRINTLAB_API = "https://printlab-backend-dy7v.onrender.com";
 
+    // Decodifica la base64 de manera segura convirtiéndola a Uint8Array (ArrayBuffer)
+    function parseBase64STL(b64) {
+      try {
+        const binaryStr = atob(b64);
+        const bytes = new Uint8Array(binaryStr.length);
+        for (let i = 0; i < binaryStr.length; i++) {
+          bytes[i] = binaryStr.charCodeAt(i);
+        }
+        return loader.parse(bytes.buffer);
+      } catch (e) {
+        console.error("Error al decodificar y parsear la geometría base64:", e);
+        return null;
+      }
+    }
+
     function pushState(stateName, analysisObject) {
       if (currentHistoryIndex < stateHistory.length - 1) {
         stateHistory = stateHistory.slice(0, currentHistoryIndex + 1);
@@ -392,10 +407,14 @@
       scene = new THREE.Scene();
       scene.background = new THREE.Color(0x161d1a);
 
-      camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 10000);
+      // Dimensiones por defecto de seguridad en caso de que clientWidth / clientHeight retornen 0
+      const width = container.clientWidth || 800;
+      const height = container.clientHeight || 480;
+
+      camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 10000);
       renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-      renderer.setSize(container.clientWidth, container.clientHeight);
+      renderer.setSize(width, height);
       renderer.outputEncoding = THREE.sRGBEncoding;
       container.appendChild(renderer.domElement);
 
@@ -407,9 +426,11 @@
       controls.enableDamping = true; controls.dampingFactor = 0.06;
 
       window.addEventListener('resize', () => {
-        camera.aspect = container.clientWidth / container.clientHeight;
+        const w = container.clientWidth || 800;
+        const h = container.clientHeight || 480;
+        camera.aspect = w / h;
         camera.updateProjectionMatrix();
-        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.setSize(w, h);
       });
 
       setupInteractions(container);
@@ -432,64 +453,69 @@
         slicePlaneNormal = new THREE.Vector3().fromArray(meshData.displacement_vector || [0,0,1]);
 
         // Pieza A (Macho)
-        const geoA = loader.parse(atob(meshData.part_a.base64).buffer);
-        const matA = new THREE.MeshPhongMaterial({ color: 0x2eaf68, side: THREE.DoubleSide, specular: 0x111111, shininess: 75 });
-        const meshA = new THREE.Mesh(geoA, matA);
-        scene.add(meshA);
-        loadedParts.push({ mesh: meshA, dir: slicePlaneNormal.clone() });
+        const geoA = parseBase64STL(meshData.part_a.base64);
+        if (geoA) {
+          const matA = new THREE.MeshPhongMaterial({ color: 0x2eaf68, side: THREE.DoubleSide, specular: 0x111111, shininess: 75 });
+          const meshA = new THREE.Mesh(geoA, matA);
+          scene.add(meshA);
+          loadedParts.push({ mesh: meshA, dir: slicePlaneNormal.clone() });
+          activeMesh = meshA;
+        }
 
         // Pieza B (Hembra)
-        const geoB = loader.parse(atob(meshData.part_b.base64).buffer);
-        const matB = new THREE.MeshPhongMaterial({ color: 0x2688d8, side: THREE.DoubleSide, specular: 0x111111, shininess: 75 });
-        const meshB = new THREE.Mesh(geoB, matB);
-        scene.add(meshB);
-        loadedParts.push({ mesh: meshB, dir: slicePlaneNormal.clone().negate() });
-
-        activeMesh = meshA;
+        const geoB = parseBase64STL(meshData.part_b.base64);
+        if (geoB) {
+          const matB = new THREE.MeshPhongMaterial({ color: 0x2688d8, side: THREE.DoubleSide, specular: 0x111111, shininess: 75 });
+          const meshB = new THREE.Mesh(geoB, matB);
+          scene.add(meshB);
+          loadedParts.push({ mesh: meshB, dir: slicePlaneNormal.clone().negate() });
+        }
       } else {
         document.getElementById("explosionControlContainer").style.display = "none";
         const b64 = meshData.optimized_base64 || meshData.optimized_mesh_base64;
         if (b64) {
-          const geo = loader.parse(atob(b64).buffer);
-          geo.computeVertexNormals();
+          const geo = parseBase64STL(b64);
+          if (geo) {
+            geo.computeVertexNormals();
 
-          // Configurar sombreadores por vértices del análisis original
-          const position = geo.attributes.position;
-          const colors = new Float32Array(position.count * 3);
-          const baseColors = new Float32Array(position.count * 3);
+            // Configurar sombreadores por vértices del análisis original
+            const position = geo.attributes.position;
+            const colors = new Float32Array(position.count * 3);
+            const baseColors = new Float32Array(position.count * 3);
 
-          const criticalFaces = new Set(meshData.critical_face_indices || []);
-          const supportFaces = new Set(meshData.support_surface?.face_indices || []);
-          const overhangFaces = new Set(meshData.overhang_analysis?.face_indices || []);
+            const criticalFaces = new Set(meshData.critical_face_indices || []);
+            const supportFaces = new Set(meshData.support_surface?.face_indices || []);
+            const overhangFaces = new Set(meshData.overhang_analysis?.face_indices || []);
 
-          for (let face = 0; face < Math.floor(position.count / 3); face++) {
-            let col = new THREE.Color(0x2eaf68);
-            if (criticalFaces.has(face)) col = new THREE.Color(0xd9432f);
-            else if (supportFaces.has(face)) col = new THREE.Color(0x2688d8);
-            else if (overhangFaces.has(face)) col = new THREE.Color(0xf2bd00);
+            for (let face = 0; face < Math.floor(position.count / 3); face++) {
+              let col = new THREE.Color(0x2eaf68);
+              if (criticalFaces.has(face)) col = new THREE.Color(0xd9432f);
+              else if (supportFaces.has(face)) col = new THREE.Color(0x2688d8);
+              else if (overhangFaces.has(face)) col = new THREE.Color(0xf2bd00);
 
-            for (let j = 0; j < 3; j++) {
-              const k = (face * 3 + j) * 3;
-              colors[k] = col.r; colors[k + 1] = col.g; colors[k + 2] = col.b;
-              baseColors[k] = col.r; baseColors[k + 1] = col.g; baseColors[k + 2] = col.b;
+              for (let j = 0; j < 3; j++) {
+                const k = (face * 3 + j) * 3;
+                colors[k] = col.r; colors[k + 1] = col.g; colors[k + 2] = col.b;
+                baseColors[k] = col.r; baseColors[k + 1] = col.g; baseColors[k + 2] = col.b;
+              }
             }
-          }
 
-          geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-          const mat = new THREE.MeshPhongMaterial({ vertexColors: true, side: THREE.DoubleSide, specular: 0x111111, shininess: 75 });
-          activeMesh = new THREE.Mesh(geo, mat);
-          scene.add(activeMesh);
-          loadedParts.push({ mesh: activeMesh, dir: new THREE.Vector3(0,0,0) });
+            geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+            const mat = new THREE.MeshPhongMaterial({ vertexColors: true, side: THREE.DoubleSide, specular: 0x111111, shininess: 75 });
+            activeMesh = new THREE.Mesh(geo, mat);
+            scene.add(activeMesh);
+            loadedParts.push({ mesh: activeMesh, dir: new THREE.Vector3(0,0,0) });
 
-          viewerState = { geometry: geo, position, baseColors, faceCount: Math.floor(position.count/3), normals: [], centers: [] };
-          
-          // Precalcular normales
-          const _a = new THREE.Vector3(), _b = new THREE.Vector3(), _c = new THREE.Vector3();
-          for(let i=0; i<viewerState.faceCount; i++){
-            _a.fromBufferAttribute(position, i*3); _b.fromBufferAttribute(position, i*3+1); _c.fromBufferAttribute(position, i*3+2);
-            const _ab = new THREE.Vector3().subVectors(_b, _a); const _ac = new THREE.Vector3().subVectors(_c, _a);
-            viewerState.normals.push(new THREE.Vector3().crossVectors(_ab, _ac).normalize());
-            viewerState.centers.push(new THREE.Vector3().addVectors(_a, _b).add(_c).divideScalar(3));
+            viewerState = { geometry: geo, position, baseColors, faceCount: Math.floor(position.count/3), normals: [], centers: [] };
+            
+            // Precalcular normales
+            const _a = new THREE.Vector3(), _b = new THREE.Vector3(), _c = new THREE.Vector3();
+            for(let i=0; i<viewerState.faceCount; i++){
+              _a.fromBufferAttribute(position, i*3); _b.fromBufferAttribute(position, i*3+1); _c.fromBufferAttribute(position, i*3+2);
+              const _ab = new THREE.Vector3().subVectors(_b, _a); const _ac = new THREE.Vector3().subVectors(_c, _a);
+              viewerState.normals.push(new THREE.Vector3().crossVectors(_ab, _ac).normalize());
+              viewerState.centers.push(new THREE.Vector3().addVectors(_a, _b).add(_c).divideScalar(3));
+            }
           }
         }
       }
@@ -615,15 +641,18 @@
   <!-- CONTROLADORES CAD & ESTADOS -->
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      init3DViewer("canvas3dContainer");
-
       const storedAnalysis = sessionStorage.getItem("printlab_analysis");
       if (!storedAnalysis) {
         document.getElementById("noSessionFallback").style.display = "block";
         return;
       }
 
+      // 1. Mostrar la estructura de la página ANTES de inicializar Three.js
       document.getElementById("reportMainContent").style.display = "block";
+      
+      // 2. Ahora inicializar el visor 3D para que capture las dimensiones reales calculadas en el DOM
+      init3DViewer("canvas3dContainer");
+
       const analysis = JSON.parse(storedAnalysis);
       
       // Inicializar Pipeline
