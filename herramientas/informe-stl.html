@@ -14,7 +14,7 @@
     body{margin:0; background:var(--bg); color:var(--ink); font-family:"Plus Jakarta Sans", sans-serif; -webkit-font-smoothing:antialiased;}
     .wrap{max-width:var(--max);margin:auto;padding:0 40px}
     
-    /* CABECERA Y NAVEGACIÓN HAMBURGUESA */
+    /* CABECERA Y NAVEGACIÓN */
     .top{position:sticky;top:0;z-index:100;background:rgba(246,247,244,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
     nav{min-height:95px;display:flex;align-items:center;justify-content:space-between;}
     .header-left{display:flex; align-items:center; gap:24px;}
@@ -50,7 +50,7 @@
     .engine-card h3 { font-size: 18px; font-weight: 800; margin: 0 0 16px; display:flex; align-items:center; gap:8px;}
     .engine-list { list-style: none; padding: 0; margin: 0; display:flex; flex-direction:column; gap:12px; }
     .engine-list li { display: flex; justify-content: space-between; font-size: 14.5px; border-bottom: 1px dashed var(--line); padding-bottom: 8px; }
-    .engine-list li strong { font-weight: 800; color: var(--ink); }
+    .engine-list li strong { font-weight: 800; color: var(--ink); text-align: right; max-width: 60%; }
 
     /* Visor 3D y Panel de Selección */
     .mesh-canvas { background: #161d1a; border-radius: 16px; height: 450px; display: block; border: 1.5px solid var(--line); overflow: hidden; margin-bottom: 0; width: 100%;}
@@ -76,29 +76,40 @@
     .download-panel{text-align:center; background:var(--card); border:1.5px solid var(--line); border-radius:20px; padding:36px; margin-top:24px;}
     .btn-download-stl{display:inline-flex; align-items:center; justify-content:center; gap:10px; padding:16px 30px; background:var(--ink); color:#fff; border:2px solid var(--ink); border-radius:12px; font-weight:800; font-size:15px; cursor:pointer;}
 
-    /* FOOTER */
-    .footer { background: var(--bg); border-top: 1px solid var(--line); padding: 80px 0 40px; margin-top:60px; color: var(--muted); font-size: 14px; line-height: 1.6; }
-    .footergrid { display: grid; grid-template-columns: 1.3fr 0.85fr 0.85fr; gap: 60px; margin-bottom: 48px; }
-    .footer-col h3 { font-size: 16px; font-weight: 800; color: var(--ink); margin: 0 0 20px; }
-    .footer-col p { margin: 0 0 16px; color: var(--muted); }
-    .footer-links { display: flex; flex-direction: column; gap: 10px; }
-    .footer-links a { color: var(--muted); transition: color 0.15s ease; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
-    .footer-links a:hover { color: var(--ink); }
-
+    /* FALLBACKS */
     .no-session-card { text-align: center; padding: 60px 40px; background: var(--card); border: 1.5px solid var(--line); border-radius: 24px; max-width: 580px; margin: 80px auto; }
     .no-session-card h2 { font-size: 26px; font-weight: 800; margin: 0 0 12px; }
 
+    /* FOOTER */
+    .footer { background: var(--bg); border-top: 1px solid var(--line); padding: 80px 0 40px; margin-top: 60px; color: var(--muted); font-size: 14px; line-height: 1.6; }
+    .footergrid { display: grid; grid-template-columns: 1.3fr 0.85fr 0.85fr; gap: 60px; margin-bottom: 48px; }
+    .footer-col h3 { font-size: 16px; font-weight: 800; color: var(--ink); margin: 0 0 20px; }
+    .footer-col p { margin: 0 0 16px; color: var(--muted); }
+    .footer-secondary-text { font-size: 12.5px; line-height: 1.5; color: #7d8782; margin-top: 12px; }
+    .footer-links { display: flex; flex-direction: column; gap: 10px; }
+    .footer-links a { color: var(--muted); transition: color 0.15s ease, transform 0.15s ease; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+    .footer-links a:hover { color: var(--ink); transform: translateX(2px); }
+    .footer-links a span.arrow { transition: color 0.15s ease; }
+    .footer-links a:hover span.arrow { color: var(--accent); }
+    .footer-bottom { border-top: 1px solid var(--line); padding-top: 24px; display:flex; justify-content:center; align-items:center; text-align:center; font-size: 13px; color: #7d8782;}
+
     @media(max-width:992px) { .engine-grid { grid-template-columns: 1fr; } .footergrid { grid-template-columns: 1.2fr 1fr; gap: 40px; } }
     @media(max-width:768px){ .wrap{padding:0 24px} .auth-buttons { display: none; } .footergrid { grid-template-columns: 1fr; gap: 36px; } }
+    
+    /* Overrides for header UI fix */
+    #authHeaderContainer span[style*="background" i],
+    #authHeaderContainer span[style*="accent" i],
+    #authHeaderContainer span:nth-child(2),
+    #authHeaderContainer div span:nth-child(2) {
+      background: var(--accent) !important; color: var(--ink) !important; padding: 8px 18px !important; border-radius: 9999px !important; font-weight: 800 !important; font-size: 15px !important; border: none !important; box-shadow: none !important; display: inline-flex !important; align-items: center !important; justify-content: center !important;
+    }
   </style>
 
-  <!-- THREE.JS -->
+  <!-- LIBRERÍAS (Three.js, jsPDF, Supabase) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/STLLoader.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/controls/OrbitControls.js"></script>
-  <!-- JSPDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../assets/js/auth-helper.js?v=11"></script>
 </head>
@@ -115,6 +126,8 @@
               <a href="../index.html#portada">Inicio</a>
               <a href="analizador-stl.html" class="active">Analizador STL</a>
               <a href="../index.html#simulador">Simulador</a>
+              <a href="../index.html#herramientas">Herramientas</a>
+              <a href="../index.html#guias">Guías</a>
             </div>
           </div>
           <a class="brand" href="../index.html#portada">PRINT<span>LAB</span></a>
@@ -142,7 +155,7 @@
       <section class="engine-header">
         <div>
           <h1 class="engine-title">Diagnóstico y Optimización de Malla</h1>
-          <p class="engine-subtitle">Análisis avanzado basado en geometría geométrica, esfuerzos mecánicos y termoplástico seleccionado.</p>
+          <p class="engine-subtitle">Análisis avanzado basado en geometría, esfuerzos mecánicos y material.</p>
         </div>
         <div style="text-align:center;">
           <div style="font-size:12px; font-weight:800; color:var(--muted); text-transform:uppercase; margin-bottom:8px;">PrintLab Score</div>
@@ -180,7 +193,7 @@
         <h3>Recomendación PrintLab</h3>
         <p id="recommendation-conclusion" style="font-size:17px; font-weight:700; margin:0 0 16px;">Analizando el objetivo y la geometría de la malla...</p>
         <ul class="reasons-list" id="reasons-list">
-          <!-- Motivos generados por el cerebro en main.py -->
+          <!-- Motivos inyectados por JS -->
         </ul>
       </section>
 
@@ -188,10 +201,8 @@
       <section style="margin-bottom: 24px;">
         <h3 style="font-size:20px; font-weight:800; margin-bottom:12px;">Visor Interactivo de Diagnóstico 3D</h3>
         
-        <!-- Contenedor Relativo para que el panel flote correctamente sin ser borrado por ThreeJS -->
         <div style="position: relative; margin-bottom: 12px; width: 100%;">
           <div class="mesh-canvas" id="canvas3dContainer"></div>
-          
           <!-- OVERLAY DE CARA SELECCIONADA -->
           <div id="face-info-panel">
             <h4 style="margin:0 0 12px; font-size:12px; color:var(--muted); font-weight:800; border-bottom:1px dashed var(--line); padding-bottom:6px;">SUPERFICIE SELECCIONADA</h4>
@@ -266,7 +277,7 @@
         <h3 style="font-size:24px; font-weight:800; margin:0 0 8px;">Conclusión y STL Optimizado</h3>
         <p style="color:var(--muted); margin:0 auto 24px; max-width:700px;" id="final-desc-text">El archivo ha sido reorientado sobre el eje Z=0 utilizando la rotación matemáticamente más favorable para la construcción en capas de las zonas críticas.</p>
         
-        <div style="display:flex; gap:16px; justify-content:center;">
+        <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap;">
           <button class="btn-download-stl" id="downloadStlBtn">Descargar STL Orientado</button>
           <button class="btn-download-stl" id="downloadPdfBtn" style="background:#fff; color:var(--ink); border-color:var(--line);">Generar Informe PDF</button>
         </div>
@@ -275,27 +286,62 @@
     </div>
   </main>
 
+  <!-- FOOTER 100% ORIGINAL Y COMPLETO -->
   <footer class="footer">
     <div class="wrap">
       <div class="footergrid">
         <div class="footer-col">
           <h3>PrintLab — Ingeniería 3D</h3>
-          <p>Plataforma profesional de análisis y optimización STL mediante Inteligencia Artificial y simuladores paramétricos.</p>
+          <p>Plataforma profesional de análisis y optimización STL mediante Inteligencia Artificial y simuladores paramétricos. Transformamos modelos 3D con problemas en geometrías perfectas listas para fabricar, ahorrando tiempo, material y costes en entornos industriales.</p>
+          <p class="footer-secondary-text">Desarrollado bajo principios de Privacy by Design. Los datos y archivos STL se procesan con estricta confidencialidad.</p>
         </div>
+        
+        <div class="footer-col">
+          <h3>Recursos y Herramientas</h3>
+          <div class="footer-links">
+            <a href="../index.html#analizador"><span class="arrow">→</span> Analizador STL IA</a>
+            <a href="../index.html#simulador"><span class="arrow">→</span> Simulador de Extrusión</a>
+            <a href="calculadora-coste.html"><span class="arrow">→</span> Calculadoras de Coste y Masa</a>
+            <a href="../index.html#guias"><span class="arrow">→</span> Base de Conocimiento</a>
+            <a href="../materiales/index.html"><span class="arrow">→</span> Atlas de Materiales</a>
+          </div>
+        </div>
+        
+        <div class="footer-col">
+          <h3>Soporte y Legal</h3>
+          <div class="footer-links">
+            <a href="precios.html"><span class="arrow">→</span> Precios y Suscripciones</a>
+            <a href="contacto.html"><span class="arrow">→</span> Contacto y Soporte</a>
+            <a href="../condiciones-compra.html"><span class="arrow">→</span> Condiciones de Compra</a>
+            <a href="../terminos.html"><span class="arrow">→</span> Términos y Condiciones</a>
+            <a href="../privacidad.html"><span class="arrow">→</span> Política de Privacidad</a>
+            <a href="../cookies.html"><span class="arrow">→</span> Política de Cookies</a>
+          </div>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <div class="footer-bottom-text">© 2026 PrintLab.</div>
       </div>
     </div>
   </footer>
 
   <script>
     function toggleMenu() { document.getElementById('mainMenu').classList.toggle('show'); }
+    window.onclick = function(event) {
+      if (!event.target.closest('.menu-dropdown') && !event.target.closest('.hamburger')) {
+        var dropdowns = document.getElementsByClassName("dropdown-content");
+        for (var i = 0; i < dropdowns.length; i++) {
+          if (dropdowns[i].classList.contains('show')) dropdowns[i].classList.remove('show');
+        }
+      }
+    }
   </script>
 
   <!-- LÓGICA CORE THREEJS + INTERACCIÓN MANUAL -->
   <script>
     let scene, camera, renderer, controls, activeMesh;
     let viewerState = null;
-    
-    // Apunta al backend en Render
     const PRINTLAB_API = "https://printlab-backend-dy7v.onrender.com";
 
     function init3DViewer(containerId, base64Data, criticalPoints, recommendedRotMatrix, supportSurface, overhangAnalysis, criticalFaceIndices, analysisObject) {
@@ -496,4 +542,166 @@
 
       applyBtn.addEventListener('click', async () => {
         const face = viewerState.selectedFace;
-        if(face <
+        if(face < 0) return;
+        applyBtn.innerText = "Calculando..."; applyBtn.disabled = true;
+        try { await applyManualSupportFace(face, analysisObject); } 
+        catch (err) { alert(err.message); exitMode(); applyBtn.innerText = "Usar como superficie de apoyo"; applyBtn.disabled = false;}
+      });
+
+      selectBtn.addEventListener('click', () => {
+        if(viewerState.selectionMode) exitMode();
+        else { viewerState.selectionMode = true; selectBtn.textContent = 'Cancelar selección'; status.textContent = 'Pasa el ratón sobre la malla y haz clic en la base ideal.';}
+      });
+      autoBtn.addEventListener('click', restoreAutomaticOrientation);
+    }
+
+    async function applyManualSupportFace(faceIndex, analysisObject) {
+      const q = analysisObject.user_questionnaire || {};
+      const response = await fetch(PRINTLAB_API + '/orient', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ stl_base64: analysisObject.optimized_base64 || analysisObject.optimized_mesh_base64, face_index: faceIndex, questionnaire: q })
+      });
+      if (!response.ok) throw new Error('Fallo en el backend.');
+      
+      const data = await response.json();
+      if (!data.success) throw new Error(data.error);
+
+      const updated = { ...analysisObject, ...data };
+      updated.manual_orientation_active = true;
+      sessionStorage.setItem('printlab_analysis', JSON.stringify(updated));
+      window.location.reload();
+    }
+
+    function restoreAutomaticOrientation() {
+      const autoSnapshot = sessionStorage.getItem('printlab_auto_orientation');
+      if (autoSnapshot) {
+        sessionStorage.setItem('printlab_analysis', autoSnapshot);
+        window.location.reload();
+      }
+    }
+  </script>
+
+  <!-- LÓGICA DEL CEREBRO (Protegida contra fallos) -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      try {
+          const storedAnalysis = sessionStorage.getItem("printlab_analysis");
+          if (!storedAnalysis) {
+            document.getElementById("noSessionFallback").style.display = "block";
+            return;
+          }
+          
+          document.getElementById("reportMainContent").style.display = "block";
+          const analysis = JSON.parse(storedAnalysis);
+          
+          if(analysis.printlab_score === undefined) {
+              document.getElementById("recommendation-conclusion").innerHTML = "<strong>⚠️ Estás viendo los resultados de un análisis antiguo.</strong><br>Para ver todas las puntuaciones, ve al Analizador y vuelve a procesar tu pieza con el nuevo Cerebro.";
+              document.getElementById("recommendation-conclusion").style.color = "#d9432f";
+          }
+
+          const q = analysis.user_questionnaire || {};
+          const slicer = analysis.slicer_settings || {};
+
+          if (!analysis.manual_orientation_active && !sessionStorage.getItem("printlab_auto_orientation")) {
+            sessionStorage.setItem("printlab_auto_orientation", storedAnalysis);
+          }
+
+          // Poblado UI Seguro
+          const id = (elId, val) => { const el = document.getElementById(elId); if(el) el.innerText = val; };
+          
+          id("printlab-score-value", analysis.printlab_score !== undefined ? analysis.printlab_score : "--");
+          
+          const riskBadge = document.getElementById("risk-badge");
+          if(riskBadge) {
+              riskBadge.innerText = "Riesgo " + (analysis.risk_analysis || "MEDIO");
+              riskBadge.className = "risk-badge " + (analysis.risk_analysis || "MEDIO");
+          }
+          id("risk-text-value", analysis.risk_analysis || "MEDIO");
+
+          id("dim-bounds", analysis.dimensions || "Desconocidas");
+          id("volumen-value", analysis.volume_cm3 || analysis.volume || "0");
+          id("superficie-value", analysis.surface_cm2 || "N/A");
+          id("masa-value", analysis.mass_g || "--");
+          id("manifold-status", analysis.is_watertight ? "Sí (Malla Cerrada)" : "No (Reparación Virtual)");
+          if(analysis.center_of_gravity) id("cg-value", `[${analysis.center_of_gravity.join(', ')}]`);
+
+          id("user-priority", q.priority === "max_strength" ? "Máxima Resistencia" : (q.priority === "fast_print" ? "Máxima Velocidad" : "Equilibrio Óptimo"));
+          id("user-material", slicer.material || "Desconocido");
+          id("user-forces", q.forces && q.forces.length > 0 ? q.forces.join(", ") : "Ninguno específico");
+          id("user-direction", q.direction || "No indicada");
+          id("user-environment", q.environment && q.environment.length > 0 ? q.environment.join(", ") : "Estándar");
+
+          if(analysis.printlab_score !== undefined) {
+             id("recommendation-conclusion", analysis.explanation || "Diagnóstico completado.");
+          }
+          
+          const reasonsList = document.getElementById("reasons-list");
+          if(reasonsList && analysis.recommendations && analysis.recommendations.length > 0) {
+            reasonsList.innerHTML = analysis.recommendations.map(r => `<li>${r}</li>`).join("");
+          }
+
+          const overhangs = analysis.overhang_analysis || {};
+          id("support-area", overhangs.area_cm2 || "0");
+          id("support-percent", overhangs.percentage || "0");
+          id("critical-overhangs-count", (analysis.critical_points || []).length);
+          
+          id("slice-walls", slicer.perimeters || 3);
+          id("slice-infill", slicer.infill_density || 20);
+          id("slice-pattern", slicer.infill_pattern || "giroide");
+          id("slice-speed", slicer.print_speed || 60);
+          id("slice-temp-n", slicer.nozzle_temp || "--");
+          id("slice-temp-b", slicer.bed_temp || "--");
+
+          const stlBase64 = analysis.optimized_base64 || analysis.optimized_mesh_base64;
+          if (stlBase64) {
+            setTimeout(() => {
+                init3DViewer("canvas3dContainer", stlBase64, analysis.critical_points, slicer.recommended_rot_matrix, analysis.support_surface, overhangs, analysis.critical_face_indices, analysis);
+            }, 150);
+          }
+
+          if (analysis.manual_orientation_active) {
+            const autoDataStr = sessionStorage.getItem("printlab_auto_orientation");
+            if(autoDataStr) {
+                const autoData = JSON.parse(autoDataStr);
+                document.getElementById("section-comparison").style.display = "block";
+                const tbody = document.getElementById("comparison-table-body");
+                
+                const mkRow = (label, vAuto, vMan) => `<tr><td>${label}</td><td class="auto-col">${vAuto}</td><td class="manual-col">${vMan}</td></tr>`;
+                
+                tbody.innerHTML = 
+                  mkRow("Área de Apoyo (Estabilidad)", (autoData.orientation_analysis?.contact_area_cm2 || 0) + " cm²", (analysis.orientation_analysis?.contact_area_cm2 || 0) + " cm²") +
+                  mkRow("Área de Soportes Necesarios", (autoData.overhang_analysis?.area_cm2 || 0) + " cm²", (analysis.overhang_analysis?.area_cm2 || 0) + " cm²") +
+                  mkRow("Porcentaje de Voladizos", (autoData.overhang_analysis?.percentage || 0) + "%", (analysis.overhang_analysis?.percentage || 0) + "%") +
+                  mkRow("Estabilidad Calculada", (autoData.orientation_analysis?.stability_score || 0) + "/100", (analysis.orientation_analysis?.stability_score || 0) + "/100") +
+                  mkRow("PrintLab Score Global", (autoData.printlab_score || "--") + "/100", (analysis.printlab_score || "--") + "/100");
+            }
+          }
+
+          document.getElementById("downloadStlBtn").addEventListener("click", () => {
+            const b64 = analysis.optimized_base64 || analysis.optimized_mesh_base64;
+            const bin = atob(b64); const bytes = new Uint8Array(bin.length);
+            for(let i=0; i<bin.length; i++) bytes[i] = bin.charCodeAt(i);
+            const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([bytes.buffer], {type:"model/stl"}));
+            a.download = (analysis.file_name||"pieza").replace(/\.[^/.]+$/, "") + (analysis.manual_orientation_active?"_manual.stl":"_opt.stl");
+            a.click();
+          });
+          
+          document.getElementById("downloadPdfBtn").addEventListener("click", () => {
+             const { jsPDF } = window.jspdf || window.jsPDF; const doc = new jsPDF();
+             doc.setFillColor(17, 23, 21); doc.rect(0, 0, 210, 40, 'F');
+             doc.setFont("helvetica", "bold"); doc.setFontSize(22); doc.setTextColor(255, 255, 255); doc.text("PRINTLAB INFORME INTELIGENTE", 15, 25);
+             doc.setFontSize(12); doc.setTextColor(0,0,0); doc.text("Score Global: " + (analysis.printlab_score || "--"), 15, 55);
+             doc.text("Riesgo: " + (analysis.risk_analysis || "MEDIO"), 15, 65);
+             doc.text("Conclusión: " + (analysis.explanation || "Diagnóstico completado."), 15, 75, {maxWidth: 180});
+             doc.save("PrintLab_Report.pdf");
+          });
+          
+      } catch (err) {
+          console.error("Error catastrofico parseando datos del informe: ", err);
+          document.getElementById("noSessionFallback").style.display = "block";
+          document.getElementById("reportMainContent").style.display = "none";
+      }
+    });
+  </script>
+</body>
+</html>
