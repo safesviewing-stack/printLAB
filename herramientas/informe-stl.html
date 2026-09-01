@@ -294,13 +294,14 @@
   <script>
     let scene, camera, renderer, controls, activeMesh;
     let viewerState = null;
+    
+    // Apunta al backend en Render
     const PRINTLAB_API = "https://printlab-backend-dy7v.onrender.com";
 
     function init3DViewer(containerId, base64Data, criticalPoints, recommendedRotMatrix, supportSurface, overhangAnalysis, criticalFaceIndices, analysisObject) {
       const container = document.getElementById(containerId);
       if (!container || !base64Data) return;
       
-      // Limpiamos los canvas por si recarga
       const oldCanvases = container.getElementsByTagName("canvas");
       while (oldCanvases.length > 0) {
         oldCanvases[0].parentNode.removeChild(oldCanvases[0]);
@@ -319,7 +320,6 @@
       renderer.setSize(width, height);
       renderer.outputEncoding = THREE.sRGBEncoding; 
       
-      // Forzar que el canvas se ajuste a su contenedor
       renderer.domElement.style.width = '100%';
       renderer.domElement.style.height = '100%';
       renderer.domElement.style.display = 'block';
@@ -364,10 +364,10 @@
 
         for (let face = 0; face < faceCount; face++) {
           const i = face * 3;
-          let col = new THREE.Color(0x2eaf68); // Normal
-          if (criticalFaces.has(face)) col = new THREE.Color(0xd9432f); // Riesgo
-          else if (supportFaces.has(face)) col = new THREE.Color(0x2688d8); // Apoyo
-          else if (overhangFaces.has(face)) col = new THREE.Color(0xf2bd00); // Voladizo
+          let col = new THREE.Color(0x2eaf68); 
+          if (criticalFaces.has(face)) col = new THREE.Color(0xd9432f); 
+          else if (supportFaces.has(face)) col = new THREE.Color(0x2688d8); 
+          else if (overhangFaces.has(face)) col = new THREE.Color(0xf2bd00); 
 
           for (let j = 0; j < 3; j++) {
             const k = (i + j) * 3;
@@ -383,7 +383,6 @@
 
         viewerState = { geometry, position, baseColors, faceCount, selectionMode: false, hoveredFace: -1, selectedFace: -1, analysisObject };
 
-        // Dibujar los puntos críticos (bolitas rojas)
         if (Array.isArray(criticalPoints) && criticalPoints.length > 0) {
             geometry.computeBoundingBox();
             const meshDiagonal = geometry.boundingBox ? geometry.boundingBox.getSize(new THREE.Vector3()).length() : 100;
@@ -497,157 +496,4 @@
 
       applyBtn.addEventListener('click', async () => {
         const face = viewerState.selectedFace;
-        if(face < 0) return;
-        applyBtn.innerText = "Calculando..."; applyBtn.disabled = true;
-        try { await applyManualSupportFace(face, analysisObject); } 
-        catch (err) { alert(err.message); exitMode(); applyBtn.innerText = "Usar como superficie de apoyo"; applyBtn.disabled = false;}
-      });
-
-      selectBtn.addEventListener('click', () => {
-        if(viewerState.selectionMode) exitMode();
-        else { viewerState.selectionMode = true; selectBtn.textContent = 'Cancelar selección'; status.textContent = 'Pasa el ratón sobre la malla y haz clic en la base ideal.';}
-      });
-      autoBtn.addEventListener('click', restoreAutomaticOrientation);
-    }
-
-    async function applyManualSupportFace(faceIndex, analysisObject) {
-      const q = analysisObject.user_questionnaire || {};
-      const response = await fetch(PRINTLAB_API + '/orient', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ stl_base64: analysisObject.optimized_base64 || analysisObject.optimized_mesh_base64, face_index: faceIndex, questionnaire: q })
-      });
-      if (!response.ok) throw new Error('Fallo en el backend.');
-      
-      const data = await response.json();
-      if (!data.success) throw new Error(data.error);
-
-      const updated = { ...analysisObject, ...data };
-      updated.manual_orientation_active = true;
-      sessionStorage.setItem('printlab_analysis', JSON.stringify(updated));
-      window.location.reload();
-    }
-
-    function restoreAutomaticOrientation() {
-      const autoSnapshot = sessionStorage.getItem('printlab_auto_orientation');
-      if (autoSnapshot) {
-        sessionStorage.setItem('printlab_analysis', autoSnapshot);
-        window.location.reload();
-      }
-    }
-  </script>
-
-  <!-- LÓGICA DE DATOS DEL INFORME INTELIGENTE -->
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const storedAnalysis = sessionStorage.getItem("printlab_analysis");
-      if (!storedAnalysis) {
-        document.getElementById("noSessionFallback").style.display = "block";
-        return;
-      }
-      document.getElementById("reportMainContent").style.display = "block";
-
-      const analysis = JSON.parse(storedAnalysis);
-      
-      // Control contra Caché Antigua: Si el análisis es el viejo (no tiene printlab_score)
-      if(analysis.printlab_score === undefined) {
-          document.getElementById("recommendation-conclusion").innerHTML = "<strong>⚠️ Estás viendo los resultados de un análisis antiguo.</strong><br>Tu navegador guardó la pieza anterior antes de que actualizáramos el Motor de PrintLab.<br>Para ver todas las puntuaciones, ve al Analizador y vuelve a procesar tu pieza.";
-          document.getElementById("recommendation-conclusion").style.color = "#d9432f";
-      }
-
-      const q = analysis.user_questionnaire || {};
-      const slicer = analysis.slicer_settings || {};
-
-      if (!analysis.manual_orientation_active && !sessionStorage.getItem("printlab_auto_orientation")) {
-        sessionStorage.setItem("printlab_auto_orientation", storedAnalysis);
-      }
-
-      // Poblado UI Datos Genéricos
-      document.getElementById("printlab-score-value").innerText = analysis.printlab_score !== undefined ? analysis.printlab_score : "--";
-      
-      const riskBadge = document.getElementById("risk-badge");
-      riskBadge.innerText = "Riesgo " + (analysis.risk_analysis || "MEDIO");
-      riskBadge.className = "risk-badge " + (analysis.risk_analysis || "MEDIO");
-      document.getElementById("risk-text-value").innerText = analysis.risk_analysis || "MEDIO";
-
-      document.getElementById("dim-bounds").innerText = analysis.dimensions || "Desconocidas";
-      document.getElementById("volumen-value").innerText = analysis.volume_cm3 || "0";
-      document.getElementById("superficie-value").innerText = analysis.surface_cm2 || "N/A";
-      document.getElementById("masa-value").innerText = analysis.mass_g || "--";
-      document.getElementById("manifold-status").innerText = analysis.is_watertight ? "Sí (Malla Cerrada)" : "No (Reparación Virtual)";
-      if(analysis.center_of_gravity) document.getElementById("cg-value").innerText = `[${analysis.center_of_gravity.join(', ')}]`;
-
-      document.getElementById("user-priority").innerText = q.priority === "max_strength" ? "Máxima Resistencia" : (q.priority === "fast_print" ? "Máxima Velocidad" : "Equilibrio Óptimo");
-      document.getElementById("user-material").innerText = slicer.material || "Desconocido";
-      document.getElementById("user-forces").innerText = q.forces ? q.forces.join(", ") : "Ninguno específico";
-      document.getElementById("user-direction").innerText = q.direction || "No indicada";
-      document.getElementById("user-environment").innerText = q.environment ? q.environment.join(", ") : "Estándar";
-
-      // Recomendaciones Cerebro
-      if(analysis.printlab_score !== undefined) {
-         document.getElementById("recommendation-conclusion").innerText = analysis.explanation || "Diagnóstico completado.";
-      }
-      const reasonsList = document.getElementById("reasons-list");
-      if(analysis.recommendations && analysis.recommendations.length > 0) {
-        reasonsList.innerHTML = analysis.recommendations.map(r => `<li>${r}</li>`).join("");
-      }
-
-      // Soportes y Slicer
-      const overhangs = analysis.overhang_analysis || {};
-      document.getElementById("support-area").innerText = overhangs.area_cm2 || "0";
-      document.getElementById("support-percent").innerText = overhangs.percentage || "0";
-      document.getElementById("critical-overhangs-count").innerText = (analysis.critical_points || []).length;
-      
-      document.getElementById("slice-walls").innerText = slicer.perimeters || 3;
-      document.getElementById("slice-infill").innerText = slicer.infill_density || 20;
-      document.getElementById("slice-pattern").innerText = slicer.infill_pattern || "giroide";
-      document.getElementById("slice-speed").innerText = slicer.print_speed || 60;
-      document.getElementById("slice-temp-n").innerText = slicer.nozzle_temp || "--";
-      document.getElementById("slice-temp-b").innerText = slicer.bed_temp || "--";
-
-      // Three.js Init - Busca Base64 nuevo o Base64 antiguo con pequeño delay para flexbox
-      const stlBase64 = analysis.optimized_base64 || analysis.optimized_mesh_base64;
-      if (stlBase64) {
-        setTimeout(() => {
-            init3DViewer("canvas3dContainer", stlBase64, analysis.critical_points, slicer.recommended_rot_matrix, analysis.support_surface, overhangs, analysis.critical_face_indices, analysis);
-        }, 150);
-      }
-
-      // Lógica de Comparación Manual vs Auto
-      if (analysis.manual_orientation_active) {
-        const autoData = JSON.parse(sessionStorage.getItem("printlab_auto_orientation"));
-        document.getElementById("section-comparison").style.display = "block";
-        const tbody = document.getElementById("comparison-table-body");
-        
-        const mkRow = (label, vAuto, vMan) => `<tr><td>${label}</td><td class="auto-col">${vAuto}</td><td class="manual-col">${vMan}</td></tr>`;
-        
-        tbody.innerHTML = 
-          mkRow("Área de Apoyo (Estabilidad)", (autoData.orientation_analysis?.contact_area_cm2 || 0) + " cm²", (analysis.orientation_analysis?.contact_area_cm2 || 0) + " cm²") +
-          mkRow("Área de Soportes Necesarios", (autoData.overhang_analysis?.area_cm2 || 0) + " cm²", (analysis.overhang_analysis?.area_cm2 || 0) + " cm²") +
-          mkRow("Porcentaje de Voladizos", (autoData.overhang_analysis?.percentage || 0) + "%", (analysis.overhang_analysis?.percentage || 0) + "%") +
-          mkRow("Estabilidad Calculada", (autoData.orientation_analysis?.stability_score || 0) + "/100", (analysis.orientation_analysis?.stability_score || 0) + "/100") +
-          mkRow("PrintLab Score Global", (autoData.printlab_score || "--") + "/100", (analysis.printlab_score || "--") + "/100");
-      }
-
-      // Descargas
-      document.getElementById("downloadStlBtn").addEventListener("click", () => {
-        const b64 = analysis.optimized_base64 || analysis.optimized_mesh_base64;
-        const bin = atob(b64); const bytes = new Uint8Array(bin.length);
-        for(let i=0; i<bin.length; i++) bytes[i] = bin.charCodeAt(i);
-        const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([bytes.buffer], {type:"model/stl"}));
-        a.download = (analysis.file_name||"pieza").replace(/\.[^/.]+$/, "") + (analysis.manual_orientation_active?"_manual.stl":"_opt.stl");
-        a.click();
-      });
-      
-      document.getElementById("downloadPdfBtn").addEventListener("click", () => {
-         const { jsPDF } = window.jspdf || window.jsPDF; const doc = new jsPDF();
-         doc.setFillColor(17, 23, 21); doc.rect(0, 0, 210, 40, 'F');
-         doc.setFont("helvetica", "bold"); doc.setFontSize(22); doc.setTextColor(255, 255, 255); doc.text("PRINTLAB INFORME INTELIGENTE", 15, 25);
-         doc.setFontSize(12); doc.setTextColor(0,0,0); doc.text("Score Global: " + (analysis.printlab_score || "--"), 15, 55);
-         doc.text("Riesgo: " + (analysis.risk_analysis || "MEDIO"), 15, 65);
-         doc.text("Conclusión: " + (analysis.explanation || "Diagnóstico completado."), 15, 75, {maxWidth: 180});
-         doc.save("PrintLab_Report.pdf");
-      });
-    });
-  </script>
-</body>
-</html>
+        if(face <
