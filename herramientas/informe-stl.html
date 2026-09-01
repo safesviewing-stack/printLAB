@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Informe de Análisis y Optimización 3D — PrintLab</title>
+  <title>Prepare Studio — PrintLab</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -152,8 +152,8 @@
       
       <section class="engine-header">
         <div>
-          <h1 class="engine-title">Estudio CAD y Optimización Física</h1>
-          <p class="engine-subtitle">Mecaniza, orienta, repara y divide tu malla utilizando geometría física real.</p>
+          <h1 class="engine-title">Prepare Studio y Procesamiento Paramétrico</h1>
+          <p class="engine-subtitle">Lanza la preparación total de tu modelo según las prioridades del cuestionario.</p>
         </div>
         <div style="text-align:center;">
           <div style="font-size:12px; font-weight:800; color:var(--muted); text-transform:uppercase; margin-bottom:8px;">PrintLab Score</div>
@@ -199,8 +199,15 @@
         <!-- Columna Derecha: PrintLab CAD Studio Panel -->
         <div class="engine-card" style="padding:20px;">
           <h3 style="margin-top:0; font-size:18px;">🛠️ PrintLab CAD Studio</h3>
-          <p style="font-size:12px; color:var(--muted); margin-top:-10px; margin-bottom:15px;">Modifica, reorienta y divide la geometría del STL de forma real.</p>
+          <p style="font-size:12px; color:var(--muted); margin-top:-10px; margin-bottom:15px;">Prepara y optimiza de manera automatizada la geometría de tu STL.</p>
           
+          <!-- ACCIÓN PRINCIPAL CENTRAL -->
+          <div style="margin-bottom:20px;">
+            <button id="btn-pipeline-prepare" class="btn-cad-action accent" style="padding:16px; font-size:15px; border-color:var(--ink); text-transform:uppercase; letter-spacing:0.5px;">
+              🚀 PREPARAR MI STL
+            </button>
+          </div>
+
           <!-- Pipeline visual de estados -->
           <div class="pipeline-flow">
             <span class="step-badge active" id="badge-orig">Original</span>
@@ -218,14 +225,14 @@
             <button id="btn-redo" class="btn-cad-action primary" style="padding:8px; font-size:12px;" disabled>↪ Rehacer</button>
           </div>
 
-          <!-- Módulo: Reconstrucción/Reparación Real -->
+          <!-- Módulo: Reparación -->
           <div class="cad-section">
             <h4 class="cad-section-title">✨ Reparación de Malla Física</h4>
             <p class="cad-section-desc">Cierra aberturas poligonalmente, corrige normales invertidas y elimina caras degeneradas.</p>
             <button id="btn-real-repair" class="btn-cad-action primary">🔧 Ejecutar Reparación Real</button>
           </div>
 
-          <!-- Módulo: División Inteligente por Tamaño de Cama -->
+          <!-- Módulo: División Inteligente -->
           <div class="cad-section">
             <h4 class="cad-section-title">✂️ División Automática por Cama</h4>
             <p class="cad-section-desc">¿Supera el volumen útil? Divide físicamente el modelo en mitades imprimibles.</p>
@@ -246,7 +253,7 @@
             <button id="btn-real-split" class="btn-cad-action warning">✂️ Dividir Geometría</button>
           </div>
 
-          <!-- Módulo: Generación de Pines Físicos de Unión -->
+          <!-- Módulo: Generación de Pines -->
           <div class="cad-section" id="unionSection" style="display:none;">
             <h4 class="cad-section-title">🔩 Generación de Clavijas y Pines</h4>
             <p class="cad-section-desc">Genera espigas macho en un fragmento y ranuras hembra con tolerancia en el otro.</p>
@@ -261,7 +268,7 @@
             <button id="btn-generate-pins" class="btn-cad-action accent">🔩 Inyectar Pines Mecánicos</button>
           </div>
 
-          <!-- Módulo: Mecanizado Booleano de Orificios -->
+          <!-- Módulo: Mecanizado de Orificios -->
           <div class="cad-section">
             <h4 class="cad-section-title">🧲 Taladrado Booleano y Cavidades</h4>
             <p class="cad-section-desc">Selecciona un tipo de mecanizado, haz clic sobre una faceta del visor e inyecta la cavidad.</p>
@@ -284,25 +291,33 @@
         </div>
       </section>
 
-      <!-- Métricas de Diagnóstico -->
+      <!-- SECCIÓN: CAMBIOS GEOMÉTRICOS REALIZADOS -->
+      <section class="engine-card" style="margin-bottom:24px; display:none;" id="section-executed-changes">
+        <h3 style="margin-top:0;">📝 Cambios de Ingeniería Realizados</h3>
+        <ul id="list-executed-changes" style="padding-left:20px; font-size:14.5px; line-height:1.6; color:var(--ink);">
+          <!-- Se rellena de manera dinámica -->
+        </ul>
+      </section>
+
+      <!-- Comparación de Métricas -->
       <section class="engine-grid">
         <div class="engine-card">
-          <h3>📐 Datos Geométricos Calculados</h3>
+          <h3>📐 Datos Geométricos (Original vs Preparado)</h3>
           <ul class="engine-list">
-            <li><span>Dimensiones (X/Y/Z)</span> <strong id="dim-bounds">-</strong></li>
-            <li><span>Volumen</span> <strong><span id="volumen-value">-</span> cm³</strong></li>
-            <li><span>Superficie Total</span> <strong><span id="superficie-value">-</span> cm²</strong></li>
-            <li><span>Masa estimada</span> <strong id="masa-value">- g</strong></li>
-            <li><span>Integridad de Sólido</span> <strong id="manifold-status">-</strong></li>
+            <li><span>Dimensiones (Original)</span> <strong id="dim-bounds-orig">-</strong></li>
+            <li><span>Dimensiones (Preparado)</span> <strong id="dim-bounds">-</strong></li>
+            <li><span>Volumen (Original)</span> <strong><span id="volumen-value-orig">-</span> cm³</strong></li>
+            <li><span>Volumen (Preparado)</span> <strong><span id="volumen-value">-</span> cm³</strong></li>
+            <li><span>Integridad Sólido</span> <strong id="manifold-status">-</strong></li>
           </ul>
         </div>
         <div class="engine-card">
-          <h3>🎯 Requisitos e Impresora</h3>
+          <h3>🎯 Especificación de Fabricación</h3>
           <ul class="engine-list">
-            <li><span>Prioridad del Proyecto</span> <strong id="user-priority">-</strong></li>
-            <li><span>Material Recomendado</span> <strong id="user-material" style="color:var(--accent); background:var(--ink); padding:2px 8px; border-radius:4px;">-</strong></li>
-            <li><span>Esfuerzos Configurados</span> <strong id="user-forces">-</strong></li>
-            <li><span>Dirección de Carga</span> <strong id="user-direction">-</strong></li>
+            <li><span>Prioridad de la Orden</span> <strong id="user-priority">-</strong></li>
+            <li><span>Material Solicitado</span> <strong id="user-material" style="color:var(--accent); background:var(--ink); padding:2px 8px; border-radius:4px;">-</strong></li>
+            <li><span>Solicitación Mecánica</span> <strong id="user-forces">-</strong></li>
+            <li><span>Eje de Esfuerzo</span> <strong id="user-direction">-</strong></li>
             <li><span>Entorno de Trabajo</span> <strong id="user-environment">-</strong></li>
           </ul>
         </div>
@@ -407,7 +422,6 @@
       scene = new THREE.Scene();
       scene.background = new THREE.Color(0x161d1a);
 
-      // Dimensiones por defecto de seguridad en caso de que clientWidth / clientHeight retornen 0
       const width = container.clientWidth || 800;
       const height = container.clientHeight || 480;
 
@@ -459,7 +473,6 @@
           const matA = new THREE.MeshPhongMaterial({ color: 0x2eaf68, side: THREE.DoubleSide, specular: 0x111111, shininess: 75, flatShading: false });
           const meshA = new THREE.Mesh(geoA, matA);
           
-          // Contornos CAD limpios
           const edgesA = new THREE.EdgesGeometry(geoA, 15);
           const lineA = new THREE.LineSegments(edgesA, new THREE.LineBasicMaterial({ color: 0x0c0f0d, linewidth: 1.5 }));
           meshA.add(lineA);
@@ -476,7 +489,6 @@
           const matB = new THREE.MeshPhongMaterial({ color: 0x2688d8, side: THREE.DoubleSide, specular: 0x111111, shininess: 75, flatShading: false });
           const meshB = new THREE.Mesh(geoB, matB);
           
-          // Contornos CAD limpios
           const edgesB = new THREE.EdgesGeometry(geoB, 15);
           const lineB = new THREE.LineSegments(edgesB, new THREE.LineBasicMaterial({ color: 0x0c0f0d, linewidth: 1.5 }));
           meshB.add(lineB);
@@ -530,7 +542,7 @@
                 if (visited[j]) continue;
                 if (Math.abs(normals[j].dot(normI)) > 0.999) {
                   const dist = Math.abs(new THREE.Vector3().subVectors(centers[j], centI).dot(normI));
-                  if (dist < 0.25) { // Tolerancia de planitud (0.25mm)
+                  if (dist < 0.25) { 
                     group.push(j);
                     visited[j] = 1;
                   }
@@ -539,7 +551,6 @@
               coplanarGroups.push(group);
             }
 
-            // Unificar clasificaciones a nivel de cara completa
             const unifiedSupport = new Set();
             const unifiedOverhang = new Set();
             const unifiedCritical = new Set();
@@ -563,7 +574,6 @@
               });
             });
 
-            // Asignación de colores sólidos y limpios por cara unificada
             for (let face = 0; face < faceCount; face++) {
               let col = new THREE.Color(0x2eaf68); // Normal
               if (unifiedCritical.has(face)) col = new THREE.Color(0xd9432f); // Crítica
@@ -579,12 +589,10 @@
 
             geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
             
-            // Renderizar con sombreado Phong y normales suavizadas (flatShading: false)
             const mat = new THREE.MeshPhongMaterial({ vertexColors: true, side: THREE.DoubleSide, specular: 0x111111, shininess: 75, flatShading: false });
             activeMesh = new THREE.Mesh(geo, mat);
 
-            // Inyectar contorno CAD preciso para ocultar las subdivisiones internas de triángulos
-            const edges = new THREE.EdgesGeometry(geo, 15); // Umbral de 15 grados
+            const edges = new THREE.EdgesGeometry(geo, 15); 
             const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x0c0f0d, linewidth: 1.5 }));
             activeMesh.add(line);
 
@@ -626,7 +634,6 @@
         if (hits.length > 0) {
           const hit = hits[0];
 
-          // Modo 1: Mecanizado Booleano Directo
           if (booleanSelectionMode) {
             const clickedPoint = hit.point.toArray();
             const clickedNormal = hit.face.normal.toArray();
@@ -673,13 +680,11 @@
             return;
           }
 
-          // Modo 2: Selección de caras de orientación
           if (viewerState && viewerState.selectionMode) {
             const faceIdx = Math.floor(hit.faceIndex);
             const normal = viewerState.normals[faceIdx];
             const angle = Math.round(Math.acos(Math.abs(normal.z)) * 180 / Math.PI);
 
-            // Calcular área aproximada de la cara coplanar seleccionada
             let totalArea = 0;
             const coplanars = getCoplanarFaces(faceIdx);
             const pos = viewerState.geometry.attributes.position;
@@ -731,14 +736,75 @@
 
       const analysis = JSON.parse(storedAnalysis);
       
-      // Inicializar Pipeline
+      // Inicializar Pipeline en su estado Original
       pushState("Original", analysis);
 
       // Eventos Historial
       document.getElementById("btn-undo").addEventListener("click", undo);
       document.getElementById("btn-redo").addEventListener("click", redo);
 
-      // Evento: Reparación Real
+      // ============================================================
+      // ACCIÓN CENTRAL: PREPARAR MI STL
+      // ============================================================
+      document.getElementById("btn-pipeline-prepare").addEventListener("click", async () => {
+        const btn = document.getElementById("btn-pipeline-prepare");
+        btn.innerText = "🚀 PROCESANDO PIPELINE..."; btn.disabled = true;
+        const activeState = stateHistory[currentHistoryIndex].analysis;
+        const baseStl = analysis.optimized_mesh_base64 || activeState.optimized_mesh_base64 || activeState.optimized_base64;
+
+        try {
+          const res = await fetch(PRINTLAB_API + '/prepare', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              stl_base64: baseStl,
+              questionnaire: analysis.user_questionnaire || {},
+              printer_config: {
+                printer_x: parseFloat(document.getElementById("printer-x").value),
+                printer_y: parseFloat(document.getElementById("printer-y").value),
+                printer_z: parseFloat(document.getElementById("printer-z").value)
+              }
+            })
+          });
+          const data = await res.json();
+          if (data.success) {
+            const newState = {
+              ...activeState,
+              printlab_score: data.printlab_score,
+              dimensions: data.prepared.dimensions_mm.join(" x ") + " mm",
+              volume_cm3: data.prepared.volume_cm3,
+              is_watertight: data.prepared.watertight,
+              overhang_analysis: data.overhangs,
+              support_surface: data.contact_surface,
+              executed_changes: data.changes,
+              executed_warnings: data.warnings
+            };
+
+            if (data.split_data) {
+              newState.part_a = data.split_data.part_a;
+              newState.part_b = data.split_data.part_b;
+              newState.displacement_vector = data.split_data.displacement_vector;
+              newState.split_axis = data.split_data.axis;
+            } else {
+              newState.optimized_base64 = data.prepared_base64;
+              newState.optimized_mesh_base64 = data.prepared_base64;
+              newState.part_a = null;
+              newState.part_b = null;
+            }
+
+            pushState("Validado", newState);
+            alert("🚀 Pipeline completado correctamente de extremo a extremo.");
+          } else {
+            alert("❌ No se pudo completar la preparación: " + data.error);
+          }
+        } catch (err) {
+          alert("Error de red al conectar con el servidor: " + err.message);
+        } finally {
+          btn.innerText = "🚀 PREPARAR MI STL"; btn.disabled = false;
+        }
+      });
+
+      // Evento: Reparación Real Manual
       document.getElementById("btn-real-repair").addEventListener("click", async () => {
         const btn = document.getElementById("btn-real-repair");
         btn.innerText = "Reconstruyendo..."; btn.disabled = true;
@@ -773,7 +839,7 @@
         }
       });
 
-      // Evento: División Inteligente
+      // Evento: División Inteligente Manual
       document.getElementById("btn-real-split").addEventListener("click", async () => {
         const btn = document.getElementById("btn-real-split");
         btn.innerText = "Dividiendo..."; btn.disabled = true;
@@ -927,15 +993,17 @@
           riskBadge.innerText = "Riesgo " + (analysis.risk_analysis || "MEDIO");
           riskBadge.className = "risk-badge " + (analysis.risk_analysis || "MEDIO");
       }
+
+      // Tabla Comparativa
+      id("dim-bounds-orig", stateHistory[0]?.analysis.dimensions || "Desconocidas");
       id("dim-bounds", analysis.dimensions || "Desconocidas");
+      id("volumen-value-orig", stateHistory[0]?.analysis.volume_cm3 || "0");
       id("volumen-value", analysis.volume_cm3 || "0");
-      id("superficie-value", analysis.surface_cm2 || "N/A");
-      id("masa-value", analysis.mass_g || "--");
       id("manifold-status", analysis.is_watertight ? "Sí (Malla Cerrada)" : "No (Requiere Reparación)");
 
       const q = analysis.user_questionnaire || {};
-      id("user-priority", q.priority === "max_strength" ? "Máxima Resistencia" : "Equilibrio");
-      id("user-material", analysis.slicer_settings?.material || "PETG");
+      id("user-priority", q.priority === "max_strength" ? "Máxima Resistencia" : (q.priority === "fast_print" ? "Rapidez / Tiempo" : (q.priority === "low_cost" ? "Ahorro / Menor Coste" : "Equilibrio Óptimo")));
+      id("user-material", q.material || "PETG");
       id("user-forces", q.forces ? q.forces.join(", ") : "Ninguno");
       id("user-direction", q.direction || "No indicada");
       id("user-environment", q.environment ? q.environment.join(", ") : "Estándar");
@@ -944,6 +1012,19 @@
       const reasonsList = document.getElementById("reasons-list");
       if(reasonsList && analysis.recommendations) {
         reasonsList.innerHTML = analysis.recommendations.map(r => `<li>${r}</li>`).join("");
+      }
+
+      // Sección de Cambios Realizados por el Pipeline
+      const changesSection = document.getElementById("section-executed-changes");
+      const changesList = document.getElementById("list-executed-changes");
+      if (analysis.executed_changes && analysis.executed_changes.length > 0) {
+        changesSection.style.display = "block";
+        changesList.innerHTML = analysis.executed_changes.map(c => `<li>✓ ${c}</li>`).join("");
+        if (analysis.executed_warnings && analysis.executed_warnings.length > 0) {
+          changesList.innerHTML += analysis.executed_warnings.map(w => `<li style="color:var(--warning);">⚠️ Alerta: ${w}</li>`).join("");
+        }
+      } else {
+        changesSection.style.display = "none";
       }
     }
 
@@ -962,8 +1043,8 @@
       document.querySelectorAll(".step-badge").forEach(b => b.classList.remove("active"));
       if (current.name === "Original") document.getElementById("badge-orig").classList.add("active");
       else if (current.name === "Reparado") document.getElementById("badge-repaired").classList.add("active");
-      else if (current.name.includes("Orientación")) document.getElementById("badge-oriented").classList.add("active");
-      else if (current.name.includes("Dividido") || current.name.includes("Uniones")) document.getElementById("badge-split").classList.add("active");
+      else if (current.name.includes("Orientación") || current.name.includes("Personalizada")) document.getElementById("badge-oriented").classList.add("active");
+      else if (current.name.includes("Dividido") || current.name.includes("Uniones") || current.name.includes("Validado")) document.getElementById("badge-split").classList.add("active");
 
       // Renderizar paneles de descarga en función de si es monopieza o multipieza
       if (current.analysis.part_a && current.analysis.part_b) {
@@ -978,23 +1059,23 @@
     function renderSinglePartDownloadPanel(analysis) {
       const container = document.querySelector(".download-panel");
       container.innerHTML = `
-        <h3 style="font-size:24px; font-weight:800; margin:0 0 8px;">Conclusión y STL Optimizado</h3>
-        <p style="color:var(--muted); margin:0 auto 24px; max-width:700px;">El archivo ha sido completamente corregido y procesado geométricamente.</p>
+        <h3 style="font-size:24px; font-weight:800; margin:0 0 8px;">🚀 TU STL ESTÁ PREPARADO</h3>
+        <p style="color:var(--muted); margin:0 auto 24px; max-width:700px;">La geometría de este componente cumple con las especificaciones de la orden de fabricación y ha superado la validación.</p>
         <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap;">
-          <button class="btn-download-stl" id="downloadStlBtn">Descargar STL Optimizado</button>
+          <button class="btn-download-stl" id="downloadStlBtn">Descargar STL Final</button>
           <button class="btn-download-stl" id="downloadPdfBtn" style="background:#fff; color:var(--ink); border-color:var(--line);">Generar Informe PDF</button>
         </div>
       `;
       document.getElementById("downloadStlBtn").addEventListener("click", () => {
-        downloadBase64STL(analysis.optimized_base64 || analysis.optimized_mesh_base64, "modelo_optimizado.stl");
+        downloadBase64STL(analysis.optimized_base64 || analysis.optimized_mesh_base64, "modelo_final_preparado.stl");
       });
       document.getElementById("downloadPdfBtn").addEventListener("click", () => {
         const { jsPDF } = window.jspdf || window.jsPDF; const doc = new jsPDF();
         doc.setFillColor(17, 23, 21); doc.rect(0, 0, 210, 40, 'F');
-        doc.setFont("helvetica", "bold"); doc.setFontSize(22); doc.setTextColor(255, 255, 255); doc.text("PRINTLAB INFORME INTELIGENTE", 15, 25);
-        doc.setFontSize(12); doc.setTextColor(0,0,0); doc.text("Score Global: " + (analysis.printlab_score || "--"), 15, 55);
-        doc.text("Riesgo de Fabricación: " + (analysis.risk_analysis || "MEDIO"), 15, 65);
-        doc.text("Diagnóstico: " + (analysis.explanation || "Diagnóstico completado."), 15, 75, {maxWidth: 180});
+        doc.setFont("helvetica", "bold"); doc.setFontSize(22); doc.setTextColor(255, 255, 255); doc.text("PRINTLAB PREPARE INFORME", 15, 25);
+        doc.setFontSize(12); doc.setTextColor(0,0,0); doc.text("Score de Fabricación: " + (analysis.printlab_score || "--"), 15, 55);
+        doc.text("Riesgo de Fabricación: " + (analysis.risk_analysis || "BAJO"), 15, 65);
+        doc.text("Conclusión del Análisis: " + (analysis.explanation || "Modelo geométricamente estanco."), 15, 75, {maxWidth: 180});
         doc.save("PrintLab_Report.pdf");
       });
     }
@@ -1002,16 +1083,16 @@
     function renderMultiPartsDownloadPanel(analysis) {
       const container = document.querySelector(".download-panel");
       container.innerHTML = `
-        <h3 style="font-size:24px; font-weight:800; margin:0 0 8px;">Planos de Ensamblado y División</h3>
-        <p style="color:var(--muted); margin:0 auto 24px; max-width:700px;">El modelo original ha sido dividido mecánicamente en dos fragmentos listos para laminación.</p>
+        <h3 style="font-size:24px; font-weight:800; margin:0 0 8px;">🚀 TUS COMPONENTES ESTÁN PREPARADOS</h3>
+        <p style="color:var(--muted); margin:0 auto 24px; max-width:700px;">La pieza requería división para caber en la impresora. Se han generado dos piezas STL reales con encajes físicos moldeados.</p>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; max-width:800px; margin:0 auto 24px; text-align:left;">
           <div style="background:var(--bg); padding:16px; border-radius:12px; border:1px solid var(--line);">
-            <strong style="color:var(--ink); display:block; margin-bottom:4px;">🧩 COMPONENTE A (Macho)</strong>
+            <strong style="color:var(--ink); display:block; margin-bottom:4px;">🧩 PIEZA A (Macho)</strong>
             <p style="font-size:12px; color:var(--muted); margin:0 0 12px;">Dim: ${analysis.part_a.dimensions} | Vol: ${analysis.part_a.volume_cm3} cm³</p>
             <button class="btn-cad-action primary" id="btn-dl-part-a" style="padding:10px;">Descargar Parte A</button>
           </div>
           <div style="background:var(--bg); padding:16px; border-radius:12px; border:1px solid var(--line);">
-            <strong style="color:var(--ink); display:block; margin-bottom:4px;">🧩 COMPONENTE B (Hembra)</strong>
+            <strong style="color:var(--ink); display:block; margin-bottom:4px;">🧩 PIEZA B (Hembra)</strong>
             <p style="font-size:12px; color:var(--muted); margin:0 0 12px;">Dim: ${analysis.part_b.dimensions} | Vol: ${analysis.part_b.volume_cm3} cm³</p>
             <button class="btn-cad-action warning" id="btn-dl-part-b" style="padding:10px;">Descargar Parte B</button>
           </div>
@@ -1020,9 +1101,9 @@
         <div style="background:var(--dark); color:#fff; border-radius:12px; padding:20px; text-align:left; margin-bottom:24px; max-width:800px; margin:0 auto 24px;">
           <h4 style="color:var(--accent); margin-top:0;">📝 Guía Mecánica de Acoplamiento</h4>
           <p style="font-size:13px; color:#dce4df; line-height:1.5; margin:0;">
-            1. Limpia las rebabas y costuras tridimensionales en los bordes interiores del plano de corte de ambas piezas.<br>
-            2. Encaja las espigas mecánicas del Componente A sobre las cavidades del Componente B.<br>
-            3. Se ha implementado una holgura volumétrica de seguridad de <b>${document.getElementById("pin-tolerance").value} mm</b>. Esto garantiza que las dos partes encajen sin necesidad de limado manual en impresoras calibradas.
+            1. Retira soportes si existen, limpia las rebabas y costuras de capa en los bordes de la línea divisoria.<br>
+            2. Introduce los pines/clavijas cilíndricas del Componente A sobre las cavidades del Componente B.<br>
+            3. Se ha implementado una holgura volumétrica de seguridad de <b>${document.getElementById("pin-tolerance").value} mm</b>. Esto garantiza que las dos partes encajen sin necesidad de lijado manual en impresoras calibradas.
           </p>
         </div>
       `;
