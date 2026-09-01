@@ -53,7 +53,7 @@
     .engine-list li strong { font-weight: 800; color: var(--ink); }
 
     /* Visor 3D y Panel de Selección */
-    .mesh-canvas { background: #161d1a; border-radius: 16px; height: 450px; display: flex; align-items: center; justify-content: center; border: 1.5px solid var(--line); overflow: hidden; margin-bottom: 0;}
+    .mesh-canvas { background: #161d1a; border-radius: 16px; height: 450px; display: block; border: 1.5px solid var(--line); overflow: hidden; margin-bottom: 0; width: 100%;}
     .viewer-legend { display: flex; flex-wrap: wrap; gap: 14px 18px; align-items: center; font-size: 13px; font-weight: 700; color: var(--muted); }
     
     #face-info-panel { position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.95); padding: 20px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); font-size: 14px; display: none; width: 280px; border: 2px solid #2688d8; backdrop-filter: blur(5px); z-index:10;}
@@ -189,7 +189,7 @@
         <h3 style="font-size:20px; font-weight:800; margin-bottom:12px;">Visor Interactivo de Diagnóstico 3D</h3>
         
         <!-- Contenedor Relativo para que el panel flote correctamente sin ser borrado por ThreeJS -->
-        <div style="position: relative; margin-bottom: 12px;">
+        <div style="position: relative; margin-bottom: 12px; width: 100%;">
           <div class="mesh-canvas" id="canvas3dContainer"></div>
           
           <!-- OVERLAY DE CARA SELECCIONADA -->
@@ -290,7 +290,7 @@
     function toggleMenu() { document.getElementById('mainMenu').classList.toggle('show'); }
   </script>
 
-  <!-- LÓGICA CORE THREEJS + INTERACCIÓN MANUAL (RESTAURADA A LA ORIGINAL) -->
+  <!-- LÓGICA CORE THREEJS + INTERACCIÓN MANUAL -->
   <script>
     let scene, camera, renderer, controls, activeMesh;
     let viewerState = null;
@@ -300,7 +300,7 @@
       const container = document.getElementById(containerId);
       if (!container || !base64Data) return;
       
-      // Limpiamos los canvas por si recarga, pero sin tocar el HTML adyacente
+      // Limpiamos los canvas por si recarga
       const oldCanvases = container.getElementsByTagName("canvas");
       while (oldCanvases.length > 0) {
         oldCanvases[0].parentNode.removeChild(oldCanvases[0]);
@@ -310,14 +310,19 @@
       scene = new THREE.Scene();
       scene.background = new THREE.Color(0x161d1a);
 
-      const width = Math.max(container.clientWidth, 1);
-      const height = Math.max(container.clientHeight, 1);
+      const width = Math.max(container.clientWidth, 800);
+      const height = Math.max(container.clientHeight, 450);
       camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 10000);
 
       renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
       renderer.setSize(width, height);
-      renderer.outputEncoding = THREE.sRGBEncoding; // Restaurado de tu código
+      renderer.outputEncoding = THREE.sRGBEncoding; 
+      
+      // Forzar que el canvas se ajuste a su contenedor
+      renderer.domElement.style.width = '100%';
+      renderer.domElement.style.height = '100%';
+      renderer.domElement.style.display = 'block';
       container.appendChild(renderer.domElement);
 
       scene.add(new THREE.HemisphereLight(0xffffff, 0x202520, 1.35));
@@ -327,11 +332,11 @@
       controls = new THREE.OrbitControls(camera, renderer.domElement);
       controls.enableDamping = true; controls.dampingFactor = 0.06; controls.enablePan = true;
 
-      // Evento de resize de pantalla Restaurado
       const onResize = () => {
         if (!camera || !renderer || !container) return;
-        const w = Math.max(container.clientWidth, 1);
-        const h = Math.max(container.clientHeight, 1);
+        const w = container.clientWidth;
+        const h = container.clientHeight;
+        if(w === 0 || h === 0) return;
         camera.aspect = w / h; camera.updateProjectionMatrix();
         renderer.setSize(w, h);
       };
@@ -378,7 +383,7 @@
 
         viewerState = { geometry, position, baseColors, faceCount, selectionMode: false, hoveredFace: -1, selectedFace: -1, analysisObject };
 
-        // Dibujar los puntos críticos (las esferitas rojas originales)
+        // Dibujar los puntos críticos (bolitas rojas)
         if (Array.isArray(criticalPoints) && criticalPoints.length > 0) {
             geometry.computeBoundingBox();
             const meshDiagonal = geometry.boundingBox ? geometry.boundingBox.getSize(new THREE.Vector3()).length() : 100;
@@ -474,14 +479,13 @@
         highlightFace(face);
         viewerState.geometry.attributes.color.needsUpdate = true;
 
-        // Calcular area y angulo aprox
         const a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3();
         const pos = viewerState.geometry.attributes.position;
         a.fromBufferAttribute(pos, face*3); b.fromBufferAttribute(pos, face*3+1); c.fromBufferAttribute(pos, face*3+2);
         
         const ab = new THREE.Vector3().subVectors(b, a);
         const ac = new THREE.Vector3().subVectors(c, a);
-        const area = new THREE.Vector3().crossVectors(ab, ac).length() / 200; // cm2 aprox
+        const area = new THREE.Vector3().crossVectors(ab, ac).length() / 200; 
         
         const normal = new THREE.Vector3().crossVectors(ab, ac).normalize();
         const angle = Math.round(Math.acos(Math.abs(normal.z)) * 180 / Math.PI);
@@ -510,14 +514,13 @@
       const q = analysisObject.user_questionnaire || {};
       const response = await fetch(PRINTLAB_API + '/orient', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ stl_base64: analysisObject.optimized_base64, face_index: faceIndex, questionnaire: q })
+        body: JSON.stringify({ stl_base64: analysisObject.optimized_base64 || analysisObject.optimized_mesh_base64, face_index: faceIndex, questionnaire: q })
       });
       if (!response.ok) throw new Error('Fallo en el backend.');
       
       const data = await response.json();
       if (!data.success) throw new Error(data.error);
 
-      // Fusionar respuesta preservando datos originales
       const updated = { ...analysisObject, ...data };
       updated.manual_orientation_active = true;
       sessionStorage.setItem('printlab_analysis', JSON.stringify(updated));
@@ -544,24 +547,30 @@
       document.getElementById("reportMainContent").style.display = "block";
 
       const analysis = JSON.parse(storedAnalysis);
+      
+      // Control contra Caché Antigua: Si el análisis es el viejo (no tiene printlab_score)
+      if(analysis.printlab_score === undefined) {
+          document.getElementById("recommendation-conclusion").innerHTML = "<strong>⚠️ Estás viendo los resultados de un análisis antiguo.</strong><br>Tu navegador guardó la pieza anterior antes de que actualizáramos el Motor de PrintLab.<br>Para ver todas las puntuaciones, ve al Analizador y vuelve a procesar tu pieza.";
+          document.getElementById("recommendation-conclusion").style.color = "#d9432f";
+      }
+
       const q = analysis.user_questionnaire || {};
       const slicer = analysis.slicer_settings || {};
 
-      // Guardar snapshot de auto si no existe
       if (!analysis.manual_orientation_active && !sessionStorage.getItem("printlab_auto_orientation")) {
         sessionStorage.setItem("printlab_auto_orientation", storedAnalysis);
       }
 
       // Poblado UI Datos Genéricos
-      document.getElementById("printlab-score-value").innerText = analysis.printlab_score || "--";
+      document.getElementById("printlab-score-value").innerText = analysis.printlab_score !== undefined ? analysis.printlab_score : "--";
       
       const riskBadge = document.getElementById("risk-badge");
       riskBadge.innerText = "Riesgo " + (analysis.risk_analysis || "MEDIO");
       riskBadge.className = "risk-badge " + (analysis.risk_analysis || "MEDIO");
       document.getElementById("risk-text-value").innerText = analysis.risk_analysis || "MEDIO";
 
-      document.getElementById("dim-bounds").innerText = analysis.dimensions;
-      document.getElementById("volumen-value").innerText = analysis.volume_cm3;
+      document.getElementById("dim-bounds").innerText = analysis.dimensions || "Desconocidas";
+      document.getElementById("volumen-value").innerText = analysis.volume_cm3 || "0";
       document.getElementById("superficie-value").innerText = analysis.surface_cm2 || "N/A";
       document.getElementById("masa-value").innerText = analysis.mass_g || "--";
       document.getElementById("manifold-status").innerText = analysis.is_watertight ? "Sí (Malla Cerrada)" : "No (Reparación Virtual)";
@@ -574,7 +583,9 @@
       document.getElementById("user-environment").innerText = q.environment ? q.environment.join(", ") : "Estándar";
 
       // Recomendaciones Cerebro
-      document.getElementById("recommendation-conclusion").innerText = analysis.explanation || "Diagnóstico completado.";
+      if(analysis.printlab_score !== undefined) {
+         document.getElementById("recommendation-conclusion").innerText = analysis.explanation || "Diagnóstico completado.";
+      }
       const reasonsList = document.getElementById("reasons-list");
       if(analysis.recommendations && analysis.recommendations.length > 0) {
         reasonsList.innerHTML = analysis.recommendations.map(r => `<li>${r}</li>`).join("");
@@ -593,9 +604,12 @@
       document.getElementById("slice-temp-n").innerText = slicer.nozzle_temp || "--";
       document.getElementById("slice-temp-b").innerText = slicer.bed_temp || "--";
 
-      // Three.js Init
-      if (analysis.optimized_base64) {
-        init3DViewer("canvas3dContainer", analysis.optimized_base64, analysis.critical_points, slicer.recommended_rot_matrix, analysis.support_surface, overhangs, analysis.critical_face_indices, analysis);
+      // Three.js Init - Busca Base64 nuevo o Base64 antiguo con pequeño delay para flexbox
+      const stlBase64 = analysis.optimized_base64 || analysis.optimized_mesh_base64;
+      if (stlBase64) {
+        setTimeout(() => {
+            init3DViewer("canvas3dContainer", stlBase64, analysis.critical_points, slicer.recommended_rot_matrix, analysis.support_surface, overhangs, analysis.critical_face_indices, analysis);
+        }, 150);
       }
 
       // Lógica de Comparación Manual vs Auto
@@ -616,14 +630,14 @@
 
       // Descargas
       document.getElementById("downloadStlBtn").addEventListener("click", () => {
-        const bin = atob(analysis.optimized_base64); const bytes = new Uint8Array(bin.length);
+        const b64 = analysis.optimized_base64 || analysis.optimized_mesh_base64;
+        const bin = atob(b64); const bytes = new Uint8Array(bin.length);
         for(let i=0; i<bin.length; i++) bytes[i] = bin.charCodeAt(i);
         const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([bytes.buffer], {type:"model/stl"}));
         a.download = (analysis.file_name||"pieza").replace(/\.[^/.]+$/, "") + (analysis.manual_orientation_active?"_manual.stl":"_opt.stl");
         a.click();
       });
       
-      // Mantenemos la generación PDF existente simplificada por espacio
       document.getElementById("downloadPdfBtn").addEventListener("click", () => {
          const { jsPDF } = window.jspdf || window.jsPDF; const doc = new jsPDF();
          doc.setFillColor(17, 23, 21); doc.rect(0, 0, 210, 40, 'F');
