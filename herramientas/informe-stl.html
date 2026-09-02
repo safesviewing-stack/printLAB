@@ -46,7 +46,7 @@
     
     .mesh-comparison{background:var(--dark); border-radius:24px; padding:32px; color:#fff; display:flex; flex-direction:column; gap:24px; box-shadow:0 15px 35px rgba(0,0,0,0.15);}
     .mesh-canvas{background:#161d1a; border-radius:16px; height:380px; display:flex; align-items:center; justify-content:center; border:1px dashed #2e3a35; position:relative; overflow:hidden;}
-    
+
     /* Score Box */
     .score-card{background:var(--card); border:1.5px solid var(--line); border-radius:20px; padding:30px; margin-bottom:24px;}
     .score-title{font-size:14px; text-transform:uppercase; font-weight:800; color:var(--muted); margin:0 0 10px;}
@@ -64,6 +64,18 @@
     
     .solution-box{border-top:1px dashed var(--line); padding-top:16px;}
     .solution-text{font-size:15px; margin:8px 0; font-weight:700;}
+
+    /* Contenedor de Ajustes en Parejas */
+    .paired-container { margin-top:24px; background:var(--card); border:1.5px solid var(--line); border-radius:24px; padding:30px; }
+    .paired-header-title { margin:0 0 8px; font-weight:800; font-size:18px; letter-spacing:-0.5px; }
+    .paired-header-desc { margin:0 0 24px; color:var(--muted); font-size:13.5px; line-height: 1.4; }
+    .paired-group { border: 1px solid var(--line); border-radius: 16px; padding: 18px; background: var(--bg); margin-bottom: 16px; }
+    .paired-group-title { margin: 0 0 12px; font-size: 12px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .paired-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; }
+    .param-card { background: var(--card); padding: 14px; border-radius: 12px; border: 1px solid var(--line); display: flex; flex-direction: column; }
+    .param-label { font-size: 10px; font-weight: 800; color: var(--muted); text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.3px; }
+    .param-value { font-size: 16px; font-weight: 800; color: var(--ink); margin-bottom: 4px; }
+    .param-desc { font-size: 11.5px; color: var(--muted); line-height: 1.4; }
 
     .download-panel{background:var(--card); border:1.5px solid var(--line); border-radius:24px; padding:36px; margin-top:32px;}
     .btn-download-stl{display:inline-flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:16px; background:var(--ink); color:#fff; border:2px solid var(--ink); border-radius:12px; font-weight:800; font-size:15px; cursor:pointer;}
@@ -98,8 +110,6 @@
       .auth-buttons { display: none; }
       .footergrid { grid-template-columns: 1fr; gap: 36px; }
     }
-    
-    @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
   </style>
   <!-- THREE.JS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -126,8 +136,7 @@
             </button>
             <div class="dropdown-content" id="mainMenu">
               <a href="../index.html#portada">Inicio</a>
-              <a href="analizador-stl.html">Analizador STL</a>
-              <a href="asistente-parametros.html">Asistente Parámetros</a>
+              <a href="analizador-stl.html" class="active">Analizador STL</a>
               <a href="../index.html#simulador">Simulador</a>
               <a href="../index.html#herramientas">Herramientas</a>
               <a href="../index.html#guias">Guías</a>
@@ -193,6 +202,13 @@
 
           <div class="problem-list" id="problemListContainer"></div>
 
+          <!-- SECCIÓN: PARÁMETROS OPTIMIZADOS EN PAREJAS -->
+          <div class="paired-container" id="slicerPairsContainer" style="display:none;">
+            <h4 class="paired-header-title">Configuración de Laminación (Estructurada en Parejas)</h4>
+            <p class="paired-header-desc">Recomendación integral de parámetros listos para aplicar en tu laminador de manera consecutiva (de 2 en 2).</p>
+            <div id="pairedParamsGrid"></div>
+          </div>
+
           <div class="download-panel">
             <h4 style="margin:0 0 20px; font-weight:800; font-size:16px;">Descarga de Resultados</h4>
             <button class="btn-download-stl" id="downloadStlBtn" style="margin-bottom:12px; background:var(--accent); color:var(--ink); border-color:var(--ink);">
@@ -208,7 +224,6 @@
     </div>
   </main>
 
-  <!-- PIE DE PÁGINA -->
   <footer class="footer">
     <div class="wrap">
       <div class="footergrid">
@@ -221,8 +236,7 @@
         <div class="footer-col">
           <h3>Recursos y Herramientas</h3>
           <div class="footer-links">
-            <a href="analizador-stl.html"><span class="arrow">→</span> Analizador STL IA</a>
-            <a href="asistente-parametros.html"><span class="arrow">→</span> Asistente Parámetros</a>
+            <a href="../index.html#analizador"><span class="arrow">→</span> Analizador STL IA</a>
             <a href="../index.html#simulador"><span class="arrow">→</span> Simulador de Extrusión</a>
             <a href="calculadora-coste.html"><span class="arrow">→</span> Calculadoras de Coste y Masa</a>
             <a href="../index.html#guias"><span class="arrow">→</span> Base de Conocimiento</a>
@@ -338,331 +352,3 @@
           v.applyMatrix4(mat);
           
           if (v.z < threshold) {
-            colors.push(1.0, 0.82, 0.0); 
-          } else {
-            colors.push(0.12, 0.38, 0.25); 
-          }
-        }
-
-        geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-
-        const material = new THREE.MeshPhongMaterial({ 
-          vertexColors: true, 
-          specular: 0x111111, 
-          shininess: 90 
-        });
-
-        activeMesh = new THREE.Mesh(geometry, material);
-        scene.add(activeMesh);
-
-        if (criticalPoints && criticalPoints.length > 0) {
-          criticalPoints.forEach(pt => {
-            const sphereGeo = new THREE.SphereGeometry(1.5, 16, 16);
-            const sphereMat = new THREE.MeshBasicMaterial({ color: 0xd9432f }); 
-            const sphere = new THREE.Mesh(sphereGeo, sphereMat);
-            
-            sphere.position.set(pt.x, pt.y, pt.z);
-            activeMesh.add(sphere);
-          });
-        }
-
-        geometry.computeBoundingBox();
-        const center = new THREE.Vector3();
-        geometry.boundingBox.getCenter(center);
-        controls.target.copy(center); 
-
-        const size = geometry.boundingBox.getSize(new THREE.Vector3()).length();
-        camera.position.set(center.x + size * 0.8, center.y + size * 0.8, center.z + size * 0.8);
-        controls.update();
-
-      } catch (err) {
-        console.error("Error al renderizar el STL en Three.js:", err);
-        container.innerHTML = `
-          <div style="color:#8f9892; padding: 20px; text-align:center; font-size:13px;">
-            ⚠️ El visor 3D no puede renderizar el archivo STL debido a un error de codificación.
-          </div>
-        `;
-      }
-
-      function animate() {
-        requestAnimationFrame(animate);
-        controls.update();
-        renderer.render(scene, camera);
-      }
-      animate();
-    }
-  </script>
-
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const downloadStlBtn = document.getElementById("downloadStlBtn");
-      const downloadPdfBtn = document.getElementById("downloadPdfBtn");
-
-      const noSessionFallback = document.getElementById("noSessionFallback");
-      const reportMainContent = document.getElementById("reportMainContent");
-
-      const reportFileName = document.getElementById("reportFileName");
-      const reportVolume = document.getElementById("reportVolume");
-      const reportDimensions = document.getElementById("reportDimensions");
-      const reportScore = document.getElementById("reportScore");
-      const reportScoreDesc = document.getElementById("reportScoreDesc");
-      const reportMaterial = document.getElementById("reportMaterial");
-      const reportTemp = document.getElementById("reportTemp");
-      const reportBed = document.getElementById("reportBed");
-
-      const problemListContainer = document.getElementById("problemListContainer");
-
-      const storedAnalysis = sessionStorage.getItem("printlab_analysis");
-
-      if (!storedAnalysis) {
-        noSessionFallback.style.display = "block";
-        reportMainContent.style.display = "none";
-        return;
-      }
-
-      let analysis;
-      try {
-        analysis = JSON.parse(storedAnalysis);
-      } catch (e) {
-        console.error("Error al parsear el objeto de sessionStorage:", e);
-        noSessionFallback.style.display = "block";
-        reportMainContent.style.display = "none";
-        return;
-      }
-
-      noSessionFallback.style.display = "none";
-      reportMainContent.style.display = "block";
-
-      const s = analysis.slicer_settings || {};
-      const q = analysis.user_questionnaire || {};
-
-      reportFileName.textContent = "📄 " + (analysis.file_name || "Archivo de ingeniería");
-      reportVolume.textContent = analysis.volume !== undefined ? `${analysis.volume} cm³` : "No disponible en este análisis";
-      reportDimensions.textContent = analysis.dimensions || "No disponible en este análisis";
-
-      reportMaterial.textContent = s.material || "No disponible";
-      reportTemp.textContent = s.nozzle_temp !== undefined ? `${s.nozzle_temp} ºC` : "No disponible";
-      reportBed.textContent = s.bed_temp !== undefined ? `${s.bed_temp} ºC` : "No disponible";
-
-      let stateText = "APTO";
-      let stateColor = "var(--accent)"; 
-      let stateDesc = "El modelo dispone de una excelente estabilidad y cumple con los requisitos geométricos de impresión.";
-
-      if (analysis.watertight === false) {
-        stateText = "REQUIERE REPARACIÓN";
-        stateColor = "var(--error)"; 
-        stateDesc = "La malla posee aristas abiertas, solapamientos o caras invertidas que requieren una reparación de geometría.";
-      } else if (analysis.critical_points && analysis.critical_points.length > 0) {
-        stateText = "REQUIERE REVISIÓN";
-        stateColor = "var(--warning)"; 
-        stateDesc = "Se han identificado concentraciones de esfuerzo o riesgos mecánicos que aconsejan una revisión de los parámetros de laminado.";
-      }
-
-      reportScore.textContent = stateText;
-      reportScore.style.color = stateColor;
-      reportScoreDesc.textContent = stateDesc;
-
-      let htmlCards = "";
-
-      if (analysis.watertight !== undefined) {
-        htmlCards += `
-          <div class="prob-card ${analysis.watertight ? 'success-card' : 'warn'}" style="${analysis.watertight ? '' : 'border-color: var(--warning); border-left-color: var(--warning);'}">
-            <div class="prob-header">
-              <h3 class="prob-title">Estanqueidad de Malla (Manifold)</h3>
-              <span class="prob-badge" style="background:${analysis.watertight ? '#eef2ee' : '#fff3cd'}; color:${analysis.watertight ? 'var(--muted)' : 'var(--warning)'};">
-                ${analysis.watertight ? 'ESTANCO' : 'ABIERTO'}
-              </span>
-            </div>
-            <div class="solution-box">
-              <p class="solution-text">
-                ${analysis.watertight 
-                  ? 'La geometría STL está completamente cerrada. No se detectan aristas abiertas ni pérdida de volumen durante la simulación.' 
-                  : 'Se han detectado agujeros o aristas no unificadas en el modelo. Nuestra capa matemática de reparación ha cerrado virtualmente el volumen para asegurar un laminado continuo y sin huecos.'}
-              </p>
-            </div>
-          </div>
-        `;
-      }
-
-      if (analysis.critical_points !== undefined) {
-        const pointsCount = analysis.critical_points.length;
-        htmlCards += `
-          <div class="prob-card ${pointsCount === 0 ? 'success-card' : 'warn'}" style="${pointsCount === 0 ? '' : 'border-color: var(--warning); border-left-color: var(--warning);'}">
-            <div class="prob-header">
-              <h3 class="prob-title">Puntos Críticos de Tensión</h3>
-              <span class="prob-badge" style="background:${pointsCount === 0 ? '#eef2ee' : '#fff3cd'}; color:${pointsCount === 0 ? 'var(--muted)' : 'var(--warning)'};">
-                ${pointsCount === 0 ? 'ESTABLE' : 'ADVERTENCIA'}
-              </span>
-            </div>
-            <div class="solution-box">
-              <p class="solution-text">
-                ${pointsCount === 0 
-                  ? 'La distribución de cargas y esfuerzos es homogénea. No se detectan concentraciones peligrosas de tensión mecánica.' 
-                  : `Se han identificado ${pointsCount} zonas con tensiones dinámicas acumuladas en las uniones internas. Se aconseja un espesor mínimo de pared de 4 perímetros y un patrón de relleno de tipo giroscopio para mejorar la tenacidad estructural.`}
-              </p>
-            </div>
-          </div>
-        `;
-      }
-
-      if (s.material_reason) {
-        htmlCards += `
-          <div class="prob-card ${s.material_status === 'no_adecuado' ? '' : 'success-card'}">
-            <div class="prob-header">
-              <h3 class="prob-title">Recomendaciones de Laminado</h3>
-              <span class="prob-badge" style="background:${s.material_status === 'no_adecuado' ? '#fcebe8' : '#eef2ee'}; color:${s.material_status === 'no_adecuado' ? '#b42318' : 'var(--muted)'};">
-                ${s.material_status === 'no_adecuado' ? 'CRÍTICO' : 'RECOMENDADO'}
-              </span>
-            </div>
-            <div class="solution-box">
-              <p class="solution-text">${s.material_reason}</p>
-            </div>
-          </div>
-        `;
-      }
-
-      problemListContainer.innerHTML = htmlCards || "<p style='color:var(--muted); text-align:center;'>No se disponen de detalles de diagnóstico adicionales.</p>";
-
-      if (analysis.optimized_base64) {
-        init3DViewer("canvas3dContainer", analysis.optimized_base64, analysis.critical_points, s.recommended_rot_matrix);
-
-        downloadStlBtn.disabled = false;
-        downloadStlBtn.style.opacity = "1";
-        
-        const isRepaired = analysis.watertight === false;
-        const fileSuffix = isRepaired ? "_reparado.stl" : "_optimizado.stl";
-        downloadStlBtn.textContent = isRepaired ? "Descargar pieza reparada (.STL)" : "Descargar pieza optimizada (.STL)";
-
-        downloadStlBtn.addEventListener("click", () => {
-          try {
-            const binaryStr = atob(analysis.optimized_base64);
-            const bytes = new Uint8Array(binaryStr.length);
-            for (let i = 0; i < binaryStr.length; i++) {
-              bytes[i] = binaryStr.charCodeAt(i);
-            }
-            const blob = new Blob([bytes.buffer], { type: "model/stl" });
-            const localStlUrl = URL.createObjectURL(blob);
-
-            const a = document.createElement("a");
-            a.href = localStlUrl;
-            a.download = (analysis.file_name || "piece.stl").replace(/\.[^/.]+$/, "") + fileSuffix;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-
-            setTimeout(() => {
-              URL.revokeObjectURL(localStlUrl);
-            }, 100);
-          } catch (err) {
-            alert("Error al procesar la descarga de la malla: " + err.message);
-          }
-        });
-      } else {
-        downloadStlBtn.disabled = true;
-        downloadStlBtn.style.opacity = "0.5";
-        downloadStlBtn.style.cursor = "not-allowed";
-        downloadStlBtn.textContent = "STL reparado/optimizado no disponible";
-        
-        const canvasContainer = document.getElementById("canvas3dContainer");
-        if (canvasContainer) {
-          canvasContainer.innerHTML = `
-            <div style="color:#8f9892; font-size:13.5px; padding:20px; text-align:center;">
-              📂 No se ha retornado ninguna reconstrucción sólida en este diagnóstico.
-            </div>
-          `;
-        }
-      }
-
-      downloadPdfBtn.addEventListener("click", () => {
-        const { jsPDF } = window.jspdf || window.jsPDF;
-        const doc = new jsPDF();
-
-        doc.setFillColor(17, 23, 21); 
-        doc.rect(0, 0, 210, 40, 'F');
-        
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(22);
-        doc.setTextColor(255, 255, 255);
-        doc.text("PRINTLAB", 15, 20);
-
-        doc.setFontSize(9);
-        doc.setTextColor(184, 255, 61); 
-        doc.text("INFORME DE INGENIERÍA Y OPTIMIZACIÓN GEOMÉTRICA", 15, 28);
-
-        let y = 55;
-        doc.setFontSize(12);
-        doc.setTextColor(13, 17, 16); 
-        doc.setFont("helvetica", "bold");
-        doc.text("Propiedades Físicas Calculadas", 15, y);
-        doc.setDrawColor(223, 228, 223); 
-        doc.line(15, y + 2, 195, y + 2);
-
-        y += 10;
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(10);
-        doc.setTextColor(94, 102, 97); 
-
-        const properties = [
-          ["Archivo analizado:", analysis.file_name || "No disponible"],
-          ["Volumen del modelo:", analysis.volume !== undefined ? `${analysis.volume} cm3` : "No disponible"],
-          ["Dimensiones límites:", analysis.dimensions || "No disponible"],
-          ["Estado de estanqueidad:", analysis.watertight !== undefined ? (analysis.watertight ? "Estanco (Manifold)" : "No estanco (Holes/Aristas libres)") : "No disponible"],
-          ["Estado de laminabilidad:", stateText]
-        ];
-
-        properties.forEach(prop => {
-          doc.setFont("helvetica", "bold");
-          doc.text(prop[0], 15, y);
-          doc.setFont("helvetica", "normal");
-          doc.text(prop[1], 75, y);
-          y += 8;
-        });
-
-        y += 12;
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(12);
-        doc.setTextColor(13, 17, 16);
-        doc.text("Recomendaciones de Laminado y Slicing", 15, y);
-        doc.line(15, y + 2, 195, y + 2);
-
-        y += 10;
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(10);
-        doc.setTextColor(13, 17, 16);
-
-        doc.setFont("helvetica", "bold");
-        doc.text("Configuración sugerida de temperaturas:", 15, y);
-        doc.setFont("helvetica", "normal");
-        doc.text(`Material: ${s.material || "No indicado"} | Boquilla: ${s.nozzle_temp !== undefined ? s.nozzle_temp + " C" : "No disponible"} | Cama: ${s.bed_temp !== undefined ? s.bed_temp + " C" : "No disponible"}`, 15, y + 6);
-        
-        y += 16;
-
-        if (s.material_reason) {
-          doc.setFont("helvetica", "bold");
-          doc.text("Idoneidad del filamento:", 15, y);
-          doc.setFont("helvetica", "normal");
-          const splitReason = doc.splitTextToSize(s.material_reason, 180);
-          doc.text(splitReason, 15, y + 6);
-          y += (splitReason.length * 5) + 10;
-        }
-
-        if (analysis.critical_points) {
-          doc.setFont("helvetica", "bold");
-          doc.text("Análisis de tensiones y deformaciones:", 15, y);
-          doc.setFont("helvetica", "normal");
-          const pointsCount = analysis.critical_points.length;
-          const tensionText = pointsCount === 0
-            ? "El modelo presenta una distribución mecánica correcta y no requiere redondeos estructurales."
-            : `Se han localizado ${pointsCount} concentradores de tensión mecánica activa. Se aconseja un laminado con un mínimo de 4 perímetros exteriores.`;
-          const splitTension = doc.splitTextToSize(tensionText, 180);
-          doc.text(splitTension, 15, y + 6);
-        }
-
-        const safeName = (analysis.file_name || "piece").replace(/\.[^/.]+$/, "").replace(/\s+/g, "_");
-        doc.save(`PrintLab_Reporte_${safeName}.pdf`);
-      });
-
-    });
-  </script>
-</body>
-</html>
