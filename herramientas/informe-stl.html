@@ -171,14 +171,25 @@
 
       <div class="report-grid">
         
-        <!-- LADO IZQUIERDO: VISOR 3D -->
+        <!-- LADO IZQUIERDO: VISOR 3D CON HERRAMIENTA INTERACTIVA DE CAMBIO DE CARA -->
         <div>
           <div class="mesh-comparison">
-            <div class="mesh-view-header" style="display:flex; justify-content:space-between; align-items:center;">
+            <div class="mesh-view-header" style="display:flex; justify-content:space-between; align-items:center; position: relative;">
               <span class="mesh-title" id="reportFileName" style="font-weight:800; font-size:15px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:240px;">Cargando pieza...</span>
-              <span style="color:var(--accent); font-weight:800; font-size:12px;">✓ Diagnóstico Realizado</span>
+              <span style="color:var(--accent); font-weight:800; font-size:12px;">✓ Diagnóstico Activo</span>
             </div>
-            <div class="mesh-canvas" id="canvas3dContainer"></div>
+            
+            <div class="mesh-canvas" id="canvas3dContainer" style="position: relative;">
+              <!-- Botones flotantes de cambio de cara -->
+              <div style="position: absolute; top: 12px; left: 12px; z-index: 50; display: flex; gap: 8px;">
+                <button id="selectBedFaceBtn" style="background: rgba(0,0,0,0.85); color: #fff; border: 1.5px solid var(--accent); padding: 8px 14px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer; transition: 0.2s;">
+                  📐 Cambiar Cara de Apoyo
+                </button>
+                <span id="selectModeIndicator" style="display: none; background: var(--error); color: #fff; padding: 8px 14px; border-radius: 8px; font-size: 11px; font-weight: 800; align-items: center; gap: 6px;">
+                  ● Haz clic en una cara plana del modelo
+                </span>
+              </div>
+            </div>
           </div>
 
           <div style="margin-top:24px; padding:24px; background:var(--card); border:1.5px solid var(--line); border-radius:20px; font-size:14.5px;">
@@ -202,7 +213,7 @@
 
           <div class="problem-list" id="problemListContainer"></div>
 
-          <!-- SECCIÓN: PARÁMETROS OPTIMIZADOS EN PAREJAS -->
+          <!-- SECCIÓN: PARÁMETROS OPTIMIZADOS EN PAREJAS (ACTUALIZADO EN TIEMPO REAL) -->
           <div class="paired-container" id="slicerPairsContainer" style="display:none;">
             <h4 class="paired-header-title">Configuración de Laminación (Estructurada en Parejas)</h4>
             <p class="paired-header-desc">Recomendación integral de parámetros listos para aplicar en tu laminador de manera consecutiva (de 2 en 2).</p>
@@ -278,8 +289,185 @@
     }
   </script>
 
+  <!-- MOTOR 3D Y DETECCIÓN DE RAYCASTING PARA CAMBIO DE CARA DE APOYO -->
   <script>
     let scene, camera, renderer, controls, activeMesh;
+    let selectFaceModeActive = false;
+
+    // Recalcula en el cliente las zonas calientes de contacto y voladizo en tiempo real
+    function recalculateSlicerSettingsFromRotation(quaternion) {
+      if (!activeMesh) return;
+
+      const geom = activeMesh.geometry;
+      const pos = geom.attributes.position;
+      
+      let minZ = Infinity;
+      let maxZ = -Infinity;
+      
+      const rotatedVerts = [];
+      
+      // Primera pasada: Calcular límites verticales de la pieza rotada
+      for (let i = 0; i < pos.count; i++) {
+        const v = new THREE.Vector3(pos.getX(i), pos.getY(i), pos.getZ(i));
+        v.applyQuaternion(quaternion);
+        rotatedVerts.push(v);
+        if (v.z < minZ) minZ = v.z;
+        if (v.z > maxZ) maxZ = v.z;
+      }
+      
+      const height = maxZ - minZ;
+      
+      // Segunda pasada: Calcular área de contacto y voladizos basándonos en normales
+      let overhangArea = 0;
+      let contactArea = 0;
+      const thresholdBed = minZ + 1.2; // 1.2 mm sobre la base
+      
+      for (let i = 0; i < pos.count; i += 3) {
+        const v1 = rotatedVerts[i];
+        const v2 = rotatedVerts[i + 1];
+        const v3 = rotatedVerts[i + 2];
+        
+        // Calcular normal del triángulo rotado
+        const edge1 = new THREE.Vector3().subVectors(v2, v1);
+        const edge2 = new THREE.Vector3().subVectors(v3, v1);
+        const normal = new THREE.Vector3().crossVectors(edge1, edge2).normalize();
+        
+        const area = new THREE.Vector3().crossVectors(edge1, edge2).length() * 0.5;
+        
+        // Determinar si está asentado en la base
+        const isOnBed = (v1.z < thresholdBed && v2.z < thresholdBed && v3.z < thresholdBed);
+        
+        if (isOnBed) {
+          contactArea += area;
+        } else {
+          // El vector de gravedad apunta hacia Z- (abajo), así que la proyección es -normal.z
+          const dotDown = -normal.z;
+          if (dotDown > 0.707) { // > cos(45 grados)
+            overhangArea += area;
+          }
+        }
+      }
+      
+      // Pasar de mm² a cm²
+      const overhangCm2 = overhangArea / 100.0;
+      const contactCm2 = contactArea / 100.0;
+      
+      // Actualizar la UI y re-colorear el visor 3D para reflejar la base
+      recolorMeshVertices(quaternion);
+      updateSlicerUI(height, overhangCm2, contactCm2);
+    }
+
+    // Pinta las caras en contacto con la cama de amarillo, el resto verde oscuro
+    function recolorMeshVertices(quaternion) {
+      if (!activeMesh) return;
+      const geom = activeMesh.geometry;
+      const pos = geom.attributes.position;
+      const colors = [];
+      
+      let minRotatedZ = Infinity;
+      let maxRotatedZ = -Infinity;
+      
+      const rotatedVerts = [];
+      for (let i = 0; i < pos.count; i++) {
+        const v = new THREE.Vector3(pos.getX(i), pos.getY(i), pos.getZ(i));
+        v.applyQuaternion(quaternion);
+        rotatedVerts.push(v);
+        if (v.z < minRotatedZ) minRotatedZ = v.z;
+        if (v.z > maxRotatedZ) maxRotatedZ = v.z;
+      }
+      
+      const threshold = minRotatedZ + (maxRotatedZ - minRotatedZ) * 0.05;
+      
+      for (let i = 0; i < pos.count; i++) {
+        const v = rotatedVerts[i];
+        if (v.z < threshold) {
+          colors.push(1.0, 0.82, 0.0); // Dorado en la base
+        } else {
+          colors.push(0.12, 0.38, 0.25); // Verde PrintLab
+        }
+      }
+      
+      geom.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+      geom.attributes.color.needsUpdate = true;
+    }
+
+    // Actualiza los parámetros en la UI y actualiza el dataset para la descarga en PDF
+    function updateSlicerUI(height, overhangCm2, contactCm2) {
+      const reportDimensions = document.getElementById("reportDimensions");
+      const pairedParamsGrid = document.getElementById("pairedParamsGrid");
+      const storedAnalysis = sessionStorage.getItem("printlab_analysis");
+      if (!storedAnalysis) return;
+
+      let analysis;
+      try {
+        analysis = JSON.parse(storedAnalysis);
+      } catch (e) { return; }
+
+      const s = analysis.slicer_settings || {};
+      
+      // 1. Modificar altura en las dimensiones del bloque técnico
+      const originalDims = analysis.dimensions || "";
+      const parts = originalDims.split(" x ");
+      if (parts.length === 3) {
+        reportDimensions.textContent = `${parts[0]} x ${parts[1]} x ${height.toFixed(1)} mm`;
+      }
+      
+      // 2. Modificar dinámicamente los parámetros asociados a la orientación
+      if (s.paired_settings && s.paired_settings.length > 0) {
+        s.paired_settings.forEach(pair => {
+          if (pair.category.includes("2. Geometría de Extrusión")) {
+            pair.param1_val = `${(height / 10).toFixed(1)} cm (Altura Z)`;
+            pair.param1_desc = "Grosor total de la pieza en vertical para esta orientación de apoyo.";
+          }
+          if (pair.category.includes("6. Adherencia y Soporte")) {
+            // Evaluar adherencia según área de apoyo
+            if (contactCm2 < 4.0) {
+              pair.param1_val = "Balsa (Raft) o Brim 8mm";
+              pair.param1_desc = `Superficie crítica (${contactCm2.toFixed(1)} cm²). Riesgo inminente de warping o desprendimiento.`;
+            } else {
+              pair.param1_val = contactCm2 > 15.0 ? "Falda (Skirt)" : "Borde (Brim - 5mm)";
+              pair.param1_desc = `Contacto estable (${contactCm2.toFixed(1)} cm²). Tracción idónea sobre la superficie de la cama.`;
+            }
+            
+            // Evaluar soportes según área de voladizo
+            if (overhangCm2 > 1.2) {
+              pair.param2_val = "Sí (Orgánico / Árbol)";
+              pair.param2_desc = `Detectados ${overhangCm2.toFixed(1)} cm² de voladizo. Se requiere soporte estructural en zonas suspendidas.`;
+            } else {
+              pair.param2_val = "No requerido";
+              pair.param2_desc = `Geometría completamente autosoportada en esta orientación (${overhangCm2.toFixed(1)} cm² de voladizo menor).`;
+            }
+          }
+        });
+
+        // Regenerar el HTML de las parejas de parámetros optimizadas
+        let pairsHtml = "";
+        s.paired_settings.forEach(pair => {
+          pairsHtml += `
+            <div class="paired-group">
+              <h5 class="paired-group-title">${pair.category}</h5>
+              <div class="paired-grid">
+                <div class="param-card">
+                  <span class="param-label">${pair.param1_name}</span>
+                  <strong class="param-value">${pair.param1_val}</strong>
+                  <span class="param-desc">${pair.param1_desc}</span>
+                </div>
+                <div class="param-card">
+                  <span class="param-label">${pair.param2_name}</span>
+                  <strong class="param-value">${pair.param2_val}</strong>
+                  <span class="param-desc">${pair.param2_desc}</span>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+        pairedParamsGrid.innerHTML = pairsHtml;
+        
+        // Guardar la actualización en la sesión de navegación para sincronizar con la generación del PDF
+        analysis.slicer_settings = s;
+        sessionStorage.setItem("printlab_analysis", JSON.stringify(analysis));
+      }
+    }
 
     function init3DViewer(containerId, base64Data, criticalPoints, recommendedRotMatrix) {
       const container = document.getElementById(containerId);
@@ -388,6 +576,65 @@
         const size = geometry.boundingBox.getSize(new THREE.Vector3()).length();
         camera.position.set(center.x + size * 0.8, center.y + size * 0.8, center.z + size * 0.8);
         controls.update();
+
+        // CONTROLADOR DE CLIC / SELECCIÓN DE CARA DE APOYO (RAYCASTING)
+        const selectBedFaceBtn = document.getElementById("selectBedFaceBtn");
+        const selectModeIndicator = document.getElementById("selectModeIndicator");
+
+        selectBedFaceBtn.addEventListener("click", () => {
+          selectFaceModeActive = !selectFaceModeActive;
+          if (selectFaceModeActive) {
+            selectBedFaceBtn.style.background = "var(--accent)";
+            selectBedFaceBtn.style.color = "var(--ink)";
+            selectModeIndicator.style.display = "inline-flex";
+          } else {
+            selectBedFaceBtn.style.background = "rgba(0,0,0,0.85)";
+            selectBedFaceBtn.style.color = "#fff";
+            selectModeIndicator.style.display = "none";
+          }
+        });
+
+        renderer.domElement.addEventListener("click", (event) => {
+          if (!selectFaceModeActive || !activeMesh) return;
+
+          const rect = renderer.domElement.getBoundingClientRect();
+          const mouse = new THREE.Vector2();
+          mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+          mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+          const raycaster = new THREE.Raycaster();
+          raycaster.setFromCamera(mouse, camera);
+          
+          const intersects = raycaster.intersectObject(activeMesh);
+          if (intersects.length > 0) {
+            const intersect = intersects[0];
+            const clickedNormal = intersect.face.normal.clone();
+            
+            // Calcular cuaternión para alinear la normal seleccionada al vector de base (Z-)
+            const targetNormal = new THREE.Vector3(0, 0, -1);
+            const quaternion = new THREE.Quaternion();
+            quaternion.setFromUnitVectors(clickedNormal, targetNormal);
+            
+            // Aplicar la rotación directamente en la malla
+            activeMesh.quaternion.copy(quaternion);
+            
+            // Centrar la cámara e iniciar cálculos de re-laminación
+            const bbox = new THREE.Box3().setFromObject(activeMesh);
+            const rCenter = new THREE.Vector3();
+            bbox.getCenter(rCenter);
+            controls.target.copy(rCenter);
+            controls.update();
+            
+            // Lanzar re-evaluación
+            recalculateSlicerSettingsFromRotation(quaternion);
+
+            // Desactivar estado del botón de selección
+            selectFaceModeActive = false;
+            selectBedFaceBtn.style.background = "rgba(0,0,0,0.85)";
+            selectBedFaceBtn.style.color = "#fff";
+            selectModeIndicator.style.display = "none";
+          }
+        });
 
       } catch (err) {
         console.error("Error al renderizar el STL en Three.js:", err);
@@ -539,7 +786,7 @@
 
       problemListContainer.innerHTML = htmlCards || "<p style='color:var(--muted); text-align:center;'>No se disponen de detalles de diagnóstico adicionales.</p>";
 
-      // RENDERIZAR RECOMENDACIONES DE LAMINACIÓN DE DOS EN DOS
+      // RENDERIZAR RECOMENDACIONES DE LAMINACIÓN EN PAREJAS
       if (s.paired_settings && s.paired_settings.length > 0) {
         slicerPairsContainer.style.display = "block";
         let pairsHtml = "";
@@ -620,6 +867,10 @@
       downloadPdfBtn.addEventListener("click", () => {
         const { jsPDF } = window.jspdf || window.jsPDF;
         const doc = new jsPDF();
+        
+        // Cargar últimos ajustes guardados localmente
+        const currentAnalysis = JSON.parse(sessionStorage.getItem("printlab_analysis"));
+        const currentS = currentAnalysis.slicer_settings || s;
 
         // PÁGINA 1: DATOS GEOMÉTRICOS Y MATERIAL
         doc.setFillColor(17, 23, 21); 
@@ -648,10 +899,10 @@
         doc.setTextColor(94, 102, 97); 
 
         const properties = [
-          ["Archivo analizado:", analysis.file_name || "No disponible"],
-          ["Volumen del modelo:", analysis.volume !== undefined ? `${analysis.volume} cm3` : "No disponible"],
-          ["Dimensiones límites:", analysis.dimensions || "No disponible"],
-          ["Estado de estanqueidad:", analysis.watertight !== undefined ? (analysis.watertight ? "Estanco (Manifold)" : "No estanco (Holes/Aristas libres)") : "No disponible"],
+          ["Archivo analizado:", currentAnalysis.file_name || "No disponible"],
+          ["Volumen del modelo:", currentAnalysis.volume !== undefined ? `${currentAnalysis.volume} cm3` : "No disponible"],
+          ["Dimensiones límites:", reportDimensions.textContent || "No disponible"],
+          ["Estado de estanqueidad:", currentAnalysis.watertight !== undefined ? (currentAnalysis.watertight ? "Estanco (Manifold)" : "No estanco (Holes/Aristas libres)") : "No disponible"],
           ["Estado de laminabilidad:", stateText]
         ];
 
@@ -675,20 +926,20 @@
         doc.setFontSize(10);
         doc.setTextColor(13, 17, 16);
 
-        if (s.material_reason) {
+        if (currentS.material_reason) {
           doc.setFont("helvetica", "bold");
           doc.text("Material Recomendado:", 15, y);
           doc.setFont("helvetica", "normal");
-          const splitReason = doc.splitTextToSize(s.material_reason, 180);
+          const splitReason = doc.splitTextToSize(currentS.material_reason, 180);
           doc.text(splitReason, 15, y + 6);
           y += (splitReason.length * 5) + 12;
         }
 
-        if (analysis.critical_points) {
+        if (currentAnalysis.critical_points) {
           doc.setFont("helvetica", "bold");
           doc.text("Análisis de tensiones por curvatura:", 15, y);
           doc.setFont("helvetica", "normal");
-          const pointsCount = analysis.critical_points.length;
+          const pointsCount = currentAnalysis.critical_points.length;
           const tensionText = pointsCount === 0
             ? "El modelo presenta una transición geométrica homogénea y no requiere radios de redondeo de emergencia en bordes activos."
             : `Se han localizado ${pointsCount} concentradores de tensión geométrica en las uniones de la malla. Se aconseja un laminado con perímetros reforzados.`;
@@ -696,8 +947,8 @@
           doc.text(splitTension, 15, y + 6);
         }
 
-        // PÁGINA 2: ESPECIFICACIONES TÉCNICAS EN PAREJAS
-        if (s.paired_settings && s.paired_settings.length > 0) {
+        // PÁGINA 2: ESPECIFICACIONES TÉCNICAS EN PAREJAS ACTUALIZADAS
+        if (currentS.paired_settings && currentS.paired_settings.length > 0) {
           doc.addPage();
           let py = 25;
           
@@ -716,7 +967,7 @@
           py = 50;
           doc.setTextColor(13, 17, 16);
           
-          s.paired_settings.forEach(pair => {
+          currentS.paired_settings.forEach(pair => {
             if (py > 250) {
               doc.addPage();
               py = 25;
@@ -745,13 +996,13 @@
             const desc2 = doc.splitTextToSize(pair.param2_desc, 85);
             doc.text(desc2, 105, py + 5);
             
-            // Calcular espacio dinámico para la siguiente pareja
+            // Calcular espacio dinámico para evitar solapamientos
             const heightUsed = Math.max(desc1.length, desc2.length) * 4 + 14;
             py += heightUsed;
           });
         }
 
-        const safeName = (analysis.file_name || "piece").replace(/\.[^/.]+$/, "").replace(/\s+/g, "_");
+        const safeName = (currentAnalysis.file_name || "piece").replace(/\.[^/.]+$/, "").replace(/\s+/g, "_");
         doc.save(`PrintLab_Reporte_${safeName}.pdf`);
       });
 
