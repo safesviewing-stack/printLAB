@@ -37,107 +37,26 @@
     .btn-auth.light:hover{transform:translateY(-1px); box-shadow:0 4px 0 var(--ink)}
     .btn-auth.green{background:var(--accent); color:var(--ink); box-shadow:0 3px 0 var(--ink)}
 
+    /* ESTILOS DE SUBIDA Y WIZARD */
     .upload-container{
-      max-width:740px; 
-      margin:60px auto;
-      background:var(--card);
-      border:2px dashed var(--line);
-      border-radius:24px;
-      padding:40px 32px; 
-      text-align:center;
-      box-shadow: 0 20px 40px rgba(13, 17, 16, 0.025);
-      transition: border-color 0.25s ease, background-color 0.25s ease, transform 0.25s ease;
+      max-width:740px; margin:60px auto; background:var(--card); border:2px dashed var(--line); border-radius:24px; padding:40px 32px; text-align:center; box-shadow: 0 20px 40px rgba(13, 17, 16, 0.025); transition: border-color 0.25s ease, background-color 0.25s ease, transform 0.25s ease;
     }
-    .upload-container:hover{
-      border-color: var(--ink);
-    }
-    .upload-container.drag-over{
-      border-color:var(--accent);
-      background:#fbfcfa;
-      transform:scale(1.015);
-    }
+    .upload-container:hover{ border-color: var(--ink); }
+    .upload-container.drag-over{ border-color:var(--accent); background:#fbfcfa; transform:scale(1.015); }
     
-    .upload-icon-wrapper {
-      width: 72px;
-      height: 72px;
-      background: var(--bg);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 16px;
-      font-size: 30px;
-      border: 1.5px solid var(--line);
-      box-shadow: 0 8px 16px rgba(13, 17, 16, 0.02);
-      transition: transform 0.3s ease, background-color 0.3s ease;
-    }
-    .upload-container:hover .upload-icon-wrapper {
-      transform: translateY(-4px) scale(1.05);
-      background-color: #fff;
-    }
+    .upload-icon-wrapper { width: 72px; height: 72px; background: var(--bg); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 30px; border: 1.5px solid var(--line); transition: transform 0.3s ease, background-color 0.3s ease; }
+    .upload-container:hover .upload-icon-wrapper { transform: translateY(-4px) scale(1.05); background-color: #fff; }
 
-    .upload-title {
-      font-size: 24px;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-      margin-top: 12px;
-      margin-bottom: 6px;
-      color: var(--ink);
-    }
-    .upload-desc {
-      font-size: 14.5px;
-      color: var(--muted);
-      margin-bottom: 28px;
-    }
-    .drag-help {
-      font-size: 13px;
-      color: var(--muted);
-      margin-top: 16px;
-      font-weight: 500;
-    }
+    .upload-title { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; margin-top: 12px; margin-bottom: 6px; color: var(--ink); }
+    .upload-desc { font-size: 14.5px; color: var(--muted); margin-bottom: 28px; }
+    .drag-help { font-size: 13px; color: var(--muted); margin-top: 16px; font-weight: 500; }
     
-    .selected-file {
-      display: none;
-      margin: 20px auto 0;
-      max-width: 600px;
-      padding: 14px 20px;
-      background: #fbfcfa;
-      border: 1.5px solid rgba(184, 255, 61, 0.5);
-      border-radius: 14px;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 8px 20px rgba(184, 255, 61, 0.04);
-    }
-    .selected-file.show {
-      display: flex;
-      animation: slideDown 0.3s ease;
-    }
-    .selected-file-name {
-      font-weight: 700;
-      font-size: 14.5px;
-      color: var(--ink);
-    }
-    .selected-file-size {
-      font-size: 12.5px;
-      color: var(--muted);
-      margin-top: 2px;
-    }
-    .btn-remove-file {
-      background: none;
-      border: none;
-      color: #d9432f;
-      font-size: 18px;
-      font-weight: 800;
-      cursor: pointer;
-      outline: none;
-      padding: 6px;
-      transition: transform 0.2s ease, opacity 0.2s ease;
-      opacity: 0.8;
-    }
-    .btn-remove-file:hover {
-      transform: scale(1.15) rotate(90deg);
-      opacity: 1;
-    }
+    .selected-file { display: none; margin: 20px auto 0; max-width: 600px; padding: 14px 20px; background: #fbfcfa; border: 1.5px solid rgba(184, 255, 61, 0.5); border-radius: 14px; align-items: center; justify-content: space-between; box-shadow: 0 8px 20px rgba(184, 255, 61, 0.04); }
+    .selected-file.show { display: flex; animation: slideDown 0.3s ease; }
+    .selected-file-name { font-weight: 700; font-size: 14.5px; color: var(--ink); }
+    .selected-file-size { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+    .btn-remove-file { background: none; border: none; color: #d9432f; font-size: 18px; font-weight: 800; cursor: pointer; outline: none; padding: 6px; transition: transform 0.2s ease, opacity 0.2s ease; opacity: 0.8; }
+    .btn-remove-file:hover { transform: scale(1.15) rotate(90deg); opacity: 1; }
 
     .wizard-step{display:none; text-align:left; animation:fadeIn 0.3s ease-out;}
     .wizard-step.active{display:block;}
@@ -146,44 +65,19 @@
     .step-title{font-size:20px; font-weight:800; margin-bottom:8px; color:var(--ink); display:flex; justify-content:space-between; align-items:center;}
     .step-subtitle{font-size:14px; color:var(--muted); margin-bottom:20px;}
     
-    .option-grid{
-      display:grid; 
-      grid-template-columns:repeat(3, 1fr); 
-      gap: 10px; 
-      margin-bottom:20px;
-    }
-    .option-card{
-      background:var(--bg); 
-      border:1.5px solid var(--line); 
-      border-radius:12px; 
-      padding:12px 14px; 
-      font-size:13.5px; 
-      cursor:pointer; 
-      transition:.15s; 
-      display:flex; 
-      flex-direction:column; 
-      align-items:flex-start;
-      text-align:left;
-      gap:2px;
-    }
-    .option-card:hover{border-color:var(--ink); background:#fff;}
-    .option-card.selected{background:var(--dark); color:var(--accent); border-color:var(--dark);}
-    .option-card.selected .option-card-desc{color:#b8c0bb;}
-    .option-card span.emoji{font-size:20px;}
+    /* NUEVO DISEÑO COMPACTO DE TARJETAS HORIZONTALES */
+    .option-grid { display:grid; grid-template-columns:repeat(2, 1fr); gap: 10px; margin-bottom:20px; }
+    .option-card { background:var(--bg); border:1.5px solid var(--line); border-radius:12px; padding:10px 14px; cursor:pointer; transition:.15s; display:flex; flex-direction:row; align-items:center; text-align:left; gap:14px; }
+    .option-card:hover { border-color:var(--ink); background:#fff; }
+    .option-card.selected { background:var(--dark); color:var(--accent); border-color:var(--dark); }
     
-    .option-card-title {
-      font-weight: 800;
-      font-size: 13.5px;
-      color: inherit;
-      margin-top: 2px;
-    }
-    .option-card-desc {
-      font-weight: 500;
-      font-size: 11px;
-      color: var(--muted);
-      line-height: 1.35;
-      margin-top: 1px;
-    }
+    .option-card .emoji { font-size:24px; flex-shrink:0; background:#fff; width:42px; height:42px; border-radius:10px; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 6px rgba(0,0,0,0.04); }
+    .option-card.selected .emoji { background:rgba(255,255,255,0.1); box-shadow:none; }
+    
+    .option-card-text { display:flex; flex-direction:column; gap:2px; }
+    .option-card-title { font-weight: 800; font-size: 13.5px; color: inherit; line-height:1.2; margin:0; }
+    .option-card-desc { font-weight: 500; font-size: 11.5px; color: var(--muted); line-height: 1.3; margin:0; }
+    .option-card.selected .option-card-desc { color:#b8c0bb; }
 
     .form-group{margin-bottom:16px; display:flex; flex-direction:column;}
     .form-group label{font-size:12.5px; font-weight:800; margin-bottom:6px; color:var(--muted);}
@@ -207,61 +101,14 @@
     .footer-links { display: flex; flex-direction: column; gap: 10px; }
     .footer-links a { color: var(--muted); transition: color 0.15s ease, transform 0.15s ease; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
     .footer-links a:hover { color: var(--ink); transform: translateX(2px); }
-    .footer-links a span.arrow { transition: color 0.15s ease; }
-    .footer-links a:hover span.arrow { color: var(--accent); }
     .footer-bottom { border-top: 1px solid var(--line); padding-top: 24px; display:flex; justify-content:center; align-items:center; text-align:center; font-size: 13px; color: #7d8782;}
 
-    @media(max-width:992px){
-      .footergrid{grid-template-columns:1.2fr 1fr; gap:40px}
-      .option-grid{grid-template-columns:repeat(2, 1fr);}
-    }
-    @media(max-width:768px){
-      .wrap{padding:0 20px}
-      .footergrid{grid-template-columns:1fr; gap:36px}
-    }
-    @media(max-width:480px){
-      .option-grid{grid-template-columns:1fr;}
-    }
+    @media(max-width:992px){ .footergrid{grid-template-columns:1.2fr 1fr; gap:40px} }
+    @media(max-width:768px){ .wrap{padding:0 20px} .footergrid{grid-template-columns:1fr; gap:36px} .option-grid{grid-template-columns:1fr;} }
     @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
 
-    #authHeaderContainer span[style*="background" i],
-    #authHeaderContainer span[style*="accent" i],
-    #authHeaderContainer span:nth-child(2),
-    #authHeaderContainer div span:nth-child(2) {
-      background: var(--accent) !important;
-      background-color: var(--accent) !important;
-      color: var(--ink) !important;
-      padding: 8px 18px !important;
-      border-radius: 9999px !important;
-      font-weight: 800 !important;
-      font-size: 15px !important;
-      border: none !important;
-      border-width: 0px !important;
-      box-shadow: none !important;
-      display: inline-flex !important;
-      align-items: center !important;  
-      justify-content: center !important; 
-      align-self: center !important;
-      line-height: 1 !important; 
-      height: auto !important;
-      min-height: 0 !important;
-      max-height: 38px !important;
-      margin: auto 0 !important;
-      white-space: nowrap !important;
-    }
-
-    #authHeaderContainer .user-greeting,
-    #authHeaderContainer span:nth-child(1),
-    #authHeaderContainer div span:nth-child(1),
-    #authHeaderContainer span:first-child,
-    #authHeaderContainer div span:first-child {
-      font-weight: 700 !important;
-      font-size: 15px !important;
-      color: var(--ink) !important;
-      display: inline-block !important;
-      margin: auto 0 !important;
-      white-space: nowrap !important;
-    }
+    #authHeaderContainer span[style*="background" i], #authHeaderContainer span[style*="accent" i], #authHeaderContainer span:nth-child(2), #authHeaderContainer div span:nth-child(2) { background: var(--accent) !important; color: var(--ink) !important; padding: 8px 18px !important; border-radius: 9999px !important; font-weight: 800 !important; font-size: 15px !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; margin: auto 0 !important; white-space: nowrap !important; }
+    #authHeaderContainer .user-greeting, #authHeaderContainer span:first-child, #authHeaderContainer div span:first-child { font-weight: 700 !important; font-size: 15px !important; color: var(--ink) !important; display: inline-block !important; margin: auto 0 !important; white-space: nowrap !important; }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../assets/js/auth-helper.js?v=11"></script>
@@ -336,39 +183,53 @@
         <div class="step-subtitle">Selecciona la clasificación que mejor se adapte a su funcionamiento real.</div>
         <div class="option-grid">
           <div class="option-card" data-val="funcional" onclick="selectCard(this, 'partType')">
-            <span class="emoji">⚙️</span>
-            <span class="option-card-title">Pieza funcional</span>
-            <span class="option-card-desc">Diseñada para soportar movimientos mecánicos o mecanismos activos.</span>
+            <div class="emoji">⚙️</div>
+            <div class="option-card-text">
+              <span class="option-card-title">Pieza funcional</span>
+              <span class="option-card-desc">Soporta movimientos o mecanismos activos.</span>
+            </div>
           </div>
           <div class="option-card" data-val="estructural" onclick="selectCard(this, 'partType')">
-            <span class="emoji">🏗️</span>
-            <span class="option-card-title">Pieza estructural</span>
-            <span class="option-card-desc">Diseñada para soportar cargas estáticas constantes o pesos continuos.</span>
+            <div class="emoji">🏗️</div>
+            <div class="option-card-text">
+              <span class="option-card-title">Estructural</span>
+              <span class="option-card-desc">Cargas estáticas o pesos continuos.</span>
+            </div>
           </div>
           <div class="option-card" data-val="sujecion" onclick="selectCard(this, 'partType')">
-            <span class="emoji">🔩</span>
-            <span class="option-card-title">Pieza de unión</span>
-            <span class="option-card-desc">Conectores, roscas, clips o encajes de acoplamiento.</span>
+            <div class="emoji">🔩</div>
+            <div class="option-card-text">
+              <span class="option-card-title">De Unión</span>
+              <span class="option-card-desc">Conectores, roscas o encajes rápidos.</span>
+            </div>
           </div>
           <div class="option-card" data-val="herramienta" onclick="selectCard(this, 'partType')">
-            <span class="emoji">🛠️</span>
-            <span class="option-card-title">Herramienta</span>
-            <span class="option-card-desc">Plantillas de montaje, posicionadores o utillajes de taller.</span>
+            <div class="emoji">🛠️</div>
+            <div class="option-card-text">
+              <span class="option-card-title">Herramienta</span>
+              <span class="option-card-desc">Plantillas, posicionadores o utillajes.</span>
+            </div>
           </div>
           <div class="option-card" data-val="repuesto" onclick="selectCard(this, 'partType')">
-            <span class="emoji">🔄</span>
-            <span class="option-card-title">Repuesto</span>
-            <span class="option-card-desc">Reemplazo directo de un componente original desgastado.</span>
+            <div class="emoji">🔄</div>
+            <div class="option-card-text">
+              <span class="option-card-title">Repuesto</span>
+              <span class="option-card-desc">Reemplazo directo de una pieza desgastada.</span>
+            </div>
           </div>
           <div class="option-card" data-val="estetica" onclick="selectCard(this, 'partType')">
-            <span class="emoji">💎</span>
-            <span class="option-card-title">Pieza estética</span>
-            <span class="option-card-desc">Modelos de exhibición, maquetas o piezas decorativas.</span>
+            <div class="emoji">💎</div>
+            <div class="option-card-text">
+              <span class="option-card-title">Estética</span>
+              <span class="option-card-desc">Modelos de exhibición o maquetas.</span>
+            </div>
           </div>
           <div class="option-card" data-val="prototipo" onclick="selectCard(this, 'partType')">
-            <span class="emoji">🔬</span>
-            <span class="option-card-title">Prototipo</span>
-            <span class="option-card-desc">Validaciones rápidas de forma o volumen antes de la serie.</span>
+            <div class="emoji">🔬</div>
+            <div class="option-card-text">
+              <span class="option-card-title">Prototipo</span>
+              <span class="option-card-desc">Validaciones rápidas de forma o volumen.</span>
+            </div>
           </div>
         </div>
       </div>
@@ -389,43 +250,50 @@
         <div class="step-subtitle">Selecciona todas las solicitaciones mecánicas que afectarán al modelo.</div>
         <div class="option-grid">
           <div class="option-card multi" data-val="compresion" onclick="toggleCard(this, 'forces')">
-            <span class="emoji">⬇️</span>
-            <span class="option-card-title">Compresión</span>
-            <span class="option-card-desc">Aplastamiento o fuerzas que presionan la pieza.</span>
+            <div class="emoji">⬇️</div>
+            <div class="option-card-text">
+              <span class="option-card-title">Compresión</span><span class="option-card-desc">Aplastamiento o fuerzas de presión.</span>
+            </div>
           </div>
           <div class="option-card multi" data-val="traccion" onclick="toggleCard(this, 'forces')">
-            <span class="emoji">⬆️</span>
-            <span class="option-card-title">Tracción</span>
-            <span class="option-card-desc">Fuerzas de estiramiento o tensiones de tiro.</span>
+            <div class="emoji">⬆️</div>
+            <div class="option-card-text">
+              <span class="option-card-title">Tracción</span><span class="option-card-desc">Fuerzas de estiramiento vertical.</span>
+            </div>
           </div>
           <div class="option-card multi" data-val="flexion" onclick="toggleCard(this, 'forces')">
-            <span class="emoji">↩️</span>
-            <span class="option-card-title">Flexión</span>
-            <span class="option-card-desc">Fuerzas perpendiculares que curvan el material.</span>
+            <div class="emoji">↩️</div>
+            <div class="option-card-text">
+              <span class="option-card-title">Flexión</span><span class="option-card-desc">Fuerzas que curvan el material.</span>
+            </div>
           </div>
           <div class="option-card multi" data-val="torsion" onclick="toggleCard(this, 'forces')">
-            <span class="emoji">🔄</span>
-            <span class="option-card-title">Torsión</span>
-            <span class="option-card-desc">Esfuerzos de rotación o retorcimiento del eje.</span>
+            <div class="emoji">🔄</div>
+            <div class="option-card-text">
+              <span class="option-card-title">Torsión</span><span class="option-card-desc">Esfuerzos de retorcimiento del eje.</span>
+            </div>
           </div>
           <div class="option-card multi" data-val="impactos" onclick="toggleCard(this, 'forces')">
-            <span class="emoji">💥</span>
-            <span class="option-card-title">Impactos</span>
-            <span class="option-card-desc">Golpes o choques secos y dinámicos recurrentes.</span>
+            <div class="emoji">💥</div>
+            <div class="option-card-text">
+              <span class="option-card-title">Impactos</span><span class="option-card-desc">Golpes o choques dinámicos.</span>
+            </div>
           </div>
           <div class="option-card multi" data-val="vibraciones" onclick="toggleCard(this, 'forces')">
-            <span class="emoji">〰️</span>
-            <span class="option-card-title">Vibraciones</span>
-            <span class="option-card-desc">Oscilaciones o movimientos mecánicos continuos.</span>
+            <div class="emoji">〰️</div>
+            <div class="option-card-text">
+              <span class="option-card-title">Vibraciones</span><span class="option-card-desc">Oscilaciones continuas.</span>
+            </div>
           </div>
           <div class="option-card multi" data-val="no_se" onclick="toggleCard(this, 'forces')">
-            <span class="emoji">🤷</span>
-            <span class="option-card-title">No lo sé</span>
-            <span class="option-card-desc">La IA deducirá las cargas basándose en el uso.</span>
+            <div class="emoji">🤷</div>
+            <div class="option-card-text">
+              <span class="option-card-title">No lo sé</span><span class="option-card-desc">La IA lo deducirá del texto.</span>
+            </div>
           </div>
         </div>
         <div class="form-group" style="max-width: 320px;">
-          <label>¿Qué carga o peso aproximado soportará? (Opcional)</label>
+          <label>Carga o peso aproximado (Opcional)</label>
           <input type="number" id="q-load-weight" placeholder="Ej: 5 (en kg)">
         </div>
       </div>
@@ -433,32 +301,22 @@
       <!-- PASO 4: DIRECCIÓN -->
       <div class="wizard-step" id="step-direction">
         <div class="step-title"><span>¿Cómo se aplicará la fuerza?</span> <span style="font-size:14px; color:var(--muted);">4 / 8</span></div>
-        <div class="step-subtitle">Indica la dirección principal de la carga para definir la orientación óptima de las capas.</div>
+        <div class="step-subtitle">Indica la dirección de la carga para definir la orientación óptima de las capas.</div>
         <div class="option-grid">
           <div class="option-card" data-val="arriba" onclick="selectCard(this, 'direction')">
-            <span class="emoji">⬇️</span>
-            <span class="option-card-title">Desde Arriba</span>
-            <span class="option-card-desc">Carga de gravedad descendente hacia la cama.</span>
+            <div class="emoji">⬇️</div><div class="option-card-text"><span class="option-card-title">Arriba</span><span class="option-card-desc">Gravedad hacia la cama.</span></div>
           </div>
           <div class="option-card" data-val="abajo" onclick="selectCard(this, 'direction')">
-            <span class="emoji">⬆️</span>
-            <span class="option-card-title">Desde Abajo</span>
-            <span class="option-card-desc">Cargas ascendentes o de estiramiento vertical.</span>
+            <div class="emoji">⬆️</div><div class="option-card-text"><span class="option-card-title">Abajo</span><span class="option-card-desc">Cargas de estiramiento.</span></div>
           </div>
           <div class="option-card" data-val="lateral" onclick="selectCard(this, 'direction')">
-            <span class="emoji">↔️</span>
-            <span class="option-card-title">Esfuerzo Lateral</span>
-            <span class="option-card-desc">Tensiones horizontales o de cizalla paralela.</span>
+            <div class="emoji">↔️</div><div class="option-card-text"><span class="option-card-title">Lateral</span><span class="option-card-desc">Fuerzas de cizalla paralela.</span></div>
           </div>
           <div class="option-card" data-val="torsional" onclick="selectCard(this, 'direction')">
-            <span class="emoji">🔄</span>
-            <span class="option-card-title">Esfuerzo Torsional</span>
-            <span class="option-card-desc">Fuerzas rotacionales cruzadas respecto al eje Z.</span>
+            <div class="emoji">🔄</div><div class="option-card-text"><span class="option-card-title">Torsional</span><span class="option-card-desc">Fuerzas rotacionales.</span></div>
           </div>
           <div class="option-card" data-val="no_se" onclick="selectCard(this, 'direction')">
-            <span class="emoji">🤷</span>
-            <span class="option-card-title">No lo sé</span>
-            <span class="option-card-desc">Se calculará un perímetro reforzado neutro.</span>
+            <div class="emoji">🤷</div><div class="option-card-text"><span class="option-card-title">No lo sé</span><span class="option-card-desc">Perímetro reforzado neutro.</span></div>
           </div>
         </div>
       </div>
@@ -469,34 +327,22 @@
         <div class="step-subtitle">Selecciona los factores ambientales del entorno de trabajo de la pieza.</div>
         <div class="option-grid">
           <div class="option-card multi" data-val="interior" onclick="toggleCard(this, 'environment')">
-            <span class="emoji">🏠</span>
-            <span class="option-card-title">Interior</span>
-            <span class="option-card-desc">Habitáculo resguardado de clima o sol directo.</span>
+            <div class="emoji">🏠</div><div class="option-card-text"><span class="option-card-title">Interior</span><span class="option-card-desc">Resguardado del clima.</span></div>
           </div>
           <div class="option-card multi" data-val="exterior" onclick="toggleCard(this, 'environment')">
-            <span class="emoji">☀️</span>
-            <span class="option-card-title">Exterior</span>
-            <span class="option-card-desc">Resistencia al sol, lluvia y cambios atmosféricos.</span>
+            <div class="emoji">☀️</div><div class="option-card-text"><span class="option-card-title">Exterior</span><span class="option-card-desc">Resistencia al clima/lluvia.</span></div>
           </div>
           <div class="option-card multi" data-val="humedad" onclick="toggleCard(this, 'environment')">
-            <span class="emoji">💧</span>
-            <span class="option-card-title">Humedad o Agua</span>
-            <span class="option-card-desc">Salpicaduras, condensación o inmersión en agua.</span>
+            <div class="emoji">💧</div><div class="option-card-text"><span class="option-card-title">Humedad</span><span class="option-card-desc">Salpicaduras o inmersión.</span></div>
           </div>
           <div class="option-card multi" data-val="sol_uv" onclick="toggleCard(this, 'environment')">
-            <span class="emoji">🕶️</span>
-            <span class="option-card-title">Exposición UV</span>
-            <span class="option-card-desc">Radiación solar intensa directa sin degradación.</span>
+            <div class="emoji">🕶️</div><div class="option-card-text"><span class="option-card-title">Radiación UV</span><span class="option-card-desc">Sol directo intenso.</span></div>
           </div>
           <div class="option-card multi" data-val="temp_alta" onclick="toggleCard(this, 'environment')">
-            <span class="emoji">🔥</span>
-            <span class="option-card-title">Alta Temperatura</span>
-            <span class="option-card-desc">Exposición o proximidad a focos de calor (&gt;55 ºC).</span>
+            <div class="emoji">🔥</div><div class="option-card-text"><span class="option-card-title">Calor</span><span class="option-card-desc">Exposición mayor a 55 ºC.</span></div>
           </div>
           <div class="option-card multi" data-val="quimicos" onclick="toggleCard(this, 'environment')">
-            <span class="emoji">🧪</span>
-            <span class="option-card-title">Químicos</span>
-            <span class="option-card-desc">Grasas, aceites lubricantes o combustibles.</span>
+            <div class="emoji">🧪</div><div class="option-card-text"><span class="option-card-title">Químicos</span><span class="option-card-desc">Grasas o aceites.</span></div>
           </div>
         </div>
         <div class="form-group" id="temp-conditional-group" style="display:none; max-width: 320px;">
@@ -507,76 +353,52 @@
 
       <!-- PASO 6: MATERIAL -->
       <div class="wizard-step" id="step-material">
-        <div class="step-title"><span>¿Qué material tienes previsto utilizar?</span> <span style="font-size:14px; color:var(--muted);">6 / 8</span></div>
-        <div class="step-subtitle">La IA evaluará si es la elección correcta o te propondrá una alternativa más fiable.</div>
+        <div class="step-title"><span>¿Qué material utilizarás?</span> <span style="font-size:14px; color:var(--muted);">6 / 8</span></div>
+        <div class="step-subtitle">La IA evaluará si es la elección correcta o te propondrá una alternativa.</div>
         <div class="option-grid">
           <div class="option-card" data-val="PLA" onclick="selectCard(this, 'material')">
-            <span class="emoji">🌱</span>
-            <span class="option-card-title">PLA</span>
-            <span class="option-card-desc">Máxima rigidez dimensional y detalle estético.</span>
+            <div class="emoji">🌱</div><div class="option-card-text"><span class="option-card-title">PLA</span><span class="option-card-desc">Rigidez y detalle estético.</span></div>
           </div>
           <div class="option-card" data-val="PETG" onclick="selectCard(this, 'material')">
-            <span class="emoji">🧪</span>
-            <span class="option-card-title">PETG</span>
-            <span class="option-card-desc">Tenacidad, ductilidad y resistencia térmica media.</span>
+            <div class="emoji">🧪</div><div class="option-card-text"><span class="option-card-title">PETG</span><span class="option-card-desc">Tenacidad y ductilidad.</span></div>
           </div>
           <div class="option-card" data-val="ABS" onclick="selectCard(this, 'material')">
-            <span class="emoji">🔥</span>
-            <span class="option-card-title">ABS</span>
-            <span class="option-card-desc">Alta resistencia estructural y térmica (requiere cabina).</span>
+            <div class="emoji">🔥</div><div class="option-card-text"><span class="option-card-title">ABS</span><span class="option-card-desc">Estructural termoresistente.</span></div>
           </div>
           <div class="option-card" data-val="ASA" onclick="selectCard(this, 'material')">
-            <span class="emoji">☀️</span>
-            <span class="option-card-title">ASA</span>
-            <span class="option-card-desc">Comportamiento exterior superior y filtro UV activo.</span>
+            <div class="emoji">☀️</div><div class="option-card-text"><span class="option-card-title">ASA</span><span class="option-card-desc">Comportamiento UV y exterior.</span></div>
           </div>
           <div class="option-card" data-val="TPU" onclick="selectCard(this, 'material')">
-            <span class="emoji">🩹</span>
-            <span class="option-card-title">TPU (Flexible)</span>
-            <span class="option-card-desc">Amortiguador elástico frente a impactos cíclicos.</span>
+            <div class="emoji">🩹</div><div class="option-card-text"><span class="option-card-title">TPU (Flex)</span><span class="option-card-desc">Amortiguador elástico.</span></div>
           </div>
           <div class="option-card" data-val="Nylon" onclick="selectCard(this, 'material')">
-            <span class="emoji">⚙️</span>
-            <span class="option-card-title">Nylon / PA</span>
-            <span class="option-card-desc">Bajo coeficiente de fricción y resistencia química.</span>
+            <div class="emoji">⚙️</div><div class="option-card-text"><span class="option-card-title">Nylon / PA</span><span class="option-card-desc">Resistencia química/fricción.</span></div>
           </div>
           <div class="option-card" data-val="no_se" onclick="selectCard(this, 'material')">
-            <span class="emoji">🤷</span>
-            <span class="option-card-title">No lo sé</span>
-            <span class="option-card-desc">La IA analizará el entorno y sugerirá el polímero.</span>
+            <div class="emoji">🤷</div><div class="option-card-text"><span class="option-card-title">No lo sé</span><span class="option-card-desc">La IA lo sugerirá.</span></div>
           </div>
         </div>
       </div>
 
       <!-- PASO 7: PRIORIDAD -->
       <div class="wizard-step" id="step-priority">
-        <div class="step-title"><span>¿Qué quieres priorizar en el análisis?</span> <span style="font-size:14px; color:var(--muted);">7 / 8</span></div>
+        <div class="step-title"><span>¿Qué priorizas en el análisis?</span> <span style="font-size:14px; color:var(--muted);">7 / 8</span></div>
         <div class="step-subtitle">Indica cuál es el factor de fabricación que requiere la máxima optimización.</div>
         <div class="option-grid">
           <div class="option-card" data-val="max_strength" onclick="selectCard(this, 'priority')">
-            <span class="emoji">💪</span>
-            <span class="option-card-title">Máxima resistencia</span>
-            <span class="option-card-desc">Refuerzo estructural máximo de paredes e infill 3D.</span>
+            <div class="emoji">💪</div><div class="option-card-text"><span class="option-card-title">Fuerza</span><span class="option-card-desc">Refuerzo estructural máximo.</span></div>
           </div>
           <div class="option-card" data-val="low_weight" onclick="selectCard(this, 'priority')">
-            <span class="emoji">🎈</span>
-            <span class="option-card-title">Menor peso</span>
-            <span class="option-card-desc">Optimización volumétrica interna y paredes finas.</span>
+            <div class="emoji">🎈</div><div class="option-card-text"><span class="option-card-title">Bajo Peso</span><span class="option-card-desc">Optimización volumétrica interna.</span></div>
           </div>
           <div class="option-card" data-val="low_cost" onclick="selectCard(this, 'priority')">
-            <span class="emoji">💶</span>
-            <span class="option-card-title">Menor coste</span>
-            <span class="option-card-desc">Menor densidad de infill y reducción de soportes.</span>
+            <div class="emoji">💶</div><div class="option-card-text"><span class="option-card-title">Bajo Coste</span><span class="option-card-desc">Menor densidad y soporte.</span></div>
           </div>
           <div class="option-card" data-val="fast_print" onclick="selectCard(this, 'priority')">
-            <span class="emoji">⚡</span>
-            <span class="option-card-title">Menor tiempo</span>
-            <span class="option-card-desc">Alturas de capa gruesas y optimizaciones de velocidad.</span>
+            <div class="emoji">⚡</div><div class="option-card-text"><span class="option-card-title">Velocidad</span><span class="option-card-desc">Reducción de tiempo.</span></div>
           </div>
           <div class="option-card" data-val="balanced" onclick="selectCard(this, 'priority')">
-            <span class="emoji">⚖️</span>
-            <span class="option-card-title">Equilibrio óptimo</span>
-            <span class="option-card-desc">Ecuación equilibrada entre coste, tiempo y fuerza.</span>
+            <div class="emoji">⚖️</div><div class="option-card-text"><span class="option-card-title">Equilibrio</span><span class="option-card-desc">Coste, tiempo y fuerza.</span></div>
           </div>
         </div>
       </div>
@@ -584,7 +406,7 @@
       <!-- PASO 8: DETALLES IMPRESORA -->
       <div class="wizard-step" id="step-printer">
         <div class="step-title"><span>¿Qué impresora 3D utilizarás?</span> <span style="font-size:14px; color:var(--muted);">8 / 8</span></div>
-        <div class="step-subtitle">Aporta las especificaciones técnicas de tu máquina de forma obligatoria para calibrar los flujos volumétricos.</div>
+        <div class="step-subtitle">Aporta las especificaciones técnicas para calibrar los flujos volumétricos.</div>
         <div class="form-group">
           <label>Tecnología de impresión</label>
           <select id="q-tech">
@@ -631,20 +453,17 @@
             <a href="../index.html#simulador"><span class="arrow">→</span> Simulador de Extrusión</a>
             <a href="calculadora-coste.html"><span class="arrow">→</span> Calculadoras de Coste y Masa</a>
             <a href="../index.html#guias"><span class="arrow">→</span> Base de Conocimiento</a>
-            <a href="../materiales/index.html"><span class="arrow">→</span> Atlas de Materiales</a>
           </div>
         </div>
         
         <div class="footer-col">
           <h3>Soporte y Legal</h3>
           <div class="footer-links">
-            <!-- HUELLA PROTEGIDA: Si hacen clic, se olvida que había un análisis a medias -->
             <a href="precios.html" onclick="sessionStorage.removeItem('printlab_resume_analysis');"><span class="arrow">→</span> Precios y Suscripciones</a>
             <a href="contacto.html"><span class="arrow">→</span> Contacto y Soporte</a>
             <a href="../condiciones-compra.html"><span class="arrow">→</span> Condiciones de Compra</a>
             <a href="../terminos.html"><span class="arrow">→</span> Términos y Condiciones</a>
             <a href="../privacidad.html"><span class="arrow">→</span> Política de Privacidad</a>
-            <a href="../cookies.html"><span class="arrow">→</span> Política de Cookies</a>
           </div>
         </div>
       </div>
