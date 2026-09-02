@@ -15,7 +15,7 @@
     body{margin:0; background:var(--bg); color:var(--ink); font-family:"Plus Jakarta Sans", sans-serif; -webkit-font-smoothing:antialiased;}
     .wrap{max-width:var(--max);margin:auto;padding:0 40px}
     
-    /* CABECERA */
+    /* CABECERA (FOTO 1 CONSERVADA EXACTAMENTE) */
     .top{position:sticky;top:0;z-index:100;background:rgba(246,247,244,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
     nav{min-height:95px;display:flex;align-items:center;justify-content:space-between;}
     .header-left{display:flex; align-items:center; gap:24px;}
@@ -29,6 +29,13 @@
     .dropdown-content { display: none; position: absolute; top: 110%; left: 0; background-color: var(--card); min-width: 240px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); border: 1.5px solid var(--line); border-radius: 16px; z-index: 200; flex-direction: column; padding: 12px 0; }
     .dropdown-content.show { display: flex; animation: slideDown 0.2s ease; }
     .dropdown-content a { padding: 14px 24px; color: var(--muted); font-weight: 700; font-size:15px; }
+    .dropdown-content a:hover { color: var(--ink); background: rgba(0,0,0,0.03); }
+
+    .auth-buttons { display:flex; gap:12px; align-items:center; }
+    .btn-auth { display: inline-flex; align-items: center; justify-content: center; padding: 12px 24px; border-radius: 9999px; font-weight: 800; font-size: 14px; cursor: pointer; transition: .2s ease; text-decoration: none; border: 2px solid var(--ink); }
+    .btn-auth.light { background: #fff; color: var(--ink); box-shadow: 0 3px 0px var(--ink); }
+    .btn-auth.light:hover { transform: translateY(-1px); box-shadow: 0 4px 0px var(--ink); }
+    .btn-auth.green { background: var(--accent); color: var(--ink); box-shadow: 0 3px 0px var(--ink); }
 
     /* CAD WORKSPACE SPLIT */
     .workspace-layout { display: grid; grid-template-columns: 1fr 420px; gap: 30px; margin: 20px 0 40px; }
@@ -52,7 +59,58 @@
     #btn-use-as-base { width: 100%; margin-top: 16px; background: #2688d8; color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: 800; cursor: pointer; }
 
     .no-session-card { text-align: center; padding: 60px 40px; background: var(--card); border: 1.5px solid var(--line); border-radius: 24px; max-width: 580px; margin: 80px auto; }
-    .footer { background: var(--bg); border-top: 1px solid var(--line); padding: 60px 0 40px; margin-top: 60px; color: var(--muted); font-size: 14px; text-align: center; }
+    
+    /* PIE DE PÁGINA (FOTO 2 CONSERVADO EXACTAMENTE) */
+    .footer { background: var(--bg); border-top: 1px solid var(--line); padding: 80px 0 40px; margin-top: 60px; color: var(--muted); font-size: 14px; line-height: 1.6; }
+    .footergrid { display: grid; grid-template-columns: 1.3fr 0.85fr 0.85fr; gap: 60px; margin-bottom: 48px; }
+    .footer-col h3 { font-size: 16px; font-weight: 800; color: var(--ink); margin: 0 0 20px; }
+    .footer-col p { margin: 0 0 16px; color: var(--muted); }
+    .footer-secondary-text { font-size: 12.5px; line-height: 1.5; color: #7d8782; margin-top: 12px; }
+    .footer-links { display: flex; flex-direction: column; gap: 10px; }
+    .footer-links a { color: var(--muted); transition: color 0.15s ease, transform 0.15s ease; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+    .footer-links a:hover { color: var(--ink); transform: translateX(2px); }
+    .footer-links a span.arrow { transition: color 0.15s ease; }
+    .footer-links a:hover span.arrow { color: var(--accent); }
+    .footer-bottom { border-top: 1px solid var(--line); padding-top: 24px; display:flex; justify-content:center; align-items:center; text-align:center; font-size: 13px; color: #7d8782;}
+
+    #authHeaderContainer span[style*="background" i],
+    #authHeaderContainer span[style*="accent" i],
+    #authHeaderContainer span:nth-child(2),
+    #authHeaderContainer div span:nth-child(2) {
+      background: var(--accent) !important;
+      background-color: var(--accent) !important;
+      color: var(--ink) !important;
+      padding: 8px 18px !important;
+      border-radius: 9999px !important;
+      font-weight: 800 !important;
+      font-size: 15px !important;
+      border: none !important;
+      border-width: 0px !important;
+      box-shadow: none !important;
+      display: inline-flex !important;
+      align-items: center !important;  
+      justify-content: center !important; 
+      align-self: center !important;
+      line-height: 1 !important; 
+      height: auto !important;
+      min-height: 0 !important;
+      max-height: 38px !important;
+      margin: auto 0 !important;
+      white-space: nowrap !important;
+    }
+
+    #authHeaderContainer .user-greeting,
+    #authHeaderContainer span:nth-child(1),
+    #authHeaderContainer div span:nth-child(1),
+    #authHeaderContainer span:first-child,
+    #authHeaderContainer div span:first-child {
+      font-weight: 700 !important;
+      font-size: 15px !important;
+      color: var(--ink) !important;
+      display: inline-block !important;
+      margin: auto 0 !important;
+      white-space: nowrap !important;
+    }
   </style>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -61,11 +119,24 @@
 </head>
 <body>
 
+  <!-- CABECERA (FOTO 1 EXACTA) -->
   <header class="top">
     <div class="wrap">
       <nav>
         <div class="header-left">
+          <div class="menu-dropdown">
+            <button class="hamburger" onclick="toggleMenu()" aria-label="Abrir menú"><span></span><span></span><span></span></button>
+            <div class="dropdown-content" id="mainMenu">
+              <a href="../index.html#portada">Inicio</a>
+              <a href="analizador-stl.html" class="active">Analizador STL</a>
+              <a href="../index.html#simulador">Simulador</a>
+            </div>
+          </div>
           <a class="brand" href="../index.html#portada">PRINT<span>LAB</span></a>
+        </div>
+        <div class="auth-buttons" id="authHeaderContainer" style="opacity: 0; visibility: hidden; transition: 0.15s ease;">
+          <a href="login.html" class="btn-auth light">Iniciar Sesión</a>
+          <a href="registro.html" class="btn-auth green">Registrarse</a>
         </div>
       </nav>
     </div>
@@ -82,7 +153,7 @@
       
       <section style="margin: 30px 0 10px;">
         <h1 style="font-size: 28px; font-weight: 800; margin: 0; letter-spacing: -1px;">Laminador Studio</h1>
-        <p style="color:var(--muted); margin: 6px 0 0;">Orienta tu pieza sobre la cama y obtén los parámetros de laminación calibrados en base real.</p>
+        <p style="color:var(--muted); margin: 6px 0 0;">Visualiza y descarga el STL ya preparado en su orientación óptima junto con el perfil correspondiente.</p>
       </section>
 
       <!-- CAD WORKSPACE CON DISTRIBUCIÓN SPLIT -->
@@ -108,17 +179,24 @@
               ↺ Orientación automática recomendada
             </button>
           </div>
+
+          <!-- BOTONES DE DESCARGA DIRECTA -->
+          <div style="margin-top:20px; display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <button id="btn-download-prepared-stl" class="btn-cad-action primary" style="background:#111715; color:#fff; border-color:#111715;">⬇️ Descargar STL Preparado</button>
+            <button id="btn-download-profile" class="btn-cad-action accent">📥 Descargar Perfil Orca / Bambu (.json)</button>
+          </div>
         </div>
 
         <!-- Columna Derecha: Parámetros del Laminador Calibrados -->
         <div style="background:var(--card); border:1.5px solid var(--line); border-radius:20px; padding:20px;">
-          <h3 style="margin-top:0; font-size:17px; display:flex; align-items:center; gap:8px;">⚙️ Perfil de Laminación Inteligente</h3>
+          <h3 style="margin-top:0; font-size:17px; display:flex; align-items:center; gap:8px;">⚙️ Perfil de Laminación Completo</h3>
           
           <div class="slicer-tabs">
             <div class="slicer-tab active" onclick="switchTab('calidad')">Calidad</div>
             <div class="slicer-tab" onclick="switchTab('fuerza')">Fuerza</div>
             <div class="slicer-tab" onclick="switchTab('velocidad')">Velocidad</div>
             <div class="slicer-tab" onclick="switchTab('soportes')">Soportes</div>
+            <div class="slicer-tab" onclick="switchTab('multimaterial')">Multimaterial</div>
           </div>
 
           <!-- Pestaña 1: Calidad -->
@@ -132,11 +210,14 @@
             <div class="param-row"><span class="param-label">Perímetro interno</span><span class="param-value" id="val-w-inner">0.45 mm</span></div>
             <div class="param-row"><span class="param-label">Relleno sólido superior</span><span class="param-value" id="val-w-top">0.42 mm</span></div>
             <div class="param-row"><span class="param-label">Relleno poco denso</span><span class="param-value" id="val-w-sparse">0.45 mm</span></div>
+            <div class="param-row"><span class="param-label">Relleno sólido interno</span><span class="param-value" id="val-w-solid-inner">0.45 mm</span></div>
           </div>
 
           <!-- Pestaña 2: Fuerza -->
           <div id="tab-fuerza" class="slicer-tab-content" style="display:none;">
             <div class="param-row"><span class="param-label">Bucles de pared (Perímetros)</span><span class="param-value" id="val-wall-loops">3</span></div>
+            <div class="param-row"><span class="param-label">Capas sólidas superiores</span><span class="param-value" id="val-top-layers">3</span></div>
+            <div class="param-row"><span class="param-label">Capas sólidas inferiores</span><span class="param-value" id="val-bottom-layers">3</span></div>
             <div class="param-row"><span class="param-label">Densidad de relleno</span><span class="param-value" id="val-infill-density">15 %</span></div>
             <div class="param-row"><span class="param-label">Patrón de relleno</span><span class="param-value" id="val-infill-pattern">Giroide</span></div>
           </div>
@@ -146,6 +227,9 @@
             <div class="param-row"><span class="param-label">Perímetro externo</span><span class="param-value" id="val-spd-outer">60 mm/s</span></div>
             <div class="param-row"><span class="param-label">Perímetro interno</span><span class="param-value" id="val-spd-inner">100 mm/s</span></div>
             <div class="param-row"><span class="param-label">Relleno poco denso</span><span class="param-value" id="val-spd-sparse">120 mm/s</span></div>
+            <div class="param-row"><span class="param-label">Relleno sólido interno</span><span class="param-value" id="val-spd-solid-inner">120 mm/s</span></div>
+            <div class="param-row"><span class="param-label">Superficie superior</span><span class="param-value" id="val-spd-top">50 mm/s</span></div>
+            <div class="param-row"><span class="param-label">Capa inicial</span><span class="param-value" id="val-spd-initial">35 mm/s</span></div>
             <div class="param-row"><span class="param-label">Desplazamiento (Viaje)</span><span class="param-value" id="val-spd-travel">150 mm/s</span></div>
           </div>
 
@@ -154,10 +238,14 @@
             <div class="param-row"><span class="param-label">Habilitar soportes</span><span class="param-value" id="val-supp-enable">No necesario</span></div>
             <div class="param-row"><span class="param-label">Tipo de soporte</span><span class="param-value" id="val-supp-type">Normal (auto)</span></div>
             <div class="param-row"><span class="param-label">Ángulo umbral</span><span class="param-value">45º</span></div>
+            <div class="param-row"><span class="param-label">Distancia Z</span><span class="param-value" id="val-supp-z">0.2 mm</span></div>
+            <div class="param-row"><span class="param-label">Densidad de soporte</span><span class="param-value" id="val-supp-density">15 %</span></div>
           </div>
 
-          <div style="margin-top:20px;">
-            <button id="btn-download-profile" class="btn-cad-action accent">📥 Importar Perfil en OrcaSlicer / Bambu (.json)</button>
+          <!-- Pestaña 5: Multimaterial -->
+          <div id="tab-multimaterial" class="slicer-tab-content" style="display:none;">
+            <div class="param-row"><span class="param-label">Torre de purga</span><span class="param-value" id="val-mm-tower">No</span></div>
+            <div class="param-row"><span class="param-label">Volumen de purga (flush)</span><span class="param-value" id="val-mm-flush">120 mm³</span></div>
           </div>
         </div>
       </section>
@@ -165,14 +253,53 @@
     </div>
   </main>
 
+  <!-- PIE DE PÁGINA (FOTO 2 EXACTA) -->
   <footer class="footer">
     <div class="wrap">
-      <p>© 2026 PrintLab. Calibrado paramétrico directo para manufactura 3D.</p>
+      <div class="footergrid">
+        <div class="footer-col">
+          <h3>PrintLab — Ingeniería 3D</h3>
+          <p>Plataforma profesional de análisis y optimización STL mediante Inteligencia Artificial y simuladores paramétricos. Transformamos modelos 3D con problemas en geometrías perfectas listas para fabricar, ahorrando tiempo, material y costes en entornos industriales.</p>
+          <p class="footer-secondary-text">Desarrollado bajo principios de Privacy by Design. Los datos y archivos STL se procesan con estricta confidencialidad.</p>
+        </div>
+        
+        <div class="footer-col">
+          <h3>Recursos y Herramientas</h3>
+          <div class="footer-links">
+            <a href="../index.html#analizador"><span class="arrow">→</span> Analizador STL IA</a>
+            <a href="../index.html#simulador"><span class="arrow">→</span> Simulador de Extrusión</a>
+            <a href="calculadora-coste.html"><span class="arrow">→</span> Calculadoras de Coste y Masa</a>
+            <a href="../index.html#guias"><span class="arrow">→</span> Base de Conocimiento</a>
+            <a href="../materiales/index.html"><span class="arrow">→</span> Atlas de Materiales</a>
+          </div>
+        </div>
+        
+        <div class="footer-col">
+          <h3>Soporte y Legal</h3>
+          <div class="footer-links">
+            <a href="precios.html"><span class="arrow">→</span> Precios y Suscripciones</a>
+            <a href="contacto.html"><span class="arrow">→</span> Contacto y Soporte</a>
+            <a href="../condiciones-compra.html"><span class="arrow">→</span> Condiciones de Compra</a>
+            <a href="../terminos.html"><span class="arrow">→</span> Términos y Condiciones</a>
+            <a href="../privacidad.html"><span class="arrow">→</span> Política de Privacidad</a>
+            <a href="../cookies.html"><span class="arrow">→</span> Política de Cookies</a>
+          </div>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <div class="footer-bottom-text">© 2026 PrintLab.</div>
+      </div>
     </div>
   </footer>
 
   <script>
+    function toggleMenu() { document.getElementById('mainMenu').classList.toggle('show'); }
+  </script>
+
+  <script>
     let activeProfileData = null;
+    let activeMeshBase64 = null;
 
     function switchTab(tabId) {
       document.querySelectorAll(".slicer-tab").forEach(t => t.classList.remove("active"));
@@ -200,14 +327,19 @@
         "initial_layer_line_width": profile.line_widths.first_layer.toString(),
         "outer_wall_line_width": profile.line_widths.outer_wall.toString(),
         "inner_wall_line_width": profile.line_widths.inner_wall.toString(),
-        "top_surface_line_width": profile.line_widths.top_solid_infill.toString(),
+        "top_surface_line_width": profile.line_widths.top_surface.toString(),
         "sparse_infill_line_width": profile.line_widths.sparse_infill.toString(),
         "wall_loops": profile.wall_loops.toString(),
+        "top_shell_layers": profile.top_solid_layers.toString(),
+        "bottom_shell_layers": profile.bottom_solid_layers.toString(),
         "sparse_infill_density": profile.infill_density.toString() + "%",
         "sparse_infill_pattern": profile.infill_pattern === "giroide" ? "gyroid" : (profile.infill_pattern === "rectilineo" ? "rectilinear" : "cubic"),
         "outer_wall_speed": profile.speeds.outer_wall.toString(),
         "inner_wall_speed": profile.speeds.inner_wall.toString(),
         "sparse_infill_speed": profile.speeds.sparse_infill.toString(),
+        "internal_solid_infill_speed": profile.speeds.internal_solid_infill.toString(),
+        "top_surface_speed": profile.speeds.top_surface.toString(),
+        "initial_layer_speed": profile.speeds.initial_layer.toString(),
         "travel_speed": profile.speeds.travel.toString(),
         "enable_support": profile.supports.enable,
         "support_type": profile.supports.type.includes("árbol") ? "tree_auto" : "normal_auto"
@@ -291,6 +423,7 @@
 
       const b64 = meshData.optimized_base64 || meshData.optimized_mesh_base64;
       if (b64) {
+        activeMeshBase64 = b64;
         const geo = parseBase64STL(b64);
         if (geo) {
           geo.computeVertexNormals();
@@ -467,6 +600,8 @@
       init3DViewer("canvas3dContainer");
 
       const analysis = JSON.parse(storedAnalysis);
+      
+      // Sincronizar el modelo orientado automáticamente en base real en la primera carga
       renderModel(analysis);
       syncSlicerParameters(analysis.slicer_settings);
 
@@ -474,6 +609,13 @@
       document.getElementById("btn-download-profile").addEventListener("click", () => {
         if (activeProfileData) {
           downloadSlicerProfile(activeProfileData, (analysis.file_name || "perfil") + "_orca_profile.json");
+        }
+      });
+
+      // Botón descarga del STL Preparado (con la orientación aplicada)
+      document.getElementById("btn-download-prepared-stl").addEventListener("click", () => {
+        if (activeMeshBase64) {
+          downloadBase64STL(activeMeshBase64, (analysis.file_name || "pieza") + "_preparado.stl");
         }
       });
 
@@ -518,7 +660,7 @@
       });
     });
 
-    // Rellena la tabla paramétrica emulando OrcaSlicer/Bambu Studio
+    // Rellena la tabla paramétrica completa emulando OrcaSlicer/Bambu Studio
     function syncSlicerParameters(settings) {
       if (!settings) return;
       activeProfileData = settings;
@@ -530,11 +672,14 @@
       document.getElementById("val-w-first").innerText = settings.line_widths.first_layer + " mm";
       document.getElementById("val-w-outer").innerText = settings.line_widths.outer_wall + " mm";
       document.getElementById("val-w-inner").innerText = settings.line_widths.inner_wall + " mm";
-      document.getElementById("val-w-top").innerText = settings.line_widths.top_solid_infill + " mm";
+      document.getElementById("val-w-top").innerText = settings.line_widths.top_surface + " mm";
       document.getElementById("val-w-sparse").innerText = settings.line_widths.sparse_infill + " mm";
+      document.getElementById("val-w-solid-inner").innerText = settings.line_widths.internal_solid_infill + " mm";
 
       // 2. Fuerza
       document.getElementById("val-wall-loops").innerText = settings.wall_loops;
+      document.getElementById("val-top-layers").innerText = settings.top_solid_layers;
+      document.getElementById("val-bottom-layers").innerText = settings.bottom_solid_layers;
       document.getElementById("val-infill-density").innerText = settings.infill_density + " %";
       document.getElementById("val-infill-pattern").innerText = settings.infill_pattern.charAt(0).toUpperCase() + settings.infill_pattern.slice(1);
 
@@ -542,11 +687,20 @@
       document.getElementById("val-spd-outer").innerText = settings.speeds.outer_wall + " mm/s";
       document.getElementById("val-spd-inner").innerText = settings.speeds.inner_wall + " mm/s";
       document.getElementById("val-spd-sparse").innerText = settings.speeds.sparse_infill + " mm/s";
+      document.getElementById("val-spd-solid-inner").innerText = settings.speeds.internal_solid_infill + " mm/s";
+      document.getElementById("val-spd-top").innerText = settings.speeds.top_surface + " mm/s";
+      document.getElementById("val-spd-initial").innerText = settings.speeds.initial_layer + " mm/s";
       document.getElementById("val-spd-travel").innerText = settings.speeds.travel + " mm/s";
 
       // 4. Soportes
-      document.getElementById("val-supp-enable").innerText = settings.supports.enable === "1" ? "Habilitado (auto)" : "No necesario";
+      document.getElementById("val-supp-enable").innerText = settings.supports.enable === "1" ? "Habilitado" : "No necesario";
       document.getElementById("val-supp-type").innerText = settings.supports.type.includes("árbol") ? "Árbol (auto)" : "Normal (auto)";
+      document.getElementById("val-supp-z").innerText = settings.supports.z_distance + " mm";
+      document.getElementById("val-supp-density").innerText = settings.supports.infill_density + " %";
+
+      // 5. Multimaterial
+      document.getElementById("val-mm-tower").innerText = settings.multimaterial.prime_tower === "1" ? "Habilitada (auto)" : "No";
+      document.getElementById("val-mm-flush").innerText = settings.multimaterial.flush_volume + " mm³";
     }
   </script>
 </body>
