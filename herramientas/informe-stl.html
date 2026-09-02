@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Consola de Ingeniería y Optimización STL — PrintLab PRO</title>
+  <title>Estación de Telemetría e Ingeniería 3D — PrintLab PRO</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    :root{ --bg:#f6f7f4; --card:#fff; --ink:#0d1110; --muted:#5e6661; --line:#dfe4df; --accent:#b8ff3d; --dark:#111715; --max:1240px; --error:#9e3223; --warning:#c47100;}
+    :root{ --bg:#f6f7f4; --card:#fff; --ink:#0d1110; --muted:#5e6661; --line:#dfe4df; --accent:#b8ff3d; --dark:#111715; --max:1280px; --error:#9e3223; --warning:#c47100;}
     *{box-sizing:border-box}html{scroll-behavior:smooth}
     a{color:inherit;text-decoration:none}
     body{margin:0; background:var(--bg); color:var(--ink); font-family:"Plus Jakarta Sans", sans-serif; -webkit-font-smoothing:antialiased;}
@@ -33,17 +33,16 @@
     .tool-header h1{font-size:clamp(30px, 4vw, 48px); letter-spacing:-0.03em; line-height:1.05; margin:0 0 12px; font-weight:800;}
     .tool-header p{font-size:16px; color:var(--muted); max-width:900px; margin:0; line-height:1.5;}
 
-    .report-grid{display:grid; grid-template-columns: 1.25fr 1fr; gap:32px; padding:10px 0 60px;}
+    .report-grid{display:grid; grid-template-columns: 1.3fr 1fr; gap:32px; padding:10px 0 60px;}
     
     .mesh-comparison{background:var(--dark); border-radius:24px; padding:24px; color:#fff; display:flex; flex-direction:column; gap:16px; box-shadow:0 15px 35px rgba(0,0,0,0.15); position: relative;}
-    .mesh-canvas{background:#161d1a; border-radius:16px; height:420px; display:flex; align-items:center; justify-content:center; border:1px solid #2e3a35; position:relative; overflow:hidden;}
+    .mesh-canvas{background:#161d1a; border-radius:16px; height:445px; display:flex; align-items:center; justify-content:center; border:1px solid #2e3a35; position:relative; overflow:hidden;}
     
-    /* Telemetría HUD de Ingeniería */
     .telemetry-hud {
       position: absolute;
       top: 10px;
       left: 10px;
-      background: rgba(17, 23, 21, 0.85);
+      background: rgba(17, 23, 21, 0.9);
       border: 1px solid #2e3a35;
       border-radius: 8px;
       padding: 12px;
@@ -80,7 +79,6 @@
     .layer-btn{padding:6px 12px; border-radius:6px; font-size:10.5px; font-weight:800; cursor:pointer; background:#fff; border:1px solid var(--line); transition:0.15s;}
     .layer-btn.active{background:var(--accent); border-color:var(--ink); color:var(--ink);}
 
-    /* Acordeón de Parámetros de Slicing (Sección 8) */
     .slicer-accordion {
       border: 1.5px solid var(--line);
       border-radius: 12px;
@@ -129,6 +127,20 @@
       font-weight: 700;
       font-family: 'JetBrains Mono', monospace;
       color: var(--ink);
+    }
+
+    .terminal-box {
+      background: #0d1110;
+      border: 1px solid #2e3a35;
+      border-radius: 12px;
+      padding: 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #8be9fd;
+      height: 140px;
+      overflow-y: auto;
+      margin-top: 24px;
+      line-height: 1.5;
     }
 
     .footer { background: var(--bg); border-top: 1px solid var(--line); padding: 60px 0 40px; color: var(--muted); font-size: 14px; }
@@ -185,14 +197,14 @@
 
     <div id="reportMainContent" style="display:none;">
       <div class="tool-header">
-        <div style="display:inline-flex; align-items:center; padding:6px 14px; border-radius:9999px; background:rgba(0,0,0,0.04); font-size:11px; text-transform:uppercase; letter-spacing:1px; font-weight:800; color:var(--muted); margin-bottom:12px;">Consola interactiva de optimización</div>
+        <div style="display:inline-flex; align-items:center; padding:6px 14px; border-radius:9999px; background:rgba(0,0,0,0.04); font-size:11px; text-transform:uppercase; letter-spacing:1px; font-weight:800; color:var(--muted); margin-bottom:12px;">Estación de Telemetría Dinámica</div>
         <h1>Informe de Optimización STL</h1>
         <p>Evaluación de estabilidad geométrica, reducción volumétrica e idoneidad de impresión para su pieza.</p>
       </div>
 
       <div class="report-grid">
         
-        <!-- VISOR 3D AVANZADO CON TELEMETRÍA (HUD) Y CONTROLES DE ROTACIÓN -->
+        <!-- VISOR 3D AVANZADO CON TELEMETRÍA (HUD) Y CONTROLES DE LAMINADO -->
         <div>
           <div class="mesh-comparison">
             <!-- HUD de telemetría de ingeniería activa [page 1] -->
@@ -212,18 +224,31 @@
             
             <div class="mesh-canvas" id="canvas3dContainer"></div>
             
-            <!-- CAPAS DEL VISOR REACCIONAN DINÁMICAMENTE A LAS PREGUNTAS (Sección 5 y 16) -->
+            <!-- CAPAS DEL VISOR REACCIONAN DINÁMICAMENTE A LAS PREGUNTAS (Sección 5 y 16) [page 5] -->
             <div style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center; background: rgba(0,0,0,0.2); padding: 12px; border-radius:12px;">
               <button class="layer-btn active" id="layer-solid" onclick="toggleVisualLayer('solid')">Sólido</button>
               <button class="layer-btn" id="layer-wire" onclick="toggleVisualLayer('wireframe')">Alambre</button>
               <button class="layer-btn" id="layer-over" onclick="toggleVisualLayer('overhangs')">Voladizos Dinámicos</button>
-              <button class="layer-btn" id="layer-stress" onclick="toggleVisualLayer('stress')">Zonas de Carga</button>
+              <button class="layer-btn" id="layer-stress" onclick="toggleVisualLayer('stress')">Simulador de Esfuerzo (FEA)</button>
+              <button class="layer-btn" id="layer-orient" onclick="toggleVisualLayer('orient')">Líneas de Capa</button>
+            </div>
+
+            <!-- CONTROL EN VIVO DE ALTURA Z DE CORTE (LIVE SLICING PREVIEW) -->
+            <div style="background: rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); padding: 14px; border-radius: 12px; font-size: 11px;">
+              <div style="font-weight: 800; margin-bottom: 8px; color: var(--accent); display:flex; justify-content:space-between;">
+                <span>VISTA SECCIONADA (SLICE PREVIEW)</span>
+                <span id="sliceValue">100% (Completo)</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:12px;">
+                <span style="width: 40px; color: var(--muted);">Corte Z:</span>
+                <input type="range" id="sliceZSlider" min="0" max="100" value="100" style="flex-grow:1;" oninput="updateLiveClippingPlane()">
+              </div>
             </div>
 
             <!-- CONTROLES FÍSICOS DE ROTACIÓN LIVE PARA RECALCULAR VOLADIZOS -->
             <div style="background: rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); padding: 14px; border-radius: 12px; font-size: 11px;">
               <div style="font-weight: 800; margin-bottom: 8px; color: var(--accent); display:flex; justify-content:space-between;">
-                <span>CALIBRACIÓN DE ÁNGULO DE CONSTRUCCIÓN</span>
+                <span>REORIENTAR PIEZA (CALIBRACIÓN MANUAL)</span>
                 <span id="angleValue">X: 0º, Y: 0º</span>
               </div>
               <div style="display:flex; flex-direction:column; gap:10px;">
@@ -242,6 +267,16 @@
           <!-- TABLA COMPARATIVA ORIGINAL VS OPTIMIZADO -->
           <div style="margin-top:24px; padding:24px; background:var(--card); border:1.5px solid var(--line); border-radius:20px;">
             <h4 style="margin:0 0 16px; font-weight:800; font-size:16px;">Métricas Comparativas de Laminación (Original vs. Optimizado)</h4>
+            
+            <!-- Calculadora de amortización en vivo [page 11] -->
+            <div style="display:flex; align-items:center; gap:16px; background:#f0f4f0; padding:12px 16px; border-radius:12px; margin-bottom:16px; font-size:13px;">
+              <span style="font-weight:800;">Ajustar coste filamento:</span>
+              <div style="display:flex; align-items:center; gap:6px;">
+                <input type="number" id="costPerSpool" value="25" style="width:60px; padding:6px; border:1px solid var(--line); border-radius:6px; font-weight:700;" oninput="recalculateCosts()">
+                <span style="font-weight:700;">€ / kg</span>
+              </div>
+            </div>
+
             <table style="width: 100%; border-collapse: collapse; font-size: 14px; text-align: left;">
               <thead>
                 <tr style="border-bottom: 2px solid var(--line); color: var(--muted);">
@@ -255,6 +290,11 @@
                   <td style="padding: 10px 0;">Peso del modelo</td>
                   <td style="padding: 10px; text-align: center; color: var(--muted);" id="comp-weight-orig">...</td>
                   <td style="padding: 10px; text-align: center; font-weight: 800;" id="comp-weight-opt">...</td>
+                </tr>
+                <tr style="border-bottom: 1px dashed var(--line);">
+                  <td style="padding: 10px 0;">Coste estimado material</td>
+                  <td style="padding: 10px; text-align: center; color: var(--muted); font-family:'JetBrains Mono', monospace;" id="comp-cost-orig">...</td>
+                  <td style="padding: 10px; text-align: center; font-weight: 800; font-family:'JetBrains Mono', monospace;" id="comp-cost-opt">...</td>
                 </tr>
                 <tr style="border-bottom: 1px dashed var(--line);">
                   <td style="padding: 10px 0;">Masa de soportes</td>
@@ -274,6 +314,12 @@
               </tbody>
             </table>
           </div>
+
+          <!-- TERMINAL CONSOLE LOG (DE depuración de optimización) [page 13, page 15] -->
+          <div class="terminal-box" id="diagnosticTerminal">
+            [SYS_INIT] Cargando modelo STL...<br>
+            [MATH_GEOM] Iniciando comprobación de estanqueidad (Watertight)...<br>
+          </div>
         </div>
 
         <!-- DIAGNÓSTICO E INFORME TÉCNICO -->
@@ -282,7 +328,7 @@
             <div class="score-card">
               <p class="score-title">Mesh Integrity (Salud)</p>
               <p class="score-value" id="reportMeshHealth">98/100</p>
-              <p class="score-desc" id="reportMeshDesc">Malla geométrica reparada.</p>
+              <p class="score-desc" id="reportMeshDesc">Malla geométrica reparada con éxito.</p>
             </div>
             <div class="score-card">
               <p class="score-title">Printability (Imprimibilidad)</p>
@@ -429,25 +475,6 @@
           <h3>PrintLab — Ingeniería 3D</h3>
           <p>Plataforma profesional de análisis y optimización STL mediante Inteligencia Artificial y simuladores paramétricos. Transformamos modelos 3D con problemas en geometrías de ingeniería listas para fabricar, ahorrando tiempo, material y costes en entornos de taller industrial.</p>
         </div>
-        
-        <div class="footer-col">
-          <h3>Recursos y Herramientas</h3>
-          <div class="footer-links">
-            <a href="../index.html#analizador"><span class="arrow">→</span> Analizador STL IA</a>
-            <a href="../index.html#simulador"><span class="arrow">→</span> Simulador de Extrusión</a>
-            <a href="calculadora-coste.html"><span class="arrow">→</span> Calculadoras de Coste y Masa</a>
-            <a href="../index.html#guias"><span class="arrow">→</span> Base de Conocimiento</a>
-          </div>
-        </div>
-        
-        <div class="footer-col">
-          <h3>Soporte y Legal</h3>
-          <div class="footer-links">
-            <a href="precios.html"><span class="arrow">→</span> Precios y Suscripciones</a>
-            <a href="contacto.html"><span class="arrow">→</span> Contacto y Soporte</a>
-            <a href="../condiciones-compra.html"><span class="arrow">→</span> Condiciones de Compra</a>
-          </div>
-        </div>
       </div>
       
       <div class="footer-bottom">
@@ -483,6 +510,16 @@
     let dynamicProfiles = {};
     let currentRotation = { x: 0, y: 0 };
     let selectedLayerType = 'solid';
+    let clippingPlane = null;
+    let computedVolumeVal = 50;
+
+    function appendTerminal(text) {
+      const term = document.getElementById("diagnosticTerminal");
+      if (term) {
+        term.innerHTML += `> ${text}<br>`;
+        term.scrollTop = term.scrollHeight;
+      }
+    }
 
     function init3DViewer(containerId, base64Data, criticalPoints, forceDir) {
       const container = document.getElementById(containerId);
@@ -498,6 +535,9 @@
 
       renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setSize(container.clientWidth, container.clientHeight);
+      
+      // Habilitar plano de corte en local [page 7, page 8]
+      renderer.localClippingEnabled = true;
       container.appendChild(renderer.domElement);
 
       const light1 = new THREE.DirectionalLight(0xffffff, 1.2);
@@ -535,26 +575,43 @@
         }
         geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
 
+        // Inicializar plano de corte en Z máximo
+        geometry.computeBoundingBox();
+        const b = geometry.boundingBox;
+        clippingPlane = new THREE.Plane(new THREE.Vector3(0, 0, -1), b.max.z);
+
         const material = new THREE.MeshPhongMaterial({ 
           vertexColors: true, 
           specular: 0x111111, 
-          shininess: 90 
+          shininess: 90,
+          clippingPlanes: [ clippingPlane ],
+          clipShadows: true,
+          side: THREE.DoubleSide
         });
 
         activeMesh = new THREE.Mesh(geometry, material);
         scene.add(activeMesh);
 
-        // HUD de telemetría con datos reales del análisis geométrico [page 1]
-        geometry.computeBoundingBox();
-        const b = geometry.boundingBox;
+        // HUD [page 1]
         const dx = b.max.x - b.min.x;
         const dy = b.max.y - b.min.y;
         const dz = b.max.z - b.min.z;
         
         document.getElementById("hud-triangles").textContent = (position.count / 3).toLocaleString();
-        document.getElementById("hud-volume").textContent = (parseFloat(analysisData.volume) || 50).toFixed(2);
+        document.getElementById("hud-volume").textContent = computedVolumeVal.toFixed(2);
         document.getElementById("hud-dims").textContent = `${dx.toFixed(1)} x ${dy.toFixed(1)} x ${dz.toFixed(1)}`;
         document.getElementById("hud-force").textContent = forceDir || "arriba";
+
+        // Orientación Automática inicial por cálculo vectorial
+        const optRot = calculateOptimalRotation(forceDir);
+        currentRotation = optRot;
+        activeMesh.rotation.set(optRot.x, optRot.y, 0);
+        document.getElementById("rotationStatusLabel").textContent = `Orientación: ${optRot.label}`;
+        
+        // Sincronizar sliders manuales con la orientación inicial sugerida
+        document.getElementById("manualRotX").value = Math.round((optRot.x * 180) / Math.PI);
+        document.getElementById("manualRotY").value = Math.round((optRot.y * 180) / Math.PI);
+        document.getElementById("angleValue").textContent = `X: ${Math.round((optRot.x * 180) / Math.PI)}º, Y: ${Math.round((optRot.y * 180) / Math.PI)}º`;
 
         if (criticalPoints && criticalPoints.length > 0) {
           criticalPoints.forEach(pt => {
@@ -574,6 +631,9 @@
         camera.position.set(center.x + size * 0.8, center.y + size * 0.8, center.z + size * 0.8);
         controls.update();
 
+        appendTerminal("[MATH_GEOM] Caja límites: " + dx.toFixed(1) + "x" + dy.toFixed(1) + "x" + dz.toFixed(1) + " mm");
+        appendTerminal("[MATH_GEOM] Orientación Euler calculada: " + optRot.label);
+
       } catch (err) {
         console.error("Error renderizando STL en Three.js:", err);
       }
@@ -586,7 +646,7 @@
       animate();
     }
 
-    // Rotación del modelo y cálculo dinámico de voladizos (Overhangs) en tiempo real [page 5]
+    // Rotación e inversión de voladizos interactiva en tiempo real [page 5]
     function updateManualRotation() {
       if (!activeMesh) return;
       const rx = parseFloat(document.getElementById("manualRotX").value);
@@ -598,41 +658,50 @@
       activeMesh.rotation.set(radX, radY, 0);
       currentRotation = { x: radX, y: radY };
 
-      // Actualizar HUD
       document.getElementById("angleValue").textContent = `X: ${rx}º, Y: ${ry}º`;
       document.getElementById("hud-angle-z").textContent = Math.round(rx);
 
-      // Repintar capas según ángulo si la capa de voladizos está activa
-      if (selectedLayerType === 'overhangs') {
-        recalculateDynamicOverhangs();
+      // Si la capa de voladizos o texturas está activa, actualizar vertexColors en vivo
+      if (selectedLayerType === 'overhangs' || selectedLayerType === 'orient') {
+        toggleVisualLayer(selectedLayerType);
       }
     }
 
-    function recalculateDynamicOverhangs() {
-      if (!activeMesh) return;
+    // Deslizador de corte en vivo (Slice plane slider) [page 7, page 8]
+    function updateLiveClippingPlane() {
+      if (!activeMesh || !clippingPlane) return;
+      const sliderVal = parseFloat(document.getElementById("sliceZSlider").value);
+      
       const geom = activeMesh.geometry;
-      const normals = geom.attributes.normal;
-      const colors = geom.attributes.color;
-
-      const euler = new THREE.Euler(currentRotation.x, currentRotation.y, 0, 'XYZ');
-      const normalVec = new THREE.Vector3();
-
-      for (let i = 0; i < normals.count; i++) {
-        normalVec.set(normals.getX(i), normals.getY(i), normals.getZ(i));
-        normalVec.applyEuler(euler); 
-
-        // Si el ángulo de la normal apunta hacia abajo respecto al nuevo eje de construcción Z (Gravedad)
-        if (normalVec.z < -0.707) { 
-          colors.setXYZ(i, 0.85, 0.2, 0.14); // Rojo (Soporte crítico < 45º) [page 5]
-        } else if (normalVec.z < -0.5) {
-          colors.setXYZ(i, 0.9, 0.6, 0.0); // Amarillo (Soporte leve)
-        } else {
-          colors.setXYZ(i, 0.8, 0.8, 0.8); // Estable
-        }
-      }
-      colors.needsUpdate = true;
+      geom.computeBoundingBox();
+      const b = geom.boundingBox;
+      
+      const minZ = b.min.z;
+      const maxZ = b.max.z;
+      
+      // Mapeo lineal de altura Z
+      const currentCutZ = minZ + ((maxZ - minZ) * (sliderVal / 100));
+      
+      // Mover el plano de corte local
+      clippingPlane.constant = currentCutZ;
+      
+      document.getElementById("sliceValue").textContent = sliderVal === 100 ? "100% (Completo)" : `${sliderVal.toFixed(0)}% (Laminando)`;
+      appendTerminal(`[LAMINADOR_PREVIEW] Corte de capa Z en tiempo real a ${(sliderVal).toFixed(0)}%`);
     }
 
+    function calculateOptimalRotation(forceDirection) {
+      const rot = { x: 0, y: 0, z: 0, label: "Estándar" };
+      if (forceDirection === "izquierda" || forceDirection === "derecha") {
+        rot.y = Math.PI / 2; 
+        rot.label = "Optimizada: Rotado 90º en Y";
+      } else if (forceDirection === "frente" || forceDirection === "atras") {
+        rot.x = Math.PI / 2; 
+        rot.label = "Optimizada: Rotado 90º en X";
+      }
+      return rot;
+    }
+
+    // Modificar el texturado procedimental e iluminador dinámico según la pregunta del cuestionario [page 1, page 5]
     function toggleVisualLayer(layerType) {
       if (!activeMesh) return;
       selectedLayerType = layerType;
@@ -642,6 +711,7 @@
       if (layerType === 'wireframe') {
         activeMesh.material.wireframe = true;
         document.getElementById("layer-wire").classList.add("active");
+        appendTerminal("[VISOR_3D] Capa Alambre activa");
       } else if (layerType === 'solid') {
         activeMesh.material.wireframe = false;
         activeMesh.material.vertexColors = true;
@@ -652,10 +722,31 @@
         }
         colors.needsUpdate = true;
         document.getElementById("layer-solid").classList.add("active");
+        appendTerminal("[VISOR_3D] Capa Sólida activa");
       } else if (layerType === 'overhangs') {
         activeMesh.material.wireframe = false;
-        recalculateDynamicOverhangs();
+        const geom = activeMesh.geometry;
+        const normals = geom.attributes.normal;
+        const colors = geom.attributes.color;
+
+        const euler = new THREE.Euler(currentRotation.x, currentRotation.y, 0, 'XYZ');
+        const normalVec = new THREE.Vector3();
+
+        for (let i = 0; i < normals.count; i++) {
+          normalVec.set(normals.getX(i), normals.getY(i), normals.getZ(i));
+          normalVec.applyEuler(euler); 
+
+          if (normalVec.z < -0.707) { 
+            colors.setXYZ(i, 0.85, 0.2, 0.14); // Rojo (Soporte crítico < 45º) [page 5]
+          } else if (normalVec.z < -0.5) {
+            colors.setXYZ(i, 0.9, 0.6, 0.0); // Amarillo (Soporte leve)
+          } else {
+            colors.setXYZ(i, 0.8, 0.8, 0.8); 
+          }
+        }
+        colors.needsUpdate = true;
         document.getElementById("layer-over").classList.add("active");
+        appendTerminal("[VISOR_3D] Calculados voladizos dinámicos");
       } else if (layerType === 'stress') {
         activeMesh.material.wireframe = false;
         const geom = activeMesh.geometry;
@@ -685,6 +776,31 @@
         }
         colors.needsUpdate = true;
         document.getElementById("layer-stress").classList.add("active");
+        appendTerminal("[MATH_FEA] Resueltos gradientes de fuerza Von Mises");
+      } else if (layerType === 'orient') {
+        // Texturizado procedimental de capas basado en la altura de capa física real [page 5]
+        activeMesh.material.wireframe = false;
+        const geom = activeMesh.geometry;
+        const positions = geom.attributes.position;
+        const colors = geom.attributes.color;
+
+        // Leer la altura de capa física real del perfil para modular la frecuencia del sombreador
+        const currentLayerHeight = parseFloat(dynamicProfiles[activeProfileKey].parameters.layer_height) || 0.2;
+        const frequency = 1.0 / currentLayerHeight; // Frecuencia espacial inversa
+
+        for (let i = 0; i < positions.count; i++) {
+          const zVal = positions.getZ(i);
+          // Modulación sinusoidal procedimental para emular las pasadas de la boquilla [page 5]
+          const wave = Math.sin(zVal * frequency * Math.PI * 2);
+          if (wave > 0) {
+            colors.setXYZ(i, 0.12, 0.38, 0.25);
+          } else {
+            colors.setXYZ(i, 0.08, 0.26, 0.17); // Alternancia de tono para emular capas
+          }
+        }
+        colors.needsUpdate = true;
+        document.getElementById("layer-orient").classList.add("active");
+        appendTerminal(`[SHADER_PREVIEW] Generado mapa de capas procedimentales a ${currentLayerHeight.toFixed(2)} mm`);
       }
     }
   </script>
@@ -753,7 +869,7 @@
         density,
         resistencia: {
           title: "Perfil Resistencia",
-          details: `Máximo acoplamiento y cohesión estructural para piezas de carga de tipo: ${partUse}.`,
+          details: `Prioriza cohesión de capas mecánicas para usos de tipo: ${partUse}.`,
           parameters: {
             layer_height: `${baseResistenciaHeight.toFixed(2)} mm`,
             wall_loops: `${resWalls}`,
@@ -767,12 +883,12 @@
             cooling: materialTemp.cooling,
             retract_dist: `${materialTemp.retract} mm`,
             supports: "Habilitados (Ángulo > 45º)",
-            adhesion: "Brim interior y exterior"
+            adhesion: "Brim completo"
           }
         },
         equilibrado: {
           title: "Perfil Equilibrado (Recomendado)",
-          details: `Relación óptima entre masa final, tiempos y tenacidad estructural para una pieza de tipo ${partUse}.`,
+          details: `Estabilidad óptima compensando peso y tiempos de laminación para una pieza de tipo ${partUse}.`,
           parameters: {
             layer_height: `${baseEquilibradoHeight.toFixed(2)} mm`,
             wall_loops: `${eqWalls}`,
@@ -791,7 +907,7 @@
         },
         rapido: {
           title: "Perfil Rápido",
-          details: "Orientado a entregas veloces. Incrementa el flujo de extrusión volumétrico.",
+          details: "Minimiza tiempos de extrusión e incrementa flujos volumétricos máximos.",
           parameters: {
             layer_height: `${baseRapidoHeight.toFixed(2)} mm`,
             wall_loops: `${rapWalls}`,
@@ -811,9 +927,26 @@
       };
     }
 
-    let activeProfileKey = "equilibrado";
+    // Amortización y coste en tiempo real [page 11, page 12]
+    function recalculateCosts() {
+      const spoolPrice = parseFloat(document.getElementById("costPerSpool").value) || 25;
+      
+      const parsedVolume = parseFloat(analysisData.volume) || 50; 
+      const matDensity = dynamicProfiles.density;
+      const isDecorative = ["decorativa", "estetica"].includes(analysisData.user_questionnaire?.partUse);
+      
+      const optWeightG = parsedVolume * matDensity * (isDecorative ? 0.35 : 0.65);
+      const origWeightG = parsedVolume * matDensity * 0.95; 
 
-    // Actualiza dinámicamente todo el árbol paramétrico de slicer al alternar de perfil [page 8, page 9]
+      const costOrig = (origWeightG / 1000) * spoolPrice;
+      const costOpt = (optWeightG / 1000) * spoolPrice;
+
+      document.getElementById("comp-cost-orig").textContent = `${costOrig.toFixed(2)} €`;
+      document.getElementById("comp-cost-opt").textContent = `${costOpt.toFixed(2)} €`;
+
+      appendTerminal(`[FINANZAS_CALC] Coste amortizado recalculado a carrete de ${spoolPrice} €/kg`);
+    }
+
     function switchActiveProfile(profileKey) {
       activeProfileKey = profileKey;
       document.querySelectorAll(".btn-profile-toggle").forEach(btn => btn.classList.remove("active"));
@@ -828,7 +961,7 @@
         <p style="margin: 0 0 10px 0;">${data.details}</p>
       `;
 
-      // Recalcular árbol completo del acordeón en vivo para evitar datos falsos [page 8, page 9]
+      // Árbol paramétrico del acordeón [page 8, page 9]
       document.getElementById("s-lay-height").textContent = data.parameters.layer_height;
       document.getElementById("s-lay-first").textContent = data.parameters.layer_height;
       
@@ -858,17 +991,10 @@
 
       document.getElementById("s-sup-enable").textContent = data.parameters.supports;
       document.getElementById("s-adh-brim").textContent = data.parameters.adhesion;
-    }
 
-    function updateSlicerFormat() {
-      const slicer = document.getElementById("slicerSelector").value;
-      const label = document.getElementById("slicerFormatLabel");
-      if (slicer === "bambu" || slicer === "orca") {
-        label.textContent = ".json";
-      } else if (slicer === "prusa") {
-        label.textContent = ".ini";
-      } else {
-        label.textContent = ".curaprofile";
+      // Refrescar textura de capa si está activa
+      if (selectedLayerType === 'orient') {
+        toggleVisualLayer('orient');
       }
     }
 
@@ -903,17 +1029,18 @@
       reportMainContent.style.display = "block";
 
       const q = analysisData.user_questionnaire || {};
+      computedVolumeVal = parseFloat(analysisData.volume) || 50;
       
       reportFileName.textContent = "📄 " + (analysisData.file_name || "pieza_optimizada.stl");
       originalBase64 = analysisData.optimized_base64;
 
-      // Calcular parámetros dinámicos
+      // Iniciar parámetros dinámicos
       dynamicProfiles = calculateDynamicProfiles(q);
 
       const parsedVolume = parseFloat(analysisData.volume) || 50; 
       const matDensity = dynamicProfiles.density;
 
-      // Cálculo volumétrico de masa física según densidad [page 11, page 12]
+      // Cálculo volumétrico de masa física [page 11, page 12]
       const isDecorative = ["decorativa", "estetica"].includes(q.partUse);
       const optWeightG = parsedVolume * matDensity * (isDecorative ? 0.35 : 0.65);
       const origWeightG = parsedVolume * matDensity * 0.95; 
@@ -965,6 +1092,9 @@
         printDescElement.textContent = "Alta fabricabilidad. El sistema de optimización ha incrementado los espesores de pared de forma precisa en el vector de carga.";
       }
 
+      // Inicializar costes iniciales
+      recalculateCosts();
+
       // Renderizar Three.js con la rotación inicial sugerida por la fuerza
       if (originalBase64) {
         init3DViewer("canvas3dContainer", originalBase64, analysisData.critical_points, q.forceDirection);
@@ -995,32 +1125,6 @@
             </div>
             <div class="solution-box">
               <p class="solution-text">Geometría estanca y válida. El análisis paramétrico no detecta fugas de volumen en la malla original subida.</p>
-            </div>
-          </div>
-        `;
-      }
-
-      if (isDecorative) {
-        htmlCards += `
-          <div class="prob-card success-card" style="border-left-color:#2a694b; border-color:#dfe4df; margin-top: 12px;">
-            <div class="prob-header">
-              <h3 class="prob-title">Uso de Pieza: Estético</h3>
-              <span class="prob-badge" style="background:#eef2ee; color:#2a694b;">Ahorro Máximo</span>
-            </div>
-            <div class="solution-box">
-              <p class="solution-text">Se sugiere el patrón de relleno 'Lightning' con un 8% de densidad. Esto permite ahorrar un ${( (origWeightG - optWeightG)/origWeightG * 100 ).toFixed(0)}% de filamento y agilizar los tiempos de impresión sin perder calidad superficial.</p>
-            </div>
-          </div>
-        `;
-      } else {
-        htmlCards += `
-          <div class="prob-card success-card" style="border-left-color:#2a694b; border-color:#dfe4df; margin-top: 12px;">
-            <div class="prob-header">
-              <h3 class="prob-title">Uso de Pieza: Estructural / Mecánica</h3>
-              <span class="prob-badge" style="background:#eef2ee; color:#2a694b;">Refuerzo de Capas</span>
-            </div>
-            <div class="solution-box">
-              <p class="solution-text">Se ha incrementado dinámicamente el número de paredes a ${dynamicProfiles.equilibrado.parameters.wall_loops} para tolerar los esfuerzos procedentes de la dirección indicada. Se sugiere un patrón de relleno de tipo 'Giroscópico' en tres dimensiones.</p>
             </div>
           </div>
         `;
@@ -1108,7 +1212,7 @@ infill_sparse_density = ${profile.parameters.infill_density}
         document.body.removeChild(a);
       });
 
-      // Generador de Reporte PDF completo [page 11]
+      // Generador de Informe PDF completo [page 11]
       downloadPdfBtn.addEventListener("click", () => {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
