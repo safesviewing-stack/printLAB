@@ -3,47 +3,47 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Estación de Ingeniería y Telemetría STL — PrintLab PRO</title>
+  <title>Consola de Telemetría e Ingeniería STL PRO — PrintLab</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    :root{ --bg:#f6f7f4; --card:#fff; --ink:#0d1110; --muted:#5e6661; --line:#dfe4df; --accent:#b8ff3d; --dark:#111715; --max:1280px; --error:#9e3223; --warning:#c47100;}
+    :root{ --bg:#0b0f19; --card:#151c2c; --ink:#f3f4f6; --muted:#8a99ad; --line:#25304b; --accent:#b8ff3d; --dark:#080b13; --max:1280px; --error:#ef4444; --warning:#f59e0b; --success:#10b981;}
     *{box-sizing:border-box}html{scroll-behavior:smooth}
     a{color:inherit;text-decoration:none}
     body{margin:0; background:var(--bg); color:var(--ink); font-family:"Plus Jakarta Sans", sans-serif; -webkit-font-smoothing:antialiased;}
     .wrap{max-width:var(--max);margin:auto;padding:0 40px}
     
-    .top{position:sticky;top:0;z-index:100;background:rgba(246,247,244,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+    .top{position:sticky;top:0;z-index:100;background:rgba(11,15,25,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
     nav{min-height:95px;display:flex;align-items:center;justify-content:space-between;}
     .header-left{display:flex; align-items:center; gap:24px;}
     .brand{font-size:26px;font-weight:800;letter-spacing:-1px}
-    .brand span{background:var(--accent);padding:5px 12px;border-radius:10px;margin-left:6px;color:var(--ink)}
+    .brand span{background:var(--accent);padding:5px 12px;border-radius:10px;margin-left:6px;color:var(--dark)}
 
     .menu-dropdown { position: relative; display: inline-block; }
     .hamburger { background: none; border: none; cursor: pointer; padding: 10px; display: flex; flex-direction: column; gap: 5px; outline:none; }
     .hamburger span { display: block; width: 26px; height: 3px; background: var(--ink); border-radius: 2px; transition: 0.3s; }
     .hamburger:hover span { background: var(--muted); }
-    .dropdown-content { display: none; position: absolute; top: 110%; left: 0; background-color: var(--card); min-width: 240px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); border: 1.5px solid var(--line); border-radius: 16px; z-index: 200; flex-direction: column; padding: 12px 0; }
+    .dropdown-content { display: none; position: absolute; top: 110%; left: 0; background-color: var(--card); min-width: 240px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); border: 1px solid var(--line); border-radius: 16px; z-index: 200; flex-direction: column; padding: 12px 0; }
     .dropdown-content.show { display: flex; animation: slideDown 0.2s ease; }
     .dropdown-content a { padding: 14px 24px; color: var(--muted); font-weight: 700; font-size:15px; }
-    .dropdown-content a:hover { color: var(--ink); background: rgba(0,0,0,0.03); }
+    .dropdown-content a:hover { color: var(--ink); background: rgba(255,255,255,0.03); }
 
     .tool-header{padding:40px 0 20px; border-bottom:1px solid var(--line); margin-bottom:20px;}
-    .tool-header h1{font-size:clamp(30px, 4vw, 48px); letter-spacing:-0.03em; line-height:1.05; margin:0 0 12px; font-weight:800;}
+    .tool-header h1{font-size:clamp(30px, 4vw, 48px); letter-spacing:-0.03em; line-height:1.05; margin:0 0 12px; font-weight:800; color:#fff;}
     .tool-header p{font-size:16px; color:var(--muted); max-width:900px; margin:0; line-height:1.5;}
 
     .report-grid{display:grid; grid-template-columns: 1.25fr 1fr; gap:32px; padding:10px 0 60px;}
     
-    .mesh-comparison{background:var(--dark); border-radius:24px; padding:24px; color:#fff; display:flex; flex-direction:column; gap:16px; box-shadow:0 15px 35px rgba(0,0,0,0.15); position: relative;}
-    .mesh-canvas{background:#161d1a; border-radius:16px; height:450px; display:flex; align-items:center; justify-content:center; border:1px solid #2e3a35; position:relative; overflow:hidden;}
+    .mesh-comparison{background:var(--dark); border-radius:24px; padding:24px; color:#fff; display:flex; flex-direction:column; gap:16px; box-shadow:0 15px 35px rgba(0,0,0,0.5); position: relative;}
+    .mesh-canvas{background:#0e1320; border-radius:16px; height:450px; display:flex; align-items:center; justify-content:center; border:1px solid #1e293b; position:relative; overflow:hidden;}
     
     .telemetry-hud {
       position: absolute;
       top: 10px;
       left: 10px;
-      background: rgba(17, 23, 21, 0.9);
-      border: 1px solid #2e3a35;
+      background: rgba(11, 15, 25, 0.95);
+      border: 1px solid #1e293b;
       border-radius: 8px;
       padding: 12px;
       font-family: 'JetBrains Mono', monospace;
@@ -57,26 +57,27 @@
     .diagnostic-panel{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px;}
     .score-card{background:var(--card); border:1.5px solid var(--line); border-radius:20px; padding:20px; display:flex; flex-direction:column; justify-content:space-between;}
     .score-title{font-size:11px; text-transform:uppercase; font-weight:800; color:var(--muted); margin:0 0 6px; letter-spacing:0.5px;}
-    .score-value{font-size:26px; font-weight:800; line-height:1.1; color:var(--ink); margin:0 0 6px; letter-spacing: -1px;}
+    .score-value{font-size:26px; font-weight:800; line-height:1.1; color:var(--accent); margin:0 0 6px; letter-spacing: -1px;}
     .score-desc{margin:0; color:var(--muted); font-size:11.5px; line-height:1.4;}
 
-    .prob-card{background:var(--card); border:1.5px solid var(--error); border-left:6px solid var(--error); border-radius:16px; padding:20px; margin-bottom: 12px;}
-    .prob-card.success-card{border-color:var(--line); border-left-color:var(--muted);}
+    .prob-card{background:var(--card); border:1.5px solid var(--line); border-left:6px solid var(--error); border-radius:16px; padding:20px; margin-bottom: 12px;}
+    .prob-card.success-card{border-left-color:var(--success);}
     
     .prob-header{display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;}
-    .prob-title{font-size:16px; font-weight:800; margin:0;}
-    .prob-badge{background:#fcebe8; color:#b42318; font-size:10px; font-weight:800; padding:4px 8px; border-radius:4px; text-transform:uppercase;}
+    .prob-title{font-size:16px; font-weight:800; margin:0; color:#fff;}
+    .prob-badge{background:rgba(239, 68, 68, 0.15); color:var(--error); font-size:10px; font-weight:800; padding:4px 8px; border-radius:4px; text-transform:uppercase;}
     .solution-box{border-top:1px dashed var(--line); padding-top:12px;}
-    .solution-text{font-size:13.5px; margin:4px 0; font-weight:600;}
+    .solution-text{font-size:13.5px; margin:4px 0; font-weight:600; color:#e2e8f0;}
 
     .download-panel{background:var(--card); border:1.5px solid var(--line); border-radius:24px; padding:28px; margin-top:24px;}
-    .btn-download-stl{display:inline-flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:14px; background:var(--ink); color:#fff; border:2px solid var(--ink); border-radius:12px; font-weight:800; font-size:14px; cursor:pointer;}
+    .btn-download-stl{display:inline-flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:14px; background:var(--accent); color:var(--dark); border:none; border-radius:12px; font-weight:800; font-size:14px; cursor:pointer; transition: 0.15s;}
+    .btn-download-stl:hover { opacity: 0.95; transform: translateY(-1px); }
 
-    .btn-profile-toggle{padding:12px; border-radius:8px; border:1.5px solid var(--line); background:#fff; font-weight:800; font-size:12.5px; cursor:pointer; transition:0.2s; width:100%;}
-    .btn-profile-toggle.active{background:var(--dark); color:var(--accent); border-color:var(--dark);}
+    .btn-profile-toggle{padding:12px; border-radius:8px; border:1.5px solid var(--line); background:#151c2c; color:var(--muted); font-weight:800; font-size:12.5px; cursor:pointer; transition:0.2s; width:100%;}
+    .btn-profile-toggle.active{background:var(--accent); color:var(--dark); border-color:var(--accent);}
 
-    .layer-btn{padding:6px 12px; border-radius:6px; font-size:10.5px; font-weight:800; cursor:pointer; background:#fff; border:1px solid var(--line); transition:0.15s;}
-    .layer-btn.active{background:var(--accent); border-color:var(--ink); color:var(--ink);}
+    .layer-btn{padding:6px 12px; border-radius:6px; font-size:10.5px; font-weight:800; cursor:pointer; background:#1e293b; border:1px solid var(--line); color:var(--muted); transition:0.15s;}
+    .layer-btn.active{background:var(--accent); border-color:var(--accent); color:var(--dark);}
 
     .slicer-accordion {
       border: 1.5px solid var(--line);
@@ -85,7 +86,7 @@
       margin-top: 16px;
     }
     .accordion-header {
-      background: #fcfdfc;
+      background: #111725;
       padding: 12px 16px;
       font-weight: 800;
       font-size: 13.5px;
@@ -95,14 +96,15 @@
       align-items: center;
       border-bottom: 1px solid var(--line);
       user-select: none;
+      color: #fff;
     }
     .accordion-header:hover {
-      background: #f5f7f5;
+      background: #151d2f;
     }
     .accordion-content {
       display: none;
       padding: 14px 16px;
-      background: #fff;
+      background: #151c2c;
       font-size: 12.5px;
       border-bottom: 1px solid var(--line);
     }
@@ -113,7 +115,7 @@
       display: flex;
       justify-content: space-between;
       padding: 5px 0;
-      border-bottom: 1px dashed #f0f0f0;
+      border-bottom: 1px dashed var(--line);
     }
     .param-row:last-child {
       border-bottom: none;
@@ -125,24 +127,39 @@
     .param-value {
       font-weight: 700;
       font-family: 'JetBrains Mono', monospace;
-      color: var(--ink);
+      color: #fff;
     }
 
     .terminal-box {
-      background: #0d1110;
-      border: 1px solid #2e3a35;
+      background: #080b13;
+      border: 1px solid #1e293b;
       border-radius: 12px;
       padding: 16px;
       font-family: 'JetBrains Mono', monospace;
       font-size: 11px;
-      color: #38ef7d;
+      color: var(--accent);
       height: 180px;
       overflow-y: auto;
       margin-top: 24px;
       line-height: 1.5;
     }
 
-    .footer { background: var(--bg); border-top: 1px solid var(--line); padding: 60px 0 40px; color: var(--muted); font-size: 14px; }
+    /* Indicador visual de amortización */
+    .savings-gauge-container {
+      background: #1e293b;
+      height: 8px;
+      border-radius: 4px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+    .savings-gauge {
+      background: var(--accent);
+      height: 100%;
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+
+    .footer { background: var(--dark); border-top: 1px solid var(--line); padding: 60px 0 40px; color: var(--muted); font-size: 14px; }
     .footergrid { display: grid; grid-template-columns: 1.3fr 0.85fr 0.85fr; gap: 40px; margin-bottom: 32px; }
     .footer-col h3 { font-size: 15px; font-weight: 800; color: var(--ink); margin: 0 0 16px; }
 
@@ -196,7 +213,7 @@
 
     <div id="reportMainContent" style="display:none;">
       <div class="tool-header">
-        <div style="display:inline-flex; align-items:center; padding:6px 14px; border-radius:9999px; background:rgba(0,0,0,0.04); font-size:11px; text-transform:uppercase; letter-spacing:1px; font-weight:800; color:var(--muted); margin-bottom:12px;">Estación de Telemetría e Ingeniería Real</div>
+        <div style="display:inline-flex; align-items:center; padding:6px 14px; border-radius:9999px; background:rgba(255,255,255,0.05); font-size:11px; text-transform:uppercase; letter-spacing:1px; font-weight:800; color:var(--muted); margin-bottom:12px;">Estación de Telemetría Dinámica Industrial</div>
         <h1>Informe de Optimización STL</h1>
         <p>Evaluación de estabilidad geométrica, reducción volumétrica e idoneidad de impresión para su pieza.</p>
       </div>
@@ -267,11 +284,19 @@
           <div style="margin-top:24px; padding:24px; background:var(--card); border:1.5px solid var(--line); border-radius:20px;">
             <h4 style="margin:0 0 16px; font-weight:800; font-size:16px;">Métricas Comparativas de Laminación (Original vs. Optimizado)</h4>
             
-            <div style="display:flex; align-items:center; gap:16px; background:#f0f4f0; padding:12px 16px; border-radius:12px; margin-bottom:16px; font-size:13px;">
-              <span style="font-weight:800;">Ajustar coste filamento:</span>
-              <div style="display:flex; align-items:center; gap:6px;">
-                <input type="number" id="costPerSpool" value="25" style="width:60px; padding:6px; border:1px solid var(--line); border-radius:6px; font-weight:700;" oninput="recalculateCosts()">
-                <span style="font-weight:700;">€ / kg</span>
+            <div style="display:flex; justify-content:space-between; align-items:center; background:#111725; padding:16px; border-radius:12px; margin-bottom:16px; font-size:13px; border:1px solid var(--line);">
+              <div>
+                <span style="font-weight:800; display:block; margin-bottom:4px;">Ajustar coste filamento:</span>
+                <div style="display:flex; align-items:center; gap:6px;">
+                  <input type="number" id="costPerSpool" value="25" style="width:70px; padding:6px; background:#1a2336; border:1px solid var(--line); border-radius:6px; font-weight:700; color:#fff;" oninput="recalculateCosts()">
+                  <span style="font-weight:700; color:var(--muted);">€ / kg</span>
+                </div>
+              </div>
+              <div style="text-align:right; flex-grow:1; max-width: 200px;">
+                <span style="font-weight:800; font-size:11.5px; color:var(--accent);">AHORRO FINANCIERO ESTIMADO</span>
+                <div class="savings-gauge-container">
+                  <div class="savings-gauge" id="costSavingsGauge"></div>
+                </div>
               </div>
             </div>
 
@@ -280,7 +305,7 @@
                 <tr style="border-bottom: 2px solid var(--line); color: var(--muted);">
                   <th style="padding: 8px 0; font-weight: 700;">Parámetro</th>
                   <th style="padding: 8px; font-weight: 700; text-align: center;">Original (Slicer Defecto)</th>
-                  <th style="padding: 8px; font-weight: 700; text-align: center; color: var(--ink);">Optimizado (PrintLab)</th>
+                  <th style="padding: 8px; font-weight: 700; text-align: center; color: var(--accent);">Optimizado (PrintLab)</th>
                 </tr>
               </thead>
               <tbody id="comparisonTableBody">
@@ -292,12 +317,12 @@
                 <tr style="border-bottom: 1px dashed var(--line);">
                   <td style="padding: 10px 0;">Coste estimado material</td>
                   <td style="padding: 10px; text-align: center; color: var(--muted); font-family:'JetBrains Mono', monospace;" id="comp-cost-orig">...</td>
-                  <td style="padding: 10px; text-align: center; font-weight: 800; font-family:'JetBrains Mono', monospace;" id="comp-cost-opt">...</td>
+                  <td style="padding: 10px; text-align: center; font-weight: 800; font-family:'JetBrains Mono', monospace; color:var(--accent);" id="comp-cost-opt">...</td>
                 </tr>
                 <tr style="border-bottom: 1px dashed var(--line);">
                   <td style="padding: 10px 0;">Masa de soportes</td>
                   <td style="padding: 10px; text-align: center; color: var(--muted);" id="comp-support-orig">...</td>
-                  <td style="padding: 10px; text-align: center; font-weight: 800; color: #2a694b;" id="comp-support-opt">...</td>
+                  <td style="padding: 10px; text-align: center; font-weight: 800; color: var(--accent);" id="comp-support-opt">...</td>
                 </tr>
                 <tr style="border-bottom: 1px dashed var(--line);">
                   <td style="padding: 10px 0;">Tiempo de impresión</td>
@@ -306,18 +331,15 @@
                 </tr>
                 <tr>
                   <td style="padding: 10px 0;">Puntuación de Laminado</td>
-                  <td style="padding: 10px; text-align: center; color: #b42318;" id="comp-score-orig">62/100</td>
-                  <td style="padding: 10px; text-align: center; font-weight: 800; color: #2a694b;" id="comp-score-opt">94/100</td>
+                  <td style="padding: 10px; text-align: center; color: var(--error);" id="comp-score-orig">62/100</td>
+                  <td style="padding: 10px; text-align: center; font-weight: 800; color: var(--accent);" id="comp-score-opt">94/100</td>
                 </tr>
               </tbody>
             </table>
           </div>
 
           <!-- TERMINAL INTERACTIVA DE G-CODE Y DEPURACIÓN (Sección 13 y 15) [page 13] -->
-          <div class="terminal-box" id="diagnosticTerminal">
-            [SYS_INIT] Cargando modelo STL...<br>
-            [MATH_GEOM] Iniciando comprobación de estanqueidad (Watertight)...<br>
-          </div>
+          <div class="terminal-box" id="diagnosticTerminal"></div>
         </div>
 
         <!-- DIAGNÓSTICO E INFORME TÉCNICO -->
@@ -339,16 +361,16 @@
           <div style="background: var(--card); border: 1.5px solid var(--line); border-radius: 20px; padding: 20px; margin-bottom: 24px;">
             <p class="score-title" style="color:var(--muted); font-size:11px; text-transform:uppercase; font-weight:800; margin:0 0 10px;">Simulador Estructural de Carga (FEA / Tensor) [page 6]</p>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
-              <div style="background:var(--bg); padding:10px; border-radius:8px;">
+              <div style="background:var(--dark); padding:10px; border-radius:8px; border:1px solid var(--line);">
                 <span style="font-size:10.5px; color:var(--muted); font-weight:700;">Tensión Máxima</span>
                 <div style="font-size:18px; font-weight:800; font-family:'JetBrains Mono', monospace; margin-top:4px;" id="fea-stress">0.0 MPa</div>
               </div>
-              <div style="background:var(--bg); padding:10px; border-radius:8px;">
+              <div style="background:var(--dark); padding:10px; border-radius:8px; border:1px solid var(--line);">
                 <span style="font-size:10.5px; color:var(--muted); font-weight:700;">Límite Elástico Material</span>
                 <div style="font-size:18px; font-weight:800; font-family:'JetBrains Mono', monospace; margin-top:4px;" id="fea-yield">0.0 MPa</div>
               </div>
             </div>
-            <div style="display:flex; justify-content:space-between; align-items:center; background:#fbfdfc; border:1px solid var(--line); padding:10px 14px; border-radius:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; background:#111725; border:1px solid var(--line); padding:10px 14px; border-radius:10px;">
               <span style="font-weight:800; font-size:13px;">Factor de Seguridad elástico (Fs):</span>
               <span id="fea-safety" style="font-family:'JetBrains Mono', monospace; font-weight:800; padding:4px 10px; border-radius:6px; font-size:13px;">...</span>
             </div>
@@ -462,20 +484,20 @@
           <div class="download-panel">
             <h4 style="margin:0 0 20px; font-weight:800; font-size:16px;">Slicers de Destino Compatibles</h4>
             <div class="form-group" style="margin-bottom:24px;">
-              <select id="slicerSelector" onchange="updateSlicerFormat()" style="width:100%; padding:12px; border:1.5px solid var(--line); border-radius:12px; font-weight:700;">
+              <select id="slicerSelector" onchange="updateSlicerFormat()" style="width:100%; padding:12px; border:1.5px solid var(--line); border-radius:12px; font-weight:700; background:#111725; color:#fff;">
                 <option value="bambu">Bambu Studio (.json)</option>
                 <option value="orca">OrcaSlicer (.json)</option>
                 <option value="prusa">PrusaSlicer (.ini)</option>
                 <option value="cura">Cura (.curaprofile)</option>
               </select>
             </div>
-            <button class="btn-download-stl" id="downloadStlBtn" style="margin-bottom:12px; background:var(--accent); color:var(--ink); border-color:var(--ink);">
+            <button class="btn-download-stl" id="downloadStlBtn" style="margin-bottom:12px; background:var(--accent); color:var(--dark); border-color:var(--accent);">
               Descargar STL Optimizado
             </button>
-            <button class="btn-download-stl" id="downloadSlicerBtn" style="margin-bottom:12px; background:#fff; color:var(--ink); border-color:var(--ink);">
+            <button class="btn-download-stl" id="downloadSlicerBtn" style="margin-bottom:12px; background:#111725; color:#fff; border: 1px solid var(--line);">
               Descargar Perfil Slicer (<span id="slicerFormatLabel">.json</span>)
             </button>
-            <button class="btn-download-stl" id="downloadPdfBtn" style="background:#fff; color:var(--ink); border-color:var(--ink);">
+            <button class="btn-download-stl" id="downloadPdfBtn" style="background:#111725; color:#fff; border: 1px solid var(--line);">
               Descargar Informe Técnico Completo (.PDF)
             </button>
           </div>
@@ -530,6 +552,7 @@
     let clippingPlane = null;
     let computedVolumeVal = 50;
     let toolpathGroup = null;
+    let arrowHelper = null; // Vector visual de fuerza (Sección 6) [page 5]
 
     function appendTerminal(text) {
       const term = document.getElementById("diagnosticTerminal");
@@ -546,7 +569,7 @@
       container.innerHTML = ""; 
 
       scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x161d1a);
+      scene.background = new THREE.Color(0x0e1320);
 
       camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
       camera.position.set(0, 0, 100);
@@ -635,6 +658,9 @@
         document.getElementById("manualRotY").value = Math.round((optRot.y * 180) / Math.PI);
         document.getElementById("angleValue").textContent = `X: ${Math.round((optRot.x * 180) / Math.PI)}º, Y: ${Math.round((optRot.y * 180) / Math.PI)}º`;
 
+        // Generar vector de fuerza físico real en 3D en el visor [page 5]
+        updateForceArrow(forceDir, parseFloat(analysisData.user_questionnaire?.loadWeight) || 5.0);
+
         if (criticalPoints && criticalPoints.length > 0) {
           criticalPoints.forEach(pt => {
             const sphereGeo = new THREE.SphereGeometry(1.5, 16, 16);
@@ -653,9 +679,6 @@
         camera.position.set(center.x + size * 0.8, center.y + size * 0.8, center.z + size * 0.8);
         controls.update();
 
-        appendTerminal("[MATH_GEOM] Caja límites: " + dx.toFixed(1) + "x" + dy.toFixed(1) + "x" + dz.toFixed(1) + " mm");
-        appendTerminal("[MATH_GEOM] Orientación Euler calculada: " + optRot.label);
-
       } catch (err) {
         console.error("Error renderizando STL en Three.js:", err);
       }
@@ -666,6 +689,51 @@
         renderer.render(scene, camera);
       }
       animate();
+    }
+
+    // Dibujar y actualizar vector de fuerza físico real en el visor 3D [page 5]
+    function updateForceArrow(direction, loadKg) {
+      if (!scene || !activeMesh) return;
+      if (arrowHelper) scene.remove(arrowHelper);
+      
+      const dirVec = new THREE.Vector3();
+      const origin = new THREE.Vector3();
+      
+      const geom = activeMesh.geometry;
+      geom.computeBoundingBox();
+      const b = geom.boundingBox;
+      const center = new THREE.Vector3();
+      b.getCenter(center);
+      const size = b.getSize(new THREE.Vector3());
+      
+      if (direction === "arriba") {
+        dirVec.set(0, 0, -1);
+        origin.set(center.x, center.y, b.max.z + 5);
+      } else if (direction === "abajo") {
+        dirVec.set(0, 0, 1);
+        origin.set(center.x, center.y, b.min.z - 5);
+      } else if (direction === "izquierda") {
+        dirVec.set(1, 0, 0);
+        origin.set(b.min.x - 5, center.y, center.z);
+      } else if (direction === "derecha") {
+        dirVec.set(-1, 0, 0);
+        origin.set(b.max.x + 5, center.y, center.z);
+      } else if (direction === "frente") {
+        dirVec.set(0, 1, 0);
+        origin.set(center.x, b.min.y - 5, center.z);
+      } else if (direction === "atras") {
+        dirVec.set(0, -1, 0);
+        origin.set(center.x, b.max.y + 5, center.z);
+      } else {
+        dirVec.set(0, 0, -1);
+        origin.set(center.x, center.y, b.max.z + 5);
+      }
+      
+      const length = Math.min(size.length() * 0.4, 25) + (loadKg * 0.1);
+      const color = 0xff3b30; // Rojo
+      
+      arrowHelper = new THREE.ArrowHelper(dirVec, origin, length, color, length * 0.2, length * 0.1);
+      scene.add(arrowHelper);
     }
 
     // Rotación e inversión de voladizos interactiva en tiempo real [page 5]
@@ -794,18 +862,6 @@
       const fVal = parseInt(speed) * 60;
       appendTerminal(`G0 F${fVal} X${segments[0].x.toFixed(3)} Y${segments[0].y.toFixed(3)} Z${zVal.toFixed(3)} ; Desplazamiento inicial`);
       appendTerminal(`G1 F2400 X${segments[1].x.toFixed(3)} Y${segments[1].y.toFixed(3)} E0.0452 ; Extrusión de pared`);
-    }
-
-    function calculateOptimalRotation(forceDirection) {
-      const rot = { x: 0, y: 0, z: 0, label: "Estándar" };
-      if (forceDirection === "izquierda" || forceDirection === "derecha") {
-        rot.y = Math.PI / 2; 
-        rot.label = "Optimizada: Rotado 90º en Y";
-      } else if (forceDirection === "frente" || forceDirection === "atras") {
-        rot.x = Math.PI / 2; 
-        rot.label = "Optimizada: Rotado 90º en X";
-      }
-      return rot;
     }
 
     // Modificar el texturado procedimental e iluminador dinámico según la pregunta del cuestionario [page 1, page 5]
@@ -1048,10 +1104,14 @@
       document.getElementById("comp-cost-orig").textContent = `${costOrig.toFixed(2)} €`;
       document.getElementById("comp-cost-opt").textContent = `${costOpt.toFixed(2)} €`;
 
+      // Actualizar el visualizador de barra de ahorro de material
+      const percentageSaved = ((origWeightG - optWeightG) / origWeightG) * 100;
+      document.getElementById("costSavingsGauge").style.width = `${percentageSaved}%`;
+
       // Recalcular simulador de elementos finitos y factor de seguridad real [page 6]
       recalculateFEAStress(optWeightG);
 
-      appendTerminal(`[FINANZAS_CALC] Coste amortizado recalculado a carrete de ${spoolPrice} €/kg`);
+      appendTerminal(`[FINANZAS_CALC] Coste amortizado recalculado a carrete de ${spoolPrice} €/kg. Ahorro: ${percentageSaved.toFixed(0)}%`);
     }
 
     // Calculador estructural de tensión máxima y factor de seguridad elástico real (Sección 6) [page 6]
@@ -1095,12 +1155,12 @@
       safetyBadge.textContent = safetyFactor.toFixed(2);
 
       if (safetyFactor < 1.5) {
-        safetyBadge.style.background = "#fcebe8";
-        safetyBadge.style.color = "#d9432f";
+        safetyBadge.style.background = "rgba(239, 68, 68, 0.15)";
+        safetyBadge.style.color = "var(--error)";
         appendTerminal(`[WARN_STRUCT] Fatiga estructural crítica detectada. Factor de seguridad ${safetyFactor.toFixed(2)} < 1.5!`);
       } else {
-        safetyBadge.style.background = "#eef2ee";
-        safetyBadge.style.color = "#2a694b";
+        safetyBadge.style.background = "rgba(16, 185, 129, 0.15)";
+        safetyBadge.style.color = "var(--success)";
       }
     }
 
@@ -1114,7 +1174,7 @@
 
       const box = document.getElementById("profile-details-box");
       box.innerHTML = `
-        <div style="font-weight: 800; font-size:14px; color: var(--ink); margin-bottom:6px;">${data.title}</div>
+        <div style="font-weight: 800; font-size:14px; color: var(--accent); margin-bottom:6px;">${data.title}</div>
         <p style="margin: 0 0 10px 0;">${data.details}</p>
       `;
 
@@ -1163,6 +1223,25 @@
       } else {
         label.textContent = ".curaprofile";
       }
+    }
+
+    // Inicialización de la consola de diagnóstico secuencial e interactiva [page 13]
+    function runTerminalDiagnosticLog() {
+      const q = analysisData.user_questionnaire || {};
+      const logs = [
+        `[SYS_CONN] Estableciendo handshake con el módulo de análisis paramétrico...`,
+        `[FEA_SOLVER] Leyendo vector de fuerza estructural: ${q.forceDirection || "arriba"} @ ${(parseFloat(q.loadWeight) || 5.0)} kg...`,
+        `[FEA_SOLVER] Calculando límites elásticos locales en MPa para polímero: ${q.material || "PLA"}...`,
+        `[MATH_GEOM] Resolviendo normalizaciones matriciales y orientación Euleriana...`,
+        `[SLICER] Generando perfiles 3D y secuencias G-Code de deposición...`,
+        `[SYS] Archivos calculados correctamente. Listo para descargar.`
+      ];
+
+      logs.forEach((log, index) => {
+        setTimeout(() => {
+          appendTerminal(log);
+        }, index * 1000);
+      });
     }
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -1259,8 +1338,9 @@
         printDescElement.textContent = "Alta fabricabilidad. El sistema de optimización ha incrementado los espesores de pared de forma precisa en el vector de carga.";
       }
 
-      // Inicializar costes iniciales
+      // Inicializar costes iniciales y ejecutar log terminal secuencial
       recalculateCosts();
+      runTerminalDiagnosticLog();
 
       // Renderizar Three.js con la rotación inicial sugerida por la fuerza
       if (originalBase64) {
@@ -1285,10 +1365,10 @@
         `;
       } else {
         htmlCards += `
-          <div class="prob-card success-card" style="border-left-color:#2a694b; border-color:#dfe4df;">
+          <div class="prob-card success-card" style="border-left-color:var(--success); border-color:var(--line);">
             <div class="prob-header">
               <h3 class="prob-title">Integridad de Malla</h3>
-              <span class="prob-badge" style="background:#eef2ee; color:#2a694b;">Válida</span>
+              <span class="prob-badge" style="background:rgba(16, 185, 129, 0.15); color:var(--success);">Válida</span>
             </div>
             <div class="solution-box">
               <p class="solution-text">Geometría estanca y válida. El análisis paramétrico no detecta fugas de volumen en la malla original subida.</p>
