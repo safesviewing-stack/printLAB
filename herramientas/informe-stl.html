@@ -297,62 +297,6 @@
     function toggleMenu() { document.getElementById('mainMenu').classList.toggle('show'); }
   </script>
 
-  <script>
-    let activeProfileData = null;
-    let activeMeshBase64 = null;
-
-    function switchTab(tabId) {
-      document.querySelectorAll(".slicer-tab").forEach(t => t.classList.remove("active"));
-      document.querySelectorAll(".slicer-tab-content").forEach(c => c.style.display = "none");
-      
-      const targetTab = Array.from(document.querySelectorAll(".slicer-tab")).find(t => t.innerText.toLowerCase() === tabId);
-      if (targetTab) targetTab.classList.add("active");
-      
-      const content = document.getElementById("tab-" + tabId);
-      if (content) content.style.display = "block";
-    }
-
-    // Generación del archivo de configuración paramétrica para el laminador
-    function downloadSlicerProfile(profile, filename) {
-      const orcaProfile = {
-        "type": "process",
-        "setting_id": "printlab_optimized_profile",
-        "name": "PrintLab " + (filename.replace(".json", "")),
-        "from": "user",
-        "instantiation": "true",
-        "inherits": "0.20mm Standard @BBL X1C",
-        "layer_height": profile.layer_height.toString(),
-        "first_layer_height": profile.first_layer_height.toString(),
-        "line_width": profile.line_widths.default.toString(),
-        "initial_layer_line_width": profile.line_widths.first_layer.toString(),
-        "outer_wall_line_width": profile.line_widths.outer_wall.toString(),
-        "inner_wall_line_width": profile.line_widths.inner_wall.toString(),
-        "top_surface_line_width": profile.line_widths.top_surface.toString(),
-        "sparse_infill_line_width": profile.line_widths.sparse_infill.toString(),
-        "wall_loops": profile.wall_loops.toString(),
-        "top_shell_layers": profile.top_solid_layers.toString(),
-        "bottom_shell_layers": profile.bottom_solid_layers.toString(),
-        "sparse_infill_density": profile.infill_density.toString() + "%",
-        "sparse_infill_pattern": profile.infill_pattern === "giroide" ? "gyroid" : (profile.infill_pattern === "rectilineo" ? "rectilinear" : "cubic"),
-        "outer_wall_speed": profile.speeds.outer_wall.toString(),
-        "inner_wall_speed": profile.speeds.inner_wall.toString(),
-        "sparse_infill_speed": profile.speeds.sparse_infill.toString(),
-        "internal_solid_infill_speed": profile.speeds.internal_solid_infill.toString(),
-        "top_surface_speed": profile.speeds.top_surface.toString(),
-        "initial_layer_speed": profile.speeds.initial_layer.toString(),
-        "travel_speed": profile.speeds.travel.toString(),
-        "enable_support": profile.supports.enable,
-        "support_type": profile.supports.type.includes("árbol") ? "tree_auto" : "normal_auto"
-      };
-      
-      const blob = new Blob([JSON.stringify(orcaProfile, null, 2)], { type: "application/json" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = filename;
-      a.click();
-    }
-  </script>
-
   <!-- LÓGICA ESTUDIO CAD + THREE.JS MULTI-MESH -->
   <script>
     let scene, camera, renderer, controls, activeMesh;
@@ -363,7 +307,7 @@
 
     function parseBase64STL(b64) {
       try {
-        const binaryStr = atob(b64);
+        const binaryStr = atob(b64.trim());
         const bytes = new Uint8Array(binaryStr.length);
         for (let i = 0; i < binaryStr.length; i++) {
           bytes[i] = binaryStr.charCodeAt(i);
@@ -610,6 +554,8 @@
       document.getElementById("btn-download-prepared-stl").addEventListener("click", () => {
         if (activeMeshBase64) {
           downloadBase64STL(activeMeshBase64, (analysis.file_name || "pieza") + "_preparado.stl");
+        } else {
+          alert("La pieza aún se está procesando. Por favor, espera a que termine de cargar.");
         }
       });
 
