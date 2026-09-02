@@ -368,7 +368,7 @@
           Motor de Recomendaciones Geométricas
         </div>
         <h1>Parámetros de Slicer</h1>
-        <p>Aplica estos valores exactos en tu software de laminado (Cura, PrusaSlicer, Bambu Studio) para asegurar el éxito de la fabricación.</p>
+        <p>Aplica estos valores en tu software de laminado (Cura, PrusaSlicer, Bambu Studio) o descarga el perfil automático para importarlo.</p>
       </div>
 
       <div class="tabs">
@@ -508,8 +508,8 @@
 
       </div>
 
-      <button class="btn-export" onclick="alert('La integración API de perfiles para descarga en Cura, PrusaSlicer y BambuStudio (.3mf) estará disponible en la próxima actualización de PrintLab.')">
-        ⬇️ Descargar Perfil para tu Laminador
+      <button class="btn-export" onclick="exportSlicerProfile()">
+        ⬇️ Descargar Perfil (.INI) para Prusa/Orca/SuperSlicer
       </button>
       
       <div style="text-align:center; margin-top:30px;">
@@ -771,10 +771,10 @@
 
       // 9. REGLAS DE DIAGNÓSTICO (Con y Sin STL)
       if (!stl) {
-        p.warnings.push({ type: 'Recomendación Matemática', text: 'Al no proporcionar el archivo STL, la configuración recomendada se basa en algoritmos lógicos a partir de tus respuestas, pero no hemos evaluado tu geometría.' });
+        p.warnings.push({ type: 'Recomendación Matemática', text: 'Al no proporcionar el archivo STL, la configuración se basa en algoritmos lógicos a partir de tus respuestas, pero no hemos evaluado tu geometría real.' });
       } else {
         if (stl.is_watertight === false) {
-          p.warnings.push({ type: 'Malla no estanca (Non-Manifold)', text: 'El STL contiene caras invertidas o huecos sin cerrar. Te sugerimos utilizar la opción "Reparar Malla" en tu Slicer.' });
+          p.warnings.push({ type: 'Malla no estanca (Non-Manifold)', text: 'El STL contiene caras invertidas o huecos sin cerrar. Te sugerimos utilizar la opción "Reparar Malla" en tu Slicer antes de laminar.' });
         }
         if (stl.overhang_area_cm2 > 2.0 && p.supports === 'Desactivados') {
           p.warnings.push({ type: 'Riesgo Crítico de Voladizos', text: `Hemos detectado ${stl.overhang_area_cm2} cm² de áreas colgantes críticas que colapsarán sin soportes. Te aconsejamos forzar los soportes tipo Árbol.` });
@@ -869,6 +869,64 @@
           <span>${w.text}</span>
         </div>`;
       });
+    }
+
+    // --- FUNCIÓN DE EXPORTACIÓN Y DESCARGA .INI (NUEVO) ---
+    function exportSlicerProfile() {
+      // Identificar la pestaña activa para extraer el perfil que está viendo el usuario
+      const tab = document.querySelector('.tab-btn.active');
+      let target = 'recomendado';
+      if (tab.innerText.includes('Calidad')) target = 'calidad';
+      if (tab.innerText.includes('Equilibrado')) target = 'equilibrado';
+      if (tab.innerText.includes('Rápido')) target = 'rapido';
+
+      const p = calculateProfile(target, answers, stlStats);
+
+      // Generar el contenido del archivo .INI compatible con PrusaSlicer/OrcaSlicer/SuperSlicer
+      let iniContent = `# Generado por el Asistente de PrintLab (Perfil ${target.toUpperCase()})\n`;
+      iniContent += `[print:*PrintLab Profile*]\n`;
+      iniContent += `layer_height = ${p.layerHeight}\n`;
+      iniContent += `first_layer_height = ${p.firstLayerHeight}\n`;
+      iniContent += `perimeters = ${p.perimeters}\n`;
+      iniContent += `top_solid_layers = ${p.topLayers}\n`;
+      iniContent += `bottom_solid_layers = ${p.bottomLayers}\n`;
+      iniContent += `fill_density = ${p.infill}%\n`;
+      
+      // Traducir patrón al idioma del slicer
+      let pattern = "cubic";
+      if(p.infillPattern.includes("Giroide")) pattern = "gyroid";
+      if(p.infillPattern.includes("Rayo")) pattern = "lightning";
+      iniContent += `fill_pattern = ${pattern}\n`;
+      
+      iniContent += `external_perimeter_speed = ${p.speedOuter}\n`;
+      iniContent += `perimeter_speed = ${p.speedInner}\n`;
+      iniContent += `infill_speed = ${p.speedInfill}\n`;
+      iniContent += `first_layer_speed = ${p.speedFirst}\n`;
+      
+      let hasSupports = p.supports.includes('Desactivados') ? 0 : 1;
+      iniContent += `support_material = ${hasSupports}\n`;
+      if(p.supportType.includes("Árbol")) {
+        iniContent += `support_material_style = organic\n`;
+      }
+
+      iniContent += `\n[filament:*PrintLab Material*]\n`;
+      iniContent += `first_layer_temperature = ${p.tempNozzle}\n`;
+      iniContent += `temperature = ${p.tempNozzle}\n`;
+      if (p.tempBed !== "-") {
+          iniContent += `first_layer_bed_temperature = ${p.tempBed}\n`;
+          iniContent += `bed_temperature = ${p.tempBed}\n`;
+      }
+      
+      // Crear y Forzar la Descarga del archivo Físico
+      const blob = new Blob([iniContent], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `PrintLab_Perfil_${target}.ini`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     }
   </script>
 </body>
