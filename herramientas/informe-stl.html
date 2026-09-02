@@ -352,3 +352,410 @@
           v.applyMatrix4(mat);
           
           if (v.z < threshold) {
+            colors.push(1.0, 0.82, 0.0); 
+          } else {
+            colors.push(0.12, 0.38, 0.25); 
+          }
+        }
+
+        geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+        const material = new THREE.MeshPhongMaterial({ 
+          vertexColors: true, 
+          specular: 0x111111, 
+          shininess: 90 
+        });
+
+        activeMesh = new THREE.Mesh(geometry, material);
+        scene.add(activeMesh);
+
+        if (criticalPoints && criticalPoints.length > 0) {
+          criticalPoints.forEach(pt => {
+            const sphereGeo = new THREE.SphereGeometry(1.5, 16, 16);
+            const sphereMat = new THREE.MeshBasicMaterial({ color: 0xd9432f }); 
+            const sphere = new THREE.Mesh(sphereGeo, sphereMat);
+            
+            sphere.position.set(pt.x, pt.y, pt.z);
+            activeMesh.add(sphere);
+          });
+        }
+
+        geometry.computeBoundingBox();
+        const center = new THREE.Vector3();
+        geometry.boundingBox.getCenter(center);
+        controls.target.copy(center); 
+
+        const size = geometry.boundingBox.getSize(new THREE.Vector3()).length();
+        camera.position.set(center.x + size * 0.8, center.y + size * 0.8, center.z + size * 0.8);
+        controls.update();
+
+      } catch (err) {
+        console.error("Error al renderizar el STL en Three.js:", err);
+        container.innerHTML = `
+          <div style="color:#8f9892; padding: 20px; text-align:center; font-size:13px;">
+            ⚠️ El visor 3D no puede renderizar el archivo STL debido a un error de codificación.
+          </div>
+        `;
+      }
+
+      function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
+      }
+      animate();
+    }
+  </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const downloadStlBtn = document.getElementById("downloadStlBtn");
+      const downloadPdfBtn = document.getElementById("downloadPdfBtn");
+
+      const noSessionFallback = document.getElementById("noSessionFallback");
+      const reportMainContent = document.getElementById("reportMainContent");
+
+      const reportFileName = document.getElementById("reportFileName");
+      const reportVolume = document.getElementById("reportVolume");
+      const reportDimensions = document.getElementById("reportDimensions");
+      const reportScore = document.getElementById("reportScore");
+      const reportScoreDesc = document.getElementById("reportScoreDesc");
+      const reportMaterial = document.getElementById("reportMaterial");
+      const reportTemp = document.getElementById("reportTemp");
+      const reportBed = document.getElementById("reportBed");
+
+      const problemListContainer = document.getElementById("problemListContainer");
+      const slicerPairsContainer = document.getElementById("slicerPairsContainer");
+      const pairedParamsGrid = document.getElementById("pairedParamsGrid");
+
+      const storedAnalysis = sessionStorage.getItem("printlab_analysis");
+
+      if (!storedAnalysis) {
+        noSessionFallback.style.display = "block";
+        reportMainContent.style.display = "none";
+        return;
+      }
+
+      let analysis;
+      try {
+        analysis = JSON.parse(storedAnalysis);
+      } catch (e) {
+        console.error("Error al parsear el objeto de sessionStorage:", e);
+        noSessionFallback.style.display = "block";
+        reportMainContent.style.display = "none";
+        return;
+      }
+
+      noSessionFallback.style.display = "none";
+      reportMainContent.style.display = "block";
+
+      const s = analysis.slicer_settings || {};
+      const q = analysis.user_questionnaire || {};
+
+      reportFileName.textContent = "📄 " + (analysis.file_name || "Archivo de ingeniería");
+      reportVolume.textContent = analysis.volume !== undefined ? `${analysis.volume} cm³` : "No disponible en este análisis";
+      reportDimensions.textContent = analysis.dimensions || "No disponible en este análisis";
+
+      reportMaterial.textContent = s.material || "No disponible";
+      reportTemp.textContent = s.nozzle_temp !== undefined ? `${s.nozzle_temp} ºC` : "No disponible";
+      reportBed.textContent = s.bed_temp !== undefined ? `${s.bed_temp} ºC` : "No disponible";
+
+      let stateText = "APTO";
+      let stateColor = "var(--accent)"; 
+      let stateDesc = "El modelo dispone de una excelente estabilidad y cumple con los requisitos geométricos de impresión.";
+
+      if (analysis.watertight === false) {
+        stateText = "REQUIERE REPARACIÓN";
+        stateColor = "var(--error)"; 
+        stateDesc = "La malla posee aristas abiertas, solapamientos o caras invertidas que requieren una reparación de geometría.";
+      } else if (analysis.critical_points && analysis.critical_points.length > 0) {
+        stateText = "REQUIERE REVISIÓN";
+        stateColor = "var(--warning)"; 
+        stateDesc = "Se han identificado concentraciones de esfuerzo o riesgos mecánicos que aconsejan una revisión de los parámetros de laminado.";
+      }
+
+      reportScore.textContent = stateText;
+      reportScore.style.color = stateColor;
+      reportScoreDesc.textContent = stateDesc;
+
+      let htmlCards = "";
+
+      if (analysis.watertight !== undefined) {
+        htmlCards += `
+          <div class="prob-card ${analysis.watertight ? 'success-card' : 'warn'}" style="${analysis.watertight ? '' : 'border-color: var(--warning); border-left-color: var(--warning);'}">
+            <div class="prob-header">
+              <h3 class="prob-title">Estanqueidad de Malla (Manifold)</h3>
+              <span class="prob-badge" style="background:${analysis.watertight ? '#eef2ee' : '#fff3cd'}; color:${analysis.watertight ? 'var(--muted)' : 'var(--warning)'};">
+                ${analysis.watertight ? 'ESTANCO' : 'ABIERTO'}
+              </span>
+            </div>
+            <div class="solution-box">
+              <p class="solution-text">
+                ${analysis.watertight 
+                  ? 'La geometría STL está completamente cerrada. No se detectan aristas abiertas ni pérdida de volumen durante la simulación.' 
+                  : 'Se han detectado agujeros o aristas no unificadas en el modelo. Nuestra capa matemática de reparación ha cerrado virtualmente el volumen para asegurar un laminado continuo y sin huecos.'}
+              </p>
+            </div>
+          </div>
+        `;
+      }
+
+      if (analysis.critical_points !== undefined) {
+        const pointsCount = analysis.critical_points.length;
+        htmlCards += `
+          <div class="prob-card ${pointsCount === 0 ? 'success-card' : 'warn'}" style="${pointsCount === 0 ? '' : 'border-color: var(--warning); border-left-color: var(--warning);'}">
+            <div class="prob-header">
+              <h3 class="prob-title">Puntos Críticos de Tensión</h3>
+              <span class="prob-badge" style="background:${pointsCount === 0 ? '#eef2ee' : '#fff3cd'}; color:${pointsCount === 0 ? 'var(--muted)' : 'var(--warning)'};">
+                ${pointsCount === 0 ? 'ESTABLE' : 'ADVERTENCIA'}
+              </span>
+            </div>
+            <div class="solution-box">
+              <p class="solution-text">
+                ${pointsCount === 0 
+                  ? 'La distribución de cargas y esfuerzos es homogénea. No se detectan concentraciones peligrosas de tensión mecánica.' 
+                  : `Se han identificado ${pointsCount} zonas con tensiones dinámicas acumuladas en las uniones internas. Se aconseja un espesor mínimo de pared de 4 perímetros y un patrón de relleno de tipo giroscopio para mejorar la tenacidad estructural.`}
+              </p>
+            </div>
+          </div>
+        `;
+      }
+
+      if (s.material_reason) {
+        htmlCards += `
+          <div class="prob-card ${s.material_status === 'no_adecuado' ? '' : 'success-card'}">
+            <div class="prob-header">
+              <h3 class="prob-title">Idoneidad del Polímero</h3>
+              <span class="prob-badge" style="background:${s.material_status === 'no_adecuado' ? '#fcebe8' : '#eef2ee'}; color:${s.material_status === 'no_adecuado' ? '#b42318' : 'var(--muted)'};">
+                ${s.material_status === 'no_adecuado' ? 'CRÍTICO' : 'RECOMENDADO'}
+              </span>
+            </div>
+            <div class="solution-box">
+              <p class="solution-text">${s.material_reason}</p>
+            </div>
+          </div>
+        `;
+      }
+
+      problemListContainer.innerHTML = htmlCards || "<p style='color:var(--muted); text-align:center;'>No se disponen de detalles de diagnóstico adicionales.</p>";
+
+      // RENDERIZAR RECOMENDACIONES DE LAMINACIÓN DE DOS EN DOS
+      if (s.paired_settings && s.paired_settings.length > 0) {
+        slicerPairsContainer.style.display = "block";
+        let pairsHtml = "";
+        s.paired_settings.forEach(pair => {
+          pairsHtml += `
+            <div class="paired-group">
+              <h5 class="paired-group-title">${pair.category}</h5>
+              <div class="paired-grid">
+                <div class="param-card">
+                  <span class="param-label">${pair.param1_name}</span>
+                  <strong class="param-value">${pair.param1_val}</strong>
+                  <span class="param-desc">${pair.param1_desc}</span>
+                </div>
+                <div class="param-card">
+                  <span class="param-label">${pair.param2_name}</span>
+                  <strong class="param-value">${pair.param2_val}</strong>
+                  <span class="param-desc">${pair.param2_desc}</span>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+        pairedParamsGrid.innerHTML = pairsHtml;
+      } else {
+        slicerPairsContainer.style.display = "none";
+      }
+
+      if (analysis.optimized_base64) {
+        init3DViewer("canvas3dContainer", analysis.optimized_base64, analysis.critical_points, s.recommended_rot_matrix);
+
+        downloadStlBtn.disabled = false;
+        downloadStlBtn.style.opacity = "1";
+        
+        const isRepaired = analysis.watertight === false;
+        const fileSuffix = isRepaired ? "_reparado.stl" : "_optimizado.stl";
+        downloadStlBtn.textContent = isRepaired ? "Descargar pieza reparada (.STL)" : "Descargar pieza optimizada (.STL)";
+
+        downloadStlBtn.addEventListener("click", () => {
+          try {
+            const binaryStr = atob(analysis.optimized_base64);
+            const bytes = new Uint8Array(binaryStr.length);
+            for (let i = 0; i < binaryStr.length; i++) {
+              bytes[i] = binaryStr.charCodeAt(i);
+            }
+            const blob = new Blob([bytes.buffer], { type: "model/stl" });
+            const localStlUrl = URL.createObjectURL(blob);
+
+            const a = document.createElement("a");
+            a.href = localStlUrl;
+            a.download = (analysis.file_name || "piece.stl").replace(/\.[^/.]+$/, "") + fileSuffix;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            setTimeout(() => {
+              URL.revokeObjectURL(localStlUrl);
+            }, 100);
+          } catch (err) {
+            alert("Error al procesar la descarga de la malla: " + err.message);
+          }
+        });
+      } else {
+        downloadStlBtn.disabled = true;
+        downloadStlBtn.style.opacity = "0.5";
+        downloadStlBtn.style.cursor = "not-allowed";
+        downloadStlBtn.textContent = "STL reparado/optimizado no disponible";
+        
+        const canvasContainer = document.getElementById("canvas3dContainer");
+        if (canvasContainer) {
+          canvasContainer.innerHTML = `
+            <div style="color:#8f9892; font-size:13.5px; padding:20px; text-align:center;">
+              📂 No se ha retornado ninguna reconstrucción sólida en este diagnóstico.
+            </div>
+          `;
+        }
+      }
+
+      downloadPdfBtn.addEventListener("click", () => {
+        const { jsPDF } = window.jspdf || window.jsPDF;
+        const doc = new jsPDF();
+
+        // PÁGINA 1: DATOS GEOMÉTRICOS Y MATERIAL
+        doc.setFillColor(17, 23, 21); 
+        doc.rect(0, 0, 210, 40, 'F');
+        
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(22);
+        doc.setTextColor(255, 255, 255);
+        doc.text("PRINTLAB", 15, 20);
+
+        doc.setFontSize(9);
+        doc.setTextColor(184, 255, 61); 
+        doc.text("INFORME DE INGENIERÍA Y OPTIMIZACIÓN GEOMÉTRICA", 15, 28);
+
+        let y = 55;
+        doc.setFontSize(12);
+        doc.setTextColor(13, 17, 16); 
+        doc.setFont("helvetica", "bold");
+        doc.text("Propiedades Físicas Calculadas", 15, y);
+        doc.setDrawColor(223, 228, 223); 
+        doc.line(15, y + 2, 195, y + 2);
+
+        y += 10;
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        doc.setTextColor(94, 102, 97); 
+
+        const properties = [
+          ["Archivo analizado:", analysis.file_name || "No disponible"],
+          ["Volumen del modelo:", analysis.volume !== undefined ? `${analysis.volume} cm3` : "No disponible"],
+          ["Dimensiones límites:", analysis.dimensions || "No disponible"],
+          ["Estado de estanqueidad:", analysis.watertight !== undefined ? (analysis.watertight ? "Estanco (Manifold)" : "No estanco (Holes/Aristas libres)") : "No disponible"],
+          ["Estado de laminabilidad:", stateText]
+        ];
+
+        properties.forEach(prop => {
+          doc.setFont("helvetica", "bold");
+          doc.text(prop[0], 15, y);
+          doc.setFont("helvetica", "normal");
+          doc.text(prop[1], 75, y);
+          y += 8;
+        });
+
+        y += 12;
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(12);
+        doc.setTextColor(13, 17, 16);
+        doc.text("Evaluación del Filamento Sugerido", 15, y);
+        doc.line(15, y + 2, 195, y + 2);
+
+        y += 10;
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        doc.setTextColor(13, 17, 16);
+
+        if (s.material_reason) {
+          doc.setFont("helvetica", "bold");
+          doc.text("Material Recomendado:", 15, y);
+          doc.setFont("helvetica", "normal");
+          const splitReason = doc.splitTextToSize(s.material_reason, 180);
+          doc.text(splitReason, 15, y + 6);
+          y += (splitReason.length * 5) + 12;
+        }
+
+        if (analysis.critical_points) {
+          doc.setFont("helvetica", "bold");
+          doc.text("Análisis de tensiones por curvatura:", 15, y);
+          doc.setFont("helvetica", "normal");
+          const pointsCount = analysis.critical_points.length;
+          const tensionText = pointsCount === 0
+            ? "El modelo presenta una transición geométrica homogénea y no requiere radios de redondeo de emergencia en bordes activos."
+            : `Se han localizado ${pointsCount} concentradores de tensión geométrica en las uniones de la malla. Se aconseja un laminado con perímetros reforzados.`;
+          const splitTension = doc.splitTextToSize(tensionText, 180);
+          doc.text(splitTension, 15, y + 6);
+        }
+
+        // PÁGINA 2: ESPECIFICACIONES TÉCNICAS EN PAREJAS
+        if (s.paired_settings && s.paired_settings.length > 0) {
+          doc.addPage();
+          let py = 25;
+          
+          doc.setFillColor(17, 23, 21); 
+          doc.rect(0, 0, 210, 35, 'F');
+          
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(16);
+          doc.setTextColor(255, 255, 255);
+          doc.text("PRINTLAB - ESPECIFICACIÓN DE LAMINACIÓN", 15, 18);
+          
+          doc.setFontSize(9);
+          doc.setTextColor(184, 255, 61); 
+          doc.text("PARÁMETROS TÉCNICOS OPTIMIZADOS EN PAREJAS (DE 2 EN 2)", 15, 26);
+          
+          py = 50;
+          doc.setTextColor(13, 17, 16);
+          
+          s.paired_settings.forEach(pair => {
+            if (py > 250) {
+              doc.addPage();
+              py = 25;
+            }
+            
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(11);
+            doc.text(pair.category, 15, py);
+            doc.setDrawColor(223, 228, 223);
+            doc.line(15, py + 2, 195, py + 2);
+            
+            py += 10;
+            doc.setFontSize(9);
+            
+            // Parámetro 1 de la pareja (Columna Izquierda)
+            doc.setFont("helvetica", "bold");
+            doc.text(pair.param1_name + ": " + pair.param1_val, 15, py);
+            doc.setFont("helvetica", "normal");
+            const desc1 = doc.splitTextToSize(pair.param1_desc, 85);
+            doc.text(desc1, 15, py + 5);
+            
+            // Parámetro 2 de la pareja (Columna Derecha)
+            doc.setFont("helvetica", "bold");
+            doc.text(pair.param2_name + ": " + pair.param2_val, 105, py);
+            doc.setFont("helvetica", "normal");
+            const desc2 = doc.splitTextToSize(pair.param2_desc, 85);
+            doc.text(desc2, 105, py + 5);
+            
+            // Calcular espacio dinámico para la siguiente pareja
+            const heightUsed = Math.max(desc1.length, desc2.length) * 4 + 14;
+            py += heightUsed;
+          });
+        }
+
+        const safeName = (analysis.file_name || "piece").replace(/\.[^/.]+$/, "").replace(/\s+/g, "_");
+        doc.save(`PrintLab_Reporte_${safeName}.pdf`);
+      });
+
+    });
+  </script>
+</body>
+</html>
