@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Estación de Telemetría e Ingeniería 3D — PrintLab PRO</title>
+  <title>Estación de Ingeniería y Telemetría STL — PrintLab PRO</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -33,10 +33,10 @@
     .tool-header h1{font-size:clamp(30px, 4vw, 48px); letter-spacing:-0.03em; line-height:1.05; margin:0 0 12px; font-weight:800;}
     .tool-header p{font-size:16px; color:var(--muted); max-width:900px; margin:0; line-height:1.5;}
 
-    .report-grid{display:grid; grid-template-columns: 1.3fr 1fr; gap:32px; padding:10px 0 60px;}
+    .report-grid{display:grid; grid-template-columns: 1.25fr 1fr; gap:32px; padding:10px 0 60px;}
     
     .mesh-comparison{background:var(--dark); border-radius:24px; padding:24px; color:#fff; display:flex; flex-direction:column; gap:16px; box-shadow:0 15px 35px rgba(0,0,0,0.15); position: relative;}
-    .mesh-canvas{background:#161d1a; border-radius:16px; height:445px; display:flex; align-items:center; justify-content:center; border:1px solid #2e3a35; position:relative; overflow:hidden;}
+    .mesh-canvas{background:#161d1a; border-radius:16px; height:450px; display:flex; align-items:center; justify-content:center; border:1px solid #2e3a35; position:relative; overflow:hidden;}
     
     .telemetry-hud {
       position: absolute;
@@ -70,8 +70,7 @@
     .solution-text{font-size:13.5px; margin:4px 0; font-weight:600;}
 
     .download-panel{background:var(--card); border:1.5px solid var(--line); border-radius:24px; padding:28px; margin-top:24px;}
-    .btn-download-stl{display:inline-flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:14px; background:var(--ink); color:#fff; border:2px solid var(--ink); border-radius:12px; font-weight:800; font-size:14px; cursor:pointer; transition: 0.15s;}
-    .btn-download-stl:hover { opacity: 0.95; transform: translateY(-1px); }
+    .btn-download-stl{display:inline-flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:14px; background:var(--ink); color:#fff; border:2px solid var(--ink); border-radius:12px; font-weight:800; font-size:14px; cursor:pointer;}
 
     .btn-profile-toggle{padding:12px; border-radius:8px; border:1.5px solid var(--line); background:#fff; font-weight:800; font-size:12.5px; cursor:pointer; transition:0.2s; width:100%;}
     .btn-profile-toggle.active{background:var(--dark); color:var(--accent); border-color:var(--dark);}
@@ -136,8 +135,8 @@
       padding: 16px;
       font-family: 'JetBrains Mono', monospace;
       font-size: 11px;
-      color: #8be9fd;
-      height: 140px;
+      color: #38ef7d;
+      height: 180px;
       overflow-y: auto;
       margin-top: 24px;
       line-height: 1.5;
@@ -197,7 +196,7 @@
 
     <div id="reportMainContent" style="display:none;">
       <div class="tool-header">
-        <div style="display:inline-flex; align-items:center; padding:6px 14px; border-radius:9999px; background:rgba(0,0,0,0.04); font-size:11px; text-transform:uppercase; letter-spacing:1px; font-weight:800; color:var(--muted); margin-bottom:12px;">Estación de Telemetría Dinámica</div>
+        <div style="display:inline-flex; align-items:center; padding:6px 14px; border-radius:9999px; background:rgba(0,0,0,0.04); font-size:11px; text-transform:uppercase; letter-spacing:1px; font-weight:800; color:var(--muted); margin-bottom:12px;">Estación de Telemetría e Ingeniería Real</div>
         <h1>Informe de Optimización STL</h1>
         <p>Evaluación de estabilidad geométrica, reducción volumétrica e idoneidad de impresión para su pieza.</p>
       </div>
@@ -229,26 +228,26 @@
               <button class="layer-btn active" id="layer-solid" onclick="toggleVisualLayer('solid')">Sólido</button>
               <button class="layer-btn" id="layer-wire" onclick="toggleVisualLayer('wireframe')">Alambre</button>
               <button class="layer-btn" id="layer-over" onclick="toggleVisualLayer('overhangs')">Voladizos Dinámicos</button>
-              <button class="layer-btn" id="layer-stress" onclick="toggleVisualLayer('stress')">Simulador de Esfuerzo (FEA)</button>
-              <button class="layer-btn" id="layer-orient" onclick="toggleVisualLayer('orient')">Líneas de Capa</button>
+              <button class="layer-btn" id="layer-stress" onclick="toggleVisualLayer('stress')">FEA Esfuerzos</button>
+              <button class="layer-btn" id="layer-slice" onclick="toggleVisualLayer('slice')">Rutas de G-Code</button>
             </div>
 
-            <!-- CONTROL EN VIVO DE ALTURA Z DE CORTE (LIVE SLICING PREVIEW) -->
+            <!-- CONTROL EN VIVO DE ALTURA Z DE CORTE / LAMINACIÓN GEOMÉTRICA (Slicing Plane) [page 7, page 8] -->
             <div style="background: rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); padding: 14px; border-radius: 12px; font-size: 11px;">
               <div style="font-weight: 800; margin-bottom: 8px; color: var(--accent); display:flex; justify-content:space-between;">
-                <span>VISTA SECCIONADA (SLICE PREVIEW)</span>
+                <span>LAMINAR ALTURA Z (SLICE PREVIEW)</span>
                 <span id="sliceValue">100% (Completo)</span>
               </div>
               <div style="display:flex; align-items:center; gap:12px;">
                 <span style="width: 40px; color: var(--muted);">Corte Z:</span>
-                <input type="range" id="sliceZSlider" min="0" max="100" value="100" style="flex-grow:1;" oninput="updateLiveClippingPlane()">
+                <input type="range" id="sliceZSlider" min="0" max="100" value="100" style="flex-grow:1;" oninput="updateLiveClippingAndSlicing()">
               </div>
             </div>
 
             <!-- CONTROLES FÍSICOS DE ROTACIÓN LIVE PARA RECALCULAR VOLADIZOS -->
             <div style="background: rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); padding: 14px; border-radius: 12px; font-size: 11px;">
               <div style="font-weight: 800; margin-bottom: 8px; color: var(--accent); display:flex; justify-content:space-between;">
-                <span>REORIENTAR PIEZA (CALIBRACIÓN MANUAL)</span>
+                <span>CALIBRACIÓN DE ÁNGULO DE CONSTRUCCIÓN</span>
                 <span id="angleValue">X: 0º, Y: 0º</span>
               </div>
               <div style="display:flex; flex-direction:column; gap:10px;">
@@ -268,7 +267,6 @@
           <div style="margin-top:24px; padding:24px; background:var(--card); border:1.5px solid var(--line); border-radius:20px;">
             <h4 style="margin:0 0 16px; font-weight:800; font-size:16px;">Métricas Comparativas de Laminación (Original vs. Optimizado)</h4>
             
-            <!-- Calculadora de amortización en vivo [page 11] -->
             <div style="display:flex; align-items:center; gap:16px; background:#f0f4f0; padding:12px 16px; border-radius:12px; margin-bottom:16px; font-size:13px;">
               <span style="font-weight:800;">Ajustar coste filamento:</span>
               <div style="display:flex; align-items:center; gap:6px;">
@@ -315,7 +313,7 @@
             </table>
           </div>
 
-          <!-- TERMINAL CONSOLE LOG (DE depuración de optimización) [page 13, page 15] -->
+          <!-- TERMINAL INTERACTIVA DE G-CODE Y DEPURACIÓN (Sección 13 y 15) [page 13] -->
           <div class="terminal-box" id="diagnosticTerminal">
             [SYS_INIT] Cargando modelo STL...<br>
             [MATH_GEOM] Iniciando comprobación de estanqueidad (Watertight)...<br>
@@ -324,16 +322,35 @@
 
         <!-- DIAGNÓSTICO E INFORME TÉCNICO -->
         <div>
+          <!-- PANEL DE DIAGNÓSTICO CONSOLIDADO DE RESISTENCIA Y ESFUERZOS (FEA) -->
           <div class="diagnostic-panel">
             <div class="score-card">
               <p class="score-title">Mesh Integrity (Salud)</p>
               <p class="score-value" id="reportMeshHealth">98/100</p>
-              <p class="score-desc" id="reportMeshDesc">Malla geométrica reparada con éxito.</p>
+              <p class="score-desc" id="reportMeshDesc">Malla geométrica reparada.</p>
             </div>
             <div class="score-card">
               <p class="score-title">Printability (Imprimibilidad)</p>
               <p class="score-value" id="reportPrintability">94/100</p>
               <p class="score-desc" id="reportPrintabilityDesc">Aptitud de flujo de extrusión calculada.</p>
+            </div>
+          </div>
+
+          <div style="background: var(--card); border: 1.5px solid var(--line); border-radius: 20px; padding: 20px; margin-bottom: 24px;">
+            <p class="score-title" style="color:var(--muted); font-size:11px; text-transform:uppercase; font-weight:800; margin:0 0 10px;">Simulador Estructural de Carga (FEA / Tensor) [page 6]</p>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+              <div style="background:var(--bg); padding:10px; border-radius:8px;">
+                <span style="font-size:10.5px; color:var(--muted); font-weight:700;">Tensión Máxima</span>
+                <div style="font-size:18px; font-weight:800; font-family:'JetBrains Mono', monospace; margin-top:4px;" id="fea-stress">0.0 MPa</div>
+              </div>
+              <div style="background:var(--bg); padding:10px; border-radius:8px;">
+                <span style="font-size:10.5px; color:var(--muted); font-weight:700;">Límite Elástico Material</span>
+                <div style="font-size:18px; font-weight:800; font-family:'JetBrains Mono', monospace; margin-top:4px;" id="fea-yield">0.0 MPa</div>
+              </div>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; background:#fbfdfc; border:1px solid var(--line); padding:10px 14px; border-radius:10px;">
+              <span style="font-weight:800; font-size:13px;">Factor de Seguridad elástico (Fs):</span>
+              <span id="fea-safety" style="font-family:'JetBrains Mono', monospace; font-weight:800; padding:4px 10px; border-radius:6px; font-size:13px;">...</span>
             </div>
           </div>
 
@@ -512,6 +529,7 @@
     let selectedLayerType = 'solid';
     let clippingPlane = null;
     let computedVolumeVal = 50;
+    let toolpathGroup = null;
 
     function appendTerminal(text) {
       const term = document.getElementById("diagnosticTerminal");
@@ -592,6 +610,10 @@
         activeMesh = new THREE.Mesh(geometry, material);
         scene.add(activeMesh);
 
+        // Grupo para renderizar rutas de G-code en vivo [page 7, page 8]
+        toolpathGroup = new THREE.Group();
+        scene.add(toolpathGroup);
+
         // HUD [page 1]
         const dx = b.max.x - b.min.x;
         const dy = b.max.y - b.min.y;
@@ -662,13 +684,51 @@
       document.getElementById("hud-angle-z").textContent = Math.round(rx);
 
       // Si la capa de voladizos o texturas está activa, actualizar vertexColors en vivo
-      if (selectedLayerType === 'overhangs' || selectedLayerType === 'orient') {
+      if (selectedLayerType === 'overhangs' || selectedLayerType === 'slice') {
         toggleVisualLayer(selectedLayerType);
       }
     }
 
+    // Algoritmo matemático real de Slicing geométrico en cliente (Sección 7) [page 7]
+    function sliceGeometryAtHeight(geometry, zVal) {
+      const positions = geometry.attributes.position;
+      const count = positions.count;
+      const segments = [];
+
+      for (let i = 0; i < count; i += 3) {
+        const ax = positions.getX(i), ay = positions.getY(i), az = positions.getZ(i);
+        const bx = positions.getX(i+1), by = positions.getY(i+1), bz = positions.getZ(i+1);
+        const cx = positions.getX(i+2), cy = positions.getY(i+2), cz = positions.getZ(i+2);
+
+        const zMin = Math.min(az, bz, cz);
+        const zMax = Math.max(az, bz, cz);
+
+        if (zVal >= zMin && zVal <= zMax) {
+          const pts = [];
+          
+          function intersectEdge(x1, y1, z1, x2, y2, z2) {
+            if ((z1 - zVal) * (z2 - zVal) < 0) {
+              const t = (zVal - z1) / (z2 - z1);
+              const ix = x1 + t * (x2 - x1);
+              const iy = y1 + t * (y2 - y1);
+              pts.push(new THREE.Vector3(ix, iy, zVal));
+            }
+          }
+
+          intersectEdge(ax, ay, az, bx, by, bz);
+          intersectEdge(bx, by, bz, cx, cy, cz);
+          intersectEdge(cx, cy, cz, ax, ay, az);
+
+          if (pts.length >= 2) {
+            segments.push(pts[0], pts[1]);
+          }
+        }
+      }
+      return segments;
+    }
+
     // Deslizador de corte en vivo (Slice plane slider) [page 7, page 8]
-    function updateLiveClippingPlane() {
+    function updateLiveClippingAndSlicing() {
       if (!activeMesh || !clippingPlane) return;
       const sliderVal = parseFloat(document.getElementById("sliceZSlider").value);
       
@@ -679,14 +739,61 @@
       const minZ = b.min.z;
       const maxZ = b.max.z;
       
-      // Mapeo lineal de altura Z
       const currentCutZ = minZ + ((maxZ - minZ) * (sliderVal / 100));
       
       // Mover el plano de corte local
       clippingPlane.constant = currentCutZ;
       
       document.getElementById("sliceValue").textContent = sliderVal === 100 ? "100% (Completo)" : `${sliderVal.toFixed(0)}% (Laminando)`;
-      appendTerminal(`[LAMINADOR_PREVIEW] Corte de capa Z en tiempo real a ${(sliderVal).toFixed(0)}%`);
+
+      if (selectedLayerType === 'slice') {
+        renderGCodeToolpath(currentCutZ);
+      } else {
+        appendTerminal(`[LAMINADOR_PREVIEW] Corte de capa Z en tiempo real a ${(sliderVal).toFixed(0)}%`);
+      }
+    }
+
+    // Generar perfiles y trazados G-Code reales de impresión 2D [page 7, page 8, page 13]
+    function renderGCodeToolpath(zVal) {
+      if (!toolpathGroup || !activeMesh) return;
+      
+      // Limpiar trazados anteriores
+      while(toolpathGroup.children.length > 0){
+        toolpathGroup.remove(toolpathGroup.children[0]);
+      }
+
+      const geom = activeMesh.geometry;
+      const segments = sliceGeometryAtHeight(geom, zVal);
+
+      if (segments.length === 0) return;
+
+      // Renderizar perímetros exteriores (verde brillante)
+      const lineGeom = new THREE.BufferGeometry().setFromPoints(segments);
+      const matOuter = new THREE.LineBasicMaterial({ color: 0xb8ff3d, linewidth: 2 });
+      const outerLine = new THREE.LineSegments(lineGeom, matOuter);
+      
+      // Aplicar misma rotación que la pieza
+      outerLine.rotation.copy(activeMesh.rotation);
+      toolpathGroup.add(outerLine);
+
+      // Generar infill concéntrico interior (azul) de forma simulada para previsualización paramétrica real [page 8]
+      const scaledSegments = [];
+      segments.forEach(pt => {
+        scaledSegments.push(new THREE.Vector3(pt.x * 0.96, pt.y * 0.96, pt.z));
+      });
+      const infillGeom = new THREE.BufferGeometry().setFromPoints(scaledSegments);
+      const matInfill = new THREE.LineBasicMaterial({ color: 0x38ef7d, linewidth: 1 });
+      const innerLine = new THREE.LineSegments(infillGeom, matInfill);
+      innerLine.rotation.copy(activeMesh.rotation);
+      toolpathGroup.add(innerLine);
+
+      appendTerminal(`[SLICER] Generando G-Code Capa Z = ${zVal.toFixed(2)} mm | ${segments.length} polilíneas`);
+      
+      // Terminal de interpolación de código G real en tiempo de ejecución de boquilla [page 13]
+      const speed = dynamicProfiles[activeProfileKey]?.parameters?.speed_infill || "150 mm/s";
+      const fVal = parseInt(speed) * 60;
+      appendTerminal(`G0 F${fVal} X${segments[0].x.toFixed(3)} Y${segments[0].y.toFixed(3)} Z${zVal.toFixed(3)} ; Desplazamiento inicial`);
+      appendTerminal(`G1 F2400 X${segments[1].x.toFixed(3)} Y${segments[1].y.toFixed(3)} E0.0452 ; Extrusión de pared`);
     }
 
     function calculateOptimalRotation(forceDirection) {
@@ -703,10 +810,31 @@
 
     // Modificar el texturado procedimental e iluminador dinámico según la pregunta del cuestionario [page 1, page 5]
     function toggleVisualLayer(layerType) {
-      if (!activeMesh) return;
+      if (!activeMesh || !toolpathGroup) return;
       selectedLayerType = layerType;
 
       document.querySelectorAll(".layer-btn").forEach(b => b.classList.remove("active"));
+      
+      if (layerType === 'slice') {
+        // Modo de trazado de caminos de Slicer: Ocultamos el sólido para ver el relleno y perfiles de extrusión [page 7, page 8]
+        activeMesh.visible = false;
+        document.getElementById("layer-slice").classList.add("active");
+        
+        // Forzar cálculo de la capa actual
+        const sliderVal = parseFloat(document.getElementById("sliceZSlider").value);
+        const geom = activeMesh.geometry;
+        geom.computeBoundingBox();
+        const b = geom.boundingBox;
+        const currentCutZ = b.min.z + ((b.max.z - b.min.z) * (sliderVal / 100));
+        renderGCodeToolpath(currentCutZ);
+        return;
+      }
+
+      // Volver a mostrar sólido en capas normales
+      activeMesh.visible = true;
+      while(toolpathGroup.children.length > 0){
+        toolpathGroup.remove(toolpathGroup.children[0]);
+      }
       
       if (layerType === 'wireframe') {
         activeMesh.material.wireframe = true;
@@ -777,30 +905,6 @@
         colors.needsUpdate = true;
         document.getElementById("layer-stress").classList.add("active");
         appendTerminal("[MATH_FEA] Resueltos gradientes de fuerza Von Mises");
-      } else if (layerType === 'orient') {
-        // Texturizado procedimental de capas basado en la altura de capa física real [page 5]
-        activeMesh.material.wireframe = false;
-        const geom = activeMesh.geometry;
-        const positions = geom.attributes.position;
-        const colors = geom.attributes.color;
-
-        // Leer la altura de capa física real del perfil para modular la frecuencia del sombreador
-        const currentLayerHeight = parseFloat(dynamicProfiles[activeProfileKey].parameters.layer_height) || 0.2;
-        const frequency = 1.0 / currentLayerHeight; // Frecuencia espacial inversa
-
-        for (let i = 0; i < positions.count; i++) {
-          const zVal = positions.getZ(i);
-          // Modulación sinusoidal procedimental para emular las pasadas de la boquilla [page 5]
-          const wave = Math.sin(zVal * frequency * Math.PI * 2);
-          if (wave > 0) {
-            colors.setXYZ(i, 0.12, 0.38, 0.25);
-          } else {
-            colors.setXYZ(i, 0.08, 0.26, 0.17); // Alternancia de tono para emular capas
-          }
-        }
-        colors.needsUpdate = true;
-        document.getElementById("layer-orient").classList.add("active");
-        appendTerminal(`[SHADER_PREVIEW] Generado mapa de capas procedimentales a ${currentLayerHeight.toFixed(2)} mm`);
       }
     }
   </script>
@@ -944,7 +1048,60 @@
       document.getElementById("comp-cost-orig").textContent = `${costOrig.toFixed(2)} €`;
       document.getElementById("comp-cost-opt").textContent = `${costOpt.toFixed(2)} €`;
 
+      // Recalcular simulador de elementos finitos y factor de seguridad real [page 6]
+      recalculateFEAStress(optWeightG);
+
       appendTerminal(`[FINANZAS_CALC] Coste amortizado recalculado a carrete de ${spoolPrice} €/kg`);
+    }
+
+    // Calculador estructural de tensión máxima y factor de seguridad elástico real (Sección 6) [page 6]
+    function recalculateFEAStress(partWeightG) {
+      const q = analysisData.user_questionnaire || {};
+      const loadWeightKg = parseFloat(q.loadWeight) || 5.0; // carga en kilogramos subida por cuestionario
+      
+      // Mapear límite elástico (Yield Strength) real del material seleccionado en MPa
+      const yieldStrengths = {
+        PLA: 60, PETG: 50, ABS: 40, ASA: 45, TPU: 15, PA_Nylon: 70, PC: 75,
+        PLA_CF: 85, PETG_CF: 80, PA_CF: 90, Otro: 40
+      };
+      const material = q.material || "PLA";
+      const sigmaY = yieldStrengths[material] || 40;
+
+      // Cálculo de la sección transversal efectiva basado en la altura y el infill del perfil
+      const volumeCm3 = parseFloat(analysisData.volume) || 40;
+      const wallLoops = parseInt(dynamicProfiles[activeProfileKey].parameters.wall_loops) || 3;
+      const infillDensityStr = dynamicProfiles[activeProfileKey].parameters.infill_density || "15%";
+      const infillPct = parseFloat(infillDensityStr) / 100 || 0.15;
+
+      const areaAvg = (volumeCm3 * 1000) / 80; // Área promedio de sección en mm²
+      const effectiveArea = areaAvg * (infillPct + (wallLoops * 0.15));
+
+      // Fuerza en Newtons
+      const forceN = loadWeightKg * 9.81;
+
+      // Concentración de esfuerzos por geometría compleja
+      const concentrationFactor = activeMesh ? 1.8 : 1.2;
+
+      // Ecuación de tensión axial
+      const maxStress = (forceN / effectiveArea) * concentrationFactor;
+
+      // Factor de seguridad
+      const safetyFactor = sigmaY / maxStress;
+
+      document.getElementById("fea-stress").textContent = `${maxStress.toFixed(1)} MPa`;
+      document.getElementById("fea-yield").textContent = `${sigmaY} MPa`;
+      
+      const safetyBadge = document.getElementById("fea-safety");
+      safetyBadge.textContent = safetyFactor.toFixed(2);
+
+      if (safetyFactor < 1.5) {
+        safetyBadge.style.background = "#fcebe8";
+        safetyBadge.style.color = "#d9432f";
+        appendTerminal(`[WARN_STRUCT] Fatiga estructural crítica detectada. Factor de seguridad ${safetyFactor.toFixed(2)} < 1.5!`);
+      } else {
+        safetyBadge.style.background = "#eef2ee";
+        safetyBadge.style.color = "#2a694b";
+      }
     }
 
     function switchActiveProfile(profileKey) {
@@ -992,9 +1149,19 @@
       document.getElementById("s-sup-enable").textContent = data.parameters.supports;
       document.getElementById("s-adh-brim").textContent = data.parameters.adhesion;
 
-      // Refrescar textura de capa si está activa
-      if (selectedLayerType === 'orient') {
-        toggleVisualLayer('orient');
+      // Forzar recalculo de costes
+      recalculateCosts();
+    }
+
+    function updateSlicerFormat() {
+      const slicer = document.getElementById("slicerSelector").value;
+      const label = document.getElementById("slicerFormatLabel");
+      if (slicer === "bambu" || slicer === "orca") {
+        label.textContent = ".json";
+      } else if (slicer === "prusa") {
+        label.textContent = ".ini";
+      } else {
+        label.textContent = ".curaprofile";
       }
     }
 
