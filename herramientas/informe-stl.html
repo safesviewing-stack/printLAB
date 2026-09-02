@@ -15,7 +15,7 @@
     body{margin:0; background:var(--bg); color:var(--ink); font-family:"Plus Jakarta Sans", sans-serif; -webkit-font-smoothing:antialiased;}
     .wrap{max-width:var(--max);margin:auto;padding:0 40px}
     
-    /* CABECERA (FOTO 1 CONSERVADA EXACTAMENTE) */
+    /* CABECERA (FOTO 1 EXACTA) */
     .top{position:sticky;top:0;z-index:100;background:rgba(246,247,244,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
     nav{min-height:95px;display:flex;align-items:center;justify-content:space-between;}
     .header-left{display:flex; align-items:center; gap:24px;}
@@ -242,9 +242,10 @@
             </div>
           </div>
 
-          <!-- Botón de descarga principal unificado -->
-          <div>
-            <button id="btn-download-prepared-stl" class="btn-cad-action accent" style="background:var(--accent); color:var(--ink);">⬇️ DESCARGAR STL PREPARADO</button>
+          <!-- Botones de descarga y control unificados de manera compacta -->
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <button id="btn-download-prepared-stl" class="btn-cad-action primary" style="background:#111715; color:#fff; border-color:#111715; font-size:12.5px; padding:10px;">⬇️ DESCARGAR STL PREPARADO</button>
+            <button id="btn-download-profile" class="btn-cad-action accent" style="font-size:12.5px; padding:10px;">📥 DESCARGAR PERFIL ORCA / BAMBU (.JSON)</button>
           </div>
         </div>
       </section>
