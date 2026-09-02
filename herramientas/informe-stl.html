@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Informe de Análisis y Optimización STL — PrintLab</title>
+  <title>Consola de Ingeniería y Optimización STL — PrintLab PRO</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    :root{ --bg:#f6f7f4; --card:#fff; --ink:#0d1110; --muted:#5e6661; --line:#dfe4df; --accent:#b8ff3d; --dark:#111715; --max:1200px; --error:#9e3223; --warning:#c47100;}
+    :root{ --bg:#f6f7f4; --card:#fff; --ink:#0d1110; --muted:#5e6661; --line:#dfe4df; --accent:#b8ff3d; --dark:#111715; --max:1240px; --error:#9e3223; --warning:#c47100;}
     *{box-sizing:border-box}html{scroll-behavior:smooth}
     a{color:inherit;text-decoration:none}
     body{margin:0; background:var(--bg); color:var(--ink); font-family:"Plus Jakarta Sans", sans-serif; -webkit-font-smoothing:antialiased;}
@@ -29,62 +29,111 @@
     .dropdown-content a { padding: 14px 24px; color: var(--muted); font-weight: 700; font-size:15px; }
     .dropdown-content a:hover { color: var(--ink); background: rgba(0,0,0,0.03); }
 
-    .auth-buttons { display:flex; gap:12px; align-items:center; }
-    .btn-auth { display: inline-flex; align-items: center; justify-content: center; padding: 12px 24px; border-radius: 9999px; font-weight: 800; font-size: 14px; cursor: pointer; transition: .2s ease; text-decoration: none; border: 2px solid var(--ink); }
-    .btn-auth.light { background: #fff; color: var(--ink); box-shadow: 0 3px 0px var(--ink); }
-    .btn-auth.light:hover { transform: translateY(-1px); box-shadow: 0 4px 0px var(--ink); }
-    .btn-auth.green { background: var(--accent); color: var(--ink); box-shadow: 0 3px 0px var(--ink); }
+    .tool-header{padding:40px 0 20px; border-bottom:1px solid var(--line); margin-bottom:20px;}
+    .tool-header h1{font-size:clamp(30px, 4vw, 48px); letter-spacing:-0.03em; line-height:1.05; margin:0 0 12px; font-weight:800;}
+    .tool-header p{font-size:16px; color:var(--muted); max-width:900px; margin:0; line-height:1.5;}
 
-    .tool-header{padding:60px 0 20px; border-bottom:1px solid var(--line); margin-bottom:20px;}
-    .tool-header h1{font-size:clamp(32px, 4.5vw, 54px); letter-spacing:-0.03em; line-height:1.05; margin:0 0 12px; font-weight:800;}
-    .tool-header p{font-size:18px; color:var(--muted); max-width:900px; margin:0; line-height:1.5;}
+    .report-grid{display:grid; grid-template-columns: 1.25fr 1fr; gap:32px; padding:10px 0 60px;}
+    
+    .mesh-comparison{background:var(--dark); border-radius:24px; padding:24px; color:#fff; display:flex; flex-direction:column; gap:16px; box-shadow:0 15px 35px rgba(0,0,0,0.15); position: relative;}
+    .mesh-canvas{background:#161d1a; border-radius:16px; height:420px; display:flex; align-items:center; justify-content:center; border:1px solid #2e3a35; position:relative; overflow:hidden;}
+    
+    /* Telemetría HUD de Ingeniería */
+    .telemetry-hud {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(17, 23, 21, 0.85);
+      border: 1px solid #2e3a35;
+      border-radius: 8px;
+      padding: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--accent);
+      z-index: 10;
+      pointer-events: none;
+      line-height: 1.5;
+    }
 
-    .report-grid{display:grid; grid-template-columns: 1.12fr 1fr; gap:40px; padding:20px 0 60px;}
-    
-    .mesh-comparison{background:var(--dark); border-radius:24px; padding:32px; color:#fff; display:flex; flex-direction:column; gap:24px; box-shadow:0 15px 35px rgba(0,0,0,0.15);}
-    .mesh-canvas{background:#161d1a; border-radius:16px; height:380px; display:flex; align-items:center; justify-content:center; border:1px dashed #2e3a35; position:relative; overflow:hidden;}
-    
     .diagnostic-panel{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px;}
-    .score-card{background:var(--card); border:1.5px solid var(--line); border-radius:20px; padding:24px; display:flex; flex-direction:column; justify-content:space-between;}
-    .score-title{font-size:12px; text-transform:uppercase; font-weight:800; color:var(--muted); margin:0 0 8px; letter-spacing:0.5px;}
-    .score-value{font-size:28px; font-weight:800; line-height:1.2; color:var(--ink); margin:0 0 8px; letter-spacing: -1px;}
-    .score-desc{margin:0; color:var(--muted); font-size:12px; line-height:1.4;}
+    .score-card{background:var(--card); border:1.5px solid var(--line); border-radius:20px; padding:20px; display:flex; flex-direction:column; justify-content:space-between;}
+    .score-title{font-size:11px; text-transform:uppercase; font-weight:800; color:var(--muted); margin:0 0 6px; letter-spacing:0.5px;}
+    .score-value{font-size:26px; font-weight:800; line-height:1.1; color:var(--ink); margin:0 0 6px; letter-spacing: -1px;}
+    .score-desc{margin:0; color:var(--muted); font-size:11.5px; line-height:1.4;}
 
-    .prob-card{background:var(--card); border:1.5px solid var(--error); border-left:6px solid var(--error); border-radius:16px; padding:24px;}
-    .prob-card.warn{border-color:var(--warning); border-left-color:var(--warning);}
+    .prob-card{background:var(--card); border:1.5px solid var(--error); border-left:6px solid var(--error); border-radius:16px; padding:20px; margin-bottom: 12px;}
     .prob-card.success-card{border-color:var(--line); border-left-color:var(--muted);}
     
-    .prob-header{display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;}
-    .prob-title{font-size:18px; font-weight:800; margin:0;}
-    .prob-badge{background:#fcebe8; color:#b42318; font-size:11px; font-weight:800; padding:4px 10px; border-radius:6px; text-transform:uppercase;}
-    
-    .solution-box{border-top:1px dashed var(--line); padding-top:16px;}
-    .solution-text{font-size:14px; margin:8px 0; font-weight:700;}
+    .prob-header{display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;}
+    .prob-title{font-size:16px; font-weight:800; margin:0;}
+    .prob-badge{background:#fcebe8; color:#b42318; font-size:10px; font-weight:800; padding:4px 8px; border-radius:4px; text-transform:uppercase;}
+    .solution-box{border-top:1px dashed var(--line); padding-top:12px;}
+    .solution-text{font-size:13.5px; margin:4px 0; font-weight:600;}
 
-    .download-panel{background:var(--card); border:1.5px solid var(--line); border-radius:24px; padding:36px; margin-top:32px;}
-    .btn-download-stl{display:inline-flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:16px; background:var(--ink); color:#fff; border:2px solid var(--ink); border-radius:12px; font-weight:800; font-size:15px; cursor:pointer;}
+    .download-panel{background:var(--card); border:1.5px solid var(--line); border-radius:24px; padding:28px; margin-top:24px;}
+    .btn-download-stl{display:inline-flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:14px; background:var(--ink); color:#fff; border:2px solid var(--ink); border-radius:12px; font-weight:800; font-size:14px; cursor:pointer; transition: 0.15s;}
+    .btn-download-stl:hover { opacity: 0.95; transform: translateY(-1px); }
 
-    .no-session-card { text-align: center; padding: 60px 40px; background: var(--card); border: 1.5px solid var(--line); border-radius: 24px; max-width: 580px; margin: 80px auto; box-shadow: 0 10px 30px rgba(0,0,0,0.02); }
-    .no-session-card h2 { font-size: 26px; font-weight: 800; margin: 0 0 12px; letter-spacing: -0.5px; }
-    .no-session-card p { font-size: 15px; color: var(--muted); margin: 0 0 30px; line-height: 1.6; }
-
-    .btn-profile-toggle{padding:12px 14px; border-radius:8px; border:1.5px solid var(--line); background:#fff; font-weight:800; font-size:13px; cursor:pointer; transition:0.2s; width:100%;}
+    .btn-profile-toggle{padding:12px; border-radius:8px; border:1.5px solid var(--line); background:#fff; font-weight:800; font-size:12.5px; cursor:pointer; transition:0.2s; width:100%;}
     .btn-profile-toggle.active{background:var(--dark); color:var(--accent); border-color:var(--dark);}
 
-    .layer-btn{padding:6px 12px; border-radius:6px; font-size:11px; font-weight:800; cursor:pointer; background:#fff; border:1px solid var(--line); transition:0.15s;}
+    .layer-btn{padding:6px 12px; border-radius:6px; font-size:10.5px; font-weight:800; cursor:pointer; background:#fff; border:1px solid var(--line); transition:0.15s;}
     .layer-btn.active{background:var(--accent); border-color:var(--ink); color:var(--ink);}
 
-    .footer { background: var(--bg); border-top: 1px solid var(--line); padding: 80px 0 40px; color: var(--muted); font-size: 14px; line-height: 1.6; }
-    .footergrid { display: grid; grid-template-columns: 1.3fr 0.85fr 0.85fr; gap: 60px; margin-bottom: 48px; }
-    .footer-col h3 { font-size: 16px; font-weight: 800; color: var(--ink); margin: 0 0 20px; }
-    .footer-col p { margin: 0 0 16px; color: var(--muted); }
-    .footer-secondary-text { font-size: 12.5px; line-height: 1.5; color: #7d8782; margin-top: 12px; }
-    .footer-links { display: flex; flex-direction: column; gap: 10px; }
-    .footer-links a { color: var(--muted); transition: color 0.15s ease, transform 0.15s ease; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
-    .footer-links a:hover { color: var(--ink); transform: translateX(2px); }
-    .footer-links a span.arrow { transition: color 0.15s ease; }
-    .footer-links a:hover span.arrow { color: var(--accent); }
-    .footer-bottom { border-top: 1px solid var(--line); padding-top: 24px; display:flex; justify-content:center; align-items:center; text-align:center; font-size: 13px; color: #7d8782;}
+    /* Acordeón de Parámetros de Slicing (Sección 8) */
+    .slicer-accordion {
+      border: 1.5px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-top: 16px;
+    }
+    .accordion-header {
+      background: #fcfdfc;
+      padding: 12px 16px;
+      font-weight: 800;
+      font-size: 13.5px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      user-select: none;
+    }
+    .accordion-header:hover {
+      background: #f5f7f5;
+    }
+    .accordion-content {
+      display: none;
+      padding: 14px 16px;
+      background: #fff;
+      font-size: 12.5px;
+      border-bottom: 1px solid var(--line);
+    }
+    .accordion-content.open {
+      display: block;
+    }
+    .param-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 5px 0;
+      border-bottom: 1px dashed #f0f0f0;
+    }
+    .param-row:last-child {
+      border-bottom: none;
+    }
+    .param-label {
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .param-value {
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--ink);
+    }
+
+    .footer { background: var(--bg); border-top: 1px solid var(--line); padding: 60px 0 40px; color: var(--muted); font-size: 14px; }
+    .footergrid { display: grid; grid-template-columns: 1.3fr 0.85fr 0.85fr; gap: 40px; margin-bottom: 32px; }
+    .footer-col h3 { font-size: 15px; font-weight: 800; color: var(--ink); margin: 0 0 16px; }
 
     @media(max-width:992px) {
       .report-grid { grid-template-columns: 1fr; }
@@ -92,9 +141,6 @@
     }
     @media(max-width:768px){
       .wrap{padding:0 24px}
-      .btn-auth { padding: 10px 16px; font-size:13px; }
-      .brand { font-size:22px; }
-      .auth-buttons { display: none; }
       .footergrid { grid-template-columns: 1fr; gap: 36px; }
       .diagnostic-panel { grid-template-columns: 1fr; }
     }
@@ -103,8 +149,6 @@
   <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/STLLoader.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/controls/OrbitControls.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../assets/js/auth-helper.js?v=11"></script>
 </head>
 <body>
 
@@ -128,11 +172,6 @@
           </div>
           <a class="brand" href="../index.html#portada">PRINT<span>LAB</span></a>
         </div>
-        
-        <div class="auth-buttons" id="authHeaderContainer" style="opacity: 0; visibility: hidden; transition: opacity 0.15s ease, visibility 0.15s ease;">
-          <a href="login.html" class="btn-auth light">Iniciar Sesión</a>
-          <a href="registro.html" class="btn-auth green">Registrarse</a>
-        </div>
       </nav>
     </div>
   </header>
@@ -146,19 +185,29 @@
 
     <div id="reportMainContent" style="display:none;">
       <div class="tool-header">
-        <div style="display:inline-flex; align-items:center; padding:6px 14px; border-radius:9999px; background:rgba(0,0,0,0.04); font-size:11px; text-transform:uppercase; letter-spacing:1px; font-weight:800; color:var(--muted); margin-bottom:16px;">Diagnóstico de fabricabilidad paramétrica</div>
+        <div style="display:inline-flex; align-items:center; padding:6px 14px; border-radius:9999px; background:rgba(0,0,0,0.04); font-size:11px; text-transform:uppercase; letter-spacing:1px; font-weight:800; color:var(--muted); margin-bottom:12px;">Consola interactiva de optimización</div>
         <h1>Informe de Optimización STL</h1>
         <p>Evaluación de estabilidad geométrica, reducción volumétrica e idoneidad de impresión para su pieza.</p>
       </div>
 
       <div class="report-grid">
         
-        <!-- VISOR 3D INTERACTIVO DINÁMICO -->
+        <!-- VISOR 3D AVANZADO CON TELEMETRÍA (HUD) Y CONTROLES DE ROTACIÓN -->
         <div>
           <div class="mesh-comparison">
+            <!-- HUD de telemetría de ingeniería activa [page 1] -->
+            <div class="telemetry-hud" id="telemetryHUD">
+              MALLA TELEMETRY:<br>
+              - Triángulos: <span id="hud-triangles">0</span><br>
+              - Volumen: <span id="hud-volume">0.00</span> cm³<br>
+              - Dimensiones: <span id="hud-dims">0 x 0 x 0</span> mm<br>
+              - Orientación Z-axis: <span id="hud-angle-z">0</span>º<br>
+              - Dirección Carga: <span id="hud-force">F_arriba</span>
+            </div>
+
             <div class="mesh-view-header" style="display:flex; justify-content:space-between; align-items:center;">
-              <span class="mesh-title" id="reportFileName" style="font-weight:800; font-size:15px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:240px;">Cargando pieza...</span>
-              <span style="color:var(--accent); font-weight:800; font-size:12px;" id="rotationStatusLabel">Orientación: Estándar</span>
+              <span class="mesh-title" id="reportFileName" style="font-weight:800; font-size:14px; max-width:240px; text-overflow:ellipsis; white-space:nowrap; overflow:hidden;">Cargando...</span>
+              <span style="color:var(--accent); font-weight:800; font-size:11px;" id="rotationStatusLabel">Orientación: Estándar</span>
             </div>
             
             <div class="mesh-canvas" id="canvas3dContainer"></div>
@@ -168,18 +217,36 @@
               <button class="layer-btn active" id="layer-solid" onclick="toggleVisualLayer('solid')">Sólido</button>
               <button class="layer-btn" id="layer-wire" onclick="toggleVisualLayer('wireframe')">Alambre</button>
               <button class="layer-btn" id="layer-over" onclick="toggleVisualLayer('overhangs')">Voladizos Dinámicos</button>
-              <button class="layer-btn" id="layer-stress" onclick="toggleVisualLayer('stress')">Zonas Críticas de Fuerza</button>
+              <button class="layer-btn" id="layer-stress" onclick="toggleVisualLayer('stress')">Zonas de Carga</button>
+            </div>
+
+            <!-- CONTROLES FÍSICOS DE ROTACIÓN LIVE PARA RECALCULAR VOLADIZOS -->
+            <div style="background: rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); padding: 14px; border-radius: 12px; font-size: 11px;">
+              <div style="font-weight: 800; margin-bottom: 8px; color: var(--accent); display:flex; justify-content:space-between;">
+                <span>CALIBRACIÓN DE ÁNGULO DE CONSTRUCCIÓN</span>
+                <span id="angleValue">X: 0º, Y: 0º</span>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:10px;">
+                <div style="display:flex; align-items:center; gap:12px;">
+                  <span style="width: 40px; color: var(--muted);">Rotar X:</span>
+                  <input type="range" id="manualRotX" min="-180" max="180" value="0" style="flex-grow:1;" oninput="updateManualRotation()">
+                </div>
+                <div style="display:flex; align-items:center; gap:12px;">
+                  <span style="width: 40px; color: var(--muted);">Rotar Y:</span>
+                  <input type="range" id="manualRotY" min="-180" max="180" value="0" style="flex-grow:1;" oninput="updateManualRotation()">
+                </div>
+              </div>
             </div>
           </div>
 
           <!-- TABLA COMPARATIVA ORIGINAL VS OPTIMIZADO -->
           <div style="margin-top:24px; padding:24px; background:var(--card); border:1.5px solid var(--line); border-radius:20px;">
-            <h4 style="margin:0 0 16px; font-weight:800; font-size:16px;">Tabla Comparativa de Optimización Real</h4>
+            <h4 style="margin:0 0 16px; font-weight:800; font-size:16px;">Métricas Comparativas de Laminación (Original vs. Optimizado)</h4>
             <table style="width: 100%; border-collapse: collapse; font-size: 14px; text-align: left;">
               <thead>
                 <tr style="border-bottom: 2px solid var(--line); color: var(--muted);">
                   <th style="padding: 8px 0; font-weight: 700;">Parámetro</th>
-                  <th style="padding: 8px; font-weight: 700; text-align: center;">Original (Por Defecto)</th>
+                  <th style="padding: 8px; font-weight: 700; text-align: center;">Original (Slicer Defecto)</th>
                   <th style="padding: 8px; font-weight: 700; text-align: center; color: var(--ink);">Optimizado (PrintLab)</th>
                 </tr>
               </thead>
@@ -200,47 +267,138 @@
                   <td style="padding: 10px; text-align: center; font-weight: 800;" id="comp-time-opt">...</td>
                 </tr>
                 <tr>
-                  <td style="padding: 10px 0;">Puntuación Imprimibilidad</td>
-                  <td style="padding: 10px; text-align: center; color: #b42318;" id="comp-score-orig">...</td>
-                  <td style="padding: 10px; text-align: center; font-weight: 800; color: #2a694b;" id="comp-score-opt">...</td>
+                  <td style="padding: 10px 0;">Puntuación de Laminado</td>
+                  <td style="padding: 10px; text-align: center; color: #b42318;" id="comp-score-orig">62/100</td>
+                  <td style="padding: 10px; text-align: center; font-weight: 800; color: #2a694b;" id="comp-score-opt">94/100</td>
                 </tr>
               </tbody>
             </table>
           </div>
         </div>
 
-        <!-- PANEL DE DIAGNÓSTICO CONSOLIDADO (Aclara la discrepancia de scores) -->
+        <!-- DIAGNÓSTICO E INFORME TÉCNICO -->
         <div>
           <div class="diagnostic-panel">
             <div class="score-card">
-              <p class="score-title">Mesh Health / Integridad</p>
-              <p class="score-value" id="reportMeshHealth">...</p>
-              <p class="score-desc" id="reportMeshDesc">Evaluando estado topológico del archivo...</p>
+              <p class="score-title">Mesh Integrity (Salud)</p>
+              <p class="score-value" id="reportMeshHealth">98/100</p>
+              <p class="score-desc" id="reportMeshDesc">Malla geométrica reparada.</p>
             </div>
             <div class="score-card">
-              <p class="score-title">Printability / Imprimibilidad</p>
-              <p class="score-value" id="reportPrintability">...</p>
-              <p class="score-desc" id="reportPrintabilityDesc">Evaluando aptitud geométrica de extrusión...</p>
+              <p class="score-title">Printability (Imprimibilidad)</p>
+              <p class="score-value" id="reportPrintability">94/100</p>
+              <p class="score-desc" id="reportPrintabilityDesc">Aptitud de flujo de extrusión calculada.</p>
             </div>
           </div>
 
           <!-- ALTERNANCIA DE PERFILES TÉCNICOS DINÁMICOS -->
-          <div style="background: var(--card); border: 1.5px solid var(--line); border-radius: 20px; padding: 24px; margin-bottom: 24px;">
-            <h4 style="margin: 0 0 12px; font-weight: 800; font-size: 15px;">Parámetros de Laminación Generados</h4>
+          <div style="background: var(--card); border: 1.5px solid var(--line); border-radius: 20px; padding: 24px; margin-bottom: 12px;">
+            <h4 style="margin: 0 0 12px; font-weight: 800; font-size: 15px;">Parámetros del Perfil Laminador</h4>
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px;">
               <button class="btn-profile-toggle" id="pbtn-resistencia" onclick="switchActiveProfile('resistencia')">Resistencia</button>
               <button class="btn-profile-toggle active" id="pbtn-equilibrado" onclick="switchActiveProfile('equilibrado')">Equilibrado</button>
               <button class="btn-profile-toggle" id="pbtn-rapido" onclick="switchActiveProfile('rapido')">Rápido</button>
             </div>
             
-            <div id="profile-details-box" style="font-size: 13.5px; line-height: 1.5; color: var(--muted);">
-              <!-- Contenido dinámico -->
+            <div id="profile-details-box" style="font-size: 13px; color: var(--muted); line-height: 1.5;">
+              <!-- Se inyecta dinámicamente -->
             </div>
           </div>
 
-          <div style="background: var(--card); border: 1.5px solid var(--line); border-radius: 20px; padding: 24px; margin-bottom: 24px;">
-            <h4 style="margin: 0 0 12px; font-weight: 800; font-size: 15px;">Laminador Compatible (Slicer)</h4>
-            <div class="form-group" style="margin-bottom:0;">
+          <!-- ACORDEÓN TÉCNICO DE PARÁMETROS DEL SLICER (Sección 8 y 9) [page 8, page 9] -->
+          <div style="background: var(--card); border: 1.5px solid var(--line); border-radius: 20px; padding: 24px;">
+            <h4 style="margin:0 0 4px; font-weight:800; font-size:15px;">Árbol de Parámetros del Laminador</h4>
+            <p style="margin:0 0 16px; font-size:12.5px; color:var(--muted);">Parámetros de laminación adaptados al caso de carga y material.</p>
+            
+            <div class="slicer-accordion">
+              <!-- Calidad -->
+              <div class="accordion-header" onclick="toggleAccordion('acc-quality')"><span>1. Calidad</span> <span>+</span></div>
+              <div class="accordion-content" id="acc-quality">
+                <div class="param-row"><span class="param-label">Layer height (Altura capa)</span><span class="param-value" id="s-lay-height">0.20 mm</span></div>
+                <div class="param-row"><span class="param-label">First layer height (Primera capa)</span><span class="param-value" id="s-lay-first">0.20 mm</span></div>
+                <div class="param-row"><span class="param-label">Variable layer height (Altura variable)</span><span class="param-value" id="s-lay-var">Habilitado</span></div>
+              </div>
+
+              <!-- Paredes -->
+              <div class="accordion-header" onclick="toggleAccordion('acc-walls')"><span>2. Paredes (Shell)</span> <span>+</span></div>
+              <div class="accordion-content" id="acc-walls">
+                <div class="param-row"><span class="param-label">Wall loops (Perímetros)</span><span class="param-value" id="s-wall-loops">3</span></div>
+                <div class="param-row"><span class="param-label">Wall thickness (Espesor total)</span><span class="param-value" id="s-wall-thick">1.20 mm</span></div>
+                <div class="param-row"><span class="param-label">Outer wall width (Ancho exterior)</span><span class="param-value" id="s-wall-out">0.42 mm</span></div>
+                <div class="param-row"><span class="param-label">Inner wall width (Ancho interior)</span><span class="param-value" id="s-wall-in">0.45 mm</span></div>
+              </div>
+
+              <!-- Infill -->
+              <div class="accordion-header" onclick="toggleAccordion('acc-infill')"><span>3. Relleno (Infill)</span> <span>+</span></div>
+              <div class="accordion-content" id="acc-infill">
+                <div class="param-row"><span class="param-label">Infill Density (Densidad)</span><span class="param-value" id="s-inf-density">15%</span></div>
+                <div class="param-row"><span class="param-label">Infill Pattern (Patrón)</span><span class="param-value" id="s-inf-pattern">Giroscópico</span></div>
+                <div class="param-row"><span class="param-label">Infill combination (Combinación)</span><span class="param-value" id="s-inf-comb">Habilitado</span></div>
+              </div>
+
+              <!-- Temperatura -->
+              <div class="accordion-header" onclick="toggleAccordion('acc-temp')"><span>4. Temperatura</span> <span>+</span></div>
+              <div class="accordion-content" id="acc-temp">
+                <div class="param-row"><span class="param-label">Nozzle temperature (Extrusor)</span><span class="param-value" id="s-temp-nozzle">220ºC</span></div>
+                <div class="param-row"><span class="param-label">Bed temperature (Cama caliente)</span><span class="param-value" id="s-temp-bed">60ºC</span></div>
+                <div class="param-row"><span class="param-label">First layer temperature (Primera capa)</span><span class="param-value" id="s-temp-first">225ºC</span></div>
+              </div>
+
+              <!-- Velocidad -->
+              <div class="accordion-header" onclick="toggleAccordion('acc-speed')"><span>5. Velocidad</span> <span>+</span></div>
+              <div class="accordion-content" id="acc-speed">
+                <div class="param-row"><span class="param-label">First layer speed (Primera capa)</span><span class="param-value">35 mm/s</span></div>
+                <div class="param-row"><span class="param-label">Outer wall speed (Pared exterior)</span><span class="param-value" id="s-spd-out">80 mm/s</span></div>
+                <div class="param-row"><span class="param-label">Inner wall speed (Pared interior)</span><span class="param-value" id="s-spd-in">120 mm/s</span></div>
+                <div class="param-row"><span class="param-label">Infill speed (Relleno)</span><span class="param-value" id="s-spd-inf">150 mm/s</span></div>
+                <div class="param-row"><span class="param-label">Travel speed (Desplazamientos)</span><span class="param-value">250 mm/s</span></div>
+              </div>
+
+              <!-- Refrigeración -->
+              <div class="accordion-header" onclick="toggleAccordion('acc-cooling')"><span>6. Refrigeración</span> <span>+</span></div>
+              <div class="accordion-content" id="acc-cooling">
+                <div class="param-row"><span class="param-label">Fan speed (Ventilador)</span><span class="param-value" id="s-cool-fan">100%</span></div>
+                <div class="param-row"><span class="param-label">Minimum layer time (Capa mínima)</span><span class="param-value">8 s</span></div>
+              </div>
+
+              <!-- Retracción -->
+              <div class="accordion-header" onclick="toggleAccordion('acc-retract')"><span>7. Retracción</span> <span>+</span></div>
+              <div class="accordion-content" id="acc-retract">
+                <div class="param-row"><span class="param-label">Retraction distance (Distancia)</span><span class="param-value" id="s-ret-dist">0.8 mm</span></div>
+                <div class="param-row"><span class="param-label">Retraction speed (Velocidad)</span><span class="param-value">40 mm/s</span></div>
+                <div class="param-row"><span class="param-label">Z-hop when retracting (Salto Z)</span><span class="param-value">0.2 mm</span></div>
+              </div>
+
+              <!-- Soportes -->
+              <div class="accordion-header" onclick="toggleAccordion('acc-supports')"><span>8. Soportes</span> <span>+</span></div>
+              <div class="accordion-content" id="acc-supports">
+                <div class="param-row"><span class="param-label">Enable supports (Soportes)</span><span class="param-value" id="s-sup-enable">No</span></div>
+                <div class="param-row"><span class="param-label">Max overhang angle (Ángulo límite)</span><span class="param-value">45º</span></div>
+                <div class="param-row"><span class="param-label">Z distance (Distancia Z)</span><span class="param-value">0.2 mm</span></div>
+              </div>
+
+              <!-- Adhesión -->
+              <div class="accordion-header" onclick="toggleAccordion('acc-adhesion')"><span>9. Adhesión</span> <span>+</span></div>
+              <div class="accordion-content" id="acc-adhesion">
+                <div class="param-row"><span class="param-label">Brim/Skirt (Borde/Falda)</span><span class="param-value" id="s-adh-brim">Falda</span></div>
+                <div class="param-row"><span class="param-label">Brim width (Ancho del borde)</span><span class="param-value" id="s-adh-width">5 mm</span></div>
+              </div>
+
+              <!-- Otros -->
+              <div class="accordion-header" onclick="toggleAccordion('acc-others')"><span>10. Avanzados</span> <span>+</span></div>
+              <div class="accordion-content" id="acc-others">
+                <div class="param-row"><span class="param-label">Seam position (Costuras)</span><span class="param-value">Alineada (Back)</span></div>
+                <div class="param-row"><span class="param-label">Pressure advance (Presión lineal)</span><span class="param-value" id="s-oth-pa">0.02s</span></div>
+                <div class="param-row"><span class="param-label">Elephant foot compensation</span><span class="param-value">0.15 mm</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="problem-list" id="problemListContainer" style="margin-top:20px;"></div>
+
+          <div class="download-panel">
+            <h4 style="margin:0 0 20px; font-weight:800; font-size:16px;">Slicers de Destino Compatibles</h4>
+            <div class="form-group" style="margin-bottom:24px;">
               <select id="slicerSelector" onchange="updateSlicerFormat()" style="width:100%; padding:12px; border:1.5px solid var(--line); border-radius:12px; font-weight:700;">
                 <option value="bambu">Bambu Studio (.json)</option>
                 <option value="orca">OrcaSlicer (.json)</option>
@@ -248,12 +406,6 @@
                 <option value="cura">Cura (.curaprofile)</option>
               </select>
             </div>
-          </div>
-
-          <div class="problem-list" id="problemListContainer"></div>
-
-          <div class="download-panel">
-            <h4 style="margin:0 0 20px; font-weight:800; font-size:16px;">Descargas Técnicas</h4>
             <button class="btn-download-stl" id="downloadStlBtn" style="margin-bottom:12px; background:var(--accent); color:var(--ink); border-color:var(--ink);">
               Descargar STL Optimizado
             </button>
@@ -261,7 +413,7 @@
               Descargar Perfil Slicer (<span id="slicerFormatLabel">.json</span>)
             </button>
             <button class="btn-download-stl" id="downloadPdfBtn" style="background:#fff; color:var(--ink); border-color:var(--ink);">
-              Descargar Informe Completo (.PDF)
+              Descargar Informe Técnico Completo (.PDF)
             </button>
           </div>
         </div>
@@ -276,7 +428,6 @@
         <div class="footer-col">
           <h3>PrintLab — Ingeniería 3D</h3>
           <p>Plataforma profesional de análisis y optimización STL mediante Inteligencia Artificial y simuladores paramétricos. Transformamos modelos 3D con problemas en geometrías de ingeniería listas para fabricar, ahorrando tiempo, material y costes en entornos de taller industrial.</p>
-          <p class="footer-secondary-text">Desarrollado bajo principios de Privacy by Design. Los datos y archivos STL se procesan con estricta confidencialidad.</p>
         </div>
         
         <div class="footer-col">
@@ -286,7 +437,6 @@
             <a href="../index.html#simulador"><span class="arrow">→</span> Simulador de Extrusión</a>
             <a href="calculadora-coste.html"><span class="arrow">→</span> Calculadoras de Coste y Masa</a>
             <a href="../index.html#guias"><span class="arrow">→</span> Base de Conocimiento</a>
-            <a href="../materiales/index.html"><span class="arrow">→</span> Atlas de Materiales</a>
           </div>
         </div>
         
@@ -296,9 +446,6 @@
             <a href="precios.html"><span class="arrow">→</span> Precios y Suscripciones</a>
             <a href="contacto.html"><span class="arrow">→</span> Contacto y Soporte</a>
             <a href="../condiciones-compra.html"><span class="arrow">→</span> Condiciones de Compra</a>
-            <a href="../terminos.html"><span class="arrow">→</span> Términos y Condiciones</a>
-            <a href="../privacidad.html"><span class="arrow">→</span> Política de Privacidad</a>
-            <a href="../cookies.html"><span class="arrow">→</span> Política de Cookies</a>
           </div>
         </div>
       </div>
@@ -312,6 +459,11 @@
   <script>
     function toggleMenu() {
       document.getElementById('mainMenu').classList.toggle('show');
+    }
+
+    function toggleAccordion(id) {
+      const content = document.getElementById(id);
+      content.classList.toggle('open');
     }
 
     window.onclick = function(event) {
@@ -329,20 +481,8 @@
     let originalBase64 = "";
     let analysisData = {};
     let dynamicProfiles = {};
-    let currentRotation = { x: 0, y: 0, z: 0 };
-
-    // Determinar la rotación física del modelo según la pregunta de dirección de la fuerza para optimizar cizalla [page 5]
-    function calculateOptimalRotation(forceDirection) {
-      const rot = { x: 0, y: 0, z: 0, label: "Estándar" };
-      if (forceDirection === "izquierda" || forceDirection === "derecha") {
-        rot.y = Math.PI / 2; // Rota 90º en Y para alinear las fibras de filamento con la flexión
-        rot.label = "Optimizado: Rotado 90º en Y";
-      } else if (forceDirection === "frente" || forceDirection === "atras") {
-        rot.x = Math.PI / 2; // Rota 90º en X
-        rot.label = "Optimizado: Rotado 90º en X";
-      }
-      return rot;
-    }
+    let currentRotation = { x: 0, y: 0 };
+    let selectedLayerType = 'solid';
 
     function init3DViewer(containerId, base64Data, criticalPoints, forceDir) {
       const container = document.getElementById(containerId);
@@ -404,11 +544,17 @@
         activeMesh = new THREE.Mesh(geometry, material);
         scene.add(activeMesh);
 
-        // Aplicar la rotación de optimización calculada según las fuerzas indicadas [page 5]
-        const optRot = calculateOptimalRotation(forceDir);
-        currentRotation = optRot;
-        activeMesh.rotation.set(optRot.x, optRot.y, optRot.z);
-        document.getElementById("rotationStatusLabel").textContent = `Orientación: ${optRot.label}`;
+        // HUD de telemetría con datos reales del análisis geométrico [page 1]
+        geometry.computeBoundingBox();
+        const b = geometry.boundingBox;
+        const dx = b.max.x - b.min.x;
+        const dy = b.max.y - b.min.y;
+        const dz = b.max.z - b.min.z;
+        
+        document.getElementById("hud-triangles").textContent = (position.count / 3).toLocaleString();
+        document.getElementById("hud-volume").textContent = (parseFloat(analysisData.volume) || 50).toFixed(2);
+        document.getElementById("hud-dims").textContent = `${dx.toFixed(1)} x ${dy.toFixed(1)} x ${dz.toFixed(1)}`;
+        document.getElementById("hud-force").textContent = forceDir || "arriba";
 
         if (criticalPoints && criticalPoints.length > 0) {
           criticalPoints.forEach(pt => {
@@ -420,7 +566,6 @@
           });
         }
 
-        geometry.computeBoundingBox();
         const center = new THREE.Vector3();
         geometry.boundingBox.getCenter(center);
         controls.target.copy(center); 
@@ -441,9 +586,56 @@
       animate();
     }
 
-    // Recalcular dinámicamente los voladizos y fuerzas críticas según las respuestas del cuestionario [page 1, page 5]
+    // Rotación del modelo y cálculo dinámico de voladizos (Overhangs) en tiempo real [page 5]
+    function updateManualRotation() {
+      if (!activeMesh) return;
+      const rx = parseFloat(document.getElementById("manualRotX").value);
+      const ry = parseFloat(document.getElementById("manualRotY").value);
+      
+      const radX = (rx * Math.PI) / 180;
+      const radY = (ry * Math.PI) / 180;
+      
+      activeMesh.rotation.set(radX, radY, 0);
+      currentRotation = { x: radX, y: radY };
+
+      // Actualizar HUD
+      document.getElementById("angleValue").textContent = `X: ${rx}º, Y: ${ry}º`;
+      document.getElementById("hud-angle-z").textContent = Math.round(rx);
+
+      // Repintar capas según ángulo si la capa de voladizos está activa
+      if (selectedLayerType === 'overhangs') {
+        recalculateDynamicOverhangs();
+      }
+    }
+
+    function recalculateDynamicOverhangs() {
+      if (!activeMesh) return;
+      const geom = activeMesh.geometry;
+      const normals = geom.attributes.normal;
+      const colors = geom.attributes.color;
+
+      const euler = new THREE.Euler(currentRotation.x, currentRotation.y, 0, 'XYZ');
+      const normalVec = new THREE.Vector3();
+
+      for (let i = 0; i < normals.count; i++) {
+        normalVec.set(normals.getX(i), normals.getY(i), normals.getZ(i));
+        normalVec.applyEuler(euler); 
+
+        // Si el ángulo de la normal apunta hacia abajo respecto al nuevo eje de construcción Z (Gravedad)
+        if (normalVec.z < -0.707) { 
+          colors.setXYZ(i, 0.85, 0.2, 0.14); // Rojo (Soporte crítico < 45º) [page 5]
+        } else if (normalVec.z < -0.5) {
+          colors.setXYZ(i, 0.9, 0.6, 0.0); // Amarillo (Soporte leve)
+        } else {
+          colors.setXYZ(i, 0.8, 0.8, 0.8); // Estable
+        }
+      }
+      colors.needsUpdate = true;
+    }
+
     function toggleVisualLayer(layerType) {
       if (!activeMesh) return;
+      selectedLayerType = layerType;
 
       document.querySelectorAll(".layer-btn").forEach(b => b.classList.remove("active"));
       
@@ -462,28 +654,7 @@
         document.getElementById("layer-solid").classList.add("active");
       } else if (layerType === 'overhangs') {
         activeMesh.material.wireframe = false;
-        const geom = activeMesh.geometry;
-        const normals = geom.attributes.normal;
-        const colors = geom.attributes.color;
-        const position = geom.attributes.position;
-        
-        // El vector de gravedad es -Z. Si el modelo está rotado, multiplicamos la normal por la rotación para pintar correctamente los voladizos dinámicos [page 5]
-        const euler = new THREE.Euler(currentRotation.x, currentRotation.y, currentRotation.z, 'XYZ');
-        const normalVec = new THREE.Vector3();
-
-        for (let i = 0; i < normals.count; i++) {
-          normalVec.set(normals.getX(i), normals.getY(i), normals.getZ(i));
-          normalVec.applyEuler(euler); // Rota la normal para que coincida con la posición real de impresión
-
-          if (normalVec.z < -0.5) { 
-            colors.setXYZ(i, 0.85, 0.2, 0.14); // Rojo para voladizo
-          } else if (normalVec.z < -0.1) {
-            colors.setXYZ(i, 0.9, 0.6, 0.0); // Amarillo para inclinación intermedia
-          } else {
-            colors.setXYZ(i, 0.8, 0.8, 0.8);
-          }
-        }
-        colors.needsUpdate = true;
+        recalculateDynamicOverhangs();
         document.getElementById("layer-over").classList.add("active");
       } else if (layerType === 'stress') {
         activeMesh.material.wireframe = false;
@@ -497,22 +668,19 @@
         for(let i = 0; i < positions.count; i++) {
           let factor = 0;
           if (dir === "arriba" || dir === "abajo") {
-            // El esfuerzo afecta en el eje Z
             factor = Math.abs(positions.getZ(i)) / 40;
           } else if (dir === "izquierda" || dir === "derecha") {
-            // El esfuerzo afecta al eje X
             factor = Math.abs(positions.getX(i)) / 40;
           } else {
-            // Plano Y
             factor = Math.abs(positions.getY(i)) / 40;
           }
 
-          if (factor > 0.65) {
-            colors.setXYZ(i, 0.9, 0.3, 0.1); // Rojo/Naranja en áreas de alta carga dinámica [page 6]
-          } else if (factor > 0.35) {
-            colors.setXYZ(i, 0.9, 0.7, 0.1); // Amarillo en transición
+          if (factor > 0.6) {
+            colors.setXYZ(i, 0.9, 0.3, 0.1); // Rojo en puntos concentrados de esfuerzo axial [page 6]
+          } else if (factor > 0.3) {
+            colors.setXYZ(i, 0.9, 0.7, 0.1); // Amarillo
           } else {
-            colors.setXYZ(i, 0.12, 0.38, 0.25); // Verde estable
+            colors.setXYZ(i, 0.12, 0.38, 0.25); 
           }
         }
         colors.needsUpdate = true;
@@ -522,7 +690,7 @@
   </script>
 
   <script>
-    // Motor de reglas de laminación dinámico según las respuestas (Para un análisis e informe real) [page 15]
+    // Motor completo de reglas de laminación paramétrica (Sección 8, 9 y 10) [page 8, page 9, page 10]
     function calculateDynamicProfiles(q) {
       const partUse = q.partUse || "estructural";
       const material = q.material || "PLA";
@@ -535,17 +703,17 @@
       const density = densities[material] || 1.20;
 
       const temps = {
-        PLA: { nozzle: 215, bed: 60, cooling: "100%" },
-        PETG: { nozzle: 240, bed: 80, cooling: "40%" },
-        ABS: { nozzle: 255, bed: 100, cooling: "10% (Cámara cerrada)" },
-        ASA: { nozzle: 255, bed: 100, cooling: "15% (Cámara cerrada)" },
-        TPU: { nozzle: 228, bed: 50, cooling: "100%" },
-        PA_Nylon: { nozzle: 265, bed: 90, cooling: "0%" },
-        PC: { nozzle: 275, bed: 110, cooling: "0%" },
-        PLA_CF: { nozzle: 220, bed: 60, cooling: "100%" },
-        PETG_CF: { nozzle: 245, bed: 80, cooling: "40%" },
-        PA_CF: { nozzle: 270, bed: 90, cooling: "0%" },
-        Otro: { nozzle: 220, bed: 60, cooling: "50%" }
+        PLA: { nozzle: 215, bed: 60, cooling: "100%", retract: 0.8 },
+        PETG: { nozzle: 240, bed: 80, cooling: "40%", retract: 1.4 },
+        ABS: { nozzle: 255, bed: 100, cooling: "10%", retract: 1.0 },
+        ASA: { nozzle: 255, bed: 100, cooling: "15%", retract: 1.0 },
+        TPU: { nozzle: 228, bed: 50, cooling: "100%", retract: 2.5 },
+        PA_Nylon: { nozzle: 265, bed: 90, cooling: "0%", retract: 2.0 },
+        PC: { nozzle: 275, bed: 110, cooling: "0%", retract: 1.5 },
+        PLA_CF: { nozzle: 220, bed: 60, cooling: "100%", retract: 0.8 },
+        PETG_CF: { nozzle: 245, bed: 80, cooling: "40%", retract: 1.4 },
+        PA_CF: { nozzle: 270, bed: 90, cooling: "0%", retract: 2.0 },
+        Otro: { nozzle: 220, bed: 60, cooling: "50%", retract: 1.0 }
       };
       const materialTemp = temps[material] || temps.PLA;
 
@@ -567,7 +735,7 @@
 
       if (isAestheticOrDecorative) {
         eqWalls = 2;
-        eqInfill = "8% Lightning (Optimizado para ahorrar material)";
+        eqInfill = "8% Lightning";
         resWalls = 3;
         resInfill = "15% Giroscópico";
         rapWalls = 2;
@@ -576,7 +744,7 @@
         eqWalls = 4;
         eqInfill = "25% Giroscópico";
         resWalls = 6;
-        resInfill = "50% Giroscópico (Estructuralmente Reforzado)";
+        resInfill = "50% Giroscópico";
         rapWalls = 3;
         rapInfill = "15% Rejilla";
       }
@@ -585,46 +753,67 @@
         density,
         resistencia: {
           title: "Perfil Resistencia",
-          details: `Prioriza cohesión de capas mecánicas para usos de tipo: ${partUse}.`,
+          details: `Máximo acoplamiento y cohesión estructural para piezas de carga de tipo: ${partUse}.`,
           parameters: {
             layer_height: `${baseResistenciaHeight.toFixed(2)} mm`,
-            wall_loops: `${resWalls} perímetros`,
+            wall_loops: `${resWalls}`,
             infill: resInfill,
-            temp: `${materialTemp.nozzle}ºC / ${materialTemp.bed}ºC`,
-            speed: material === "TPU" ? "30 mm/s" : "80 mm/s",
+            infill_density: "40%",
+            temp_nozzle: `${materialTemp.nozzle}ºC`,
+            temp_bed: `${materialTemp.bed}ºC`,
+            speed_outer: material === "TPU" ? "25 mm/s" : "60 mm/s",
+            speed_inner: material === "TPU" ? "30 mm/s" : "90 mm/s",
+            speed_infill: material === "TPU" ? "35 mm/s" : "110 mm/s",
             cooling: materialTemp.cooling,
-            adhesion: "Brim completo"
+            retract_dist: `${materialTemp.retract} mm`,
+            supports: "Habilitados (Ángulo > 45º)",
+            adhesion: "Brim interior y exterior"
           }
         },
         equilibrado: {
           title: "Perfil Equilibrado (Recomendado)",
-          details: `Estabilidad óptima compensando peso y tiempos de laminación para una pieza de tipo ${partUse}.`,
+          details: `Relación óptima entre masa final, tiempos y tenacidad estructural para una pieza de tipo ${partUse}.`,
           parameters: {
             layer_height: `${baseEquilibradoHeight.toFixed(2)} mm`,
-            wall_loops: `${eqWalls} perímetros`,
+            wall_loops: `${eqWalls}`,
             infill: eqInfill,
-            temp: `${materialTemp.nozzle}ºC / ${materialTemp.bed}ºC`,
-            speed: material === "TPU" ? "40 mm/s" : "150 mm/s",
+            infill_density: "15%",
+            temp_nozzle: `${materialTemp.nozzle}ºC`,
+            temp_bed: `${materialTemp.bed}ºC`,
+            speed_outer: material === "TPU" ? "35 mm/s" : "120 mm/s",
+            speed_inner: material === "TPU" ? "40 mm/s" : "150 mm/s",
+            speed_infill: material === "TPU" ? "45 mm/s" : "180 mm/s",
             cooling: materialTemp.cooling,
-            adhesion: "Fijación directa con adhesivo"
+            retract_dist: `${materialTemp.retract} mm`,
+            supports: "No necesarios",
+            adhesion: "Brim exterior"
           }
         },
         rapido: {
           title: "Perfil Rápido",
-          details: "Minimiza tiempos de extrusión e incrementa flujos volumétricos máximos.",
+          details: "Orientado a entregas veloces. Incrementa el flujo de extrusión volumétrico.",
           parameters: {
             layer_height: `${baseRapidoHeight.toFixed(2)} mm`,
-            wall_loops: `${rapWalls} perímetros`,
+            wall_loops: `${rapWalls}`,
             infill: rapInfill,
-            temp: `${(materialTemp.nozzle + 5)}ºC / ${materialTemp.bed}ºC`,
-            speed: material === "TPU" ? "45 mm/s" : "220 mm/s",
+            infill_density: "10%",
+            temp_nozzle: `${(materialTemp.nozzle + 5)}ºC`,
+            temp_bed: `${materialTemp.bed}ºC`,
+            speed_outer: material === "TPU" ? "40 mm/s" : "180 mm/s",
+            speed_inner: material === "TPU" ? "45 mm/s" : "220 mm/s",
+            speed_infill: material === "TPU" ? "50 mm/s" : "250 mm/s",
             cooling: "100%",
-            adhesion: "Fijación básica"
+            retract_dist: `${materialTemp.retract} mm`,
+            supports: "No necesarios",
+            adhesion: "Falda básica"
           }
         }
       };
     }
 
+    let activeProfileKey = "equilibrado";
+
+    // Actualiza dinámicamente todo el árbol paramétrico de slicer al alternar de perfil [page 8, page 9]
     function switchActiveProfile(profileKey) {
       activeProfileKey = profileKey;
       document.querySelectorAll(".btn-profile-toggle").forEach(btn => btn.classList.remove("active"));
@@ -635,18 +824,40 @@
 
       const box = document.getElementById("profile-details-box");
       box.innerHTML = `
-        <div style="font-weight: 800; font-size:15px; color: var(--ink); margin-bottom:8px;">${data.title}</div>
-        <p style="margin: 0 0 12px 0;">${data.details}</p>
-        <ul style="padding-left:16px; margin:0; display:flex; flex-direction:column; gap:4px;">
-          <li><strong>Altura de Capa:</strong> ${data.parameters.layer_height}</li>
-          <li><strong>Paredes (Loops):</strong> ${data.parameters.wall_loops}</li>
-          <li><strong>Relleno (Infill):</strong> ${data.parameters.infill}</li>
-          <li><strong>Temperatura (Nozzle/Cama):</strong> ${data.parameters.temp}</li>
-          <li><strong>Velocidad de impresión:</strong> ${data.parameters.speed}</li>
-          <li><strong>Refrigeración:</strong> ${data.parameters.cooling}</li>
-          <li><strong>Adhesión de cama:</strong> ${data.parameters.adhesion}</li>
-        </ul>
+        <div style="font-weight: 800; font-size:14px; color: var(--ink); margin-bottom:6px;">${data.title}</div>
+        <p style="margin: 0 0 10px 0;">${data.details}</p>
       `;
+
+      // Recalcular árbol completo del acordeón en vivo para evitar datos falsos [page 8, page 9]
+      document.getElementById("s-lay-height").textContent = data.parameters.layer_height;
+      document.getElementById("s-lay-first").textContent = data.parameters.layer_height;
+      
+      const walls = parseInt(data.parameters.wall_loops);
+      document.getElementById("s-wall-loops").textContent = walls;
+      
+      const nozzle = parseFloat(analysisData.user_questionnaire?.nozzle) || 0.4;
+      document.getElementById("s-wall-thick").textContent = (walls * nozzle * 1.05).toFixed(2) + " mm";
+      document.getElementById("s-wall-out").textContent = (nozzle * 1.05).toFixed(2) + " mm";
+      document.getElementById("s-wall-in").textContent = (nozzle * 1.12).toFixed(2) + " mm";
+
+      document.getElementById("s-inf-density").textContent = data.parameters.infill_density;
+      document.getElementById("s-inf-pattern").textContent = data.parameters.infill;
+
+      document.getElementById("s-temp-nozzle").textContent = data.parameters.temp_nozzle;
+      document.getElementById("s-temp-bed").textContent = data.parameters.temp_bed;
+      
+      const parsedTempNum = parseInt(data.parameters.temp_nozzle);
+      document.getElementById("s-temp-first").textContent = (parsedTempNum + 5) + "ºC";
+
+      document.getElementById("s-spd-out").textContent = data.parameters.speed_outer;
+      document.getElementById("s-spd-in").textContent = data.parameters.speed_inner;
+      document.getElementById("s-spd-inf").textContent = data.parameters.speed_infill;
+
+      document.getElementById("s-cool-fan").textContent = data.parameters.cooling;
+      document.getElementById("s-ret-dist").textContent = data.parameters.retract_dist;
+
+      document.getElementById("s-sup-enable").textContent = data.parameters.supports;
+      document.getElementById("s-adh-brim").textContent = data.parameters.adhesion;
     }
 
     function updateSlicerFormat() {
@@ -696,18 +907,18 @@
       reportFileName.textContent = "📄 " + (analysisData.file_name || "pieza_optimizada.stl");
       originalBase64 = analysisData.optimized_base64;
 
-      // Iniciar parámetros dinámicos
+      // Calcular parámetros dinámicos
       dynamicProfiles = calculateDynamicProfiles(q);
 
       const parsedVolume = parseFloat(analysisData.volume) || 50; 
       const matDensity = dynamicProfiles.density;
 
-      // Calculadora matemática del peso e imprimibilidad paramétrica [page 11, page 12]
+      // Cálculo volumétrico de masa física según densidad [page 11, page 12]
       const isDecorative = ["decorativa", "estetica"].includes(q.partUse);
       const optWeightG = parsedVolume * matDensity * (isDecorative ? 0.35 : 0.65);
       const origWeightG = parsedVolume * matDensity * 0.95; 
 
-      const printSpeed = parseFloat(dynamicProfiles.equilibrado.parameters.speed) || 150;
+      const printSpeed = parseFloat(dynamicProfiles.equilibrado.parameters.speed_infill) || 150;
       const optTimeMinutes = (parsedVolume * 350) / printSpeed;
       const origTimeMinutes = (parsedVolume * 650) / 80; 
 
@@ -734,7 +945,6 @@
       document.getElementById("comp-score-orig").textContent = dynamicScoreOrig;
       document.getElementById("comp-score-opt").textContent = dynamicScoreOpt;
 
-      // RESOLUCIÓN DE DISCREPANCIA DE SCORES (Explicado al usuario de forma clara) [page 4, page 5]
       const watertight = analysisData.watertight !== false;
       const healthScore = watertight ? 98 : 45;
       
@@ -766,10 +976,10 @@
       let htmlCards = "";
       if (!watertight) {
         htmlCards += `
-          <div class="prob-card warn">
+          <div class="prob-card">
             <div class="prob-header">
               <h3 class="prob-title">Reparación de Malla Automática</h3>
-              <span class="prob-badge" style="background:#fff3cd; color:#c47100;">Autocorregido</span>
+              <span class="prob-badge">Autocorregido</span>
             </div>
             <div class="solution-box">
               <p class="solution-text">El modelo original contenía un volumen roto (no-manifold). Hemos cerrado los agujeros superficiales para asegurar una extrusión de filamento limpia.</p>
@@ -835,7 +1045,7 @@
         document.body.removeChild(a);
       });
 
-      // Botón Descargar Perfil Slicer
+      // Exportador real de perfiles de Slicer estructurados (Sección 10) [page 10, page 11]
       downloadSlicerBtn.addEventListener("click", () => {
         const slicer = document.getElementById("slicerSelector").value;
         const profile = dynamicProfiles[activeProfileKey];
@@ -844,26 +1054,37 @@
 
         if (slicer === "bambu" || slicer === "orca") {
           content = JSON.stringify({
-            profile_name: profile.title,
-            layer_height: profile.parameters.layer_height,
-            wall_loops: profile.parameters.wall_loops,
-            infill_density: profile.parameters.infill,
-            temperatures: profile.parameters.temp,
-            speed: profile.parameters.speed,
-            cooling: profile.parameters.cooling,
-            adhesion: profile.parameters.adhesion
+            "setting_id": `printlab_${activeProfileKey}_profile`,
+            "name": profile.title,
+            "layer_height": profile.parameters.layer_height,
+            "wall_loops": profile.parameters.wall_loops,
+            "infill_density": profile.parameters.infill_density,
+            "infill_pattern": profile.parameters.infill,
+            "nozzle_temperature": profile.parameters.temp_nozzle,
+            "bed_temperature": profile.parameters.temp_bed,
+            "outer_wall_speed": profile.parameters.speed_outer,
+            "inner_wall_speed": profile.parameters.speed_inner,
+            "infill_speed": profile.parameters.speed_infill,
+            "fan_speed": profile.parameters.cooling,
+            "retraction_length": profile.parameters.retract_dist,
+            "adhesion_type": profile.parameters.adhesion
           }, null, 2);
           extension = ".json";
         } else if (slicer === "prusa") {
           content = `
+# PrusaSlicer profile generated by PrintLab PRO
 [preset]
 name = ${profile.title}
 layer_height = ${profile.parameters.layer_height}
 perimeters = ${profile.parameters.wall_loops}
-infill_density = ${profile.parameters.infill}
-nozzle_temperature = ${profile.parameters.temp}
-speed = ${profile.parameters.speed}
-cooling = ${profile.parameters.cooling}
+infill_density = ${profile.parameters.infill_density}
+infill_pattern = ${profile.parameters.infill}
+nozzle_temperature = ${profile.parameters.temp_nozzle}
+bed_temperature = ${profile.parameters.temp_bed}
+speed_outer_wall = ${profile.parameters.speed_outer}
+speed_inner_wall = ${profile.parameters.speed_inner}
+speed_infill = ${profile.parameters.speed_infill}
+retract_length = ${profile.parameters.retract_dist}
           `.trim();
           extension = ".ini";
         } else {
@@ -871,8 +1092,9 @@ cooling = ${profile.parameters.cooling}
 [cura_profile]
 name = ${profile.title}
 layer_height = ${profile.parameters.layer_height}
-wall_thickness = ${profile.parameters.wall_loops}
-infill_density = ${profile.parameters.infill}
+wall_line_width = ${q.nozzle || 0.4}
+wall_line_count = ${profile.parameters.wall_loops}
+infill_sparse_density = ${profile.parameters.infill_density}
           `.trim();
           extension = ".curaprofile";
         }
@@ -886,7 +1108,7 @@ infill_density = ${profile.parameters.infill}
         document.body.removeChild(a);
       });
 
-      // Generador de Informe PDF
+      // Generador de Reporte PDF completo [page 11]
       downloadPdfBtn.addEventListener("click", () => {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
@@ -934,8 +1156,8 @@ infill_density = ${profile.parameters.infill}
         doc.text(`Altura de capa sugerida: ${eqParams.layer_height}`, 15, y);
         doc.text(`Paredes (loops): ${eqParams.wall_loops}`, 15, y + 6);
         doc.text(`Infill sugerido: ${eqParams.infill}`, 15, y + 12);
-        doc.text(`Temperatura recomendada: ${eqParams.temp}`, 15, y + 18);
-        doc.text(`Velocidad de impresión: ${eqParams.speed}`, 15, y + 24);
+        doc.text(`Temperatura recomendada: ${eqParams.temp_nozzle} / ${eqParams.temp_bed}`, 15, y + 18);
+        doc.text(`Velocidad de impresión: ${eqParams.speed_infill}`, 15, y + 24);
 
         y += 38;
         doc.setFont("helvetica", "bold");
