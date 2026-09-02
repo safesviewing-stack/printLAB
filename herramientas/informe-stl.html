@@ -37,24 +37,24 @@
     .btn-auth.light:hover { transform: translateY(-1px); box-shadow: 0 4px 0px var(--ink); }
     .btn-auth.green { background: var(--accent); color: var(--ink); box-shadow: 0 3px 0px var(--ink); }
 
-    /* CAD WORKSPACE SPLIT */
+    /* CAD WORKSPACE SPLIT (HAZ QUE QUEPA ESTO) */
     .workspace-layout { display: grid; grid-template-columns: 1fr 420px; gap: 30px; margin: 20px 0 40px; }
     @media(max-width:992px) { .workspace-layout { grid-template-columns: 1fr; } }
 
     /* TABS LAMINADOR */
-    .slicer-tabs { display: flex; border-bottom: 2px solid var(--line); margin-bottom: 16px; }
-    .slicer-tab { padding: 10px 14px; font-weight: 800; font-size: 13.5px; color: var(--muted); cursor: pointer; border-bottom: 3px solid transparent; transition: 0.15s; }
+    .slicer-tabs { display: flex; border-bottom: 2px solid var(--line); margin-bottom: 12px; }
+    .slicer-tab { padding: 8px 12px; font-weight: 800; font-size: 13px; color: var(--muted); cursor: pointer; border-bottom: 3px solid transparent; transition: 0.15s; }
     .slicer-tab.active { color: var(--ink); border-bottom-color: #1a9e86; }
 
-    .param-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 13.5px; }
+    .param-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
     .param-label { font-weight: 600; color: var(--ink); }
-    .param-value { font-weight: 800; color: #1a9e86; background: #e8f5f1; padding: 4px 10px; border-radius: 6px; }
+    .param-value { font-weight: 800; color: #1a9e86; background: #e8f5f1; padding: 4px 8px; border-radius: 6px; }
 
     .btn-cad-action { width: 100%; padding: 12px; border-radius: 10px; font-weight: 800; font-size: 13.5px; cursor: pointer; border: 1.5px solid var(--ink); box-shadow: 0 3px 0 var(--ink); transition: transform 0.15s, box-shadow 0.15s; }
     .btn-cad-action:hover { transform: translateY(-1px); box-shadow: 0 4px 0 var(--ink); }
     .btn-cad-action.accent { background: var(--accent); color: var(--ink); }
 
-    .mesh-canvas { background: #161d1a; border-radius: 16px; height: 480px; display: block; border: 1.5px solid var(--line); overflow: hidden; width: 100%; cursor: grab;}
+    .mesh-canvas { background: #161d1a; border-radius: 16px; height: 400px; display: block; border: 1.5px solid var(--line); overflow: hidden; width: 100%; cursor: grab;}
     #face-info-panel { position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.95); padding: 20px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); font-size: 14px; display: none; width: 280px; border: 2px solid #2688d8; backdrop-filter: blur(5px); z-index:10;}
     #btn-use-as-base { width: 100%; margin-top: 16px; background: #2688d8; color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: 800; cursor: pointer; }
 
@@ -93,7 +93,7 @@
       align-self: center !important;
       line-height: 1 !important; 
       height: auto !important;
-      min-height: 0 !important;
+      min-width: 0 !important;
       max-height: 38px !important;
       margin: auto 0 !important;
       white-space: nowrap !important;
@@ -172,24 +172,15 @@
           </div>
 
           <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:15px;">
-            <button id="selectSupportBtn" type="button" style="border:none; background:#2688d8; color:#fff; border-radius:999px; padding:10px 16px; font-weight:800; font-size:13px; cursor:pointer;">
-              👆 Elegir cara plana manualmente
+            <button id="autoSupportBtn" type="button" style="border:1.5px solid var(--line); background:var(--card); color:var(--ink); border-radius:999px; padding:10px 16px; font-weight:800; font-size:13px; cursor:pointer; width:100%;">
+              ↺ Restaurar orientación automática recomendada
             </button>
-            <button id="autoSupportBtn" type="button" style="border:1.5px solid var(--line); background:var(--card); color:var(--ink); border-radius:999px; padding:10px 16px; font-weight:800; font-size:13px; cursor:pointer;">
-              ↺ Orientación automática recomendada
-            </button>
-          </div>
-
-          <!-- BOTONES DE DESCARGA DIRECTA -->
-          <div style="margin-top:20px; display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-            <button id="btn-download-prepared-stl" class="btn-cad-action primary" style="background:#111715; color:#fff; border-color:#111715;">⬇️ Descargar STL Preparado</button>
-            <button id="btn-download-profile" class="btn-cad-action accent">📥 Descargar Perfil Orca / Bambu (.json)</button>
           </div>
         </div>
 
-        <!-- Columna Derecha: Parámetros del Laminador Calibrados -->
-        <div style="background:var(--card); border:1.5px solid var(--line); border-radius:20px; padding:20px;">
-          <h3 style="margin-top:0; font-size:17px; display:flex; align-items:center; gap:8px;">⚙️ Perfil de Laminación Completo</h3>
+        <!-- Columna Derecha: Parámetros del Laminador Calibrados (Haz que quepa esto) -->
+        <div style="background:var(--card); border:1.5px solid var(--line); border-radius:20px; padding:20px; display:flex; flex-direction:column; height:400px;">
+          <h3 style="margin-top:0; font-size:16px; display:flex; align-items:center; gap:8px; margin-bottom:12px;">⚙️ Perfil de Laminación Completo</h3>
           
           <div class="slicer-tabs">
             <div class="slicer-tab active" onclick="switchTab('calidad')">Calidad</div>
@@ -199,53 +190,61 @@
             <div class="slicer-tab" onclick="switchTab('multimaterial')">Multimaterial</div>
           </div>
 
-          <!-- Pestaña 1: Calidad -->
-          <div id="tab-calidad" class="slicer-tab-content">
-            <div class="param-row"><span class="param-label">Altura de la capa</span><span class="param-value" id="val-layer-height">0.2 mm</span></div>
-            <div class="param-row"><span class="param-label">Altura de la primera capa</span><span class="param-value" id="val-first-layer">0.2 mm</span></div>
-            <h4 style="margin: 15px 0 8px; font-size:11px; text-transform:uppercase; color:var(--muted);">Anchos de línea (Extrusión)</h4>
-            <div class="param-row"><span class="param-label">Por defecto</span><span class="param-value" id="val-w-default">0.46 mm</span></div>
-            <div class="param-row"><span class="param-label">Capa inicial</span><span class="param-value" id="val-w-first">0.46 mm</span></div>
-            <div class="param-row"><span class="param-label">Perímetro externo</span><span class="param-value" id="val-w-outer">0.42 mm</span></div>
-            <div class="param-row"><span class="param-label">Perímetro interno</span><span class="param-value" id="val-w-inner">0.45 mm</span></div>
-            <div class="param-row"><span class="param-label">Relleno sólido superior</span><span class="param-value" id="val-w-top">0.42 mm</span></div>
-            <div class="param-row"><span class="param-label">Relleno poco denso</span><span class="param-value" id="val-w-sparse">0.45 mm</span></div>
-            <div class="param-row"><span class="param-label">Relleno sólido interno</span><span class="param-value" id="val-w-solid-inner">0.45 mm</span></div>
+          <!-- Contenedor con scroll interno para que quepan todos los parámetros sin overflow -->
+          <div style="flex:1; overflow-y:auto; padding-right:4px; margin-bottom:12px;">
+            <!-- Pestaña 1: Calidad -->
+            <div id="tab-calidad" class="slicer-tab-content">
+              <div class="param-row"><span class="param-label">Altura de la capa</span><span class="param-value" id="val-layer-height">0.2 mm</span></div>
+              <div class="param-row"><span class="param-label">Altura de la primera capa</span><span class="param-value" id="val-first-layer">0.2 mm</span></div>
+              <h4 style="margin: 12px 0 6px; font-size:10px; text-transform:uppercase; color:var(--muted); letter-spacing:0.5px;">Anchos de línea (Extrusión)</h4>
+              <div class="param-row"><span class="param-label">Por defecto</span><span class="param-value" id="val-w-default">0.46 mm</span></div>
+              <div class="param-row"><span class="param-label">Capa inicial</span><span class="param-value" id="val-w-first">0.46 mm</span></div>
+              <div class="param-row"><span class="param-label">Perímetro externo</span><span class="param-value" id="val-w-outer">0.42 mm</span></div>
+              <div class="param-row"><span class="param-label">Perímetro interno</span><span class="param-value" id="val-w-inner">0.45 mm</span></div>
+              <div class="param-row"><span class="param-label">Relleno sólido superior</span><span class="param-value" id="val-w-top">0.42 mm</span></div>
+              <div class="param-row"><span class="param-label">Relleno poco denso</span><span class="param-value" id="val-w-sparse">0.45 mm</span></div>
+              <div class="param-row"><span class="param-label">Relleno sólido interno</span><span class="param-value" id="val-w-solid-inner">0.45 mm</span></div>
+            </div>
+
+            <!-- Pestaña 2: Fuerza -->
+            <div id="tab-fuerza" class="slicer-tab-content" style="display:none;">
+              <div class="param-row"><span class="param-label">Bucles de pared (Perímetros)</span><span class="param-value" id="val-wall-loops">3</span></div>
+              <div class="param-row"><span class="param-label">Capas sólidas superiores</span><span class="param-value" id="val-top-layers">3</span></div>
+              <div class="param-row"><span class="param-label">Capas sólidas inferiores</span><span class="param-value" id="val-bottom-layers">3</span></div>
+              <div class="param-row"><span class="param-label">Densidad de relleno</span><span class="param-value" id="val-infill-density">15 %</span></div>
+              <div class="param-row"><span class="param-label">Patrón de relleno</span><span class="param-value" id="val-infill-pattern">Giroide</span></div>
+            </div>
+
+            <!-- Pestaña 3: Velocidad -->
+            <div id="tab-velocidad" class="slicer-tab-content" style="display:none;">
+              <div class="param-row"><span class="param-label">Perímetro externo</span><span class="param-value" id="val-spd-outer">60 mm/s</span></div>
+              <div class="param-row"><span class="param-label">Perímetro interno</span><span class="param-value" id="val-spd-inner">100 mm/s</span></div>
+              <div class="param-row"><span class="param-label">Relleno poco denso</span><span class="param-value" id="val-spd-sparse">120 mm/s</span></div>
+              <div class="param-row"><span class="param-label">Relleno sólido interno</span><span class="param-value" id="val-spd-solid-inner">120 mm/s</span></div>
+              <div class="param-row"><span class="param-label">Superficie superior</span><span class="param-value" id="val-spd-top">50 mm/s</span></div>
+              <div class="param-row"><span class="param-label">Capa inicial</span><span class="param-value" id="val-spd-initial">35 mm/s</span></div>
+              <div class="param-row"><span class="param-label">Desplazamiento (Viaje)</span><span class="param-value" id="val-spd-travel">150 mm/s</span></div>
+            </div>
+
+            <!-- Pestaña 4: Soportes -->
+            <div id="tab-soportes" class="slicer-tab-content" style="display:none;">
+              <div class="param-row"><span class="param-label">Habilitar soportes</span><span class="param-value" id="val-supp-enable">No necesario</span></div>
+              <div class="param-row"><span class="param-label">Tipo de soporte</span><span class="param-value" id="val-supp-type">Normal (auto)</span></div>
+              <div class="param-row"><span class="param-label">Ángulo umbral</span><span class="param-value">45º</span></div>
+              <div class="param-row"><span class="param-label">Distancia Z</span><span class="param-value" id="val-supp-z">0.2 mm</span></div>
+              <div class="param-row"><span class="param-label">Densidad de soporte</span><span class="param-value" id="val-supp-density">15 %</span></div>
+            </div>
+
+            <!-- Pestaña 5: Multimaterial -->
+            <div id="tab-multimaterial" class="slicer-tab-content" style="display:none;">
+              <div class="param-row"><span class="param-label">Torre de purga</span><span class="param-value" id="val-mm-tower">No</span></div>
+              <div class="param-row"><span class="param-label">Volumen de purga (flush)</span><span class="param-value" id="val-mm-flush">120 mm³</span></div>
+            </div>
           </div>
 
-          <!-- Pestaña 2: Fuerza -->
-          <div id="tab-fuerza" class="slicer-tab-content" style="display:none;">
-            <div class="param-row"><span class="param-label">Bucles de pared (Perímetros)</span><span class="param-value" id="val-wall-loops">3</span></div>
-            <div class="param-row"><span class="param-label">Capas sólidas superiores</span><span class="param-value" id="val-top-layers">3</span></div>
-            <div class="param-row"><span class="param-label">Capas sólidas inferiores</span><span class="param-value" id="val-bottom-layers">3</span></div>
-            <div class="param-row"><span class="param-label">Densidad de relleno</span><span class="param-value" id="val-infill-density">15 %</span></div>
-            <div class="param-row"><span class="param-label">Patrón de relleno</span><span class="param-value" id="val-infill-pattern">Giroide</span></div>
-          </div>
-
-          <!-- Pestaña 3: Velocidad -->
-          <div id="tab-velocidad" class="slicer-tab-content" style="display:none;">
-            <div class="param-row"><span class="param-label">Perímetro externo</span><span class="param-value" id="val-spd-outer">60 mm/s</span></div>
-            <div class="param-row"><span class="param-label">Perímetro interno</span><span class="param-value" id="val-spd-inner">100 mm/s</span></div>
-            <div class="param-row"><span class="param-label">Relleno poco denso</span><span class="param-value" id="val-spd-sparse">120 mm/s</span></div>
-            <div class="param-row"><span class="param-label">Relleno sólido interno</span><span class="param-value" id="val-spd-solid-inner">120 mm/s</span></div>
-            <div class="param-row"><span class="param-label">Superficie superior</span><span class="param-value" id="val-spd-top">50 mm/s</span></div>
-            <div class="param-row"><span class="param-label">Capa inicial</span><span class="param-value" id="val-spd-initial">35 mm/s</span></div>
-            <div class="param-row"><span class="param-label">Desplazamiento (Viaje)</span><span class="param-value" id="val-spd-travel">150 mm/s</span></div>
-          </div>
-
-          <!-- Pestaña 4: Soportes -->
-          <div id="tab-soportes" class="slicer-tab-content" style="display:none;">
-            <div class="param-row"><span class="param-label">Habilitar soportes</span><span class="param-value" id="val-supp-enable">No necesario</span></div>
-            <div class="param-row"><span class="param-label">Tipo de soporte</span><span class="param-value" id="val-supp-type">Normal (auto)</span></div>
-            <div class="param-row"><span class="param-label">Ángulo umbral</span><span class="param-value">45º</span></div>
-            <div class="param-row"><span class="param-label">Distancia Z</span><span class="param-value" id="val-supp-z">0.2 mm</span></div>
-            <div class="param-row"><span class="param-label">Densidad de soporte</span><span class="param-value" id="val-supp-density">15 %</span></div>
-          </div>
-
-          <!-- Pestaña 5: Multimaterial -->
-          <div id="tab-multimaterial" class="slicer-tab-content" style="display:none;">
-            <div class="param-row"><span class="param-label">Torre de purga</span><span class="param-value" id="val-mm-tower">No</span></div>
-            <div class="param-row"><span class="param-label">Volumen de purga (flush)</span><span class="param-value" id="val-mm-flush">120 mm³</span></div>
+          <!-- Botón de descarga principal unificado -->
+          <div>
+            <button id="btn-download-prepared-stl" class="btn-cad-action accent" style="background:var(--accent); color:var(--ink);">⬇️ DESCARGAR STL PREPARADO</button>
           </div>
         </div>
       </section>
@@ -312,7 +311,7 @@
       if (content) content.style.display = "block";
     }
 
-    // Genera el perfil de importación formal para OrcaSlicer/Bambu Studio
+    // Generación del archivo de configuración paramétrica para el laminador
     function downloadSlicerProfile(profile, filename) {
       const orcaProfile = {
         "type": "process",
@@ -356,6 +355,7 @@
   <!-- LÓGICA ESTUDIO CAD + THREE.JS MULTI-MESH -->
   <script>
     let scene, camera, renderer, controls, activeMesh;
+    let loader = new THREE.STLLoader(); // INICIALIZACIÓN GLOBAL DEL CONSTRUCTOR DE LA GEOMETRÍA
     let loadedParts = [];
     let viewerState = null;
     const PRINTLAB_API = "https://printlab-backend-dy7v.onrender.com";
@@ -382,7 +382,7 @@
       scene.background = new THREE.Color(0x161d1a);
 
       const width = container.clientWidth || 800;
-      const height = container.clientHeight || 480;
+      const height = container.clientHeight || 400;
 
       camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 10000);
       renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -400,7 +400,7 @@
 
       window.addEventListener('resize', () => {
         const w = container.clientWidth || 800;
-        const h = container.clientHeight || 480;
+        const h = container.clientHeight || 400;
         camera.aspect = w / h;
         camera.updateProjectionMatrix();
         renderer.setSize(w, h);
@@ -605,13 +605,6 @@
       renderModel(analysis);
       syncSlicerParameters(analysis.slicer_settings);
 
-      // Botón descarga de perfil JSON
-      document.getElementById("btn-download-profile").addEventListener("click", () => {
-        if (activeProfileData) {
-          downloadSlicerProfile(activeProfileData, (analysis.file_name || "perfil") + "_orca_profile.json");
-        }
-      });
-
       // Botón descarga del STL Preparado (con la orientación aplicada)
       document.getElementById("btn-download-prepared-stl").addEventListener("click", () => {
         if (activeMeshBase64) {
@@ -619,15 +612,7 @@
         }
       });
 
-      // Orientación manual
-      const selectBtn = document.getElementById('selectSupportBtn');
-      selectBtn.addEventListener('click', () => {
-        if (viewerState) {
-          viewerState.selectionMode = !viewerState.selectionMode;
-          selectBtn.innerText = viewerState.selectionMode ? "Cancelar Selección" : "👆 Elegir cara plana manualmente";
-        }
-      });
-
+      // Orientación manual helicoidal interna
       document.getElementById('btn-use-as-base').addEventListener('click', async () => {
         if (viewerState && viewerState.selectedFaceIdx !== undefined) {
           try {
@@ -645,8 +630,7 @@
               renderModel(data);
               syncSlicerParameters(data.slicer_settings);
               document.getElementById('face-info-panel').style.display = 'none';
-              viewerState.selectionMode = false;
-              selectBtn.innerText = "👆 Elegir cara plana manualmente";
+              if(viewerState) viewerState.selectionMode = false;
             }
           } catch {
             alert("Error de procesamiento al reorientar.");
