@@ -1,0 +1,1240 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Analizador y Optimizador STL con IA — PrintLab PRO</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{ --bg:#f6f7f4; --card:#fff; --ink:#0d1110; --muted:#5e6661; --line:#dfe4df; --accent:#b8ff3d; --dark:#111715; --max:1200px; }
+    *{box-sizing:border-box}
+    body{margin:0; background:var(--bg); color:var(--ink); font-family:"Plus Jakarta Sans",sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased;}
+    a{color:inherit;text-decoration:none}
+    .wrap{max-width:var(--max);margin:auto;padding:0 40px}
+    
+    .top{position:sticky;top:0;z-index:100;background:rgba(246,247,244,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+    nav{min-height:95px;display:flex;align-items:center;justify-content:space-between;}
+    .header-left{display:flex;align-items:center;gap:24px;}
+    .brand{font-size:26px;font-weight:800;letter-spacing:-1px}
+    .brand span{background:var(--accent);padding:5px 12px;border-radius:10px;margin-left:6px;color:var(--ink)}
+    
+    .menu-dropdown{position:relative;display:inline-block}
+    .hamburger{background:none;border:none;cursor:pointer;padding:10px;display:flex;flex-direction:column;gap:5px;outline:none}
+    .hamburger span{display:block;width:26px;height:3px;background:var(--ink);border-radius:2px; transition: 0.3s;}
+    .hamburger:hover span { background: var(--muted); }
+    
+    .dropdown-content{display:none;position:absolute;top:110%;left:0;background-color:var(--card);min-width:240px;box-shadow:0 20px 40px rgba(0,0,0,.1);border:1.5px solid var(--line);border-radius:16px;z-index:200;flex-direction:column;padding:12px 0}
+    .dropdown-content.show{display:flex;animation:slideDown .2s ease}
+    .dropdown-content a { padding: 14px 24px; color: var(--muted); font-weight: 700; font-size:15px; transition: 0.15s; }
+    .dropdown-content a:hover { color: var(--ink); background: rgba(0,0,0,0.03); }
+    .dropdown-content a.active { color: var(--ink); background: #f0f4f0; border-left: 4px solid var(--accent); padding-left: 20px; }
+
+    .auth-buttons{display:flex;gap:12px;align-items:center}
+    .btn-auth{display:inline-flex; align-items:center; justify-content:center; padding:12px 24px; border-radius:9999px; font-weight:800; font-size:14px; border:2px solid var(--ink); cursor:pointer; text-decoration:none; transition: .2s ease;}
+    .btn-auth.light{background:#fff; color:var(--ink); box-shadow:0 3px 0 var(--ink)}
+    .btn-auth.light:hover{transform:translateY(-1px); box-shadow:0 4px 0 var(--ink)}
+    .btn-auth.green{background:var(--accent); color:var(--ink); box-shadow:0 3px 0 var(--ink)}
+
+    .upload-container{
+      max-width:740px; 
+      margin:60px auto;
+      background:var(--card);
+      border:2px dashed var(--line);
+      border-radius:24px;
+      padding:40px 32px; 
+      text-align:center;
+      box-shadow: 0 20px 40px rgba(13, 17, 16, 0.025);
+      transition: border-color 0.25s ease, background-color 0.25s ease, transform 0.25s ease;
+    }
+    .upload-container:hover{
+      border-color: var(--ink);
+    }
+    .upload-container.drag-over{
+      border-color:var(--accent);
+      background:#fbfcfa;
+      transform:scale(1.015);
+    }
+    
+    .upload-icon-wrapper {
+      width: 72px;
+      height: 72px;
+      background: var(--bg);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      font-size: 30px;
+      border: 1.5px solid var(--line);
+      box-shadow: 0 8px 16px rgba(13, 17, 16, 0.02);
+      transition: transform 0.3s ease, background-color 0.3s ease;
+    }
+    .upload-container:hover .upload-icon-wrapper {
+      transform: translateY(-4px) scale(1.05);
+      background-color: #fff;
+    }
+
+    .upload-title {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-top: 12px;
+      margin-bottom: 6px;
+      color: var(--ink);
+    }
+    .upload-desc {
+      font-size: 14.5px;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+    .drag-help {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 16px;
+      font-weight: 500;
+    }
+    
+    .selected-file {
+      display: none;
+      margin: 20px auto 0;
+      max-width: 600px;
+      padding: 14px 20px;
+      background: #fbfcfa;
+      border: 1.5px solid rgba(184, 255, 61, 0.5);
+      border-radius: 14px;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 8px 20px rgba(184, 255, 61, 0.04);
+    }
+    .selected-file.show {
+      display: flex;
+      animation: slideDown 0.3s ease;
+    }
+    .selected-file-name {
+      font-weight: 700;
+      font-size: 14.5px;
+      color: var(--ink);
+    }
+    .selected-file-size {
+      font-size: 12.5px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .btn-remove-file {
+      background: none;
+      border: none;
+      color: #d9432f;
+      font-size: 18px;
+      font-weight: 800;
+      cursor: pointer;
+      outline: none;
+      padding: 6px;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+      opacity: 0.8;
+    }
+    .btn-remove-file:hover {
+      transform: scale(1.15) rotate(90deg);
+      opacity: 1;
+    }
+
+    .wizard-step{display:none; text-align:left; animation:fadeIn 0.3s ease-out;}
+    .wizard-step.active{display:block;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+
+    .step-title{font-size:20px; font-weight:800; margin-bottom:8px; color:var(--ink); display:flex; justify-content:space-between; align-items:center;}
+    .step-subtitle{font-size:14px; color:var(--muted); margin-bottom:20px;}
+    
+    .option-grid{
+      display:grid; 
+      grid-template-columns:repeat(3, 1fr); 
+      gap: 10px; 
+      margin-bottom:20px;
+    }
+    .option-card{
+      background:var(--bg); 
+      border:1.5px solid var(--line); 
+      border-radius:12px; 
+      padding:12px 14px; 
+      font-size:13.5px; 
+      cursor:pointer; 
+      transition:.15s; 
+      display:flex; 
+      flex-direction:column; 
+      align-items:flex-start;
+      text-align:left;
+      gap:2px;
+    }
+    .option-card:hover{border-color:var(--ink); background:#fff;}
+    .option-card.selected{background:var(--dark); color:var(--accent); border-color:var(--dark);}
+    .option-card.selected .option-card-desc{color:#b8c0bb;}
+    .option-card span.emoji{font-size:20px;}
+    
+    .option-card-title {
+      font-weight: 800;
+      font-size: 13.5px;
+      color: inherit;
+      margin-top: 2px;
+    }
+    .option-card-desc {
+      font-weight: 500;
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.35;
+      margin-top: 1px;
+    }
+
+    .form-group{margin-bottom:16px; display:flex; flex-direction:column;}
+    .form-group label{font-size:12.5px; font-weight:800; margin-bottom:6px; color:var(--muted);}
+    .form-group input, .form-group textarea, .form-group select{padding:12px; border:1.5px solid var(--line); border-radius:12px; font-size:14.5px; font-weight:700; background:var(--bg); color:var(--ink); outline:none; font-family:inherit;}
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus{background:#fff; border-color:var(--ink);}
+
+    .wizard-nav-buttons{display:flex; justify-content:space-between; margin-top:28px; border-top:1.5px solid var(--line); padding-top:20px;}
+    .btn-green{display:inline-block; background:var(--accent); color:var(--ink); padding:14px 30px; border-radius:9999px; font-weight:800; font-size:14.5px; border:2px solid var(--ink); box-shadow:0 4px 0 var(--ink); cursor:pointer;}
+    .btn-green:hover:not(:disabled){transform:translateY(-1px); box-shadow:0 6px 0 var(--ink);}
+    .btn-green:disabled{opacity:0.5; cursor:not-allowed; box-shadow:none; transform:none;}
+    .btn-secondary{background:#fff; color:var(--ink); border:2px solid var(--ink); padding:16px 36px; border-radius:9999px; font-weight:800; font-size:14.5px; cursor:pointer;}
+
+    .progress-container{height:6px; background:var(--line); border-radius:3px; margin-bottom:28px; overflow:hidden;}
+    .progress-bar{height:100%; background:var(--ink); width:0%; transition:width 0.3s ease;}
+
+    .footer { background: var(--bg); border-top: 1px solid var(--line); padding: 80px 0 40px; color: var(--muted); font-size: 14px; line-height: 1.6; }
+    .footergrid { display: grid; grid-template-columns: 1.3fr 0.85fr 0.85fr; gap: 60px; margin-bottom: 48px; }
+    .footer-col h3 { font-size: 16px; font-weight: 800; color: var(--ink); margin: 0 0 20px; letter-spacing: -0.3px; }
+    .footer-col p { margin: 0 0 16px; color: var(--muted); }
+    .footer-secondary-text { font-size: 12.5px; line-height: 1.5; color: #7d8782; margin-top: 12px; }
+    .footer-links { display: flex; flex-direction: column; gap: 10px; }
+    .footer-links a { color: var(--muted); transition: color 0.15s ease, transform 0.15s ease; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+    .footer-links a:hover { color: var(--ink); transform: translateX(2px); }
+    .footer-links a span.arrow { transition: color 0.15s ease; }
+    .footer-links a:hover span.arrow { color: var(--accent); }
+    .footer-bottom { border-top: 1px solid var(--line); padding-top: 24px; display:flex; justify-content:center; align-items:center; text-align:center; font-size: 13px; color: #7d8782;}
+
+    @media(max-width:992px){
+      .footergrid{grid-template-columns:1.2fr 1fr; gap:40px}
+      .option-grid{grid-template-columns:repeat(2, 1fr);}
+    }
+    @media(max-width:768px){
+      .wrap{padding:0 20px}
+      .footergrid{grid-template-columns:1fr; gap:36px}
+    }
+    @media(max-width:480px){
+      .option-grid{grid-template-columns:1fr;}
+    }
+    @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+
+    #authHeaderContainer span[style*="background" i],
+    #authHeaderContainer span[style*="accent" i],
+    #authHeaderContainer span:nth-child(2),
+    #authHeaderContainer div span:nth-child(2) {
+      background: var(--accent) !important;
+      background-color: var(--accent) !important;
+      color: var(--ink) !important;
+      padding: 8px 18px !important;
+      border-radius: 9999px !important;
+      font-weight: 800 !important;
+      font-size: 15px !important;
+      border: none !important;
+      border-width: 0px !important;
+      box-shadow: none !important;
+      display: inline-flex !important;
+      align-items: center !important;  
+      justify-content: center !important; 
+      align-self: center !important;
+      line-height: 1 !important; 
+      height: auto !important;
+      min-height: 0 !important;
+      max-height: 38px !important;
+      margin: auto 0 !important;
+      white-space: nowrap !important;
+    }
+
+    #authHeaderContainer .user-greeting,
+    #authHeaderContainer span:nth-child(1),
+    #authHeaderContainer div span:nth-child(1),
+    #authHeaderContainer span:first-child,
+    #authHeaderContainer div span:first-child {
+      font-weight: 700 !important;
+      font-size: 15px !important;
+      color: var(--ink) !important;
+      display: inline-block !important;
+      margin: auto 0 !important;
+      white-space: nowrap !important;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../assets/js/auth-helper.js?v=11"></script>
+</head>
+<body>
+
+  <header class="top">
+    <div class="wrap">
+      <nav>
+        <div class="header-left">
+          <div class="menu-dropdown">
+            <button class="hamburger" onclick="toggleMenu()" aria-label="Abrir menú" type="button">
+              <span></span>
+              <span></span>
+              <span></span>
+            </button>
+            <div class="dropdown-content" id="mainMenu">
+              <a href="../index.html#portada">Inicio</a>
+              <a href="analizador-stl.html" class="active">Analizador STL</a>
+              <a href="../index.html#simulador">Simulador</a>
+              <a href="../index.html#herramientas">Herramientas</a>
+              <a href="../index.html#guias">Guías</a>
+            </div>
+          </div>
+          <a class="brand" href="../index.html#portada">PRINT<span>LAB</span></a>
+        </div>
+        
+        <div class="auth-buttons" id="authHeaderContainer" style="opacity: 0; visibility: hidden; transition: opacity 0.15s ease, visibility 0.15s ease;">
+          <a href="login.html" class="btn-auth light">Iniciar Sesión</a>
+          <a href="registro.html" class="btn-auth green">Registrarse</a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="upload-container" id="uploadContainer">
+      
+      <div class="progress-container" id="progressContainer" style="display:none;">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+
+      <!-- PASO 0: SUBIDA DEL STL -->
+      <div class="wizard-step active" id="step-upload">
+        <div class="upload-icon-wrapper">📁</div>
+        <h3 class="upload-title" style="text-align:center;">Analizar nuevo modelo STL</h3>
+        <p class="upload-desc" style="text-align:center;">Soporte para FDM, SLA/MSLA y SLS. Límite: 500MB por archivo.</p>
+        
+        <input type="file" id="stlFile" accept=".stl" hidden>
+        
+        <div style="text-align:center; margin-bottom:20px;">
+          <button type="button" class="btn-green" id="analyzerAccessButton">Seleccionar archivo STL</button>
+        </div>
+
+        <div class="selected-file" id="selectedFile">
+          <div style="display:flex; align-items:center; gap:12px; text-align:left;">
+            <div style="font-size:24px;">📄</div>
+            <div>
+              <div class="selected-file-name" id="selectedFileName"></div>
+              <div class="selected-file-size" id="selectedFileSize"></div>
+            </div>
+          </div>
+          <button type="button" class="btn-remove-file" id="removeFileBtn">✕</button>
+        </div>
+        <div class="drag-help" style="text-align:center;">También puedes arrastrar y soltar aquí tu archivo STL.</div>
+      </div>
+
+      <!-- PASO 1: TIPO DE PIEZA -->
+      <div class="wizard-step" id="step-part-type">
+        <div class="step-title"><span>¿Qué tipo de pieza vas a fabricar?</span> <span style="font-size:14px; color:var(--muted);">1 / 8</span></div>
+        <div class="step-subtitle">Selecciona la clasificación que mejor se adapte a su funcionamiento real.</div>
+        <div class="option-grid">
+          <div class="option-card" data-val="funcional" onclick="selectCard(this, 'partType')">
+            <span class="emoji">⚙️</span>
+            <span class="option-card-title">Pieza funcional</span>
+            <span class="option-card-desc">Diseñada para soportar movimientos mecánicos o mecanismos activos.</span>
+          </div>
+          <div class="option-card" data-val="estructural" onclick="selectCard(this, 'partType')">
+            <span class="emoji">🏗️</span>
+            <span class="option-card-title">Pieza estructural</span>
+            <span class="option-card-desc">Diseñada para soportar cargas estáticas constantes o pesos continuos.</span>
+          </div>
+          <div class="option-card" data-val="sujecion" onclick="selectCard(this, 'partType')">
+            <span class="emoji">🔩</span>
+            <span class="option-card-title">Pieza de unión</span>
+            <span class="option-card-desc">Conectores, roscas, clips o encajes de acoplamiento.</span>
+          </div>
+          <div class="option-card" data-val="herramienta" onclick="selectCard(this, 'partType')">
+            <span class="emoji">🛠️</span>
+            <span class="option-card-title">Herramienta</span>
+            <span class="option-card-desc">Plantillas de montaje, posicionadores o utillajes de taller.</span>
+          </div>
+          <div class="option-card" data-val="repuesto" onclick="selectCard(this, 'partType')">
+            <span class="emoji">🔄</span>
+            <span class="option-card-title">Repuesto</span>
+            <span class="option-card-desc">Reemplazo directo de un componente original desgastado.</span>
+          </div>
+          <div class="option-card" data-val="estetica" onclick="selectCard(this, 'partType')">
+            <span class="emoji">💎</span>
+            <span class="option-card-title">Pieza estética</span>
+            <span class="option-card-desc">Modelos de exhibición, maquetas o piezas decorativas.</span>
+          </div>
+          <div class="option-card" data-val="prototipo" onclick="selectCard(this, 'partType')">
+            <span class="emoji">🔬</span>
+            <span class="option-card-title">Prototipo</span>
+            <span class="option-card-desc">Validaciones rápidas de forma o volumen antes de la serie.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PASO 2: PROPÓSITO -->
+      <div class="wizard-step" id="step-purpose">
+        <div class="step-title"><span>¿Para qué sirve la pieza?</span> <span style="font-size:14px; color:var(--muted);">2 / 8</span></div>
+        <div class="step-subtitle">Describe brevemente su función real para aportar contexto de ingeniería al análisis.</div>
+        <div class="form-group">
+          <label>Descripción de uso</label>
+          <textarea id="q-purpose" rows="4" placeholder="Ej: Es un soporte para sujetar una cámara deportiva al manillar de una bicicleta de montaña."></textarea>
+        </div>
+      </div>
+
+      <!-- PASO 3: ESFUERZOS -->
+      <div class="wizard-step" id="step-forces">
+        <div class="step-title"><span>¿Qué tipo de esfuerzos soportará?</span> <span style="font-size:14px; color:var(--muted);">3 / 8</span></div>
+        <div class="step-subtitle">Selecciona todas las solicitaciones mecánicas que afectarán al modelo.</div>
+        <div class="option-grid">
+          <div class="option-card multi" data-val="compresion" onclick="toggleCard(this, 'forces')">
+            <span class="emoji">⬇️</span>
+            <span class="option-card-title">Compresión</span>
+            <span class="option-card-desc">Aplastamiento o fuerzas que presionan la pieza.</span>
+          </div>
+          <div class="option-card multi" data-val="traccion" onclick="toggleCard(this, 'forces')">
+            <span class="emoji">⬆️</span>
+            <span class="option-card-title">Tracción</span>
+            <span class="option-card-desc">Fuerzas de estiramiento o tensiones de tiro.</span>
+          </div>
+          <div class="option-card multi" data-val="flexion" onclick="toggleCard(this, 'forces')">
+            <span class="emoji">↩️</span>
+            <span class="option-card-title">Flexión</span>
+            <span class="option-card-desc">Fuerzas perpendiculares que curvan el material.</span>
+          </div>
+          <div class="option-card multi" data-val="torsion" onclick="toggleCard(this, 'forces')">
+            <span class="emoji">🔄</span>
+            <span class="option-card-title">Torsión</span>
+            <span class="option-card-desc">Esfuerzos de rotación o retorcimiento del eje.</span>
+          </div>
+          <div class="option-card multi" data-val="impactos" onclick="toggleCard(this, 'forces')">
+            <span class="emoji">💥</span>
+            <span class="option-card-title">Impactos</span>
+            <span class="option-card-desc">Golpes o choques secos y dinámicos recurrentes.</span>
+          </div>
+          <div class="option-card multi" data-val="vibraciones" onclick="toggleCard(this, 'forces')">
+            <span class="emoji">〰️</span>
+            <span class="option-card-title">Vibraciones</span>
+            <span class="option-card-desc">Oscilaciones o movimientos mecánicos continuos.</span>
+          </div>
+          <div class="option-card multi" data-val="no_se" onclick="toggleCard(this, 'forces')">
+            <span class="emoji">🤷</span>
+            <span class="option-card-title">No lo sé</span>
+            <span class="option-card-desc">La IA deducirá las cargas basándose en el uso.</span>
+          </div>
+        </div>
+        <div class="form-group" style="max-width: 320px;">
+          <label>¿Qué carga o peso aproximado soportará? (Opcional)</label>
+          <input type="number" id="q-load-weight" placeholder="Ej: 5 (en kg)">
+        </div>
+      </div>
+
+      <!-- PASO 4: DIRECCIÓN -->
+      <div class="wizard-step" id="step-direction">
+        <div class="step-title"><span>¿Cómo se aplicará la fuerza?</span> <span style="font-size:14px; color:var(--muted);">4 / 8</span></div>
+        <div class="step-subtitle">Indica la dirección principal de la carga para definir la orientación óptima de las capas.</div>
+        <div class="option-grid">
+          <div class="option-card" data-val="arriba" onclick="selectCard(this, 'direction')">
+            <span class="emoji">⬇️</span>
+            <span class="option-card-title">Desde Arriba</span>
+            <span class="option-card-desc">Carga de gravedad descendente hacia la cama.</span>
+          </div>
+          <div class="option-card" data-val="abajo" onclick="selectCard(this, 'direction')">
+            <span class="emoji">⬆️</span>
+            <span class="option-card-title">Desde Abajo</span>
+            <span class="option-card-desc">Cargas ascendentes o de estiramiento vertical.</span>
+          </div>
+          <div class="option-card" data-val="lateral" onclick="selectCard(this, 'direction')">
+            <span class="emoji">↔️</span>
+            <span class="option-card-title">Esfuerzo Lateral</span>
+            <span class="option-card-desc">Tensiones horizontales o de cizalla paralela.</span>
+          </div>
+          <div class="option-card" data-val="torsional" onclick="selectCard(this, 'direction')">
+            <span class="emoji">🔄</span>
+            <span class="option-card-title">Esfuerzo Torsional</span>
+            <span class="option-card-desc">Fuerzas rotacionales cruzadas respecto al eje Z.</span>
+          </div>
+          <div class="option-card" data-val="no_se" onclick="selectCard(this, 'direction')">
+            <span class="emoji">🤷</span>
+            <span class="option-card-title">No lo sé</span>
+            <span class="option-card-desc">Se calculará un perímetro reforzado neutro.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PASO 5: CONDICIONES -->
+      <div class="wizard-step" id="step-conditions">
+        <div class="step-title"><span>¿En qué condiciones funcionará?</span> <span style="font-size:14px; color:var(--muted);">5 / 8</span></div>
+        <div class="step-subtitle">Selecciona los factores ambientales del entorno de trabajo de la pieza.</div>
+        <div class="option-grid">
+          <div class="option-card multi" data-val="interior" onclick="toggleCard(this, 'environment')">
+            <span class="emoji">🏠</span>
+            <span class="option-card-title">Interior</span>
+            <span class="option-card-desc">Habitáculo resguardado de clima o sol directo.</span>
+          </div>
+          <div class="option-card multi" data-val="exterior" onclick="toggleCard(this, 'environment')">
+            <span class="emoji">☀️</span>
+            <span class="option-card-title">Exterior</span>
+            <span class="option-card-desc">Resistencia al sol, lluvia y cambios atmosféricos.</span>
+          </div>
+          <div class="option-card multi" data-val="humedad" onclick="toggleCard(this, 'environment')">
+            <span class="emoji">💧</span>
+            <span class="option-card-title">Humedad o Agua</span>
+            <span class="option-card-desc">Salpicaduras, condensación o inmersión en agua.</span>
+          </div>
+          <div class="option-card multi" data-val="sol_uv" onclick="toggleCard(this, 'environment')">
+            <span class="emoji">🕶️</span>
+            <span class="option-card-title">Exposición UV</span>
+            <span class="option-card-desc">Radiación solar intensa directa sin degradación.</span>
+          </div>
+          <div class="option-card multi" data-val="temp_alta" onclick="toggleCard(this, 'environment')">
+            <span class="emoji">🔥</span>
+            <span class="option-card-title">Alta Temperatura</span>
+            <span class="option-card-desc">Exposición o proximidad a focos de calor (&gt;55 ºC).</span>
+          </div>
+          <div class="option-card multi" data-val="quimicos" onclick="toggleCard(this, 'environment')">
+            <span class="emoji">🧪</span>
+            <span class="option-card-title">Químicos</span>
+            <span class="option-card-desc">Grasas, aceites lubricantes o combustibles.</span>
+          </div>
+        </div>
+        <div class="form-group" id="temp-conditional-group" style="display:none; max-width: 320px;">
+          <label>Temperatura aproximada de funcionamiento (ºC)</label>
+          <input type="number" id="q-operating-temp" placeholder="Ej: 50">
+        </div>
+      </div>
+
+      <!-- PASO 6: MATERIAL -->
+      <div class="wizard-step" id="step-material">
+        <div class="step-title"><span>¿Qué material tienes previsto utilizar?</span> <span style="font-size:14px; color:var(--muted);">6 / 8</span></div>
+        <div class="step-subtitle">La IA evaluará si es la elección correcta o te propondrá una alternativa más fiable.</div>
+        <div class="option-grid">
+          <div class="option-card" data-val="PLA" onclick="selectCard(this, 'material')">
+            <span class="emoji">🌱</span>
+            <span class="option-card-title">PLA</span>
+            <span class="option-card-desc">Máxima rigidez dimensional y detalle estético.</span>
+          </div>
+          <div class="option-card" data-val="PETG" onclick="selectCard(this, 'material')">
+            <span class="emoji">🧪</span>
+            <span class="option-card-title">PETG</span>
+            <span class="option-card-desc">Tenacidad, ductilidad y resistencia térmica media.</span>
+          </div>
+          <div class="option-card" data-val="ABS" onclick="selectCard(this, 'material')">
+            <span class="emoji">🔥</span>
+            <span class="option-card-title">ABS</span>
+            <span class="option-card-desc">Alta resistencia estructural y térmica (requiere cabina).</span>
+          </div>
+          <div class="option-card" data-val="ASA" onclick="selectCard(this, 'material')">
+            <span class="emoji">☀️</span>
+            <span class="option-card-title">ASA</span>
+            <span class="option-card-desc">Comportamiento exterior superior y filtro UV activo.</span>
+          </div>
+          <div class="option-card" data-val="TPU" onclick="selectCard(this, 'material')">
+            <span class="emoji">🩹</span>
+            <span class="option-card-title">TPU (Flexible)</span>
+            <span class="option-card-desc">Amortiguador elástico frente a impactos cíclicos.</span>
+          </div>
+          <div class="option-card" data-val="Nylon" onclick="selectCard(this, 'material')">
+            <span class="emoji">⚙️</span>
+            <span class="option-card-title">Nylon / PA</span>
+            <span class="option-card-desc">Bajo coeficiente de fricción y resistencia química.</span>
+          </div>
+          <div class="option-card" data-val="no_se" onclick="selectCard(this, 'material')">
+            <span class="emoji">🤷</span>
+            <span class="option-card-title">No lo sé</span>
+            <span class="option-card-desc">La IA analizará el entorno y sugerirá el polímero.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PASO 7: PRIORIDAD -->
+      <div class="wizard-step" id="step-priority">
+        <div class="step-title"><span>¿Qué quieres priorizar en el análisis?</span> <span style="font-size:14px; color:var(--muted);">7 / 8</span></div>
+        <div class="step-subtitle">Indica cuál es el factor de fabricación que requiere la máxima optimización.</div>
+        <div class="option-grid">
+          <div class="option-card" data-val="max_strength" onclick="selectCard(this, 'priority')">
+            <span class="emoji">💪</span>
+            <span class="option-card-title">Máxima resistencia</span>
+            <span class="option-card-desc">Refuerzo estructural máximo de paredes e infill 3D.</span>
+          </div>
+          <div class="option-card" data-val="low_weight" onclick="selectCard(this, 'priority')">
+            <span class="emoji">🎈</span>
+            <span class="option-card-title">Menor peso</span>
+            <span class="option-card-desc">Optimización volumétrica interna y paredes finas.</span>
+          </div>
+          <div class="option-card" data-val="low_cost" onclick="selectCard(this, 'priority')">
+            <span class="emoji">💶</span>
+            <span class="option-card-title">Menor coste</span>
+            <span class="option-card-desc">Menor densidad de infill y reducción de soportes.</span>
+          </div>
+          <div class="option-card" data-val="fast_print" onclick="selectCard(this, 'priority')">
+            <span class="emoji">⚡</span>
+            <span class="option-card-title">Menor tiempo</span>
+            <span class="option-card-desc">Alturas de capa gruesas y optimizaciones de velocidad.</span>
+          </div>
+          <div class="option-card" data-val="balanced" onclick="selectCard(this, 'priority')">
+            <span class="emoji">⚖️</span>
+            <span class="option-card-title">Equilibrio óptimo</span>
+            <span class="option-card-desc">Ecuación equilibrada entre coste, tiempo y fuerza.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PASO 8: DETALLES IMPRESORA -->
+      <div class="wizard-step" id="step-printer">
+        <div class="step-title"><span>¿Qué impresora 3D utilizarás?</span> <span style="font-size:14px; color:var(--muted);">8 / 8</span></div>
+        <div class="step-subtitle">Aporta las especificaciones técnicas de tu máquina de forma obligatoria para calibrar los flujos volumétricos.</div>
+        <div class="form-group">
+          <label>Tecnología de impresión</label>
+          <select id="q-tech">
+            <option value="fdm">FDM (Filamento fundido)</option>
+            <option value="sla">SLA / MSLA (Resina líquida)</option>
+            <option value="sls">SLS (Sinterizado de polvo)</option>
+          </select>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+          <div class="form-group">
+            <label>Diámetro de boquilla (Nozzle en mm)</label>
+            <input type="number" id="q-nozzle" placeholder="Ej: 0.4" step="0.1">
+          </div>
+          <div class="form-group">
+            <label>Altura de capa habitual (mm)</label>
+            <input type="number" id="q-layer-height" placeholder="Ej: 0.2" step="0.05">
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTONES NAVEGACIÓN -->
+      <div class="wizard-nav-buttons" id="wizardNavigation" style="display:none;">
+        <button class="btn-secondary" id="prevBtn" onclick="navigateStep(-1)">Atrás</button>
+        <button class="btn-green" id="nextBtn">Siguiente</button>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <div class="footergrid">
+        <div class="footer-col">
+          <h3>PrintLab — Ingeniería 3D</h3>
+          <p>Plataforma profesional de análisis y optimización STL mediante Inteligencia Artificial y simuladores paramétricos. Transformamos modelos 3D con problemas en geometrías perfectas listas para fabricar, ahorrando tiempo, material y costes en entornos industriales.</p>
+          <p class="footer-secondary-text">Desarrollado bajo principios de Privacy by Design. Los datos y archivos STL se procesan con estricta confidencialidad.</p>
+        </div>
+        
+        <div class="footer-col">
+          <h3>Recursos y Herramientas</h3>
+          <div class="footer-links">
+            <a href="../index.html#analizador"><span class="arrow">→</span> Analizador STL IA</a>
+            <a href="../index.html#simulador"><span class="arrow">→</span> Simulador de Extrusión</a>
+            <a href="calculadora-coste.html"><span class="arrow">→</span> Calculadoras de Coste y Masa</a>
+            <a href="../index.html#guias"><span class="arrow">→</span> Base de Conocimiento</a>
+            <a href="../materiales/index.html"><span class="arrow">→</span> Atlas de Materiales</a>
+          </div>
+        </div>
+        
+        <div class="footer-col">
+          <h3>Soporte y Legal</h3>
+          <div class="footer-links">
+            <!-- HUELLA PROTEGIDA: Si hacen clic, se olvida que había un análisis a medias -->
+            <a href="precios.html" onclick="sessionStorage.removeItem('printlab_resume_analysis');"><span class="arrow">→</span> Precios y Suscripciones</a>
+            <a href="contacto.html"><span class="arrow">→</span> Contacto y Soporte</a>
+            <a href="../condiciones-compra.html"><span class="arrow">→</span> Condiciones de Compra</a>
+            <a href="../terminos.html"><span class="arrow">→</span> Términos y Condiciones</a>
+            <a href="../privacidad.html"><span class="arrow">→</span> Política de Privacidad</a>
+            <a href="../cookies.html"><span class="arrow">→</span> Política de Cookies</a>
+          </div>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <div class="footer-bottom-text">© 2026 PrintLab.</div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    function toggleMenu() {
+      document.getElementById('mainMenu').classList.toggle('show');
+    }
+
+    window.onclick = function(event) {
+      if (!event.target.closest('.menu-dropdown') && !event.target.closest('.hamburger')) {
+        var dropdowns = document.getElementsByClassName("dropdown-content");
+        for (var i = 0; i < dropdowns.length; i++) {
+          if (dropdowns[i].classList.contains('show')) dropdowns[i].classList.remove('show');
+        }
+      }
+    }
+  </script>
+
+  <script>
+    const answers = {
+      partType: "",
+      purpose: "",
+      forces: [],
+      loadWeight: "",
+      direction: "",
+      environment: [],
+      operatingTemp: "",
+      material: "",
+      priority: "",
+      printerTech: "fdm",
+      nozzleSize: "",
+      layerHeight: ""
+    };
+
+    const steps = [
+      "step-upload",
+      "step-part-type",
+      "step-purpose",
+      "step-forces",
+      "step-direction",
+      "step-conditions",
+      "step-material",
+      "step-priority",
+      "step-printer"
+    ];
+    let currentStepIdx = 0;
+
+    // === IndexedDB Helpers para guardar estado (Archivo STL + Respuestas) ===
+    const IDB_DB_NAME = "PrintLabDB";
+    const IDB_STORE_NAME = "pendingAnalysis";
+
+    function saveStateToIDB(file, answers, step) {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(IDB_DB_NAME, 1);
+        req.onupgradeneeded = e => {
+          e.target.result.createObjectStore(IDB_STORE_NAME);
+        };
+        req.onsuccess = e => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(IDB_STORE_NAME)) {
+             const version = db.version + 1;
+             db.close();
+             const req2 = indexedDB.open(IDB_DB_NAME, version);
+             req2.onupgradeneeded = e2 => e2.target.result.createObjectStore(IDB_STORE_NAME);
+             req2.onsuccess = e2 => {
+                 const db2 = e2.target.result;
+                 const tx = db2.transaction(IDB_STORE_NAME, "readwrite");
+                 tx.objectStore(IDB_STORE_NAME).put({ file, answers, step }, "currentState");
+                 tx.oncomplete = () => resolve();
+             };
+             return;
+          }
+          const tx = db.transaction(IDB_STORE_NAME, "readwrite");
+          const store = tx.objectStore(IDB_STORE_NAME);
+          store.put({ file, answers, step }, "currentState");
+          tx.oncomplete = () => resolve();
+          tx.onerror = () => reject(tx.error);
+        };
+        req.onerror = e => reject(e.target.error);
+      });
+    }
+
+    function loadStateFromIDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(IDB_DB_NAME, 1);
+        req.onupgradeneeded = e => {
+          e.target.result.createObjectStore(IDB_STORE_NAME);
+        };
+        req.onsuccess = e => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(IDB_STORE_NAME)) {
+            resolve(null);
+            return;
+          }
+          const tx = db.transaction(IDB_STORE_NAME, "readonly");
+          const store = tx.objectStore(IDB_STORE_NAME);
+          const getReq = store.get("currentState");
+          getReq.onsuccess = () => resolve(getReq.result);
+          getReq.onerror = () => reject(getReq.error);
+        };
+        req.onerror = e => reject(e.target.error);
+      });
+    }
+
+    function clearStateFromIDB() {
+      const req = indexedDB.open(IDB_DB_NAME, 1);
+      req.onsuccess = e => {
+        const db = e.target.result;
+        if (db.objectStoreNames.contains(IDB_STORE_NAME)) {
+          const tx = db.transaction(IDB_STORE_NAME, "readwrite");
+          tx.objectStore(IDB_STORE_NAME).delete("currentState");
+        }
+      };
+    }
+    // =========================================================================
+
+    const accessButton = document.getElementById("analyzerAccessButton");
+    const fileInput = document.getElementById("stlFile");
+    const uploadContainer = document.getElementById("uploadContainer");
+    const selectedFile = document.getElementById("selectedFile");
+    const selectedFileName = document.getElementById("selectedFileName");
+    const selectedFileSize = document.getElementById("selectedFileSize");
+    const removeFileBtn = document.getElementById("removeFileBtn");
+
+    const wizardNav = document.getElementById("wizardNavigation");
+    const progressContainer = document.getElementById("progressContainer");
+
+    document.getElementById("q-purpose").addEventListener("input", validateCurrentStep);
+    document.getElementById("q-load-weight").addEventListener("input", validateCurrentStep);
+    document.getElementById("q-operating-temp").addEventListener("input", validateCurrentStep);
+    document.getElementById("q-nozzle").addEventListener("input", validateCurrentStep);
+    document.getElementById("q-layer-height").addEventListener("input", validateCurrentStep);
+    document.getElementById("q-tech").addEventListener("change", validateCurrentStep);
+
+    function selectCard(cardElement, field) {
+      const parent = cardElement.parentNode;
+      parent.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+      cardElement.classList.add('selected');
+      answers[field] = cardElement.dataset.val;
+      validateCurrentStep();
+    }
+
+    function toggleCard(cardElement, field) {
+      cardElement.classList.toggle('selected');
+      const val = cardElement.dataset.val;
+      
+      if (val === "no_se") {
+        const parent = cardElement.parentNode;
+        parent.querySelectorAll('.option-card').forEach(c => {
+          if (c !== cardElement) {
+            c.classList.remove('selected');
+            answers[field] = answers[field].filter(v => v !== c.dataset.val);
+          }
+        });
+      } else {
+        const noSeCard = cardElement.parentNode.querySelector('[data-val="no_se"]');
+        if (noSeCard) {
+          noSeCard.classList.remove('selected');
+          answers[field] = answers[field].filter(v => v !== "no_se");
+        }
+      }
+
+      if (cardElement.classList.contains('selected')) {
+        if (!answers[field].includes(val)) answers[field].push(val);
+      } else {
+        answers[field] = answers[field].filter(v => v !== val);
+      }
+
+      if (field === "environment") {
+        const tempGroup = document.getElementById("temp-conditional-group");
+        if (answers.environment.includes("temp_alta")) {
+          tempGroup.style.display = "flex";
+        } else {
+          tempGroup.style.display = "none";
+          document.getElementById("q-operating-temp").value = "";
+          answers.operatingTemp = "";
+        }
+      }
+
+      validateCurrentStep();
+    }
+
+    function validateCurrentStep() {
+      const nextBtn = document.getElementById("nextBtn");
+      let isValid = true;
+
+      if (currentStepIdx === 0) {
+        isValid = window.selectedSTLFile != null;
+      } else if (currentStepIdx === 1) {
+        isValid = answers.partType !== "";
+      } else if (currentStepIdx === 2) {
+        const text = document.getElementById("q-purpose").value.trim();
+        isValid = text.length > 5;
+        answers.purpose = text;
+      } else if (currentStepIdx === 3) {
+        isValid = answers.forces.length > 0;
+        answers.loadWeight = document.getElementById("q-load-weight").value.trim();
+      } else if (currentStepIdx === 4) {
+        isValid = answers.direction !== "";
+      } else if (currentStepIdx === 5) {
+        isValid = answers.environment.length > 0;
+        answers.operatingTemp = document.getElementById("q-operating-temp").value.trim();
+      } else if (currentStepIdx === 6) {
+        isValid = answers.material !== "";
+      } else if (currentStepIdx === 7) {
+        isValid = answers.priority !== "";
+      } else if (currentStepIdx === 8) {
+        answers.printerTech = document.getElementById("q-tech").value;
+        const nozzleVal = document.getElementById("q-nozzle").value.trim();
+        const layerVal = document.getElementById("q-layer-height").value.trim();
+        answers.nozzleSize = nozzleVal;
+        answers.layerHeight = layerVal;
+        isValid = nozzleVal !== "" && layerVal !== "";
+      }
+
+      nextBtn.disabled = !isValid;
+    }
+
+    function navigateStep(direction) {
+      if (currentStepIdx === steps.length - 1 && direction === 1) {
+        return;
+      }
+
+      const targetStepIdx = currentStepIdx + direction;
+      
+      if (targetStepIdx === 0) {
+        document.getElementById(steps[currentStepIdx]).classList.remove("active");
+        currentStepIdx = 0;
+        document.getElementById(steps[0]).classList.add("active");
+        
+        document.querySelector(".upload-title").style.display = "block";
+        document.querySelector(".upload-desc").style.display = "block";
+        accessButton.style.display = "inline-block";
+        document.querySelector(".drag-help").style.display = "block";
+
+        progressContainer.style.display = "none";
+        wizardNav.style.display = "none";
+        
+        document.getElementById("progressBar").style.width = "0%";
+        validateCurrentStep();
+        return;
+      }
+
+      document.getElementById(steps[currentStepIdx]).classList.remove("active");
+      currentStepIdx += direction;
+      document.getElementById(steps[currentStepIdx]).classList.add("active");
+
+      const progressPercent = (currentStepIdx / (steps.length - 1)) * 100;
+      document.getElementById("progressBar").style.width = `${progressPercent}%`;
+
+      const prevBtn = document.getElementById("prevBtn");
+      const nextBtn = document.getElementById("nextBtn");
+
+      prevBtn.style.visibility = currentStepIdx === 0 ? "hidden" : "visible";
+      
+      if (currentStepIdx === steps.length - 1) {
+        nextBtn.textContent = "Iniciar Análisis Real";
+      } else {
+        nextBtn.textContent = "Siguiente";
+      }
+
+      validateCurrentStep();
+    }
+
+    function handleFile(file) {
+      if (!file) return;
+      if (!file.name.toLowerCase().endsWith(".stl")) {
+        alert("Por favor, sube un archivo geométrico con formato .stl válido.");
+        return;
+      }
+      if (file.size > 500 * 1024 * 1024) {
+        alert("El archivo excede el límite de 500 MB.");
+        return;
+      }
+
+      window.selectedSTLFile = file;
+      selectedFileName.textContent = file.name;
+      
+      if (file.size < 1024 * 1024) {
+        selectedFileSize.textContent = (file.size / 1024).toFixed(0) + " KB";
+      } else {
+        selectedFileSize.textContent = (file.size / (1024 * 1024)).toFixed(1) + " MB";
+      }
+      
+      selectedFile.classList.add("show");
+      updateButtonState();
+    }
+
+    removeFileBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      window.selectedSTLFile = null;
+      fileInput.value = "";
+      updateButtonState();
+    });
+
+    fileInput.addEventListener("change", () => {
+      if (fileInput.files.length > 0) handleFile(fileInput.files[0]);
+    });
+
+    uploadContainer.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      uploadContainer.classList.add("drag-over");
+    });
+    uploadContainer.addEventListener("dragleave", (e) => {
+      if (e.relatedTarget && uploadContainer.contains(e.relatedTarget)) return;
+      uploadContainer.classList.remove("drag-over");
+    });
+    uploadContainer.addEventListener("drop", async (e) => {
+      e.preventDefault();
+      uploadContainer.classList.remove("drag-over");
+      if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
+    });
+
+    accessButton.addEventListener("click", async (e) => {
+      e.preventDefault();
+      const state = accessButton.dataset.state;
+      
+      if (state === "logged-out") {
+        window.location.href = "login.html";
+      } else if (state === "logged-in-no-file") {
+        fileInput.click();
+      } else if (state === "has-file") {
+        document.querySelector(".upload-title").style.display = "none";
+        document.querySelector(".upload-desc").style.display = "none";
+        accessButton.style.display = "none";
+        document.querySelector(".drag-help").style.display = "none";
+
+        progressContainer.style.display = "block";
+        wizardNav.style.display = "flex";
+        navigateStep(1);
+      }
+    });
+
+    const client = window.supabaseClient || (typeof supabaseClient !== "undefined" ? supabaseClient : null);
+
+    async function getCurrentSession() {
+      if (!client) return null;
+      try {
+        const { data } = await client.auth.getSession();
+        return data?.session || null;
+      } catch { return null; }
+    }
+
+    async function updateButtonState() {
+      const session = await getCurrentSession();
+      if (!session) {
+        accessButton.textContent = "Seleccionar archivo STL";
+        accessButton.dataset.state = "logged-in-no-file";
+        selectedFile.classList.remove("show");
+        window.selectedSTLFile = null;
+      } else {
+        if (window.selectedSTLFile) {
+          accessButton.textContent = "Comenzar Cuestionario";
+          accessButton.dataset.state = "has-file";
+        } else {
+          accessButton.textContent = "Seleccionar archivo STL";
+          accessButton.dataset.state = "logged-in-no-file";
+          selectedFile.classList.remove("show");
+        }
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", async function () {
+      const session = await getCurrentSession();
+      if (!session) {
+        window.location.href = "login.html?redirect=analizador-stl.html";
+        return;
+      }
+
+      // === DETECCIÓN BLINDADA POR URL (Action=resume) ===
+      const urlParams = new URLSearchParams(window.location.search);
+      const isResume = urlParams.get("action") === "resume";
+
+      if (isResume && sessionStorage.getItem("printlab_resume_analysis") === "true") {
+        sessionStorage.removeItem("printlab_resume_analysis");
+        try {
+          const savedState = await loadStateFromIDB();
+          if (savedState && savedState.file) {
+             window.selectedSTLFile = savedState.file;
+             Object.assign(answers, savedState.answers);
+             
+             // Restaurar UI del archivo STL
+             selectedFileName.textContent = savedState.file.name;
+             if (savedState.file.size < 1024 * 1024) {
+               selectedFileSize.textContent = (savedState.file.size / 1024).toFixed(0) + " KB";
+             } else {
+               selectedFileSize.textContent = (savedState.file.size / (1024 * 1024)).toFixed(1) + " MB";
+             }
+             selectedFile.classList.add("show");
+             await updateButtonState();
+
+             // Restaurar cuestionario en el DOM
+             if(answers.partType) {
+               const card = document.querySelector(`.option-card[data-val="${answers.partType}"]`);
+               if(card) {
+                  card.parentNode.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+                  card.classList.add('selected');
+               }
+             }
+             if(answers.purpose) document.getElementById("q-purpose").value = answers.purpose;
+             
+             if(answers.forces && answers.forces.length > 0) {
+               document.querySelectorAll('#step-forces .option-card').forEach(c => {
+                  if(answers.forces.includes(c.dataset.val)) c.classList.add('selected');
+               });
+             }
+             if(answers.loadWeight) document.getElementById("q-load-weight").value = answers.loadWeight;
+
+             if(answers.direction) {
+                const card = document.querySelector(`#step-direction .option-card[data-val="${answers.direction}"]`);
+                if(card) {
+                   card.parentNode.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+                   card.classList.add('selected');
+                }
+             }
+
+             if(answers.environment && answers.environment.length > 0) {
+                document.querySelectorAll('#step-conditions .option-card').forEach(c => {
+                   if(answers.environment.includes(c.dataset.val)) c.classList.add('selected');
+                });
+                if(answers.environment.includes("temp_alta")) {
+                   document.getElementById("temp-conditional-group").style.display = "flex";
+                }
+             }
+             if(answers.operatingTemp) document.getElementById("q-operating-temp").value = answers.operatingTemp;
+
+             if(answers.material) {
+                const card = document.querySelector(`#step-material .option-card[data-val="${answers.material}"]`);
+                if(card) {
+                   card.parentNode.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+                   card.classList.add('selected');
+                }
+             }
+
+             if(answers.priority) {
+                const card = document.querySelector(`#step-priority .option-card[data-val="${answers.priority}"]`);
+                if(card) {
+                   card.parentNode.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+                   card.classList.add('selected');
+                }
+             }
+
+             if(answers.printerTech) document.getElementById("q-tech").value = answers.printerTech;
+             if(answers.nozzleSize) document.getElementById("q-nozzle").value = answers.nozzleSize;
+             if(answers.layerHeight) document.getElementById("q-layer-height").value = answers.layerHeight;
+
+             // Hacer la transición visual directa al Paso 8
+             document.querySelector(".upload-title").style.display = "none";
+             document.querySelector(".upload-desc").style.display = "none";
+             accessButton.style.display = "none";
+             document.querySelector(".drag-help").style.display = "none";
+
+             progressContainer.style.display = "block";
+             wizardNav.style.display = "flex";
+             
+             document.getElementById(steps[0]).classList.remove("active");
+             currentStepIdx = 8;
+             document.getElementById(steps[currentStepIdx]).classList.add("active");
+             
+             const progressPercent = (currentStepIdx / (steps.length - 1)) * 100;
+             document.getElementById("progressBar").style.width = `${progressPercent}%`;
+             
+             const prevBtn = document.getElementById("prevBtn");
+             const nextBtn = document.getElementById("nextBtn");
+             prevBtn.style.visibility = "visible";
+             nextBtn.textContent = "Iniciar Análisis Real";
+
+             validateCurrentStep();
+             clearStateFromIDB();
+          } else {
+             await updateButtonState();
+          }
+        } catch (e) {
+          console.error("Error al recuperar estado de IndexedDB:", e);
+          await updateButtonState();
+        }
+      } else {
+        // === SI LA URL NO LLEVA ACTION=RESUME, EMPEZAMOS DE CERO TOTALMENTE ===
+        sessionStorage.removeItem("printlab_resume_analysis");
+        clearStateFromIDB();
+        await updateButtonState();
+      }
+
+      if (client && client.auth && typeof client.auth.onAuthStateChange === "function") {
+        client.auth.onAuthStateChange((event, session) => { 
+          if (!session) {
+            window.location.href = "login.html?redirect=analizador-stl.html";
+            return;
+          }
+          updateButtonState(); 
+        });
+      }
+
+      const nextBtn = document.getElementById("nextBtn");
+      nextBtn.addEventListener("click", async (e) => {
+        e.preventDefault();
+        if (nextBtn.disabled) return;
+
+        if (currentStepIdx < steps.length - 1) {
+          navigateStep(1);
+        } else {
+          nextBtn.disabled = true;
+          nextBtn.textContent = "Procesando...";
+
+          const activeSession = await getCurrentSession();
+          if (!activeSession) {
+            window.location.href = "login.html";
+            return;
+          }
+
+          try {
+            const { data: profile, error: profileError } = await client
+              .from("profiles")
+              .select("credits")
+              .eq("id", activeSession.user.id)
+              .single();
+
+            if (profileError) throw profileError;
+
+            // Si el usuario no tiene saldo, guardar archivo y respuestas temporalmente
+            if (!profile || profile.credits < 1) {
+              nextBtn.textContent = "Guardando progreso...";
+              await saveStateToIDB(window.selectedSTLFile, answers, currentStepIdx);
+              sessionStorage.setItem("printlab_resume_analysis", "true");
+              window.location.href = "precios.html";
+              return;
+            }
+
+            nextBtn.textContent = "Almacenando archivo...";
+            const fileExt = window.selectedSTLFile.name.split('.').pop();
+            const fileName = `${activeSession.user.id}/${Date.now()}.${fileExt}`;
+            const filePath = `uploads/${fileName}`;
+
+            await client
+              .storage
+              .from('stls')
+              .upload(filePath, window.selectedSTLFile, { cacheControl: '3600', 'upsert': true });
+
+            nextBtn.textContent = "Analizando geometría...";
+
+            const formData = new FormData();
+            formData.append("file", window.selectedSTLFile);
+            formData.append("questionnaire", JSON.stringify(answers));
+
+            const apiResponse = await fetch("https://printlab-backend-dy7v.onrender.com/analyze", {
+              method: "POST",
+              body: formData
+            });
+
+            if (!apiResponse.ok) {
+              throw new Error("El servidor de análisis no responde. Código: " + apiResponse.status);
+            }
+
+            const analysisData = await apiResponse.json();
+            if (!analysisData || !analysisData.success) {
+              throw new Error(analysisData?.error || "Error de cálculo geométrico paramétrico en el backend.");
+            }
+
+            sessionStorage.setItem("printlab_analysis", JSON.stringify({
+              volume: analysisData.volume_cm3,
+              dimensions: analysisData.dimensions,
+              watertight: analysisData.is_watertight,
+              critical_points: analysisData.critical_points || [],
+              file_name: window.selectedSTLFile.name,
+              optimized_base64: analysisData.optimized_mesh_base64 || null,
+              slicer_settings: analysisData.slicer_settings || null,
+              user_questionnaire: answers
+            }));
+
+            nextBtn.textContent = "Confirmando créditos...";
+            const { data: success, error: rpcError } = await client.rpc("deduct_analysis_credit");
+            if (rpcError || !success) {
+              throw new Error("Transacción denegada. Compruebe su saldo.");
+            }
+
+            window.location.href = "informe-stl.html";
+
+          } catch (err) {
+            alert("Error de procesamiento: " + err.message);
+            nextBtn.disabled = false;
+            nextBtn.textContent = "Iniciar Análisis Real";
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
