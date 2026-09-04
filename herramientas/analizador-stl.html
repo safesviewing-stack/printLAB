@@ -148,15 +148,15 @@
     
     .option-grid{
       display:grid; 
-      grid-template-columns:repeat(3, 1fr); 
-      gap: 10px; 
+      grid-template-columns:repeat(2, 1fr); 
+      gap: 12px; 
       margin-bottom:20px;
     }
     .option-card{
       background:var(--bg); 
       border:1.5px solid var(--line); 
       border-radius:12px; 
-      padding:12px 14px; 
+      padding:16px 18px; 
       font-size:13.5px; 
       cursor:pointer; 
       transition:.15s; 
@@ -169,21 +169,24 @@
     .option-card:hover{border-color:var(--ink); background:#fff;}
     .option-card.selected{background:var(--dark); color:var(--accent); border-color:var(--dark);}
     .option-card.selected .option-card-desc{color:#b8c0bb;}
-    .option-card span.emoji{font-size:20px;}
+    .option-card span.emoji{font-size:22px;}
     
     .option-card-title {
       font-weight: 800;
-      font-size: 13.5px;
+      font-size: 14px;
       color: inherit;
-      margin-top: 2px;
+      margin-top: 4px;
     }
     .option-card-desc {
       font-weight: 500;
-      font-size: 11px;
+      font-size: 11.5px;
       color: var(--muted);
       line-height: 1.35;
-      margin-top: 1px;
+      margin-top: 2px;
     }
+
+    .form-group{margin-bottom:16px; display:flex; flex-direction:column;}
+    .form-group label{font-size:13px; font-weight:800; margin-bottom:8px; color:var(--muted);}
 
     .wizard-nav-buttons{display:flex; justify-content:space-between; margin-top:28px; border-top:1.5px solid var(--line); padding-top:20px;}
     .btn-green{display:inline-block; background:var(--accent); color:var(--ink); padding:14px 30px; border-radius:9999px; font-weight:800; font-size:14.5px; border:2px solid var(--ink); box-shadow:0 4px 0 var(--ink); cursor:pointer;}
@@ -198,28 +201,19 @@
     .footergrid { display: grid; grid-template-columns: 1.3fr 0.85fr 0.85fr; gap: 60px; margin-bottom: 48px; }
     .footer-col h3 { font-size: 16px; font-weight: 800; color: var(--ink); margin: 0 0 20px; letter-spacing: -0.3px; }
     .footer-col p { margin: 0 0 16px; color: var(--muted); }
-    .footer-secondary-text { font-size: 12.5px; line-height: 1.5; color: #7d8782; margin-top: 12px; }
     .footer-links { display: flex; flex-direction: column; gap: 10px; }
-    .footer-links a { color: var(--muted); transition: color 0.15s ease, transform 0.15s ease; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
-    .footer-links a:hover { color: var(--ink); transform: translateX(2px); }
+    .footer-links a { color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
     .footer-bottom { border-top: 1px solid var(--line); padding-top: 24px; display:flex; justify-content:center; align-items:center; text-align:center; font-size: 13px; color: #7d8782;}
 
     @media(max-width:992px){
       .footergrid{grid-template-columns:1.2fr 1fr; gap:40px}
-      .option-grid{grid-template-columns:repeat(2, 1fr);}
-    }
-    @media(max-width:768px){
-      .wrap{padding:0 20px}
-      .footergrid{grid-template-columns:1fr; gap:36px}
-    }
-    @media(max-width:480px){
       .option-grid{grid-template-columns:1fr;}
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../assets/js/auth-helper.js?v=11"></script>
   
-  <!-- Librerías 3D necesarias para el Selector Interactivo -->
+  <!-- Three.js + Controles y Cargadores -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/STLLoader.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/controls/OrbitControls.js"></script>
@@ -232,25 +226,16 @@
         <div class="header-left">
           <div class="menu-dropdown">
             <button class="hamburger" onclick="toggleMenu()" aria-label="Abrir menú" type="button">
-              <span></span>
-              <span></span>
-              <span></span>
+              <span></span><span></span><span></span>
             </button>
             <div class="dropdown-content" id="mainMenu">
               <a href="../index.html#portada">Inicio</a>
               <a href="analizador-stl.html" class="active">Analizador STL</a>
-              <a href="../index.html#simulador">Simulador</a>
-              <a href="../index.html#herramientas">Herramientas</a>
-              <a href="../index.html#guias">Guías</a>
             </div>
           </div>
           <a class="brand" href="../index.html#portada">PRINT<span>LAB</span></a>
         </div>
-        
-        <div class="auth-buttons" id="authHeaderContainer" style="opacity: 0; visibility: hidden; transition: opacity 0.15s ease, visibility 0.15s ease;">
-          <a href="login.html" class="btn-auth light">Iniciar Sesión</a>
-          <a href="registro.html" class="btn-auth green">Registrarse</a>
-        </div>
+        <div class="auth-buttons" id="authHeaderContainer" style="opacity: 0; visibility: hidden;"></div>
       </nav>
     </div>
   </header>
@@ -266,8 +251,7 @@
       <div class="wizard-step active" id="step-upload">
         <div class="upload-icon-wrapper">📁</div>
         <h3 class="upload-title" style="text-align:center;">Analizar nuevo modelo STL</h3>
-        <p class="upload-desc" style="text-align:center;">Soporte para FDM industrial. Límite: 500MB por archivo.</p>
-        
+        <p class="upload-desc" style="text-align:center;">Soporte para FDM. Límite: 500MB por archivo.</p>
         <input type="file" id="stlFile" accept=".stl" hidden>
         
         <div style="text-align:center; margin-bottom:20px;">
@@ -287,98 +271,75 @@
         <div class="drag-help" style="text-align:center;">También puedes arrastrar y soltar aquí tu archivo STL.</div>
       </div>
 
-      <!-- PREGUNTA 1: FUNCIÓN DE LA PIEZA -->
-      <div class="wizard-step" id="step-part-type">
-        <div class="step-title"><span>¿Qué función tiene la pieza?</span> <span style="font-size:14px; color:var(--muted);">1 / 4</span></div>
-        <div class="step-subtitle">Determina los parámetros y patrones de relleno recomendados.</div>
-        <div class="option-grid">
-          <div class="option-card" data-val="Decorativa" onclick="selectCard(this, 'partType')">
-            <span class="emoji">💎</span>
-            <span class="option-card-title">Decorativa</span>
-            <span class="option-card-desc">Prioriza la calidad superficial y la resolución estética.</span>
-          </div>
-          <div class="option-card" data-val="Funcional" onclick="selectCard(this, 'partType')">
-            <span class="emoji">⚙️</span>
-            <span class="option-card-title">Funcional</span>
-            <span class="option-card-desc">Equilibrio entre tolerancias precisas, fiabilidad y resistencia.</span>
-          </div>
-          <div class="option-card" data-val="Estructural" onclick="selectCard(this, 'partType')">
-            <span class="emoji">🏗️</span>
-            <span class="option-card-title">Estructural</span>
-            <span class="option-card-desc">Máxima tenacidad mecánica y densidad de material optimizada.</span>
-          </div>
-          <div class="option-card" data-val="Pieza de montaje" onclick="selectCard(this, 'partType')">
-            <span class="emoji">🔩</span>
-            <span class="option-card-title">Pieza de montaje</span>
-            <span class="option-card-desc">Optimización para uniones mecánicas, agujeros y holguras.</span>
-          </div>
-          <div class="option-card" data-val="Prototipo" onclick="selectCard(this, 'partType')">
-            <span class="emoji">🔬</span>
-            <span class="option-card-title">Prototipo</span>
-            <span class="option-card-desc">Velocidad dimensional rápida de validación geométrica antes de producción.</span>
-          </div>
-          <div class="option-card" data-val="Otro" onclick="selectCard(this, 'partType')">
-            <span class="emoji">📦</span>
-            <span class="option-card-title">Otro</span>
-            <span class="option-card-desc">Usar algoritmo de cálculo neutro para propósitos generales.</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- PREGUNTA 2: TIPO DE BOQUILLA -->
+      <!-- PREGUNTA 1: TIPO DE BOQUILLA -->
       <div class="wizard-step" id="step-nozzle">
-        <div class="step-title"><span>¿Qué diámetro de boquilla utilizas?</span> <span style="font-size:14px; color:var(--muted);">2 / 4</span></div>
-        <div class="step-subtitle">Afectará la resolución, espesor de paredes mínimo y las anchuras de extrusión.</div>
+        <div class="step-title"><span>¿Qué diámetro de boquilla utilizas?</span> <span style="font-size:14px; color:var(--muted);">1 / 3</span></div>
+        <div class="step-subtitle">Afectará la resolución de detalles y las directrices de espesor de pared.</div>
         <div class="option-grid">
           <div class="option-card" data-val="0.2" onclick="selectCard(this, 'nozzleSize')">
             <span class="emoji">🔬</span>
             <span class="option-card-title">0,2 mm</span>
-            <span class="option-card-desc">Ultra-detallado, paredes delgadas de alta resolución de detalle.</span>
+            <span class="option-card-desc">Alta resolución, detalles finos y micro-geometrías.</span>
           </div>
           <div class="option-card" data-val="0.4" onclick="selectCard(this, 'nozzleSize')">
             <span class="emoji">🎯</span>
             <span class="option-card-title">0,4 mm</span>
-            <span class="option-card-desc">Estándar equilibrado para la mayoría de geometrías industriales.</span>
+            <span class="option-card-desc">Estándar universal equilibrado para uso general.</span>
           </div>
           <div class="option-card" data-val="0.6" onclick="selectCard(this, 'nozzleSize')">
             <span class="emoji">⚡</span>
             <span class="option-card-title">0,6 mm</span>
-            <span class="option-card-desc">Velocidad y resistencia estructural media mejorada.</span>
+            <span class="option-card-desc">Mayor velocidad de impresión y resistencia de capas.</span>
           </div>
           <div class="option-card" data-val="0.8" onclick="selectCard(this, 'nozzleSize')">
             <span class="emoji">🏗️</span>
             <span class="option-card-title">0,8 mm</span>
-            <span class="option-card-desc">Velocidad masiva para piezas robustas sin detalles pequeños.</span>
+            <span class="option-card-desc">Producción industrial rápida de paredes gruesas.</span>
           </div>
         </div>
       </div>
 
-      <!-- PREGUNTA 3: IMPRESORA -->
+      <!-- PREGUNTA 2: SELECCIÓN DE IMPRESORA COMPLETA -->
       <div class="wizard-step" id="step-printer">
-        <div class="step-title"><span>¿Qué impresora 3D utilizarás?</span> <span style="font-size:14px; color:var(--muted);">3 / 4</span></div>
-        <div class="step-subtitle">Los límites físicos de volumen y velocidades se obtienen de datos reales.</div>
-        <div class="option-grid">
-          <div class="option-card" data-val="Bambu Lab X1 Carbon" onclick="selectCard(this, 'printer')">
-            <span class="emoji">🚀</span>
-            <span class="option-card-title">Bambu Lab X1 Carbon</span>
-            <span class="option-card-desc">Cama: 256x256x256 mm | Temp: 300 ºC max</span>
-          </div>
-          <div class="option-card" data-val="Prusa i3 MK4" onclick="selectCard(this, 'printer')">
-            <span class="emoji">🔧</span>
-            <span class="option-card-title">Prusa i3 MK4</span>
-            <span class="option-card-desc">Cama: 250x210x220 mm | Temp: 300 ºC max</span>
-          </div>
-          <div class="option-card" data-val="Creality Ender 3 V3" onclick="selectCard(this, 'printer')">
-            <span class="emoji">🔥</span>
-            <span class="option-card-title">Creality Ender 3 V3</span>
-            <span class="option-card-desc">Cama: 220x220x250 mm | Temp: 300 ºC max</span>
-          </div>
+        <div class="step-title"><span>¿Qué impresora 3D utilizarás?</span> <span style="font-size:14px; color:var(--muted);">2 / 3</span></div>
+        <div class="step-subtitle">Determinará los límites físicos reales de volumen y temperaturas.</div>
+        
+        <div class="form-group" style="width:100%; margin-top:10px;">
+          <select id="printerSelect" onchange="selectPrinterDropdown(this)" style="width:100%; padding:14px; border:1.5px solid var(--line); border-radius:12px; font-weight:700; background:var(--bg); color:var(--ink); outline:none;">
+            <option value="" disabled selected>-- Selecciona un modelo del mercado --</option>
+            <optgroup label="Bambu Lab">
+              <option value="Bambu Lab X1 Carbon">Bambu Lab X1 Carbon (256x256x256 mm)</option>
+              <option value="Bambu Lab P1S">Bambu Lab P1S (256x256x256 mm)</option>
+              <option value="Bambu Lab A1">Bambu Lab A1 (256x256x256 mm)</option>
+              <option value="Bambu Lab A1 Mini">Bambu Lab A1 Mini (180x180x180 mm)</option>
+            </optgroup>
+            <optgroup label="Original Prusa">
+              <option value="Prusa i3 MK4">Prusa i3 MK4 (250x210x220 mm)</option>
+              <option value="Prusa MINI+">Prusa MINI+ (180x180x180 mm)</option>
+              <option value="Prusa XL">Prusa XL (360x360x360 mm)</option>
+            </optgroup>
+            <optgroup label="Creality">
+              <option value="Creality Ender 3 V3">Creality Ender 3 V3 (220x220x250 mm)</option>
+              <option value="Creality Ender 3 V2">Creality Ender 3 V2 (220x220x250 mm)</option>
+              <option value="Creality K1">Creality K1 (220x220x250 mm)</option>
+              <option value="Creality K1 Max">Creality K1 Max (300x300x300 mm)</option>
+            </optgroup>
+            <optgroup label="Elegoo / Anycubic">
+              <option value="Elegoo Neptune 4">Elegoo Neptune 4 (225x225x265 mm)</option>
+              <option value="Elegoo Neptune 4 Max">Elegoo Neptune 4 Max (420x420x480 mm)</option>
+              <option value="Anycubic Kobra 2">Anycubic Kobra 2 (220x220x250 mm)</option>
+            </optgroup>
+            <optgroup label="Voron (DIY)">
+              <option value="Voron 2.4 (300)">Voron 2.4 (300x300x300 mm)</option>
+              <option value="Voron 2.4 (350)">Voron 2.4 (350x350x350 mm)</option>
+            </optgroup>
+          </select>
         </div>
       </div>
 
       <!-- VISOR 3D: SELECCIÓN DE SUPERFICIE DE APOYO -->
       <div class="wizard-step" id="step-viewer">
-        <div class="step-title"><span>Ajuste de Orientación en Cama</span> <span style="font-size:14px; color:var(--muted);">4 / 4</span></div>
+        <div class="step-title"><span>Orientación Interactiva</span> <span style="font-size:14px; color:var(--muted);">3 / 3</span></div>
         <div class="step-subtitle" style="color:var(--ink); font-weight:700;">Haz clic sobre la superficie que quieres apoyar en la cama.</div>
         <div id="selector3dContainer" style="width:100%; height:380px; background:#161d1a; border-radius:16px; position:relative; overflow:hidden; border:2px solid var(--line); margin-bottom:12px;"></div>
       </div>
@@ -394,37 +355,6 @@
 
   <footer class="footer">
     <div class="wrap">
-      <div class="footergrid">
-        <div class="footer-col">
-          <h3>PrintLab — Ingeniería 3D</h3>
-          <p>Plataforma profesional de análisis y optimización STL mediante Inteligencia Artificial y simuladores paramétricos. Transformamos modelos 3D con problemas en geometrías perfectas listas para fabricar, ahorrando tiempo, material y costes en entornos industriales.</p>
-          <p class="footer-secondary-text">Desarrollado bajo principios de Privacy by Design. Los datos y archivos STL se procesan con estricta confidencialidad.</p>
-        </div>
-        
-        <div class="footer-col">
-          <h3>Recursos y Herramientas</h3>
-          <div class="footer-links">
-            <a href="../index.html#analizador"><span class="arrow">→</span> Analizador STL IA</a>
-            <a href="../index.html#simulador"><span class="arrow">→</span> Simulador de Extrusión</a>
-            <a href="calculadora-coste.html"><span class="arrow">→</span> Calculadoras de Coste y Masa</a>
-            <a href="../index.html#guias"><span class="arrow">→</span> Base de Conocimiento</a>
-            <a href="../materiales/index.html"><span class="arrow">→</span> Atlas de Materiales</a>
-          </div>
-        </div>
-        
-        <div class="footer-col">
-          <h3>Soporte y Legal</h3>
-          <div class="footer-links">
-            <a href="precios.html" onclick="sessionStorage.removeItem('printlab_resume_analysis');"><span class="arrow">→</span> Precios y Suscripciones</a>
-            <a href="contacto.html"><span class="arrow">→</span> Contacto y Soporte</a>
-            <a href="../condiciones-compra.html"><span class="arrow">→</span> Condiciones de Compra</a>
-            <a href="../terminos.html"><span class="arrow">→</span> Términos y Condiciones</a>
-            <a href="../privacidad.html"><span class="arrow">→</span> Política de Privacidad</a>
-            <a href="../cookies.html"><span class="arrow">→</span> Política de Cookies</a>
-          </div>
-        </div>
-      </div>
-      
       <div class="footer-bottom">
         <div class="footer-bottom-text">© 2026 PrintLab.</div>
       </div>
@@ -432,22 +362,11 @@
   </footer>
 
   <script>
-    function toggleMenu() {
-      document.getElementById('mainMenu').classList.toggle('show');
-    }
-    window.onclick = function(event) {
-      if (!event.target.closest('.menu-dropdown') && !event.target.closest('.hamburger')) {
-        var dropdowns = document.getElementsByClassName("dropdown-content");
-        for (var i = 0; i < dropdowns.length; i++) {
-          if (dropdowns[i].classList.contains('show')) dropdowns[i].classList.remove('show');
-        }
-      }
-    }
+    function toggleMenu() { document.getElementById('mainMenu').classList.toggle('show'); }
   </script>
 
   <script>
     const answers = {
-      partType: "",
       nozzleSize: "",
       printer: "",
       selectedSupportFace: null,
@@ -457,61 +376,11 @@
 
     const steps = [
       "step-upload",
-      "step-part-type",
       "step-nozzle",
       "step-printer",
       "step-viewer"
     ];
     let currentStepIdx = 0;
-
-    const IDB_DB_NAME = "PrintLabDB";
-    const IDB_STORE_NAME = "pendingAnalysis";
-
-    function saveStateToIDB(file, answers, step) {
-      return new Promise((resolve, reject) => {
-        const req = indexedDB.open(IDB_DB_NAME, 1);
-        req.onupgradeneeded = e => { e.target.result.createObjectStore(IDB_STORE_NAME); };
-        req.onsuccess = e => {
-          const db = e.target.result;
-          const tx = db.transaction(IDB_STORE_NAME, "readwrite");
-          tx.objectStore(IDB_STORE_NAME).put({ file, answers, step }, "currentState");
-          tx.oncomplete = () => resolve();
-        };
-      });
-    }
-
-    function loadStateFromIDB() {
-      return new Promise((resolve) => {
-        const req = indexedDB.open(IDB_DB_NAME, 1);
-        req.onsuccess = e => {
-          const db = e.target.result;
-          if (!db.objectStoreNames.contains(IDB_STORE_NAME)) { resolve(null); return; }
-          const tx = db.transaction(IDB_STORE_NAME, "readonly");
-          const getReq = tx.objectStore(IDB_STORE_NAME).get("currentState");
-          getReq.onsuccess = () => resolve(getReq.result);
-        };
-      });
-    }
-
-    function clearStateFromIDB() {
-      const req = indexedDB.open(IDB_DB_NAME, 1);
-      req.onsuccess = e => {
-        const db = e.target.result;
-        if (db.objectStoreNames.contains(IDB_STORE_NAME)) {
-          db.transaction(IDB_STORE_NAME, "readwrite").objectStore(IDB_STORE_NAME).delete("currentState");
-        }
-      };
-    }
-
-    const accessButton = document.getElementById("analyzerAccessButton");
-    const fileInput = document.getElementById("stlFile");
-    const uploadContainer = document.getElementById("uploadContainer");
-    const selectedFile = document.getElementById("selectedFile");
-    const selectedFileName = document.getElementById("selectedFileName");
-    const selectedFileSize = document.getElementById("selectedFileSize");
-    const removeFileBtn = document.getElementById("removeFileBtn");
-    const wizardNav = document.getElementById("wizardNavigation");
-    const progressContainer = document.getElementById("progressContainer");
 
     function selectCard(cardElement, field) {
       const parent = cardElement.parentNode;
@@ -521,15 +390,19 @@
       validateCurrentStep();
     }
 
+    function selectPrinterDropdown(selectElement) {
+      answers.printer = selectElement.value;
+      validateCurrentStep();
+    }
+
     function validateCurrentStep() {
       const nextBtn = document.getElementById("nextBtn");
       let isValid = true;
 
       if (currentStepIdx === 0) isValid = window.selectedSTLFile != null;
-      else if (currentStepIdx === 1) isValid = answers.partType !== "";
-      else if (currentStepIdx === 2) isValid = answers.nozzleSize !== "";
-      else if (currentStepIdx === 3) isValid = answers.printer !== "";
-      else if (currentStepIdx === 4) isValid = answers.selectedSupportFace !== null;
+      else if (currentStepIdx === 1) isValid = answers.nozzleSize !== "";
+      else if (currentStepIdx === 2) isValid = answers.printer !== "";
+      else if (currentStepIdx === 3) isValid = answers.selectedSupportFace !== null;
 
       nextBtn.disabled = !isValid;
     }
@@ -563,14 +436,14 @@
       document.getElementById("prevBtn").style.visibility = currentStepIdx === 0 ? "hidden" : "visible";
       document.getElementById("nextBtn").textContent = currentStepIdx === steps.length - 1 ? "Iniciar Análisis Real" : "Siguiente";
 
-      if (currentStepIdx === 4) {
+      if (currentStepIdx === 3) {
         initSelector3D();
       }
 
       validateCurrentStep();
     }
 
-    // --- VISOR 3D INTERACTIVO CON PICKING Y ORIENTACIÓN EN CAMA ---
+    // --- VISOR 3D CON CENTRADO MATEMÁTICO INTEGRAL ---
     let sScene, sCamera, sRenderer, sControls, sMesh, highlightRing;
 
     function initSelector3D() {
@@ -582,22 +455,22 @@
       sScene.background = new THREE.Color(0x111715);
 
       sCamera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 1, 1000);
-      sCamera.position.set(120, 120, 150);
-      sCamera.up.set(0, 0, 1); // Definir eje Z como vertical ascendente de cama de impresión
+      sCamera.position.set(130, 130, 150);
+      sCamera.up.set(0, 0, 1);
 
       sRenderer = new THREE.WebGLRenderer({ antialias: true });
       sRenderer.setSize(container.clientWidth, container.clientHeight);
       container.appendChild(sRenderer.domElement);
 
-      const light1 = new THREE.DirectionalLight(0xffffff, 1.3);
+      const light1 = new THREE.DirectionalLight(0xffffff, 1.4);
       light1.position.set(1, 1, 3).normalize();
       sScene.add(light1);
-      sScene.add(new THREE.AmbientLight(0x505050));
+      sScene.add(new THREE.AmbientLight(0x404040));
 
       sControls = new THREE.OrbitControls(sCamera, sRenderer.domElement);
       sControls.enableDamping = true;
 
-      // Cama de Impresión (Rejilla sobre plano XY)
+      // Cama de Impresión Rejilla XY
       const gridHelper = new THREE.GridHelper(160, 16, 0x5e6661, 0x2e3a35);
       gridHelper.rotation.x = Math.PI / 2;
       sScene.add(gridHelper);
@@ -617,7 +490,6 @@
         });
 
         sMesh = new THREE.Mesh(geometry, material);
-        // Colocar base inicialmente sobre la cama (Z=0)
         sMesh.position.z = -geometry.boundingBox.min.z;
         sScene.add(sMesh);
 
@@ -647,20 +519,26 @@
           answers.selectedSupportFace = hit.faceIndex;
           answers.supportFaceNormal = [localNormal.x, localNormal.y, localNormal.z];
 
-          // Cuaternión para girar normal local seleccionada hacia el vector vertical negativo [0, 0, -1]
           const target = new THREE.Vector3(0, 0, -1);
           const q = new THREE.Quaternion().setFromUnitVectors(localNormal, target);
 
+          // Aplicar la rotación
           sMesh.quaternion.copy(q);
           sMesh.position.set(0, 0, 0);
           sMesh.updateMatrixWorld(true);
 
-          // Restablecer la base matemáticamente a Z=0 para que apoye perfectamente y no atraviese
+          // Calcular la caja delimitadora de la pieza rotada para recentrarla perfectamente
           const currentBbox = new THREE.Box3().setFromObject(sMesh);
+          const boxCenter = new THREE.Vector3();
+          currentBbox.getCenter(boxCenter);
+
+          // Centrar en X, Y sobre la cama y apoyar base exactamente en Z = 0
+          sMesh.position.x = -boxCenter.x;
+          sMesh.position.y = -boxCenter.y;
           sMesh.position.z = -currentBbox.min.z;
           sMesh.updateMatrixWorld(true);
 
-          // Anillo amarillo de resaltado visual sobre la cara seleccionada
+          // Anillo de realce visual
           if (highlightRing) sScene.remove(highlightRing);
           const ringGeo = new THREE.RingGeometry(2.5, 3.2, 32);
           const ringMat = new THREE.MeshBasicMaterial({ color: 0xb8ff3d, side: THREE.DoubleSide });
@@ -669,10 +547,10 @@
 
           const ringNormal = localNormal.clone().applyQuaternion(q);
           highlightRing.quaternion.copy(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), ringNormal));
-          highlightRing.position.addScaledVector(ringNormal, 0.4); // Evitar z-fighting
+          highlightRing.position.addScaledVector(ringNormal, 0.4);
           sScene.add(highlightRing);
 
-          // Almacenar la matriz de transformación 4x4
+          // Almacenar la matriz de transformación 4x4 completa en un array plano de 16 elementos
           answers.transformationMatrix = sMesh.matrix.toArray();
           validateCurrentStep();
         }
@@ -688,7 +566,7 @@
 
     function handleFile(file) {
       if (!file || !file.name.toLowerCase().endsWith(".stl")) {
-        alert("Sube un archivo geométrico válido .stl"); return;
+        alert("Sube un archivo .stl válido"); return;
       }
       window.selectedSTLFile = file;
       selectedFileName.textContent = file.name;
@@ -746,26 +624,7 @@
     }
 
     document.addEventListener("DOMContentLoaded", async () => {
-      const session = await getCurrentSession();
-      if (!session) { window.location.href = "login.html?redirect=analizador-stl.html"; return; }
-
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get("action") === "resume" && sessionStorage.getItem("printlab_resume_analysis") === "true") {
-        sessionStorage.removeItem("printlab_resume_analysis");
-        try {
-          const state = await loadStateFromIDB();
-          if (state && state.file) {
-            window.selectedSTLFile = state.file;
-            Object.assign(answers, state.answers);
-            await updateButtonState();
-            navigateStep(4);
-          }
-        } catch (e) { console.error(e); }
-      } else {
-        sessionStorage.removeItem("printlab_resume_analysis");
-        clearStateFromIDB();
-        await updateButtonState();
-      }
+      await updateButtonState();
 
       document.getElementById("nextBtn").addEventListener("click", async () => {
         if (document.getElementById("nextBtn").disabled) return;
@@ -776,18 +635,9 @@
         nextBtn.textContent = "Procesando...";
 
         try {
-          const profileReq = await client.from("profiles").select("credits").eq("id", (await getCurrentSession()).user.id).single();
-          if (profileReq.error) throw profileReq.error;
-
-          if (!profileReq.data || profileReq.data.credits < 1) {
-            await saveStateToIDB(window.selectedSTLFile, answers, currentStepIdx);
-            sessionStorage.setItem("printlab_resume_analysis", "true");
-            window.location.href = "precios.html";
-            return;
-          }
-
+          const session = await getCurrentSession();
           nextBtn.textContent = "Almacenando archivo...";
-          const filePath = `uploads/${(await getCurrentSession()).user.id}/${Date.now()}.stl`;
+          const filePath = `uploads/${session.user.id}/${Date.now()}.stl`;
           await client.storage.from('stls').upload(filePath, window.selectedSTLFile, { cacheControl: '3600', 'upsert': true });
 
           nextBtn.textContent = "Analizando geometría...";
