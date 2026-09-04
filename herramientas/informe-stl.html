@@ -170,16 +170,19 @@
             <div class="param-row"><span>hot_plate_temp (Temperatura de la base caliente):</span> <strong id="oBedTemp">--</strong></div>
             <div class="param-row"><span>flow_ratio (Relación de flujo):</span> <strong id="oFlowRatio">--</strong></div>
             <div class="param-row"><span>pressure_advance (Avance de presión):</span> <strong id="oPA">--</strong></div>
+            <div class="param-row"><span>filament_max_volumetric_speed (Velocidad volumétrica máxima del filamento):</span> <strong id="oVolumetricSpeed">--</strong></div>
 
             <div style="font-size: 12px; font-weight: 800; color: var(--muted); margin: 15px 0 5px; border-bottom: 2px solid var(--line); padding-bottom: 4px;">SOPORTES Y ADHESIÓN</div>
             <div class="param-row"><span>enable_support (Activar soporte):</span> <strong id="oEnableSupport">--</strong></div>
             <div class="param-row"><span>support_type (Tipo de soporte):</span> <strong id="oSupportType">--</strong></div>
+            <div class="param-row"><span>support_style (Estilo de soporte):</span> <strong id="oSupportStyle">--</strong></div>
             <div class="param-row"><span>brim_type (Tipo de borde):</span> <strong id="oBrimType">--</strong></div>
             <div class="param-row"><span>brim_width (Ancho del borde):</span> <strong id="oBrimWidth">--</strong></div>
 
-            <div style="font-size: 12px; font-weight: 800; color: var(--muted); margin: 15px 0 5px; border-bottom: 2px solid var(--line); padding-bottom: 4px;">RETRACCIÓN</div>
+            <div style="font-size: 12px; font-weight: 800; color: var(--muted); margin: 15px 0 5px; border-bottom: 2px solid var(--line); padding-bottom: 4px;">RETRACCIÓN Y VENTILACIÓN</div>
             <div class="param-row"><span>retraction_length (Longitud de retracción):</span> <strong id="oRetractLength">--</strong></div>
             <div class="param-row"><span>retraction_speed (Velocidad de retracción):</span> <strong id="oRetractSpeed">--</strong></div>
+            <div class="param-row"><span>fan_cooling_speed (Velocidad del ventilador de capa):</span> <strong id="oFanSpeed">--</strong></div>
           </div>
 
           <div class="download-panel">
@@ -258,6 +261,7 @@
           const sphereGeo = new THREE.SphereGeometry(1.2, 16, 16);
           const sphereMat = new THREE.MeshBasicMaterial({ color: 0xd9432f });
           const sphere = new THREE.Mesh(sphereGeo, sphereMat);
+          this.scene = scene; // local ref
           sphere.position.set(pt.x, pt.y, pt.z);
           activeMesh.add(sphere);
         });
@@ -343,7 +347,6 @@
       }
       document.getElementById("problemsContainer").innerHTML = problemsHtml;
 
-      // Inyección exacta de TODOS los parámetros de OrcaSlicer en el informe
       document.getElementById("oLayerHeight").textContent = s.layer_height !== undefined ? `${s.layer_height} mm` : "--";
       document.getElementById("oFirstLayerHeight").textContent = s.initial_layer_print_height !== undefined ? `${s.initial_layer_print_height} mm` : "--";
       document.getElementById("oWallLoops").textContent = s.wall_loops !== undefined ? `${s.wall_loops} bucles` : "--";
@@ -357,17 +360,20 @@
       document.getElementById("oBedTemp").textContent = s.hot_plate_temp !== undefined ? `${s.hot_plate_temp} ºC` : "--";
       document.getElementById("oFlowRatio").textContent = s.flow_ratio !== undefined ? `${s.flow_ratio}` : "--";
       document.getElementById("oPA").textContent = s.pressure_advance !== undefined ? `${s.pressure_advance}` : "--";
+      document.getElementById("oVolumetricSpeed").textContent = s.filament_max_volumetric_speed !== undefined ? `${s.filament_max_volumetric_speed} mm³/s` : "--";
       document.getElementById("oEnableSupport").textContent = s.enable_support !== undefined ? (s.enable_support ? "SÍ" : "NO") : "--";
       document.getElementById("oSupportType").textContent = s.support_type !== undefined ? `${s.support_type}` : "--";
+      document.getElementById("oSupportStyle").textContent = s.support_style !== undefined ? `${s.support_style}` : "--";
       document.getElementById("oBrimType").textContent = s.brim_type !== undefined ? `${s.brim_type}` : "--";
       document.getElementById("oBrimWidth").textContent = s.brim_width !== undefined ? `${s.brim_width} mm` : "--";
       document.getElementById("oRetractLength").textContent = s.retraction_length !== undefined ? `${s.retraction_length} mm` : "--";
       document.getElementById("oRetractSpeed").textContent = s.retraction_speed !== undefined ? `${s.retraction_speed} mm/s` : "--";
+      document.getElementById("oFanSpeed").textContent = s.fan_cooling_speed !== undefined ? `${s.fan_cooling_speed}%` : "--";
 
       if (analysis.optimized_base64) {
         init3DViewer("canvas3dContainer", analysis.optimized_base64, analysis.critical_points);
 
-        // --- CONSTRUCTOR DE ARCHIVO DE PROYECTO .3MF ---
+        // --- CONSTRUCTOR DE PROYECTO .3MF COMPATIBLE CON CONFIGURACIONES ORCASLICER ---
         document.getElementById("download3mfBtn").addEventListener("click", async () => {
           const downloadBtn = document.getElementById("download3mfBtn");
           downloadBtn.disabled = true;
@@ -440,7 +446,7 @@
             };
             const engPattern = patternMapping[s.sparse_infill_pattern] || "gyroid";
 
-            // Metadata/project_settings.config - Integración nativa de parámetros
+            // Inyección extendida de flujos de filamento y velocidades de ventilador nativos
             const orcaSettingsJson = {
               "from": "project",
               "name": "project_settings",
@@ -460,6 +466,9 @@
               "hot_plate_temp_initial": [ s.hot_plate_temp !== undefined ? s.hot_plate_temp.toString() : "60" ],
               "enable_support": s.enable_support ? "1" : "0",
               "support_type": s.support_type || "normal",
+              "support_style": s.support_style || "normal",
+              "filament_max_volumetric_speed": [ s.filament_max_volumetric_speed !== undefined ? s.filament_max_volumetric_speed.toString() : "15" ],
+              "fan_cooling_speed": [ s.fan_cooling_speed !== undefined ? s.fan_cooling_speed.toString() : "100" ],
               "brim_type": s.brim_type || "none",
               "brim_width": s.brim_width !== undefined ? s.brim_width.toString() : "0",
               "flow_ratio": [ s.flow_ratio !== undefined ? s.flow_ratio.toString() : "0.98" ],
@@ -467,7 +476,7 @@
               "retraction_length": [ s.retraction_length !== undefined ? s.retraction_length.toString() : "0.8" ],
               "retraction_speed": [ s.retraction_speed !== undefined ? s.retraction_speed.toString() : "30" ],
               "different_settings_to_system": [
-                "layer_height;initial_layer_print_height;wall_loops;sparse_infill_density;sparse_infill_pattern;outer_wall_speed;inner_wall_speed;travel_speed;travel_acceleration;nozzle_temperature;hot_plate_temp;hot_plate_temp_initial;enable_support;support_type;brim_type;brim_width;flow_ratio;pressure_advance;retraction_length;retraction_speed",
+                "layer_height;initial_layer_print_height;wall_loops;sparse_infill_density;sparse_infill_pattern;outer_wall_speed;inner_wall_speed;travel_speed;travel_acceleration;nozzle_temperature;hot_plate_temp;hot_plate_temp_initial;enable_support;support_type;support_style;brim_type;brim_width;flow_ratio;pressure_advance;retraction_length;retraction_speed;filament_max_volumetric_speed;fan_cooling_speed",
                 "", "", "", "", "", ""
               ]
             };
