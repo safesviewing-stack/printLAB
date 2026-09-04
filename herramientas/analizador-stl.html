@@ -9,119 +9,143 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
   <style>
-    :root{ --bg:#f6f7f4; --card:#fff; --ink:#0d1110; --muted:#5e6661; --line:#dfe4df; --accent:#b8ff3d; --dark:#111715; --max:1200px; }
-    *{box-sizing:border-box}
-    body{margin:0; background:var(--bg); color:var(--ink); font-family:"Plus Jakarta Sans",sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased;}
-    a{color:inherit;text-decoration:none}
-    .wrap{max-width:var(--max);margin:auto;padding:0 40px}
-    
-    .top{position:sticky;top:0;z-index:100;background:rgba(246,247,244,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
-    nav{min-height:95px;display:flex;align-items:center;justify-content:space-between;}
-    .header-left{display:flex;align-items:center;gap:24px;}
-    .brand{font-size:26px;font-weight:800;letter-spacing:-1px}
-    .brand span{background:var(--accent);padding:5px 12px;border-radius:10px;margin-left:6px;color:var(--ink)}
-    
-    .menu-dropdown{position:relative;display:inline-block}
-    .hamburger{background:none;border:none;cursor:pointer;padding:10px;display:flex;flex-direction:column;gap:5px;outline:none}
-    .hamburger span{display:block;width:26px;height:3px;background:var(--ink);border-radius:2px; transition: 0.3s;}
-    .hamburger:hover span { background: var(--muted); }
-    
-    .dropdown-content{display:none;position:absolute;top:110%;left:0;background-color:var(--card);min-width:240px;box-shadow:0 20px 40px rgba(0,0,0,.1);border:1.5px solid var(--line);border-radius:16px;z-index:200;flex-direction:column;padding:12px 0}
-    .dropdown-content.show{display:flex;animation:slideDown .2s ease}
-    .dropdown-content a { padding: 14px 24px; color: var(--muted); font-weight: 700; font-size:15px; transition: 0.15s; }
-    .dropdown-content a:hover { color: var(--ink); background: rgba(0,0,0,0.03); }
-    
-    .selected-file {
-      display: none;
-      margin: 20px auto 0;
-      max-width: 600px;
-      padding: 14px 20px;
-      background: #fbfcfa;
-      border: 1.5px solid rgba(184, 255, 61, 0.5);
-      border-radius: 14px;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 8px 20px rgba(184, 255, 61, 0.04);
-    }
-    .selected-file.show {
-      display: flex;
-      animation: slideDown 0.3s ease;
-    }
-    .selected-file-name {
-      font-weight: 700;
-      font-size: 14.5px;
-      color: var(--ink);
-    }
-    .selected-file-size {
-      font-size: 12.5px;
-      color: var(--muted);
-      margin-top: 2px;
-    }
+:root{--bg:#f6f7f4;--card:#fff;--ink:#0d1110;--muted:#5e6661;--line:#dfe4df;--accent:#b8ff3d;--dark:#111715;--max:1200px}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Plus Jakarta Sans",sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button,input,textarea,select{font-family:inherit}
+.wrap{max-width:var(--max);margin:auto;padding:0 40px}
 
-    .wizard-step{display:none; text-align:left; animation:fadeIn 0.3s ease-out;}
-    .wizard-step.active{display:block;}
-    @keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.top{position:sticky;top:0;z-index:100;background:rgba(246,247,244,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+nav{min-height:95px;display:flex;align-items:center;justify-content:space-between}
+.header-left{display:flex;align-items:center;gap:24px}
+.brand{font-size:26px;font-weight:800;letter-spacing:-1px}
+.brand span{background:var(--accent);padding:5px 12px;border-radius:10px;margin-left:6px;color:var(--ink)}
+.menu-dropdown{position:relative;display:inline-block}
+.hamburger{background:none;border:none;cursor:pointer;padding:10px;display:flex;flex-direction:column;gap:5px;outline:none}
+.hamburger span{display:block;width:26px;height:3px;background:var(--ink);border-radius:2px;transition:.3s}
+.hamburger:hover span{background:var(--muted)}
+.dropdown-content{display:none;position:absolute;top:110%;left:0;background:var(--card);min-width:240px;box-shadow:0 20px 40px rgba(0,0,0,.1);border:1.5px solid var(--line);border-radius:16px;z-index:200;flex-direction:column;padding:12px 0}
+.dropdown-content.show{display:flex;animation:slideDown .2s ease}
+.dropdown-content a{padding:14px 24px;color:var(--muted);font-weight:700;font-size:15px;transition:.15s}
+.dropdown-content a:hover{color:var(--ink);background:rgba(0,0,0,.03)}
+.dropdown-content a.active{color:var(--ink);background:#f0f4f0;border-left:4px solid var(--accent);padding-left:20px}
 
-    .step-title{font-size:20px; font-weight:800; margin-bottom:8px; color:var(--ink); display:flex; justify-content:space-between; align-items:center;}
-    .step-subtitle{font-size:14px; color:var(--muted); margin-bottom:20px;}
-    
-    .option-grid{
-      display:grid; 
-      grid-template-columns:repeat(2, 1fr); 
-      gap: 12px; 
-      margin-bottom:20px;
-    }
-    .option-card{
-      background:var(--bg); 
-      border:1.5px solid var(--line); 
-      border-radius:12px; 
-      padding:16px 18px; 
-      font-size:13.5px; 
-      cursor:pointer; 
-      transition:.15s; 
-      display:flex; 
-      flex-direction:column; 
-      align-items:flex-start;
-      text-align:left;
-      gap:2px;
-    }
-    .option-card:hover{border-color:var(--ink); background:#fff;}
-    .option-card.selected{background:var(--dark); color:var(--accent); border-color:var(--dark);}
-    .option-card span.emoji{font-size:22px;}
-    
-    .option-card-title {
-      font-weight: 800;
-      font-size: 14px;
-      color: inherit;
-    }
-    .option-card-desc {
-      font-weight: 500;
-      font-size: 11.5px;
-      color: var(--muted);
-      line-height: 1.35;
-    }
+.auth-buttons{display:flex;gap:12px;align-items:center}
+.btn-auth{display:inline-flex;align-items:center;justify-content:center;padding:12px 24px;border-radius:9999px;font-weight:800;font-size:14px;border:2px solid var(--ink);cursor:pointer;text-decoration:none;transition:.2s ease}
+.btn-auth.light{background:#fff;color:var(--ink);box-shadow:0 3px 0 var(--ink)}
+.btn-auth.light:hover{transform:translateY(-1px);box-shadow:0 4px 0 var(--ink)}
+.btn-auth.green{background:var(--accent);color:var(--ink);box-shadow:0 3px 0 var(--ink)}
 
-    .form-group{margin-bottom:16px; display:flex; flex-direction:column;}
-    .form-group label{font-size:13px; font-weight:800; margin-bottom:8px; color:var(--muted);}
+main.wrap{min-height:calc(100vh - 95px)}
+.upload-container{max-width:740px;margin:60px auto;background:var(--card);border:2px dashed var(--line);border-radius:24px;padding:40px 32px;text-align:center;box-shadow:0 20px 40px rgba(13,17,16,.025);transition:border-color .25s ease,background-color .25s ease,transform .25s ease}
+.upload-container:hover{border-color:var(--ink)}
+.upload-container.drag-over{border-color:var(--accent);background:#fbfcfa;transform:scale(1.015)}
+.upload-icon-wrapper{width:72px;height:72px;background:var(--bg);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:30px;border:1.5px solid var(--line);box-shadow:0 8px 16px rgba(13,17,16,.02);transition:transform .3s ease,background-color .3s ease}
+.upload-container:hover .upload-icon-wrapper{transform:translateY(-4px) scale(1.05);background:#fff}
+.upload-title{font-size:24px;font-weight:800;letter-spacing:-.5px;margin-top:12px;margin-bottom:6px;color:var(--ink)}
+.upload-desc{font-size:14.5px;color:var(--muted);margin-bottom:28px}
+.drag-help{font-size:13px;color:var(--muted);margin-top:16px;font-weight:500}
+.selected-file{display:none;margin:20px auto 0;max-width:600px;padding:14px 20px;background:#fbfcfa;border:1.5px solid rgba(184,255,61,.5);border-radius:14px;align-items:center;justify-content:space-between;box-shadow:0 8px 20px rgba(184,255,61,.04)}
+.selected-file.show{display:flex;animation:slideDown .3s ease}
+.selected-file-name{font-weight:700;font-size:14.5px;color:var(--ink)}
+.selected-file-size{font-size:12.5px;color:var(--muted);margin-top:2px}
+.btn-remove-file{background:none;border:none;color:#d9432f;font-size:18px;font-weight:800;cursor:pointer;outline:none;padding:6px;transition:transform .2s ease,opacity .2s ease;opacity:.8}
+.btn-remove-file:hover{transform:scale(1.15) rotate(90deg);opacity:1}
 
-    .wizard-nav-buttons{display:flex; justify-content:space-between; margin-top:28px; border-top:1.5px solid var(--line); padding-top:20px;}
-    .btn-green{display:inline-block; background:var(--accent); color:var(--ink); padding:14px 30px; border-radius:9999px; font-weight:800; font-size:14.5px; border:2px solid var(--ink); box-shadow:0 4px 0 var(--ink); cursor:pointer;}
-    .btn-green:hover:not(:disabled){transform:translateY(-1px); box-shadow:0 6px 0 var(--ink);}
-    .btn-green:disabled{opacity:0.5; cursor:not-allowed; box-shadow:none; transform:none;}
-    .btn-secondary{background:#fff; color:var(--ink); border:2px solid var(--ink); padding:16px 36px; border-radius:9999px; font-weight:800; font-size:14.5px; cursor:pointer;}
+.wizard-step{display:none;text-align:left;animation:fadeIn .3s ease-out}
+.wizard-step.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.step-title{font-size:20px;font-weight:800;margin-bottom:8px;color:var(--ink);display:flex;justify-content:space-between;align-items:center;gap:16px}
+.step-subtitle{font-size:14px;color:var(--muted);margin-bottom:20px}
+.option-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+    .option-grid.option-grid-4{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.viewer-section{margin-top:8px}
+.viewer-wrap{position:relative;width:100%;margin-top:10px}
+.viewer-section{margin-top:8px}
+.viewer-wrap{position:relative;width:100%;margin-top:10px}
+.viewer-toolbar{display:flex;justify-content:flex-start;margin:0 0 10px}
+.auto-orient-btn{background:#fff;color:var(--ink);border:1.5px solid var(--line);padding:9px 15px;border-radius:999px;font-weight:800;cursor:pointer;font-size:12px;box-shadow:0 2px 0 rgba(13,17,16,.08);display:inline-flex;align-items:center;gap:7px;transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease,background .15s ease}
+.auto-orient-btn:hover{background:var(--accent);border-color:var(--ink);transform:translateY(-1px);box-shadow:0 3px 0 var(--ink)}
+#selector3dContainer{height:460px!important;min-height:460px}
+@media(max-width:768px){#selector3dContainer{height:420px!important;min-height:420px}.viewer-toolbar{justify-content:flex-start;margin-bottom:10px}.auto-orient-btn{font-size:11px;padding:8px 12px}}
+.option-card{background:var(--bg);border:1.5px solid var(--line);border-radius:18px;padding:14px 16px;font-size:13.5px;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease,background .18s ease;display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:4px;min-height:100%;box-shadow:0 1px 0 rgba(13,17,16,.03)}
+.option-card:hover{border-color:var(--ink);background:#fff;transform:translateY(-2px);box-shadow:0 5px 14px rgba(13,17,16,.08)}
+.option-card.selected{background:var(--dark);color:var(--accent);border-color:var(--dark);box-shadow:0 4px 12px rgba(13,17,16,.12)}
+.option-card.selected .option-card-desc{color:#b8c0bb}
+.option-card span.emoji{font-size:20px}
+.option-card-title{font-weight:800;font-size:13.5px;color:inherit;margin-top:2px}
+.option-card-desc{font-weight:500;font-size:11px;color:var(--muted);line-height:1.35;margin-top:1px}
 
-    .progress-container{height:6px; background:var(--line); border-radius:3px; margin-bottom:28px; overflow:hidden;}
-    .progress-bar{height:100%; background:var(--ink); width:0%; transition:width 0.3s ease;}
+.form-group{margin-bottom:16px;display:flex;flex-direction:column}
+.form-group label{font-size:12.5px;font-weight:800;margin-bottom:6px;color:var(--muted)}
+.form-group input,.form-group textarea,.form-group select{padding:12px;border:1.5px solid var(--line);border-radius:12px;font-size:14.5px;font-weight:700;background:var(--bg);color:var(--ink);outline:none;font-family:inherit;transition:border-color .15s,background .15s}
+.form-group input:focus,.form-group textarea:focus,.form-group select:focus{background:#fff;border-color:var(--ink)}
 
-    .footer { background: var(--bg); border-top: 1px solid var(--line); padding: 80px 0 40px; color: var(--muted); font-size: 14px; line-height: 1.6; }
-    .footer-bottom { border-top: 1px solid var(--line); padding-top: 24px; display:flex; justify-content:center; align-items:center; text-align:center; font-size: 13px; color: #7d8782;}
+.wizard-nav-buttons{display:flex;justify-content:space-between;margin-top:28px;border-top:1.5px solid var(--line);padding-top:20px;gap:16px}
+.btn-green{display:inline-block;background:var(--accent);color:var(--ink);padding:14px 30px;border-radius:9999px;font-weight:800;font-size:14.5px;border:2px solid var(--ink);box-shadow:0 4px 0 var(--ink);cursor:pointer;transition:transform .15s,box-shadow .15s}
+.btn-green:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 0 var(--ink)}
+.btn-green:disabled{opacity:.5;cursor:not-allowed;box-shadow:none;transform:none}
+.btn-secondary{background:#fff;color:var(--ink);border:2px solid var(--ink);padding:16px 36px;border-radius:9999px;font-weight:800;font-size:14.5px;cursor:pointer;transition:transform .15s,box-shadow .15s}
+.btn-secondary:hover{transform:translateY(-1px);box-shadow:0 3px 0 var(--ink)}
+.progress-container{height:6px;background:var(--line);border-radius:3px;margin-bottom:28px;overflow:hidden}
+.progress-bar{height:100%;background:var(--ink);width:0%;transition:width .3s ease}
 
-    @media(max-width:992px){
-      .option-grid{grid-template-columns:1fr;}
-    }
-  </style>
+.footer{background:var(--bg);border-top:1px solid var(--line);padding:80px 0 40px;color:var(--muted);font-size:14px;line-height:1.6}
+.footergrid{display:grid;grid-template-columns:1.3fr .85fr .85fr;gap:60px;margin-bottom:48px}
+.footer-col h3{font-size:16px;font-weight:800;color:var(--ink);margin:0 0 20px;letter-spacing:-.3px}
+.footer-col p{margin:0 0 16px;color:var(--muted)}
+.footer-secondary-text{font-size:12.5px;line-height:1.5;color:#7d8782;margin-top:12px}
+.footer-links{display:flex;flex-direction:column;gap:10px}
+.footer-links a{color:var(--muted);transition:color .15s ease,transform .15s ease;cursor:pointer;display:inline-flex;align-items:center;gap:6px;text-decoration:none}
+.footer-links a:hover{color:var(--ink);transform:translateX(2px)}
+.footer-links a span.arrow{transition:color .15s ease}
+.footer-links a:hover span.arrow{color:var(--accent)}
+.footer-bottom{border-top:1px solid var(--line);padding-top:24px;display:flex;justify-content:center;align-items:center;text-align:center;font-size:13px;color:#7d8782}
+
+#authHeaderContainer span[style*="background" i],#authHeaderContainer span[style*="accent" i],#authHeaderContainer span:nth-child(2),#authHeaderContainer div span:nth-child(2){background:var(--accent)!important;background-color:var(--accent)!important;color:var(--ink)!important;padding:8px 18px!important;border-radius:9999px!important;font-weight:800!important;font-size:15px!important;border:none!important;box-shadow:none!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;align-self:center!important;line-height:1!important;height:auto!important;min-height:0!important;max-height:38px!important;margin:auto 0!important;white-space:nowrap!important}
+#authHeaderContainer .user-greeting,#authHeaderContainer span:nth-child(1),#authHeaderContainer div span:nth-child(1),#authHeaderContainer span:first-child,#authHeaderContainer div span:first-child{font-weight:700!important;font-size:15px!important;color:var(--ink)!important;display:inline-block!important;margin:auto 0!important;white-space:nowrap!important}
+
+@keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:992px){.footergrid{grid-template-columns:1.2fr 1fr;gap:40px}.option-grid{grid-template-columns:repeat(2,1fr)}.option-grid.option-grid-4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:768px){.wrap{padding:0 20px}.top nav{min-height:82px}.brand{font-size:23px}.header-left{gap:14px}.footergrid{grid-template-columns:1fr;gap:36px}.upload-container{margin:35px auto;padding:30px 20px}.step-title{font-size:18px}.wizard-nav-buttons{flex-direction:row}.auth-buttons{gap:8px}.btn-auth{padding:10px 14px;font-size:13px}}
+@media(max-width:480px){.option-grid,.option-grid.option-grid-4{grid-template-columns:1fr}.wizard-nav-buttons{gap:10px}.btn-secondary,.btn-green{padding:12px 20px;font-size:13px}.step-title{align-items:flex-start}.step-title span:last-child{white-space:nowrap;font-size:12px!important}}
+</style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../assets/js/auth-helper.js?v=11"></script>
+
+  <style>
+    /* El analizador requiere una sesión iniciada. Evita mostrar el contenido antes de comprobarla. */
+    body { visibility: hidden; }
+    body.auth-verified { visibility: visible; }
+  </style>
+  <script>
+    (async function requireAnalyzerLogin(){
+      try {
+        const authClient = window.supabaseClient || null;
+        if (!authClient) {
+          window.location.replace("login.html?redirect=analizador-stl.html");
+          return;
+        }
+
+        const { data, error } = await authClient.auth.getSession();
+        if (error || !data || !data.session) {
+          sessionStorage.setItem("printlab_auth_redirect", "analizador-stl.html");
+          window.location.replace("login.html?redirect=analizador-stl.html");
+          return;
+        }
+
+        document.addEventListener("DOMContentLoaded", function(){
+          document.body.classList.add("auth-verified");
+        }, { once: true });
+      } catch (e) {
+        console.error("No se pudo verificar la sesión:", e);
+        sessionStorage.setItem("printlab_auth_redirect", "analizador-stl.html");
+        window.location.replace("login.html?redirect=analizador-stl.html");
+      }
+    })();
+  </script>
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/STLLoader.js"></script>
@@ -140,6 +164,9 @@
             <div class="dropdown-content" id="mainMenu">
               <a href="../index.html#portada">Inicio</a>
               <a href="analizador-stl.html" class="active">Analizador STL</a>
+              <a href="../index.html#simulador">Simulador</a>
+              <a href="../index.html#herramientas">Herramientas</a>
+              <a href="../index.html#guias">Guías</a>
             </div>
           </div>
           <a class="brand" href="../index.html#portada">PRINT<span>LAB</span></a>
@@ -184,7 +211,7 @@
       <div class="wizard-step" id="step-nozzle">
         <div class="step-title"><span>¿Qué diámetro de boquilla utilizas?</span> <span style="font-size:14px; color:var(--muted);">1 / 5</span></div>
         <div class="step-subtitle">Afectará la resolución de detalles y las directrices de espesor de pared.</div>
-        <div class="option-grid">
+        <div class="option-grid option-grid-4">
           <div class="option-card" data-val="0.2" onclick="selectCard(this, 'nozzleSize')">
             <span class="emoji">🔬</span>
             <span class="option-card-title">0,2 mm</span>
@@ -288,7 +315,8 @@
       <div class="wizard-step" id="step-purpose">
         <div class="step-title"><span>¿Cuál es el propósito principal de esta pieza?</span> <span style="font-size:14px; color:var(--muted);">4 / 5</span></div>
         <div class="step-subtitle">Determinará el espesor de capa, perímetros, densidad y patrón de relleno para optimizar acabado o resistencia mecánica.</div>
-        <div class="option-grid">
+        <div style="font-size:12.5px;color:var(--muted);font-weight:700;margin:-8px 0 16px;">Puedes seleccionar una o varias opciones.</div>
+        <div class="option-grid option-grid-4">
           <div class="option-card" data-val="aesthetic" onclick="selectCard(this, 'purpose')">
             <span class="emoji">🎨</span>
             <span class="option-card-title">Estética / Visual</span>
@@ -317,15 +345,17 @@
         <div class="step-title"><span>Orientación Interactiva</span> <span style="font-size:14px; color:var(--muted);">5 / 5</span></div>
         <div class="step-subtitle" style="color:var(--ink); font-weight:700; margin-bottom:12px;">Haz clic sobre la superficie que quieres apoyar en la cama.</div>
         
-        <div style="margin-bottom:14px;">
-          <button type="button" onclick="autoOrientZToFit()" style="background:var(--accent); color:var(--ink); border:2px solid var(--ink); padding:10px 22px; border-radius:12px; font-weight:800; cursor:pointer; font-size:13.5px; box-shadow:0 3px 0 var(--ink); display: inline-flex; align-items:center; gap:8px;">
-            🤖 Girar pieza para ajustar a la cama
-          </button>
+        <div class="viewer-section">
+          <div id="limitWarningBanner" style="display:none; background:#fcebe8; border:1.5px solid var(--error); color:#9e3223; padding:16px; border-radius:12px; font-size:13.5px; font-weight:700; margin-bottom:12px; line-height:1.4; text-align:center;"></div>
+          <div class="viewer-wrap">
+            <div class="viewer-toolbar">
+              <button type="button" class="auto-orient-btn" onclick="autoOrientZToFit()" title="Orientar automáticamente la pieza para ajustarla a la cama">
+                🤖 Orientación automática
+              </button>
+            </div>
+            <div id="selector3dContainer" style="width:100%; background:#161d1a; border-radius:16px; position:relative; overflow:hidden; border:2px solid var(--line); margin-bottom:12px;"></div>
+          </div>
         </div>
-
-        <div id="limitWarningBanner" style="display:none; background:#fcebe8; border:1.5px solid var(--error); color:#9e3223; padding:16px; border-radius:12px; font-size:13.5px; font-weight:700; margin-bottom:12px; line-height:1.4; text-align:center;"></div>
-        
-        <div id="selector3dContainer" style="width:100%; height:380px; background:#161d1a; border-radius:16px; position:relative; overflow:hidden; border:2px solid var(--line); margin-bottom:12px;"></div>
       </div>
 
       <!-- BOTONES NAVEGACIÓN -->
@@ -339,6 +369,34 @@
 
   <footer class="footer">
     <div class="wrap">
+      <div class="footergrid">
+        <div class="footer-col">
+          <h3>PrintLab — Ingeniería 3D</h3>
+          <p>Plataforma profesional de análisis y optimización STL mediante Inteligencia Artificial y simuladores paramétricos. Transformamos modelos 3D con problemas en geometrías perfectas listas para fabricar, ahorrando tiempo, material y costes en entornos industriales.</p>
+          <p class="footer-secondary-text">Desarrollado bajo principios de Privacy by Design. Los datos y archivos STL se procesan con estricta confidencialidad.</p>
+        </div>
+        <div class="footer-col">
+          <h3>Recursos y Herramientas</h3>
+          <div class="footer-links">
+            <a href="../index.html#analizador"><span class="arrow">→</span> Analizador STL IA</a>
+            <a href="../index.html#simulador"><span class="arrow">→</span> Simulador de Extrusión</a>
+            <a href="calculadora-coste.html"><span class="arrow">→</span> Calculadoras de Coste y Masa</a>
+            <a href="../index.html#guias"><span class="arrow">→</span> Base de Conocimiento</a>
+            <a href="../materiales/index.html"><span class="arrow">→</span> Atlas de Materiales</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h3>Soporte y Legal</h3>
+          <div class="footer-links">
+            <a href="precios.html" onclick="sessionStorage.removeItem('printlab_resume_analysis');"><span class="arrow">→</span> Precios y Suscripciones</a>
+            <a href="contacto.html"><span class="arrow">→</span> Contacto y Soporte</a>
+            <a href="../condiciones-compra.html"><span class="arrow">→</span> Condiciones de Compra</a>
+            <a href="../terminos.html"><span class="arrow">→</span> Términos y Condiciones</a>
+            <a href="../privacidad.html"><span class="arrow">→</span> Política de Privacidad</a>
+            <a href="../cookies.html"><span class="arrow">→</span> Política de Cookies</a>
+          </div>
+        </div>
+      </div>
       <div class="footer-bottom">
         <div class="footer-bottom-text">© 2026 PrintLab.</div>
       </div>
@@ -392,7 +450,7 @@
     function selectCard(cardElement, field) {
       const parent = cardElement.parentNode;
 
-      // El propósito de la pieza permite seleccionar varias opciones.
+      // La pregunta de propósito permite seleccionar varias opciones.
       if (field === 'purpose') {
         if (!Array.isArray(answers.purpose)) answers.purpose = [];
 
@@ -1059,6 +1117,32 @@
         nextBtn.textContent = "Procesando...";
 
         const session = await getCurrentSession();
+
+        // Comprobar créditos antes de iniciar el análisis (pregunta 5 / Orientación Interactiva).
+        // Si el usuario real no tiene créditos, se envía directamente a Precios.
+        if (client && session && session !== mockSession) {
+          try {
+            const { data: profile, error: profileError } = await client
+              .from("profiles")
+              .select("credits")
+              .eq("id", session.user.id)
+              .single();
+
+            if (profileError) throw profileError;
+
+            if (!profile || Number(profile.credits || 0) < 1) {
+              sessionStorage.setItem("printlab_resume_analysis", "true");
+              window.location.href = "precios.html";
+              return;
+            }
+          } catch (creditError) {
+            console.error("No se pudo comprobar el saldo de créditos:", creditError);
+            nextBtn.disabled = false;
+            nextBtn.textContent = "Iniciar Análisis Real";
+            alert("No se ha podido comprobar tu saldo de créditos. Inténtalo de nuevo.");
+            return;
+          }
+        }
 
         if (!client || session === mockSession) {
           nextBtn.textContent = "Analizando geometría (Modo Demo)...";
