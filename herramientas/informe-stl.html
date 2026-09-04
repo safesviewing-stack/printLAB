@@ -58,14 +58,14 @@
     .param-box{background:var(--card); border:1.5px solid var(--line); border-radius:16px; padding:24px; margin-bottom: 20px;}
     .param-title{font-size:14px; text-transform:uppercase; font-weight:800; color:var(--muted); margin-bottom: 12px;}
     
-    /* Contenedor compacto con barra de scroll interna */
+    /* Contenedor ultra compacto con barra de scroll interna */
     .scrollable-params-container {
-      max-height: 380px;
+      max-height: 320px;
       overflow-y: auto;
-      padding: 8px;
+      padding: 6px;
       border: 1.5px solid var(--line);
       border-radius: 10px;
-      background: #fbfbfc;
+      background: #fafafa;
     }
     .scrollable-params-container::-webkit-scrollbar {
       width: 6px;
@@ -74,25 +74,25 @@
       background: transparent;
     }
     .scrollable-params-container::-webkit-scrollbar-thumb {
-      background: #d1d5db;
+      background: #cccfc9;
       border-radius: 3px;
     }
     .scrollable-params-container::-webkit-scrollbar-thumb:hover {
-      background: #9ca3af;
+      background: #abb0a7;
     }
 
     .param-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 6px 10px;
+      padding: 5px 8px;
       margin-bottom: 2px;
       font-size: 13px;
-      border-radius: 6px;
+      border-radius: 5px;
       transition: background 0.15s ease;
     }
     .param-row:nth-child(even) {
-      background: rgba(0, 0, 0, 0.025);
+      background: rgba(0, 0, 0, 0.02);
     }
     .param-row:hover {
       background: rgba(184, 255, 61, 0.12);
@@ -100,10 +100,11 @@
     .param-row strong {
       font-weight: 800;
       white-space: nowrap;
+      font-size: 12.5px;
     }
     .param-row span {
       word-break: break-word;
-      line-height: 1.35;
+      line-height: 1.3;
     }
 
     .download-panel{background:var(--card); border:1.5px solid var(--line); border-radius:24px; padding:36px; margin-top:32px;}
@@ -690,12 +691,14 @@
 </model>`;
             zip.file("3D/3dmodel.model", modelXml);
 
-            // Inyección exhaustiva de parámetros traduciendo los enums a valores compatibles con OrcaSlicer
+            // Inyección de identificadores nativos para forzar la selección automática de la impresora en OrcaSlicer
+            const nozzleStr = q.nozzleSize ? q.nozzleSize.toString() : "0.4";
             const orcaSettingsJson = {
               "from": "project",
               "name": "project_settings",
-              "printer_model": q.printer || "Creality Ender-3 V3 SE",
-              "printer_variant": q.nozzleSize ? q.nozzleSize.toString() : "0.4"
+              "printer_model": "Creality Ender-3 V3 SE",
+              "printer_variant": nozzleStr,
+              "printer_settings_id": `Creality Ender-3 V3 SE ${nozzleStr} nozzle`
             };
 
             for (const groupName in parameterGroups) {
@@ -713,7 +716,7 @@
               });
             }
 
-            const activeList = Object.keys(orcaSettingsJson).filter(k => k !== "from" && k !== "name" && k !== "printer_model" && k !== "printer_variant").join(';');
+            const activeList = Object.keys(orcaSettingsJson).filter(k => k !== "from" && k !== "name" && k !== "printer_model" && k !== "printer_variant" && k !== "printer_settings_id").join(';');
             orcaSettingsJson["different_settings_to_system"] = [
               activeList, "", "", "", "", "", ""
             ];
