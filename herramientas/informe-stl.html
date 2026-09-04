@@ -963,6 +963,15 @@
       function translateToOrcaValue(key, value) {
         if (value === undefined || value === null) return value;
 
+        // No modificar estructuras que ya vienen preparadas por el informe.
+        if (Array.isArray(value)) {
+          return value.map(item => translateToOrcaValue(key, item));
+        }
+
+        if (typeof value === "object") {
+          return JSON.parse(JSON.stringify(value));
+        }
+
         if (typeof value === "boolean" || typeof value === "number") {
           return value;
         }
@@ -973,7 +982,8 @@
           if (trimmed === "true") return true;
           if (trimmed === "false") return false;
 
-          // Solo convertir strings que sean números puros.
+          // Convertimos únicamente strings que representan números puros.
+          // No hacemos toFixed(), redondeos ni cambios de unidades.
           if (trimmed !== "" && /^-?(?:\d+\.?\d*|\.\d+)$/.test(trimmed)) {
             const numeric = Number(trimmed);
             if (Number.isFinite(numeric)) return numeric;
@@ -1068,37 +1078,127 @@
 </model>`;
             zip.file("3D/3dmodel.model", modelXml);
 
-            // Inyección de identificadores nativos para forzar la selección automática de la impresora en OrcaSlicer
-            const nozzleStr = q.nozzleSize ? q.nozzleSize.toString() : "0.4";
+            // ============================================================
+            // EXPORTACIÓN FIEL DEL PERFIL MOSTRADO EN EL INFORME
+            // ============================================================
+            // El informe obtiene los valores de `analysis.slicer_settings`
+            // y los muestra directamente mediante `parameterGroups`.
+            // El proyecto .3MF debe reutilizar ESOS MISMOS VALORES, sin
+            // sustituirlos por valores predeterminados.
+            //
+            // Ejemplo:
+            //   Informe: Altura de capa = 0.12 mm
+            //   OrcaSlicer: layer_height = 0.12
+            //
+            // Para parámetros que OrcaSlicer maneja como listas por
+            // filamento, se conserva una lista si ya viene como lista y,
+            // si viene como valor único, se envuelve una sola vez.
+            const nozzleStr = q.nozzleSize !== undefined && q.nozzleSize !== null
+              ? String(q.nozzleSize)
+              : "0.4";
+
+            const printerName = q.printer
+              ? String(q.printer)
+              : "Creality Ender-3 V3 SE";
+
             const orcaSettingsJson = {
               "from": "project",
               "name": "project_settings",
-              "printer_model": "Creality Ender-3 V3 SE",
+              "printer_model": printerName,
               "printer_variant": nozzleStr,
-              "printer_settings_id": `Creality Ender-3 V3 SE ${nozzleStr} nozzle`
+              "printer_settings_id": `${printerName} ${nozzleStr} nozzle`
             };
 
+            // Claves que Orca/Bambu almacenan por filamento como arrays.
+            const perFilamentKeys = new Set([
+              "nozzle_temperature",
+              "nozzle_temperature_initial_layer",
+              "hot_plate_temp",
+              "hot_plate_temp_initial",
+              "flow_ratio",
+              "pressure_advance",
+              "retraction_length",
+              "retraction_speed",
+              "deretraction_speed",
+              "filament_max_volumetric_speed",
+              "fan_cooling_speed",
+              "fan_speed_min",
+              "fan_speed_max",
+              "cool_plate_fan_speed",
+              "additional_cooling_fan_speed",
+              "exhaust_fan_speed"
+            ]);
+
+            // Recorremos EXACTAMENTE los 102 parámetros que el informe
+            // puede mostrar. No se introducen valores inventados.
             for (const groupName in parameterGroups) {
               parameterGroups[groupName].forEach(v => {
-                const val = s[v.key];
-                if (val !== undefined && val !== null) {
-                  const arrKeys = ["nozzle_temperature", "hot_plate_temp", "hot_plate_temp_initial", "nozzle_temperature_initial_layer", "flow_ratio", "pressure_advance", "retraction_length", "retraction_speed", "deretraction_speed", "filament_max_volumetric_speed", "fan_cooling_speed", "fan_speed_min", "fan_speed_max", "cool_plate_fan_speed", "additional_cooling_fan_speed", "exhaust_fan_speed"];
-                  const finalVal = translateToOrcaValue(v.key, val);
-                  if (arrKeys.includes(v.key)) {
-                    orcaSettingsJson[v.key] = [ finalVal ];
-                  } else {
-                    orcaSettingsJson[v.key] = finalVal;
-                  }
+                const rawValue = s[v.key];
+
+                if (rawValue === undefined || rawValue === null) return;
+
+                // Copia profunda para no alterar el objeto del informe.
+                let finalValue = translateToOrcaValue(v.key, rawValue);
+
+                if (perFilamentKeys.has(v.key)) {
+                  finalValue = Array.isArray(finalValue)
+                    ? finalValue.slice()
+                    : [finalValue];
                 }
+
+                orcaSettingsJson[v.key] = finalValue;
               });
             }
 
-            const activeList = Object.keys(orcaSettingsJson).filter(k => k !== "from" && k !== "name" && k !== "printer_model" && k !== "printer_variant" && k !== "printer_settings_id").join(';');
+            // Si el análisis contiene algún parámetro adicional dentro de
+            // slicer_settings que no esté en la tabla, también lo incluimos.
+            // Así la exportación no pierde información del perfil.
+            Object.keys(s).forEach(key => {
+              if (
+                key &&
+                s[key] !== undefined &&
+                s[key] !== null &&
+                !Object.prototype.hasOwnProperty.call(orcaSettingsJson, key) &&
+                key !== "material"
+              ) {
+                orcaSettingsJson[key] = translateToOrcaValue(key, s[key]);
+              }
+            });
+
+            const excludedProjectKeys = new Set([
+              "from",
+              "name",
+              "printer_model",
+              "printer_variant",
+              "printer_settings_id",
+              "different_settings_to_system"
+            ]);
+
+            const activeList = Object.keys(orcaSettingsJson)
+              .filter(key => !excludedProjectKeys.has(key))
+              .join(";");
+
             orcaSettingsJson["different_settings_to_system"] = [
               activeList, "", "", "", "", "", ""
             ];
 
-            zip.file("Metadata/project_settings.config", JSON.stringify(orcaSettingsJson, null, 2));
+            // Este es el archivo que OrcaSlicer lee como configuración del
+            // proyecto. Los números no se redondean ni se recalculan.
+            zip.file(
+              "Metadata/project_settings.config",
+              JSON.stringify(orcaSettingsJson, null, 2)
+            );
+
+            // Copia de trazabilidad de PrintLab: permite comprobar qué
+            // valores exactos del informe se exportaron al .3MF.
+            zip.file(
+              "Metadata/printlab_report_settings.json",
+              JSON.stringify({
+                printer: printerName,
+                nozzle: q.nozzleSize ?? 0.4,
+                slicer_settings: s
+              }, null, 2)
+            );
 
             const content = await zip.generateAsync({ type: "blob" });
             const url = URL.createObjectURL(content);
