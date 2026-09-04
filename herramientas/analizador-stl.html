@@ -354,7 +354,7 @@
       nozzleSize: "",
       material: "",
       printer: "",
-      purpose: "", 
+      purpose: [],
       selectedSupportFace: null,
       supportFaceNormal: null,
       transformationMatrix: null
@@ -391,9 +391,27 @@
 
     function selectCard(cardElement, field) {
       const parent = cardElement.parentNode;
-      parent.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
-      cardElement.classList.add('selected');
-      answers[field] = cardElement.dataset.val;
+
+      // El propósito de la pieza permite seleccionar varias opciones.
+      if (field === 'purpose') {
+        if (!Array.isArray(answers.purpose)) answers.purpose = [];
+
+        const value = cardElement.dataset.val;
+        const index = answers.purpose.indexOf(value);
+
+        if (index === -1) {
+          answers.purpose.push(value);
+          cardElement.classList.add('selected');
+        } else {
+          answers.purpose.splice(index, 1);
+          cardElement.classList.remove('selected');
+        }
+      } else {
+        parent.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+        cardElement.classList.add('selected');
+        answers[field] = cardElement.dataset.val;
+      }
+
       validateCurrentStep();
     }
 
@@ -410,7 +428,7 @@
       else if (currentStepIdx === 1) isValid = answers.nozzleSize !== "";
       else if (currentStepIdx === 2) isValid = answers.material !== "";
       else if (currentStepIdx === 3) isValid = answers.printer !== "";
-      else if (currentStepIdx === 4) isValid = answers.purpose !== "";
+      else if (currentStepIdx === 4) isValid = Array.isArray(answers.purpose) && answers.purpose.length > 0;
       else if (currentStepIdx === 5) isValid = answers.selectedSupportFace !== null;
 
       nextBtn.disabled = !isValid;
@@ -1088,18 +1106,22 @@
           let pat = "giroide";
           let spMult = 0.7;
 
-          if (answers.purpose === "aesthetic") {
-            lh = parseFloat(answers.nozzleSize) * 0.3;
-            wl = 2; id = 12; pat = "lightning"; spMult = 0.4;
-          } else if (answers.purpose === "speed") {
-            lh = parseFloat(answers.nozzleSize) * 0.6;
-            wl = 2; id = 10; pat = "lightning"; spMult = 1.0;
-          } else if (answers.purpose === "cost") {
-            lh = parseFloat(answers.nozzleSize) * 0.45;
-            wl = 2; id = 8; pat = "lightning"; spMult = 0.6;
-          } else { // functional
+          const purposes = Array.isArray(answers.purpose) ? answers.purpose : [answers.purpose];
+          if (purposes.includes("functional")) {
             lh = parseFloat(answers.nozzleSize) * 0.55;
             wl = 5; id = 40; pat = "giroide"; spMult = 0.7;
+          } else if (purposes.includes("aesthetic")) {
+            lh = parseFloat(answers.nozzleSize) * 0.3;
+            wl = 2; id = 12; pat = "lightning"; spMult = 0.4;
+          } else if (purposes.includes("speed")) {
+            lh = parseFloat(answers.nozzleSize) * 0.6;
+            wl = 2; id = 10; pat = "lightning"; spMult = 1.0;
+          } else if (purposes.includes("cost")) {
+            lh = parseFloat(answers.nozzleSize) * 0.45;
+            wl = 2; id = 8; pat = "lightning"; spMult = 0.6;
+          } else {
+            lh = parseFloat(answers.nozzleSize) * 0.5;
+            wl = 3; id = 20; pat = "giroide"; spMult = 0.7;
           }
 
           sessionStorage.setItem("printlab_analysis", JSON.stringify({
