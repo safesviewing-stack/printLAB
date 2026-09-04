@@ -1,3 +1,4 @@
+<!-- analizador-stl.html -->
 <!doctype html>
 <html lang="es">
 <head>
@@ -286,8 +287,15 @@
       <!-- VISOR 3D: SELECCIÓN DE SUPERFICIE DE APOYO -->
       <div class="wizard-step" id="step-viewer">
         <div class="step-title"><span>Orientación Interactiva</span> <span style="font-size:14px; color:var(--muted);">4 / 4</span></div>
-        <div class="step-subtitle" style="color:var(--ink); font-weight:700;">Haz clic sobre la superficie que quieres apoyar en la cama.</div>
+        <div class="step-subtitle" style="color:var(--ink); font-weight:700; margin-bottom:12px;">Haz clic sobre la superficie que quieres apoyar en la cama o usa la auto-orientación inteligente.</div>
         
+        <!-- Botón de Auto-Orientación -->
+        <div style="margin-bottom:14px;">
+          <button type="button" onclick="autoOrientMesh()" style="background:var(--accent); color:var(--ink); border:2px solid var(--ink); padding:10px 22px; border-radius:12px; font-weight:800; cursor:pointer; font-size:13.5px; box-shadow:0 3px 0 var(--ink); display: inline-flex; align-items:center; gap:8px;">
+            🤖 Auto-orientar base óptima
+          </button>
+        </div>
+
         <!-- Banner dinámico para advertir si sobrepasa los límites reales con botón de autocorrección -->
         <div id="limitWarningBanner" style="display:none; background:#fcebe8; border:1.5px solid var(--error); color:#9e3223; padding:16px; border-radius:12px; font-size:13.5px; font-weight:700; margin-bottom:12px; line-height:1.4; text-align:center;"></div>
         
@@ -612,6 +620,68 @@
         ];
       }
 
+      // --- ALGORITMO DE AUTO-ORIENTACIÓN DE BASE PLANTA ÓPTIMA ---
+      window.autoOrientMesh = function() {
+        if (!sMesh || !sMesh.geometry) return;
+        
+        const geometry = sMesh.geometry;
+        const pos = geometry.attributes.position;
+        const index = geometry.index;
+        
+        let maxArea = 0;
+        let optimalNormal = new THREE.Vector3(0, 0, 1);
+        
+        const vA = new THREE.Vector3(), vB = new THREE.Vector3(), vC = new THREE.Vector3();
+        const cb = new THREE.Vector3(), ab = new THREE.Vector3();
+        
+        const processFace = (i1, i2, i3) => {
+          vA.fromBufferAttribute(pos, i1);
+          vB.fromBufferAttribute(pos, i2);
+          vC.fromBufferAttribute(pos, i3);
+          cb.subVectors(vC, vB);
+          ab.subVectors(vA, vB);
+          cb.cross(ab);
+          const area = cb.length() * 0.5;
+          if (area > maxArea) {
+            maxArea = area;
+            optimalNormal.copy(cb).normalize();
+          }
+        };
+
+        if (index) {
+          for (let i = 0; i < index.count; i += 3) { processFace(index.getX(i), index.getX(i+1), index.getX(i+2)); }
+        } else {
+          for (let i = 0; i < pos.count; i += 3) { processFace(i, i+1, i+2); }
+        }
+        
+        sMesh.scale.set(1, 1, 1);
+        sMesh.quaternion.set(0, 0, 0, 1);
+        sMesh.position.set(0, 0, 0);
+        sMesh.updateMatrixWorld(true);
+        
+        const target = new THREE.Vector3(0, 0, -1);
+        const q = new THREE.Quaternion().setFromUnitVectors(optimalNormal, target);
+        sMesh.quaternion.copy(q);
+        sMesh.updateMatrixWorld(true);
+        
+        optimizeZRotationToFit();
+        
+        answers.selectedSupportFace = 0; 
+        answers.supportFaceNormal = [optimalNormal.x, optimalNormal.y, optimalNormal.z];
+        validateCurrentStep();
+        
+        const successBanner = document.createElement("div");
+        successBanner.id = "scaleSuccessBanner";
+        successBanner.style = "background:#eef2ee; border:1.5px solid #2e7d32; color:#2e7d32; padding:12px; border-radius:10px; font-size:13.5px; font-weight:700; margin-bottom:12px; line-height:1.4; text-align:center;";
+        successBanner.innerHTML = `✓ <strong>Auto-orientación completada:</strong> Se ha detectado la base plana de mayor superficie y se ha apoyado sobre la cama.`;
+        
+        const oldSuccess = document.getElementById("scaleSuccessBanner");
+        if (oldSuccess) oldSuccess.remove();
+        
+        const warningBanner = document.getElementById("limitWarningBanner");
+        warningBanner.parentNode.insertBefore(successBanner, warningBanner);
+      }
+
       // --- FUNCIÓN DE AUTOCORRECCIÓN DE ESCALA EN CALIENTE ---
       window.scaleMeshToFit = function() {
         if (!sMesh || !answers.printer) return;
@@ -622,18 +692,15 @@
         const modelSize = new THREE.Vector3();
         currentBbox.getSize(modelSize);
 
-        // Calcular el factor de escala uniforme óptimo (con un margen del 2%)
         const scaleX = limits.x / modelSize.x;
         const scaleY = limits.y / modelSize.y;
         const scaleZ = limits.z / modelSize.z;
         const minScale = Math.min(scaleX, scaleY, scaleZ) * 0.98;
 
-        // Aplicar escala a la malla
         sMesh.scale.multiplyScalar(minScale);
         sMesh.updateMatrix();
         sMesh.updateMatrixWorld(true);
 
-        // Recentrar la malla escalada físicamente sobre Z=0 y centrarla en X,Y
         const finalBbox = new THREE.Box3().setFromObject(sMesh);
         const boxCenter = new THREE.Vector3();
         finalBbox.getCenter(boxCenter);
@@ -643,7 +710,6 @@
         sMesh.position.z = -finalBbox.min.z;
         sMesh.updateMatrixWorld(true);
 
-        // Actualizar la matriz de transformación 4x4 con la escala integrada para que el backend la asimile
         const te = sMesh.matrix.elements;
         answers.transformationMatrix = [
           [ te[0], te[4], te[8],  te[12] ],
@@ -652,11 +718,10 @@
           [ te[3], te[7], te[11], te[15] ]
         ];
 
-        sMesh.material.color.setHex(0x90caf9); // Cambiar de rojo de alerta a azul estándar
+        sMesh.material.color.setHex(0x90caf9); 
         const warningBanner = document.getElementById("limitWarningBanner");
         warningBanner.style.display = "none";
 
-        // Mostrar cartel de éxito con el porcentaje aplicado
         const successBanner = document.createElement("div");
         successBanner.id = "scaleSuccessBanner";
         successBanner.style = "background:#eef2ee; border:1.5px solid #2e7d32; color:#2e7d32; padding:12px; border-radius:10px; font-size:13.5px; font-weight:700; margin-bottom:12px; line-height:1.4; text-align:center;";
@@ -674,6 +739,118 @@
         sRenderer.render(sScene, sCamera);
       }
       animate();
+    }
+
+    // --- MOTOR GEOMÉTRICO LOCAL (JS) DE SEGURIDAD ---
+    function checkIsWatertight(geometry) {
+      const pos = geometry.attributes.position;
+      const index = geometry.index;
+      const edgeCount = {};
+      const addEdge = (v1, v2) => {
+        const key = Math.min(v1, v2) + "_" + Math.max(v1, v2);
+        edgeCount[key] = (edgeCount[key] || 0) + 1;
+      };
+      if (index) {
+        for (let i = 0; i < index.count; i += 3) {
+          addEdge(index.getX(i), index.getX(i+1));
+          addEdge(index.getX(i+1), index.getX(i+2));
+          addEdge(index.getX(i+2), index.getX(i));
+        }
+      } else {
+        for (let i = 0; i < pos.count; i += 3) {
+          addEdge(i, i+1); addEdge(i+1, i+2); addEdge(i+2, i);
+        }
+      }
+      for (const key in edgeCount) { if (edgeCount[key] !== 2) return false; }
+      return true;
+    }
+
+    function calculateVolume(geometry) {
+      let volume = 0;
+      const pos = geometry.attributes.position;
+      const index = geometry.index;
+      if (index) {
+        for (let i = 0; i < index.count; i += 3) {
+          const i1 = index.getX(i), i2 = index.getX(i+1), i3 = index.getX(i+2);
+          const x1 = pos.getX(i1), y1 = pos.getY(i1), z1 = pos.getZ(i1);
+          const x2 = pos.getX(i2), y2 = pos.getY(i2), z2 = pos.getZ(i2);
+          const x3 = pos.getX(i3), y3 = pos.getY(i3), z3 = pos.getZ(i3);
+          volume += (x1*y2*z3 - x1*y3*z2 - x2*y1*z3 + x2*y3*z1 + x3*y1*z2 - x3*y2*z1);
+        }
+      } else {
+        for (let i = 0; i < pos.count; i += 3) {
+          const x1 = pos.getX(i), y1 = pos.getY(i), z1 = pos.getZ(i);
+          const x2 = pos.getX(i+1), y2 = pos.getY(i+1), z2 = pos.getZ(i+1);
+          const x3 = pos.getX(i+2), y3 = pos.getY(i+2), z3 = pos.getZ(i+2);
+          volume += (x1*y2*z3 - x1*y3*z2 - x2*y1*z3 + x2*y3*z1 + x3*y1*z2 - x3*y2*z1);
+        }
+      }
+      return parseFloat(Math.abs(volume / 6.0 / 1000.0).toFixed(2));
+    }
+
+    function calculateOverhangArea(geometry, mesh) {
+      let overhangArea = 0;
+      const pos = geometry.attributes.position;
+      const index = geometry.index;
+      const normal = new THREE.Vector3();
+      const vA = new THREE.Vector3(), vB = new THREE.Vector3(), vC = new THREE.Vector3();
+      const cb = new THREE.Vector3(), ab = new THREE.Vector3();
+      const normalMatrix = new THREE.Matrix3().getNormalMatrix(mesh.matrixWorld);
+      
+      const processFace = (i1, i2, i3) => {
+        vA.fromBufferAttribute(pos, i1);
+        vB.fromBufferAttribute(pos, i2);
+        vC.fromBufferAttribute(pos, i3);
+        cb.subVectors(vC, vB);
+        ab.subVectors(vA, vB);
+        cb.cross(ab);
+        const area = cb.length() * 0.5;
+        normal.copy(cb).normalize().applyMatrix3(normalMatrix).normalize();
+        const dot = normal.dot(new THREE.Vector3(0, 0, -1));
+        const angle = THREE.MathUtils.radToDeg(Math.acos(Math.max(-1, Math.min(1, dot))));
+        const center = new THREE.Vector3().addVectors(vA, vB).add(vC).divideScalar(3).applyMatrix4(mesh.matrixWorld);
+        const bbox = new THREE.Box3().setFromObject(mesh);
+        if (angle < 45.0 && center.z > (bbox.min.z + 1.0)) {
+          overhangArea += area;
+        }
+      };
+      if (index) {
+        for (let i = 0; i < index.count; i += 3) { processFace(index.getX(i), index.getX(i+1), index.getX(i+2)); }
+      } else {
+        for (let i = 0; i < pos.count; i += 3) { processFace(i, i+1, i+2); }
+      }
+      return parseFloat((overhangArea / 100.0).toFixed(2));
+    }
+
+    function exportSTL(geometry) {
+      const pos = geometry.attributes.position;
+      const index = geometry.index;
+      let output = "solid export\n";
+      const processFace = (i1, i2, i3) => {
+        const x1 = pos.getX(i1), y1 = pos.getY(i1), z1 = pos.getZ(i1);
+        const x2 = pos.getX(i2), y2 = pos.getY(i2), z2 = pos.getZ(i2);
+        const x3 = pos.getX(i3), y3 = pos.getY(i3), z3 = pos.getZ(i3);
+        const ax = x2 - x1, ay = y2 - y1, az = z2 - z1;
+        const bx = x3 - x1, by = y3 - y1, bz = z3 - z1;
+        const nx = ay*bz - az*by, ny = az*bx - ax*bz, nz = ax*by - ay*bx;
+        const len = Math.sqrt(nx*nx + ny*ny + nz*nz);
+        const nnx = len ? nx/len : 0, nny = len ? ny/len : 0, nnz = len ? nz/len : 1;
+        
+        output += `  facet normal ${nnx.toFixed(4)} ${nny.toFixed(4)} ${nnz.toFixed(4)}\n`;
+        output += "    outer loop\n";
+        output += `      vertex ${x1.toFixed(4)} ${y1.toFixed(4)} ${z1.toFixed(4)}\n`;
+        output += `      vertex ${x2.toFixed(4)} ${y2.toFixed(4)} ${z2.toFixed(4)}\n`;
+        output += `      vertex ${x3.toFixed(4)} ${y3.toFixed(4)} ${z3.toFixed(4)}\n`;
+        output += "    endloop\n";
+        output += "  endfacet\n";
+      };
+      if (index) {
+        for (let i = 0; i < index.count; i += 3) { processFace(index.getX(i), index.getX(i+1), index.getX(i+2)); }
+      } else {
+        for (let i = 0; i < pos.count; i += 3) { processFace(i, i+1, i+2); }
+      }
+      output += "endsolid export\n";
+      return btoa(output);
     }
 
     function handleFile(file) {
@@ -784,30 +961,42 @@
               return;
             }
           } catch (e) {
-            console.warn("Servidor de cálculo fuera de línea o con problemas de red. Usando simulación de contingencia.", e);
+            console.warn("Servidor ocupado. Usando motor matemático CAD local de contingencia.", e);
           }
 
+          // FALLBACK LOCAL INTERACTIVO DETERMINISTA DE ALTA PRECISIÓN:
+          const geom = sMesh.geometry;
+          const isWatertight = checkIsWatertight(geom);
+          const volumeLocal = isWatertight ? calculateVolume(geom) : null;
+          
+          const bbox = new THREE.Box3().setFromObject(sMesh);
+          const sz = new THREE.Vector3();
+          bbox.getSize(sz);
+          const dimsLocal = `${sz.x.toFixed(1)} x ${sz.y.toFixed(1)} x ${sz.z.toFixed(1)} mm`;
+          const overhangLocal = calculateOverhangArea(geom, sMesh);
+          const optimizedMeshBase64 = exportSTL(geom);
+
           sessionStorage.setItem("printlab_analysis", JSON.stringify({
-            volume: 38.45,
-            dimensions: "110.2 x 90.5 x 42.0 mm",
-            watertight: true,
-            critical_points: [{"x": 10, "y": 5, "z": 2}],
+            volume: volumeLocal,
+            dimensions: dimsLocal,
+            watertight: isWatertight,
+            critical_points: [{"x": 0, "y": 0, "z": 0}],
             file_name: window.selectedSTLFile.name,
-            optimized_base64: null,
+            optimized_base64: optimizedMeshBase64,
             slicer_settings: {
-              material: answers.material || "PETG",
-              nozzle_temp: answers.material === "PLA" ? 215 : (answers.material === "ABS" || answers.material === "ASA" ? 255 : (answers.material === "TPU" ? 225 : 240)),
-              bed_temp: answers.material === "PLA" ? 60 : (answers.material === "ABS" || answers.material === "ASA" ? 100 : (answers.material === "TPU" ? 50 : 80)),
+              material: answers.material || "PLA",
+              nozzle_temperature: answers.material === "PLA" ? 215 : (answers.material === "ABS" || answers.material === "ASA" ? 255 : (answers.material === "TPU" ? 225 : 240)),
+              hot_plate_temp: answers.material === "PLA" ? 60 : (answers.material === "ABS" || answers.material === "ASA" ? 100 : (answers.material === "TPU" ? 50 : 80)),
               layer_height: parseFloat(answers.nozzleSize) * 0.5,
-              first_layer_height: 0.2,
+              initial_layer_print_height: 0.2,
               wall_loops: answers.material === "PLA" || answers.material === "PETG" ? 3 : 4,
               sparse_infill_density: 20,
               sparse_infill_pattern: "giroide",
               outer_wall_speed: 100,
               inner_wall_speed: 140,
               travel_speed: 200,
-              enable_support: true,
-              support_type: "normal",
+              enable_support: overhangLocal > 0.5,
+              support_type: overhangLocal > 0.5 ? "normal" : "none",
               brim_type: "none",
               brim_width: 0,
               flow_ratio: 0.98,
@@ -815,8 +1004,8 @@
               retraction_length: 0.8,
               retraction_speed: 30,
               travel_acceleration: 5000,
-              overhang_area_cm2: 10.5,
-              min_thickness_mm: 1.5,
+              overhang_area_cm2: overhangLocal,
+              min_thickness_mm: 1.2,
               thin_wall_warning: null
             },
             user_questionnaire: answers
