@@ -556,7 +556,7 @@
           <div class="download-panel">
             <h4 style="margin:0 0 16px; font-weight:800;">Exportación de Proyecto</h4>
             
-            <button class="btn-download-stl" id="download3mfBtn" style="background:var(--accent); color:var(--ink); border-color:var(--ink); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 18px 24px;">
+            <button class="btn-download-stl btn green" id="download3mfBtn" style="background:var(--accent); color:var(--ink); border-color:var(--ink); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; width:100%; padding:18px 24px; border-radius:9999px; box-shadow:0 4px 0 var(--ink);">
               <span style="font-size: 16px; font-weight: 800;">Abrir proyecto en laminador (.3MF)</span>
               <span style="font-size: 11px; font-weight: 500; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.5px;">Abrir dentro del laminador</span>
             </button>
@@ -954,6 +954,36 @@
       document.getElementById("paramSearch").addEventListener("input", (e) => {
         renderParameters(e.target.value);
       });
+
+      // --- TRADUCTOR DE VALORES PARA ORCASLICER ---
+      // Evita el error "translateToOrcaValue is not defined".
+      // Los parámetros ya vienen normalizados desde el analizador; aquí
+      // conservamos el valor y convertimos representaciones simples a
+      // tipos JSON válidos para el archivo .3MF.
+      function translateToOrcaValue(key, value) {
+        if (value === undefined || value === null) return value;
+
+        if (typeof value === "boolean" || typeof value === "number") {
+          return value;
+        }
+
+        if (typeof value === "string") {
+          const trimmed = value.trim();
+
+          if (trimmed === "true") return true;
+          if (trimmed === "false") return false;
+
+          // Solo convertir strings que sean números puros.
+          if (trimmed !== "" && /^-?(?:\d+\.?\d*|\.\d+)$/.test(trimmed)) {
+            const numeric = Number(trimmed);
+            if (Number.isFinite(numeric)) return numeric;
+          }
+
+          return trimmed;
+        }
+
+        return value;
+      }
 
       if (analysis.optimized_base64) {
         init3DViewer("canvas3dContainer", analysis.optimized_base64, analysis.critical_points);
