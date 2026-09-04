@@ -989,6 +989,38 @@ nav{
 }
 </style>
 
+
+<style id="report-parameters-right-fix">
+/* Parámetros siempre en la columna derecha */
+.report-grid{
+  display:grid !important;
+  grid-template-columns:minmax(0, 1.08fr) minmax(360px, .92fr) !important;
+  align-items:start !important;
+  gap:28px !important;
+}
+
+/* Evita que los elementos de la columna derecha se desplacen debajo */
+.report-grid > div:last-child{
+  min-width:0 !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-self:start !important;
+}
+
+/* El buscador/listado permanece dentro de su tarjeta derecha */
+.param-box{
+  width:100% !important;
+  box-sizing:border-box !important;
+}
+
+/* En pantallas pequeñas sí vuelve a una sola columna */
+@media (max-width: 992px){
+  .report-grid{
+    grid-template-columns:1fr !important;
+  }
+}
+</style>
+
 </head>
 <body>
 
