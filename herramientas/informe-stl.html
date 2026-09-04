@@ -69,15 +69,10 @@
     .no-session-card { text-align: center; padding: 60px 40px; background: var(--card); border: 1.5px solid var(--line); border-radius: 24px; max-width: 580px; margin: 80px auto; box-shadow: 0 10px 30px rgba(0,0,0,0.02); }
 
     .footer { background: var(--bg); border-top: 1px solid var(--line); padding: 80px 0 40px; color: var(--muted); font-size: 14px; line-height: 1.6; }
-    .footergrid { display: grid; grid-template-columns: 1.3fr 0.85fr 0.85fr; gap: 60px; margin-bottom: 48px; }
-    .footer-col h3 { font-size: 16px; font-weight: 800; color: var(--ink); margin: 0 0 20px; }
-    .footer-links { display: flex; flex-direction: column; gap: 10px; }
-    .footer-links a { color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
     .footer-bottom { border-top: 1px solid var(--line); padding-top: 24px; display:flex; justify-content:center; align-items:center; text-align:center; font-size: 13px; color: #7d8782;}
 
     @media(max-width:992px) {
       .report-grid { grid-template-columns: 1fr; }
-      .footergrid { grid-template-columns: 1.2fr 1fr; gap: 40px; }
     }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -149,7 +144,6 @@
             <p style="margin:0; color:var(--muted); font-size:14.5px;" id="reportScoreDesc">Procesando geometría...</p>
           </div>
 
-          <!-- Listado de Problemas Reales Detectados -->
           <div id="problemsContainer"></div>
 
           <!-- Parámetros de Impresión Detallados -->
@@ -184,13 +178,6 @@
               </div>
             </div>
             <div class="param-row">
-              <span>Soportes en Cama:</span>
-              <div style="text-align:right;">
-                <strong id="pSupports">--</strong>
-                <div class="explanation-item" id="eSupports">--</div>
-              </div>
-            </div>
-            <div class="param-row">
               <span>Temperaturas (Boquilla / Cama):</span>
               <div style="text-align:right;">
                 <strong id="pTemps">--</strong>
@@ -206,7 +193,6 @@
             </div>
           </div>
 
-          <!-- Bloque de Exportación Real Directa a Laminadores -->
           <div class="download-panel">
             <h4 style="margin:0 0 16px; font-weight:800;">Exportación Real a Slicers</h4>
             
@@ -238,10 +224,6 @@
   </footer>
 
   <script>
-    function toggleMenu() { document.getElementById('mainMenu').classList.toggle('show'); }
-  </script>
-
-  <script>
     let scene, camera, renderer, controls, activeMesh;
 
     function init3DViewer(containerId, base64Data, criticalPoints) {
@@ -267,7 +249,6 @@
       controls = new THREE.OrbitControls(camera, renderer.domElement);
       controls.enableDamping = true;
 
-      // Cama de Impresión XY
       const gridHelper = new THREE.GridHelper(160, 16, 0x5e6661, 0x2e3a35);
       gridHelper.rotation.x = Math.PI / 2;
       scene.add(gridHelper);
@@ -289,7 +270,6 @@
       activeMesh = new THREE.Mesh(geometry, material);
       scene.add(activeMesh);
 
-      // Renderizar los puntos calientes de tensión mecánica sobre el visor
       if (criticalPoints && criticalPoints.length > 0) {
         criticalPoints.forEach(pt => {
           const sphereGeo = new THREE.SphereGeometry(1.2, 16, 16);
@@ -330,7 +310,6 @@
       const s = analysis.slicer_settings || {};
       const q = analysis.user_questionnaire || {};
 
-      // Mostrar Métricas de Geometría
       document.getElementById("reportFileName").textContent = "📄 " + (analysis.file_name || "Malla");
       document.getElementById("reportVolume").textContent = analysis.volume ? `${analysis.volume} cm³` : "[NO DISPONIBLE] Malla no estanca";
       document.getElementById("reportDimensions").textContent = analysis.dimensions || "[NO DISPONIBLE]";
@@ -338,7 +317,6 @@
       document.getElementById("reportThickness").textContent = s.min_thickness_mm ? `${s.min_thickness_mm} mm` : "[NO CALCULADO]";
       document.getElementById("reportOverhang").textContent = s.overhang_area_cm2 !== undefined ? `${s.overhang_area_cm2} cm²` : "0.0 cm²";
 
-      // Puntuación de Laminabilidad
       let scoreText = "ÓPTIMO";
       let scoreColor = "var(--accent)";
       let scoreDesc = "La pieza es idónea para fabricación aditiva FDM con la configuración establecida.";
@@ -357,7 +335,6 @@
       document.getElementById("reportScore").style.color = scoreColor;
       document.getElementById("reportScoreDesc").textContent = scoreDesc;
 
-      // Renderizar el contenedor de Problemas Detectados
       let problemsHtml = "";
       if (!analysis.watertight) {
         problemsHtml += `
@@ -366,7 +343,7 @@
               <h4 class="prob-title">Geometría Abierta (Agujeros en Malla)</h4>
               <span class="prob-badge" style="background:#fcebe8; color:var(--error);">No estanco</span>
             </div>
-            <p style="margin:0; font-size:14px; color:var(--muted);">El archivo posee caras abiertas o normales invertidas. Puede causar laminaciones de cáscara vacías o errores de trayectorias cerradas en el cabezal de extrusión.</p>
+            <p style="margin:0; font-size:14px; color:var(--muted);">El archivo posee caras abiertas. Puede causar laminaciones de cáscara vacías o errores de trayectorias cerradas.</p>
           </div>
         `;
       }
@@ -383,32 +360,27 @@
       }
       document.getElementById("problemsContainer").innerHTML = problemsHtml;
 
-      // Cargar Parámetros Sugeridos con su JUSTIFICACIÓN REAL
       document.getElementById("pMaterial").textContent = s.material || "--";
       document.getElementById("eMaterial").textContent = s.material_reason || "--";
 
       document.getElementById("pLayerHeight").textContent = s.layer_height ? `${s.layer_height} mm` : "--";
-      document.getElementById("eLayerHeight").textContent = `Calculado específicamente a partir de tu boquilla de ${q.nozzleSize} mm y la función '${q.partType}' para conseguir la tasa de deposición ideal.`;
+      document.getElementById("eLayerHeight").textContent = `Calculado específicamente a partir de tu boquilla de ${q.nozzleSize} mm para conseguir una tasa de deposición óptima.`;
 
       document.getElementById("pPerimeters").textContent = s.perimeters ? `${s.perimeters} perímetros` : "--";
-      document.getElementById("ePerimeters").textContent = `Elegido para la función '${q.partType}' para distribuir esfuerzos uniformes a lo largo de las capas sin fisuras.`;
+      document.getElementById("ePerimeters").textContent = `Elegido en base al espesor del modelo para garantizar suficiente rigidez y evitar vacíos.`;
 
       document.getElementById("pInfill").textContent = s.infill_density ? `${s.infill_density}% / ${s.infill_pattern}` : "--";
-      document.getElementById("eInfill").textContent = `Estructura isotrópica optimizada para resistir los concentradores de esfuerzos calculados en el interior.`;
-
-      document.getElementById("pSupports").textContent = s.supports || "--";
-      document.getElementById("eSupports").textContent = s.supports_reason || "--";
+      document.getElementById("eInfill").textContent = `Estructura giroscópica ideal para una buena distribución de esfuerzos internos.`;
 
       document.getElementById("pTemps").textContent = s.nozzle_temp ? `Boquilla: ${s.nozzle_temp} ºC / Cama: ${s.bed_temp} ºC` : "--";
-      document.getElementById("eTemps").textContent = `Valores térmicos de fusión y de base óptimos basados en tu máquina ${q.printer} y el filamento ${s.material}.`;
+      document.getElementById("eTemps").textContent = `Valores térmicos óptimos basados en tu máquina ${q.printer} y el material ${s.material}.`;
 
       document.getElementById("pSpeed").textContent = s.print_speed ? `${s.print_speed} mm/s` : "--";
-      document.getElementById("eSpeed").textContent = `Velocidad volumétrica óptima garantizada para evitar atascos de filamento basándose en los límites térmicos reales del fusor.`;
+      document.getElementById("eSpeed").textContent = `Velocidad volumétrica ajustada a los límites físicos reales del extrusor de tu impresora.`;
 
       if (analysis.optimized_base64) {
         init3DViewer("canvas3dContainer", analysis.optimized_base64, analysis.critical_points);
 
-        // Descarga del STL Orientado
         document.getElementById("downloadStlBtn").addEventListener("click", () => {
           const binary = atob(analysis.optimized_base64);
           const array = new Uint8Array(binary.length);
@@ -422,7 +394,6 @@
           URL.revokeObjectURL(url);
         });
 
-        // Descarga del perfil de laminador según selección real de software
         document.getElementById("downloadProfileBtn").addEventListener("click", () => {
           const slicer = document.getElementById("slicerSelector").value;
           let filename = "";
@@ -442,9 +413,8 @@ first_layer_temperature = ${s.nozzle_temp}
 bed_temperature = ${s.bed_temp}
 first_layer_bed_temperature = ${s.bed_temp}
 infill_speed = ${s.print_speed}
-support_material = ${s.supports && s.supports.includes('Activados') ? 1 : 0}
 `;
-          } else { # Bambu Studio y OrcaSlicer (Perfiles JSON compatibles)
+          } else {
             filename = "printlab_profile_bambu.json";
             content = JSON.stringify({
               "setting_id": "printlab_bambu_profile",
@@ -455,7 +425,6 @@ support_material = ${s.supports && s.supports.includes('Activados') ? 1 : 0}
               "sparse_infill_pattern": s.infill_pattern,
               "nozzle_temperature": s.nozzle_temp.toString(),
               "bed_temperature": s.bed_temp.toString(),
-              "enable_support": s.supports && s.supports.includes('Activados') ? true : false,
               "outer_wall_speed": s.print_speed.toString()
             }, null, 2);
           }
