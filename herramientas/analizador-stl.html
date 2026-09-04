@@ -416,7 +416,7 @@
       validateCurrentStep();
     }
 
-    // --- VISOR 3D CON AJUSTE DINÁMICO DE CAMA Y COMPROBACIÓN FÍSICA ---
+    // --- VISOR 3D CON AUTO-ORIENTACIÓN DE AJUSTE MÁXIMO EN Z ---
     let sScene, sCamera, sRenderer, sControls, sMesh, highlightRing, gridHelper, printVolumeBox;
 
     function initSelector3D() {
@@ -483,7 +483,7 @@
         sControls.update();
         
         // Verificar límites en la posición inicial por defecto
-        checkPhysicalLimits();
+        optimizeZRotationToFit();
       };
       reader.readAsArrayBuffer(window.selectedSTLFile);
 
@@ -513,16 +513,6 @@
           sMesh.position.set(0, 0, 0);
           sMesh.updateMatrixWorld(true);
 
-          const currentBbox = new THREE.Box3().setFromObject(sMesh);
-          const boxCenter = new THREE.Vector3();
-          currentBbox.getCenter(boxCenter);
-
-          // Asentar base en Z = 0 y centrar en X, Y para evitar que se desborde
-          sMesh.position.x = -boxCenter.x;
-          sMesh.position.y = -boxCenter.y;
-          sMesh.position.z = -currentBbox.min.z;
-          sMesh.updateMatrixWorld(true);
-
           if (highlightRing) sScene.remove(highlightRing);
           const ringGeo = new THREE.RingGeometry(2.5, 3.2, 32);
           const ringMat = new THREE.MeshBasicMaterial({ color: 0xb8ff3d, side: THREE.DoubleSide });
@@ -534,43 +524,83 @@
           highlightRing.position.addScaledVector(ringNormal, 0.4);
           sScene.add(highlightRing);
 
-          // Convertir matriz de rotación de 16 elementos a array 4x4 row-major
-          const te = sMesh.matrix.elements;
-          answers.transformationMatrix = [
-            [ te[0], te[4], te[8],  te[12] ],
-            [ te[1], te[5], te[9],  te[13] ],
-            [ te[2], te[6], te[10], te[14] ],
-            [ te[3], te[7], te[11], te[15] ]
-          ];
-          
-          checkPhysicalLimits();
+          // Optimizar la rotación vertical para que entre en la cama
+          optimizeZRotationToFit();
           validateCurrentStep();
         }
       }
 
-      function checkPhysicalLimits() {
-        if (!sMesh) return;
-        const currentBbox = new THREE.Box3().setFromObject(sMesh);
+      // --- ALGORITMO DE AUTO-ORIENTACIÓN EN Z ---
+      function optimizeZRotationToFit() {
+        if (!sMesh || !answers.printer) return;
+        const limits = printerLimits[answers.printer];
+        if (!limits) return;
+
+        const baseQuat = sMesh.quaternion.clone();
+        let foundFit = false;
+        let optimalAngle = 0;
+
+        // Probar rotaciones en Z en pasos de 5 grados para encontrar acomodo estable
+        for (let deg = 0; deg < 180; deg += 5) {
+          const rad = THREE.MathUtils.degToRad(deg);
+          const zRotation = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), rad);
+          const tempQuat = baseQuat.clone().premultiply(zRotation);
+          
+          sMesh.quaternion.copy(tempQuat);
+          sMesh.position.set(0, 0, 0);
+          sMesh.updateMatrixWorld(true);
+          
+          const tempBbox = new THREE.Box3().setFromObject(sMesh);
+          const tempSize = new THREE.Vector3();
+          tempBbox.getSize(tempSize);
+          
+          if (tempSize.x <= limits.x && tempSize.y <= limits.y && tempSize.z <= limits.z) {
+            foundFit = true;
+            optimalAngle = rad;
+            break;
+          }
+        }
+
+        // Aplicar la rotación Z óptima calculada (o mantener la base si no cupiera)
+        const finalZRot = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), foundFit ? optimalAngle : 0);
+        sMesh.quaternion.copy(baseQuat.clone().premultiply(finalZRot));
+        sMesh.position.set(0, 0, 0);
+        sMesh.updateMatrixWorld(true);
+
+        // Recentrar la geometría matemáticamente en la cama
+        const finalBbox = new THREE.Box3().setFromObject(sMesh);
+        const boxCenter = new THREE.Vector3();
+        finalBbox.getCenter(boxCenter);
+        
+        sMesh.position.x = -boxCenter.x;
+        sMesh.position.y = -boxCenter.y;
+        sMesh.position.z = -finalBbox.min.z;
+        sMesh.updateMatrixWorld(true);
+
+        // Comprobación final y disparo de alertas físicas
         const modelSize = new THREE.Vector3();
-        currentBbox.getSize(modelSize);
+        finalBbox.getSize(modelSize);
 
-        const activeLimits = printerLimits[answers.printer] || { x: 220, y: 220, z: 250 };
-        
-        // Comprobar desbordamientos físicos en X, Y o Z
-        const exceedsX = modelSize.x > activeLimits.x;
-        const exceedsY = modelSize.y > activeLimits.y;
-        const exceedsZ = modelSize.z > activeLimits.z;
-
+        const exceeds = modelSize.x > limits.x || modelSize.y > limits.y || modelSize.z > limits.z;
         const warningBanner = document.getElementById("limitWarningBanner");
-        
-        if (exceedsX || exceedsY || exceedsZ) {
-          sMesh.material.color.setHex(0xb42318); // Teñir pieza de rojo si excede los límites
+
+        if (exceeds) {
+          sMesh.material.color.setHex(0xb42318); // Rojo
           warningBanner.style.display = "block";
-          warningBanner.innerHTML = `⚠️ <strong>¡Límite de Impresión Excedido!</strong> La pieza orientada (${modelSize.x.toFixed(1)} x ${modelSize.y.toFixed(1)} x ${modelSize.z.toFixed(1)} mm) supera el volumen útil máximo de tu ${answers.printer} (${activeLimits.x} x ${activeLimits.y} x ${activeLimits.z} mm).`;
+          warningBanner.innerHTML = `⚠️ <strong>¡Límite de Impresión Excedido!</strong> La pieza orientada (${modelSize.x.toFixed(1)} x ${modelSize.y.toFixed(1)} x ${modelSize.z.toFixed(1)} mm) supera el volumen útil máximo de tu ${answers.printer} (${limits.x} x ${limits.y} x ${limits.z} mm) bajo cualquier rotación en Z.`;
         } else {
-          sMesh.material.color.setHex(0x90caf9); // Color azul estándar si cabe
+          sMesh.material.color.setHex(0x90caf9); // Azul estándar si cabe
           warningBanner.style.display = "none";
         }
+
+        // Convertir array plano de Three.js column-major a un array bidimensional real de 4x4 row-major
+        const te = sMesh.matrix.elements;
+        answers.transformationMatrix = [
+          [ te[0], te[4], te[8],  te[12] ],
+          [ te[1], te[5], te[9],  te[13] ],
+          [ te[2], te[6], te[10], te[14] ],
+          [ te[3], te[7], te[11], te[15] ]
+        ];
       }
 
       function animate() {
