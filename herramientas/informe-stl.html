@@ -989,38 +989,6 @@ nav{
 }
 </style>
 
-
-<style id="report-parameters-right-fix">
-/* Parámetros siempre en la columna derecha */
-.report-grid{
-  display:grid !important;
-  grid-template-columns:minmax(0, 1.08fr) minmax(360px, .92fr) !important;
-  align-items:start !important;
-  gap:28px !important;
-}
-
-/* Evita que los elementos de la columna derecha se desplacen debajo */
-.report-grid > div:last-child{
-  min-width:0 !important;
-  display:flex !important;
-  flex-direction:column !important;
-  align-self:start !important;
-}
-
-/* El buscador/listado permanece dentro de su tarjeta derecha */
-.param-box{
-  width:100% !important;
-  box-sizing:border-box !important;
-}
-
-/* En pantallas pequeñas sí vuelve a una sola columna */
-@media (max-width: 992px){
-  .report-grid{
-    grid-template-columns:1fr !important;
-  }
-}
-</style>
-
 </head>
 <body>
 
@@ -1085,9 +1053,15 @@ nav{
             <div class="param-row"><span>Grosor de pared local mínimo:</span> <strong id="reportThickness">Calculando...</strong></div>
             <div class="param-row"><span>Área física de voladizo crítico:</span> <strong id="reportOverhang">Calculando...</strong></div>
           </div>
-          <div id="purposeConclusionBox" style="display:none;"></div>
 
-<!-- SECCIÓN 3, 4 & 5: PROBLEMAS Y PARÁMETROS ORCASLICER COMPLETOS -->
+          <!-- Tarjeta de Conclusiones de Propósito (Blanco hueso suave) -->
+          <div style="margin-top:24px; padding:24px; background:#fbfbf9; border:1.5px solid #d3d3cf; border-radius:20px;">
+            <h4 style="margin:0 0 12px; font-weight:800; color: #32322c;">Propósito del Laminado</h4>
+            <div id="purposeConclusionBox" style="font-size: 14px; line-height:1.5; color: var(--muted);"></div>
+          </div>
+        </div>
+
+        <!-- SECCIÓN 3, 4 & 5: PROBLEMAS Y PARÁMETROS ORCASLICER COMPLETOS -->
         <div>
           <div class="score-card">
             <p class="score-title">Laminabilidad Global</p>
