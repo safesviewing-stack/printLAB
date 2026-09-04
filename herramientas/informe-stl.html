@@ -140,6 +140,101 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../assets/js/auth-helper.js?v=11"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+<style id="printlab-report-theme">
+/* ===== PrintLab Report — misma línea visual que el Analizador STL ===== */
+:root{
+  --bg:#f6f7f4;--card:#fff;--ink:#0d1110;--muted:#5e6661;--line:#dfe4df;
+  --accent:#b8ff3d;--dark:#111715;--max:1200px;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:"Plus Jakarta Sans",sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+button,input,textarea,select{font-family:inherit}
+.wrap{max-width:var(--max);margin:auto;padding:0 40px}
+
+/* Cabecera */
+.top{background:rgba(246,247,244,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+nav{min-height:95px}
+.brand{font-size:26px;font-weight:800;letter-spacing:-1px}
+.brand span{background:var(--accent);padding:5px 12px;border-radius:10px;margin-left:6px;color:var(--ink)}
+.dropdown-content{border:1.5px solid var(--line);border-radius:16px;box-shadow:0 20px 40px rgba(0,0,0,.10);padding:12px 0}
+.dropdown-content a{padding:14px 24px;font-weight:700}
+.dropdown-content a:hover{background:var(--bg);color:var(--ink)}
+.btn-auth{border-radius:9999px!important;font-weight:800!important;box-shadow:0 3px 0 var(--ink)!important}
+.btn-auth.green{background:var(--accent)!important;color:var(--ink)!important}
+
+/* Título */
+.tool-header{padding:56px 0 24px;margin-bottom:8px;border-bottom:1px solid var(--line)}
+.tool-header h1{font-size:clamp(32px,4.5vw,54px);letter-spacing:-.035em;line-height:1.05;margin:0 0 12px;font-weight:800}
+.tool-header p{font-size:17px;color:var(--muted);max-width:900px;margin:0;line-height:1.55}
+
+/* Distribución principal */
+.report-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px;padding:28px 0 70px;align-items:start}
+
+/* Visor */
+.mesh-comparison{background:var(--dark);border-radius:22px;padding:22px;color:#fff;gap:16px;box-shadow:0 12px 30px rgba(13,17,16,.12)}
+.mesh-canvas{height:420px;background:#161d1a;border-radius:16px;border:1px dashed #34413b}
+
+/* Tarjetas */
+.score-card,.param-box,.download-panel{background:var(--card);border:1.5px solid var(--line);border-radius:20px;box-shadow:0 4px 14px rgba(13,17,16,.035)}
+.score-card{padding:26px;margin-bottom:18px}
+.score-title,.param-title{font-size:12px;text-transform:uppercase;font-weight:800;color:var(--muted);letter-spacing:.03em}
+.score-value{font-size:34px;font-weight:800;line-height:1.15;letter-spacing:-1px;margin:6px 0 8px}
+
+/* Geometría: se mantiene como bloque diferenciado, pero con estética PrintLab */
+.geom-card{background:#fff;border:1.5px solid var(--line);border-radius:20px;padding:24px;margin-top:20px;box-shadow:0 4px 14px rgba(13,17,16,.035)}
+.geom-card h4{color:var(--ink);font-size:16px;margin:0 0 14px;font-weight:800}
+.param-row{padding:10px 12px;margin-bottom:3px;border-radius:10px;font-size:13px}
+.param-row:nth-child(even){background:#f8f9f7}
+.param-row:hover{background:rgba(184,255,61,.12)}
+.param-row strong{font-weight:800}
+
+/* Propósito */
+#purposeConclusionBox{font-size:13.5px;line-height:1.55}
+
+/* Problemas generados dinámicamente */
+.prob-card{background:var(--card);border:1.5px solid var(--line);border-radius:18px;padding:20px;margin-bottom:14px;box-shadow:0 3px 10px rgba(13,17,16,.025)}
+.prob-header{margin-bottom:10px}
+.prob-title{font-size:16px}
+.prob-badge{border-radius:999px;padding:5px 10px}
+
+/* Parámetros */
+.param-box{padding:26px!important;margin-top:18px}
+#paramSearch{background:#f6f7f4!important;border:1.5px solid var(--line)!important;border-radius:999px!important;padding:13px 17px!important;transition:.15s ease}
+#paramSearch:focus{background:#fff!important;border-color:var(--ink)!important;box-shadow:0 0 0 3px rgba(184,255,61,.18)}
+.scrollable-params-container{max-height:360px;border:1.5px solid var(--line);border-radius:14px;background:#fbfcfa;padding:8px}
+
+/* Exportación */
+.download-panel{padding:26px;margin-top:18px}
+.btn-download-stl{width:100%;border-radius:9999px!important;padding:16px 22px!important;background:var(--accent)!important;color:var(--ink)!important;border:2px solid var(--ink)!important;box-shadow:0 4px 0 var(--ink);transition:transform .15s,box-shadow .15s}
+.btn-download-stl:hover{transform:translateY(-1px);box-shadow:0 6px 0 var(--ink)}
+
+/* Sin sesión */
+.no-session-card{background:var(--card);border:1.5px solid var(--line);border-radius:24px;box-shadow:0 8px 24px rgba(13,17,16,.035)}
+
+/* Footer */
+.footer{background:var(--bg);border-top:1px solid var(--line);padding:70px 0 38px}
+.footer-bottom{border-top:1px solid var(--line);padding-top:24px}
+
+@media(max-width:992px){
+  .report-grid{grid-template-columns:1fr;gap:24px}
+}
+@media(max-width:768px){
+  .wrap{padding:0 20px}
+  nav{min-height:82px}
+  .brand{font-size:23px}
+  .tool-header{padding-top:40px}
+  .tool-header h1{font-size:36px}
+  .mesh-canvas{height:360px}
+  .report-grid{padding-top:20px}
+}
+@media(max-width:480px){
+  .mesh-comparison{padding:16px;border-radius:18px}
+  .mesh-canvas{height:320px}
+  .score-card,.param-box,.download-panel,.geom-card{padding:20px!important}
+}
+</style>
+
 </head>
 <body>
 
