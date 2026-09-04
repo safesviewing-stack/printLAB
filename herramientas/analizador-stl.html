@@ -182,7 +182,7 @@
 
       <!-- PREGUNTA 1: TIPO DE BOQUILLA -->
       <div class="wizard-step" id="step-nozzle">
-        <div class="step-title"><span>¿Qué diámetro de boquilla utilizas?</span> <span style="font-size:14px; color:var(--muted);">1 / 4</span></div>
+        <div class="step-title"><span>¿Qué diámetro de boquilla utilizas?</span> <span style="font-size:14px; color:var(--muted);">1 / 5</span></div>
         <div class="step-subtitle">Afectará la resolución de detalles y las directrices de espesor de pared.</div>
         <div class="option-grid">
           <div class="option-card" data-val="0.2" onclick="selectCard(this, 'nozzleSize')">
@@ -210,7 +210,7 @@
 
       <!-- PREGUNTA 2: TIPO DE MATERIAL -->
       <div class="wizard-step" id="step-material">
-        <div class="step-title"><span>¿Qué tipo de material utilizarás?</span> <span style="font-size:14px; color:var(--muted);">2 / 4</span></div>
+        <div class="step-title"><span>¿Qué tipo de material utilizarás?</span> <span style="font-size:14px; color:var(--muted);">2 / 5</span></div>
         <div class="step-subtitle">Determina directamente los perfiles térmicos y dinámicos del laminador.</div>
         <div class="option-grid">
           <div class="option-card" data-val="PLA" onclick="selectCard(this, 'material')">
@@ -248,7 +248,7 @@
 
       <!-- PREGUNTA 3: SELECCIÓN DE IMPRESORA -->
       <div class="wizard-step" id="step-printer">
-        <div class="step-title"><span>¿Qué impresora 3D utilizarás?</span> <span style="font-size:14px; color:var(--muted);">3 / 4</span></div>
+        <div class="step-title"><span>¿Qué impresora 3D utilizarás?</span> <span style="font-size:14px; color:var(--muted);">3 / 5</span></div>
         <div class="step-subtitle">Determinará los límites físicos reales de volumen y velocidades.</div>
         
         <div class="form-group" style="width:100%; margin-top:10px;">
@@ -284,19 +284,35 @@
         </div>
       </div>
 
+      <!-- PREGUNTA 4: PROPÓSITO DE LA PIEZA -->
+      <div class="wizard-step" id="step-purpose">
+        <div class="step-title"><span>¿Cuál es el propósito principal de esta pieza?</span> <span style="font-size:14px; color:var(--muted);">4 / 5</span></div>
+        <div class="step-subtitle">Determinará el espesor de capa, perímetros, densidad y patrón de relleno para optimizar acabado o resistencia mecánica.</div>
+        <div class="option-grid">
+          <div class="option-card" data-val="aesthetic" onclick="selectCard(this, 'purpose')">
+            <span class="emoji">🎨</span>
+            <span class="option-card-title">Estética / Visual</span>
+            <span class="option-card-desc">Prioriza la calidad de capa fina, el flujo controlado de detalle y el ahorro de filamento interno. Patrones rápidos como lightning.</span>
+          </div>
+          <div class="option-card" data-val="functional" onclick="selectCard(this, 'purpose')">
+            <span class="emoji">⚙️</span>
+            <span class="option-card-title">Funcional / Mecánica</span>
+            <span class="option-card-desc">Prioriza la rigidez del plano XY y la cohesión de capas. Más perímetros robustos, mayor densidad de relleno tridimensional y temperaturas altas.</span>
+          </div>
+        </div>
+      </div>
+
       <!-- VISOR 3D: SELECCIÓN DE SUPERFICIE DE APOYO -->
       <div class="wizard-step" id="step-viewer">
-        <div class="step-title"><span>Orientación Interactiva</span> <span style="font-size:14px; color:var(--muted);">4 / 4</span></div>
+        <div class="step-title"><span>Orientación Interactiva</span> <span style="font-size:14px; color:var(--muted);">5 / 5</span></div>
         <div class="step-subtitle" style="color:var(--ink); font-weight:700; margin-bottom:12px;">Haz clic sobre la superficie que quieres apoyar en la cama.</div>
         
-        <!-- Botón de Auto-Orientación sobre la cara seleccionada -->
         <div style="margin-bottom:14px;">
           <button type="button" onclick="autoOrientZToFit()" style="background:var(--accent); color:var(--ink); border:2px solid var(--ink); padding:10px 22px; border-radius:12px; font-weight:800; cursor:pointer; font-size:13.5px; box-shadow:0 3px 0 var(--ink); display: inline-flex; align-items:center; gap:8px;">
             🤖 Girar pieza para ajustar a la cama
           </button>
         </div>
 
-        <!-- Banner dinámico para advertir si sobrepasa los límites reales con botón de autocorrección -->
         <div id="limitWarningBanner" style="display:none; background:#fcebe8; border:1.5px solid var(--error); color:#9e3223; padding:16px; border-radius:12px; font-size:13.5px; font-weight:700; margin-bottom:12px; line-height:1.4; text-align:center;"></div>
         
         <div id="selector3dContainer" style="width:100%; height:380px; background:#161d1a; border-radius:16px; position:relative; overflow:hidden; border:2px solid var(--line); margin-bottom:12px;"></div>
@@ -328,6 +344,7 @@
       nozzleSize: "",
       material: "",
       printer: "",
+      purpose: "", 
       selectedSupportFace: null,
       supportFaceNormal: null,
       transformationMatrix: null
@@ -338,6 +355,7 @@
       "step-nozzle",
       "step-material",
       "step-printer",
+      "step-purpose",
       "step-viewer"
     ];
     let currentStepIdx = 0;
@@ -382,7 +400,8 @@
       else if (currentStepIdx === 1) isValid = answers.nozzleSize !== "";
       else if (currentStepIdx === 2) isValid = answers.material !== "";
       else if (currentStepIdx === 3) isValid = answers.printer !== "";
-      else if (currentStepIdx === 4) isValid = answers.selectedSupportFace !== null;
+      else if (currentStepIdx === 4) isValid = answers.purpose !== "";
+      else if (currentStepIdx === 5) isValid = answers.selectedSupportFace !== null;
 
       nextBtn.disabled = !isValid;
     }
@@ -416,14 +435,13 @@
       document.getElementById("prevBtn").style.visibility = currentStepIdx === 0 ? "hidden" : "visible";
       document.getElementById("nextBtn").textContent = currentStepIdx === steps.length - 1 ? "Iniciar Análisis Real" : "Siguiente";
 
-      if (currentStepIdx === 4) {
+      if (currentStepIdx === 5) {
         initSelector3D();
       }
 
       validateCurrentStep();
     }
 
-    // --- VISOR 3D CON CORRECCIÓN AUTOMÁTICA DE AJUSTE EN Z ---
     let sScene, sCamera, sRenderer, sControls, sMesh, highlightRing, gridHelper, printVolumeBox;
 
     function disposeRendererAndScene() {
@@ -640,7 +658,6 @@
         ];
       }
 
-      // --- ALGORITMO EXCLUSIVO COARSE-TO-FINE (360º OPTIMIZADO) ---
       window.autoOrientZToFit = function() {
         if (!sMesh || !answers.printer) {
           alert("Por favor, selecciona primero tu impresora 3D.");
@@ -666,7 +683,6 @@
         let bestMargin = -1;
         let foundFit = false;
 
-        // PASO 1: Búsqueda gruesa (Cada 10 grados - 36 iteraciones)
         let candidates = [];
         for (let deg = 0; deg < 360; deg += 10) {
           const rad = THREE.MathUtils.degToRad(deg);
@@ -689,7 +705,6 @@
           }
         }
 
-        // PASO 2: Búsqueda fina selectiva si encontramos candidatos gruesos (20 iteraciones)
         if (candidates.length > 0) {
           foundFit = true;
           candidates.sort((a, b) => b.minMargin - a.minMargin);
@@ -822,7 +837,6 @@
       animate();
     }
 
-    // --- MOTOR GEOMÉTRICO LOCAL (JS) DE SEGURIDAD ---
     function checkIsWatertight(geometry) {
       const pos = geometry.attributes.position;
       const index = geometry.index;
@@ -913,7 +927,7 @@
         const x3 = pos.getX(i3), y3 = pos.getY(i3), z3 = pos.getZ(i3);
         const ax = x2 - x1, ay = y2 - y1, az = z2 - z1;
         const bx = x3 - x1, by = y3 - y1, bz = z3 - z1;
-        const nx = ay*bz - az*by, ny = az*bx - ax*bz, nz = ax*by - ay*bx;
+        const nx = ay*bz - az*by, ny = az*bx - ax*bz, nz = az*by - ay*bx;
         const len = Math.sqrt(nx*nx + ny*ny + nz*nz);
         const nnx = len ? nx/len : 0, nny = len ? ny/len : 0, nnz = len ? nz/len : 1;
         
@@ -1068,13 +1082,13 @@
               material: answers.material || "PLA",
               nozzle_temperature: answers.material === "PLA" ? 215 : (answers.material === "ABS" || answers.material === "ASA" ? 255 : (answers.material === "TPU" ? 225 : 240)),
               hot_plate_temp: answers.material === "PLA" ? 60 : (answers.material === "ABS" || answers.material === "ASA" ? 100 : (answers.material === "TPU" ? 50 : 80)),
-              layer_height: parseFloat(answers.nozzleSize) * 0.5,
+              layer_height: parseFloat(answers.nozzleSize) * (answers.purpose === "aesthetic" ? 0.3 : 0.5),
               initial_layer_print_height: 0.2,
-              wall_loops: answers.material === "PLA" || answers.material === "PETG" ? 3 : 4,
-              sparse_infill_density: 20,
-              sparse_infill_pattern: "giroide",
-              outer_wall_speed: 100,
-              inner_wall_speed: 140,
+              wall_loops: answers.purpose === "aesthetic" ? 2 : 5,
+              sparse_infill_density: answers.purpose === "aesthetic" ? 12 : 40,
+              sparse_infill_pattern: answers.purpose === "aesthetic" ? "lightning" : "giroide",
+              outer_wall_speed: answers.purpose === "aesthetic" ? 40 : 80,
+              inner_wall_speed: answers.purpose === "aesthetic" ? 60 : 100,
               travel_speed: 200,
               enable_support: overhangLocal > 0.5,
               support_type: overhangLocal > 0.5 ? "normal" : "none",
