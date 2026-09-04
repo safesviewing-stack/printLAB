@@ -840,31 +840,54 @@ main.wrap{min-height:calc(100vh - 95px)}
 
       function evaluateYaw(search, rad, limits) {
         const m = measureHullAtYaw(search.hull, rad);
-
-        // La cama puede recibir la pieza en cualquier XY. Por tanto,
-        // si la anchura y profundidad proyectadas son menores que la cama,
-        // SIEMPRE existe una traslación XY válida.
         const tolerance = 0.001;
 
-        const fitsXY =
-          m.width <= limits.x + tolerance &&
-          m.depth <= limits.y + tolerance;
+        // Para esta orientación, cualquier traslación X/Y que cumpla:
+        //
+        //   bedMinX <= minX + tx  &&  maxX + tx <= bedMaxX
+        //   bedMinY <= minY + ty  &&  maxY + ty <= bedMaxY
+        //
+        // es válida. Por tanto calculamos TODO el intervalo continuo de
+        // posiciones X/Y posibles, en vez de asumir que hay que centrar.
+        const bedMinX = -limits.x / 2;
+        const bedMaxX =  limits.x / 2;
+        const bedMinY = -limits.y / 2;
+        const bedMaxY =  limits.y / 2;
 
-        // La posición XY no se discretiza: si la envolvente proyectada cabe
-        // en la cama, existe una traslación continua que la coloca dentro
-        // del cubo centrado en el origen.
+        const xMin = bedMinX - m.minX;
+        const xMax = bedMaxX - m.maxX;
+        const yMin = bedMinY - m.minY;
+        const yMax = bedMaxY - m.maxY;
+
+        const fitsXY =
+          xMin <= xMax + tolerance &&
+          yMin <= yMax + tolerance;
 
         const fitsZ = search.height <= limits.z + tolerance;
 
+        // Elegimos la posición con máximo margen a los cuatro bordes.
+        // No es "centrar por obligación": es el mejor punto dentro del
+        // intervalo completo de traslaciones permitidas.
+        const tx = (xMin + xMax) / 2;
+        const ty = (yMin + yMax) / 2;
+
+        const marginX = Math.min(
+          tx + m.minX - bedMinX,
+          bedMaxX - (tx + m.maxX)
+        );
+        const marginY = Math.min(
+          ty + m.minY - bedMinY,
+          bedMaxY - (ty + m.maxY)
+        );
+
         return {
           ...m,
+          xMin, xMax, yMin, yMax,
+          tx, ty,
           fits: fitsXY && fitsZ,
-          margin: Math.min(
-            limits.x - m.width,
-            limits.y - m.depth,
-            limits.z - search.height
-          ),
+          margin: Math.min(marginX, marginY, limits.z - search.height),
           excess: Math.max(
+            0,
             m.width - limits.x,
             m.depth - limits.y,
             search.height - limits.z
@@ -872,61 +895,44 @@ main.wrap{min-height:calc(100vh - 95px)}
         };
       }
 
-      function finalizeAutomaticOrientation(baseQuat, bestAngle, search, limits, foundFit) {
-        // Aplicación final: primero base elegida, después yaw.
+      function finalizeAutomaticOrientation(baseQuat, bestAngle, bestEval, search, limits, foundFit) {
+        // ============================================================
+        // APLICACIÓN DE LOS 3 GRADOS DE MOVIMIENTO:
+        //
+        // 1) Rotación alrededor de la normal de la superficie seleccionada.
+        // 2) Traslación X dentro del intervalo válido para ese ángulo.
+        // 3) Traslación Y dentro del intervalo válido para ese ángulo.
+        //
+        // Z NO es un grado de libertad: la superficie elegida permanece
+        // apoyada en Z=0.
+        // ============================================================
         const yaw = new THREE.Quaternion().setFromAxisAngle(
           new THREE.Vector3(0, 0, 1),
           bestAngle
         );
+
         sMesh.quaternion.copy(yaw.multiply(baseQuat.clone()));
         sMesh.updateMatrixWorld(true);
 
-        // Z queda determinado EXCLUSIVAMENTE por la superficie seleccionada.
+        // Primero apoyamos exactamente la superficie seleccionada.
         const supportPoint = getSupportPointLocal().applyQuaternion(sMesh.quaternion);
-        sMesh.position.set(-supportPoint.x, -supportPoint.y, -supportPoint.z);
+        sMesh.position.set(0, 0, -supportPoint.z);
         sMesh.updateMatrixWorld(true);
 
-        // ============================================================
-        // COORDENADAS REALES DEL CUBO VISIBLE
-        //
-        // El cubo de impresión está centrado en X=0,Y=0:
-        //   X = [-limits.x/2, +limits.x/2]
-        //   Y = [-limits.y/2, +limits.y/2]
-        //   Z = [0, limits.z]
-        //
-        // Antes se desplazaba la pieza al intervalo [0, limits], pero
-        // el cubo visible está centrado en el origen. Esto hacía que una
-        // pieza perfectamente válida apareciera fuera del cubo.
-        // ============================================================
-        const bbox = new THREE.Box3().setFromObject(sMesh);
-
-        // Primero garantizamos que la cara elegida siga apoyada sobre Z=0.
-        // Solo se permite corregir el pequeño error numérico de la malla.
-        sMesh.position.z -= bbox.min.z;
-        sMesh.updateMatrixWorld(true);
-
-        const bedMinX = -limits.x / 2;
-        const bedMaxX =  limits.x / 2;
-        const bedMinY = -limits.y / 2;
-        const bedMaxY =  limits.y / 2;
-
-        const placedBox = new THREE.Box3().setFromObject(sMesh);
-
-        // La traslación XY es libre. En vez de asumir una posición,
-        // calculamos una posición que queda EXACTAMENTE dentro del cubo.
-        const placedCenterX = (placedBox.min.x + placedBox.max.x) / 2;
-        const placedCenterY = (placedBox.min.y + placedBox.max.y) / 2;
-
-        sMesh.position.x += -placedCenterX;
-        sMesh.position.y += -placedCenterY;
+        // Aplicamos las dos traslaciones óptimas calculadas para ESTE ángulo.
+        sMesh.position.x += bestEval.tx;
+        sMesh.position.y += bestEval.ty;
         sMesh.updateMatrixWorld(true);
 
         const finalBox = new THREE.Box3().setFromObject(sMesh);
         const finalSize = finalBox.getSize(new THREE.Vector3());
 
-        // Comprobación final en el MISMO sistema de coordenadas que el
-        // cubo que se ve en pantalla.
+        const bedMinX = -limits.x / 2;
+        const bedMaxX =  limits.x / 2;
+        const bedMinY = -limits.y / 2;
+        const bedMaxY =  limits.y / 2;
         const eps = 0.001;
+
         const finalFits =
           finalBox.min.x >= bedMinX - eps &&
           finalBox.max.x <= bedMaxX + eps &&
@@ -949,18 +955,29 @@ main.wrap{min-height:calc(100vh - 95px)}
             "background:#eef2ee;border:1.5px solid #2e7d32;color:#2e7d32;padding:12px;border-radius:10px;font-size:13.5px;font-weight:700;margin-bottom:12px;line-height:1.4;text-align:center;";
 
           const angleDeg = THREE.MathUtils.radToDeg(bestAngle);
-          const marginX = limits.x - finalSize.x;
-          const marginY = limits.y - finalSize.y;
-          const marginZ = limits.z - finalSize.z;
+          const marginX = Math.min(
+            finalBox.min.x - bedMinX,
+            bedMaxX - finalBox.max.x
+          );
+          const marginY = Math.min(
+            finalBox.min.y - bedMinY,
+            bedMaxY - finalBox.max.y
+          );
+          const marginZ = Math.min(
+            finalBox.min.z,
+            limits.z - finalBox.max.z
+          );
           const minMargin = Math.min(marginX, marginY, marginZ);
 
           successBanner.innerHTML =
-            `✓ <strong>Orientación encontrada.</strong> Se han comprobado ` +
-            `<strong>180.000 posiciones angulares</strong> a 0,001°. ` +
+            `✓ <strong>Posición encontrada dentro del cubo.</strong> ` +
+            `Se han comprobado <strong>180.000 ángulos</strong> a 0,001°. ` +
             `Ángulo: <strong>${angleDeg.toFixed(3)}°</strong>. ` +
+            `Movimiento X: <strong>${sMesh.position.x.toFixed(3)} mm</strong>, ` +
+            `Y: <strong>${sMesh.position.y.toFixed(3)} mm</strong>. ` +
             `Tamaño: <strong>${finalSize.x.toFixed(3)} × ${finalSize.y.toFixed(3)} × ${finalSize.z.toFixed(3)} mm</strong>. ` +
             `Margen mínimo: <strong>${minMargin.toFixed(3)} mm</strong>. ` +
-            `<br>La superficie de apoyo seleccionada se mantiene sobre Z=0 y la pieza queda dentro del cubo de impresión.`;
+            `<br>La superficie seleccionada permanece apoyada sobre Z=0.`;
 
           warningBanner.parentNode.insertBefore(successBanner, warningBanner);
         } else {
@@ -968,9 +985,9 @@ main.wrap{min-height:calc(100vh - 95px)}
           warningBanner.style.display = "block";
           warningBanner.innerHTML =
             `<div style="margin-bottom:10px;">` +
-            `⚠️ <strong>No existe una posición válida</strong> manteniendo exactamente ` +
-            `la superficie seleccionada como base. ` +
-            `Mejor posición encontrada: <strong>${finalSize.x.toFixed(3)} × ${finalSize.y.toFixed(3)} × ${finalSize.z.toFixed(3)} mm</strong>. ` +
+            `⚠️ <strong>No se ha encontrado una posición válida</strong> ` +
+            `manteniendo la superficie seleccionada como base. ` +
+            `Mejor posición: <strong>${finalSize.x.toFixed(3)} × ${finalSize.y.toFixed(3)} × ${finalSize.z.toFixed(3)} mm</strong>. ` +
             `Cama: <strong>${limits.x} × ${limits.y} × ${limits.z} mm</strong>.` +
             `</div>`;
 
@@ -997,13 +1014,23 @@ main.wrap{min-height:calc(100vh - 95px)}
           positions_checked: 180000,
           base_face_index: answers.selectedSupportFace,
           base_kept_on_bed: true,
+          x_mm: Number(sMesh.position.x.toFixed(3)),
+          y_mm: Number(sMesh.position.y.toFixed(3)),
+          allowed_x_range_mm: [
+            Number(bestEval.xMin.toFixed(3)),
+            Number(bestEval.xMax.toFixed(3))
+          ],
+          allowed_y_range_mm: [
+            Number(bestEval.yMin.toFixed(3)),
+            Number(bestEval.yMax.toFixed(3))
+          ],
           final_size_mm: {
             x: Number(finalSize.x.toFixed(3)),
             y: Number(finalSize.y.toFixed(3)),
             z: Number(finalSize.z.toFixed(3))
           }
         };
-      }
+      };
 
       window.autoOrientZToFit = function() {
         if (!sMesh || !answers.printer) {
@@ -1026,8 +1053,6 @@ main.wrap{min-height:calc(100vh - 95px)}
         const limits = printerLimits[answers.printer];
         if (!limits) return;
 
-        // Fijamos la cara seleccionada. Su normal queda perpendicular a la
-        // cama y su plano queda exactamente en Z=0.
         const localNormal = new THREE.Vector3(
           answers.supportFaceNormal[0],
           answers.supportFaceNormal[1],
@@ -1039,18 +1064,27 @@ main.wrap{min-height:calc(100vh - 95px)}
           new THREE.Vector3(0, 0, -1)
         );
 
-        // NO se usa la orientación previa del visor.
-        // La búsqueda parte siempre de la cara elegida.
+        // Construimos la geometría de búsqueda una sola vez.
+        // Después cada candidato solo necesita proyectar la envolvente
+        // sobre X/Y y calcular el intervalo completo de traslaciones.
         const search = buildSearchData(baseQuat);
 
         let bestAngle = 0;
+        let bestEval = null;
         let bestMargin = -Infinity;
         let bestViolation = Infinity;
         let foundFit = false;
 
         // ============================================================
-        // BÚSQUEDA EXHAUSTIVA: 0,000° ... 179,999°
-        // No hay muestreo previo de 0,01° que pueda saltarse una ventana.
+        // BÚSQUEDA DE LOS 3 MOVIMIENTOS
+        //
+        // Para cada uno de los 180.000 ángulos, se calculan
+        // matemáticamente TODAS las traslaciones X/Y que mantienen la
+        // pieza dentro del cubo.
+        //
+        // No se hace una cuadrícula X/Y porque sería innecesariamente
+        // discreta: X e Y son continuos y sus intervalos válidos se
+        // calculan exactamente a partir de los extremos de la pieza.
         // ============================================================
         for (let i = 0; i < 180000; i++) {
           const rad = THREE.MathUtils.degToRad(i * 0.001);
@@ -1061,16 +1095,19 @@ main.wrap{min-height:calc(100vh - 95px)}
               foundFit = true;
               bestMargin = result.margin;
               bestAngle = rad;
+              bestEval = result;
             }
           } else if (!foundFit && result.excess < bestViolation) {
             bestViolation = result.excess;
             bestAngle = rad;
+            bestEval = result;
           }
         }
 
         finalizeAutomaticOrientation(
           baseQuat,
           bestAngle,
+          bestEval,
           search,
           limits,
           foundFit
