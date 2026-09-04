@@ -51,6 +51,7 @@
     .prob-card{background:var(--card); border:1.5px solid var(--line); border-radius:16px; padding:24px; margin-bottom: 20px;}
     .prob-card.err{border-color:var(--error); border-left:6px solid var(--error);}
     .prob-card.warn{border-color:var(--warning); border-left:6px solid var(--warning);}
+    .prob-card.warn{border-color:var(--warning); border-left:6px solid var(--warning);}
     .prob-header{display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;}
     .prob-title{font-size:18px; font-weight:800; margin:0;}
     .prob-badge{font-size:11px; font-weight:800; padding:4px 10px; border-radius:6px; text-transform:uppercase;}
@@ -58,14 +59,14 @@
     .param-box{background:var(--card); border:1.5px solid var(--line); border-radius:16px; padding:24px; margin-bottom: 20px;}
     .param-title{font-size:14px; text-transform:uppercase; font-weight:800; color:var(--muted); margin-bottom: 12px;}
     
-    /* Contenedor ultra compacto con barra de scroll interna */
+    /* Contenedor compacto con barra de scroll interna */
     .scrollable-params-container {
       max-height: 320px;
       overflow-y: auto;
       padding: 6px;
       border: 1.5px solid var(--line);
       border-radius: 10px;
-      background: #fafafa;
+      background: #fbfbfc;
     }
     .scrollable-params-container::-webkit-scrollbar {
       width: 6px;
@@ -74,25 +75,25 @@
       background: transparent;
     }
     .scrollable-params-container::-webkit-scrollbar-thumb {
-      background: #cccfc9;
+      background: #d1d5db;
       border-radius: 3px;
     }
     .scrollable-params-container::-webkit-scrollbar-thumb:hover {
-      background: #abb0a7;
+      background: #9ca3af;
     }
 
     .param-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 5px 8px;
+      padding: 6px 10px;
       margin-bottom: 2px;
       font-size: 13px;
-      border-radius: 5px;
+      border-radius: 6px;
       transition: background 0.15s ease;
     }
     .param-row:nth-child(even) {
-      background: rgba(0, 0, 0, 0.02);
+      background: rgba(0, 0, 0, 0.025);
     }
     .param-row:hover {
       background: rgba(184, 255, 61, 0.12);
@@ -277,9 +278,9 @@
         { key: "slice_closing_radius", label: "Radio de cierre de rebanado", unit: "mm" }
       ],
       "Fuerza y Estructura": [
-        { key: "wall_loops", label: "Bucles de pared (Perímetros)" },
-        { key: "top_shell_layers", label: "Capas de caparazón superior" },
-        { key: "bottom_shell_layers", label: "Capas de caparazón inferior" },
+        { key: "wall_loops", label: "Bucles de pared (Perímetros)", unit: "bucles" },
+        { key: "top_shell_layers", label: "Capas de caparazón superior", unit: "capas" },
+        { key: "bottom_shell_layers", label: "Capas de caparazón inferior", unit: "capas" },
         { key: "top_shell_thickness", label: "Espesor de caparazón superior", unit: "mm" },
         { key: "bottom_shell_thickness", label: "Espesor de caparazón inferior", unit: "mm" },
         { key: "sparse_infill_density", label: "Densidad de relleno de esparcido", unit: "%" },
@@ -289,7 +290,7 @@
         { key: "infill_direction", label: "Dirección de relleno", unit: "º" },
         { key: "sparse_infill_line_distance", label: "Distancia entre líneas de relleno", unit: "mm" },
         { key: "infill_combination", label: "Combinación de relleno" },
-        { key: "infill_solid_every", label: "Relleno sólido cada N capas" },
+        { key: "infill_solid_every", label: "Relleno sólido cada N capas", unit: "capas" },
         { key: "infill_anchor", label: "Anclaje del relleno", unit: "mm" },
         { key: "infill_anchor_max", label: "Anclaje máximo del relleno", unit: "mm" }
       ],
@@ -362,7 +363,7 @@
         { key: "support_on_build_plate_only", label: "Soporte solo en la cama" },
         { key: "support_top_z_distance", label: "Distancia Z superior de soporte", unit: "mm" },
         { key: "support_bottom_z_distance", label: "Distancia Z inferior de soporte", unit: "mm" },
-        { key: "support_interface_layers", label: "Capas de interfaz de soporte" },
+        { key: "support_interface_layers", label: "Capas de interfaz de soporte", unit: "capas" },
         { key: "support_interface_spacing", label: "Espaciado de interfaz", unit: "mm" },
         { key: "support_interface_speed", label: "Velocidad de interfaz", unit: "%" },
         { key: "support_base_pattern", label: "Patrón de base de soporte" },
@@ -370,7 +371,7 @@
         { key: "brim_type", label: "Tipo de visera" },
         { key: "brim_width", label: "Ancho de visera", unit: "mm" },
         { key: "brim_object_gap", label: "Espacio entre visera y objeto", unit: "mm" },
-        { key: "skirt_loops", label: "Bucles de falda" },
+        { key: "skirt_loops", label: "Bucles de falda", unit: "bucles" },
         { key: "skirt_distance", label: "Distancia de falda", unit: "mm" },
         { key: "skirt_height", label: "Altura de falda", unit: "capas" }
       ]
@@ -726,9 +727,21 @@
             const content = await zip.generateAsync({ type: "blob" });
             const url = URL.createObjectURL(content);
 
+            // --- GENERACIÓN DE NOMBRE DE PROYECTO COMERCIAL Y LIMPIO ---
+            const rawName = analysis.file_name || "Modelo";
+            // Limpia extensiones como .stl o .obj
+            let cleanName = rawName.replace(/\.[^/.]+$/, "");
+            // Remueve etiquetas del navegador de descargas múltiples tipo (1), (2), _1, _2
+            cleanName = cleanName.replace(/\s*\(\d+\)/g, "").replace(/_\d+$/g, "");
+            // Formatea espacios por guiones bajos
+            cleanName = cleanName.trim().replace(/\s+/g, "_");
+
+            const mat = (s.material || "PLA").toUpperCase();
+            const purp = (q.purpose || "aesthetic") === "aesthetic" ? "Estetico" : "Estructural";
+
             const a = document.createElement("a");
             a.href = url;
-            a.download = (analysis.file_name || "project").replace(/\.[^/.]+$/, "") + ".project.3mf";
+            a.download = `PrintLab_${cleanName}_${mat}_${purp}.3mf`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
