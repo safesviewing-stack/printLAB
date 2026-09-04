@@ -299,6 +299,16 @@
             <span class="option-card-title">Funcional / Mecánica</span>
             <span class="option-card-desc">Prioriza la rigidez del plano XY y la cohesión de capas. Más perímetros robustos, mayor densidad de relleno tridimensional y temperaturas altas.</span>
           </div>
+          <div class="option-card" data-val="speed" onclick="selectCard(this, 'purpose')">
+            <span class="emoji">⚡</span>
+            <span class="option-card-title">Velocidad</span>
+            <span class="option-card-desc">Prioriza la reducción drástica de tiempos de fabricación utilizando espesores de capa elevados y flujos dinámicos máximos.</span>
+          </div>
+          <div class="option-card" data-val="cost" onclick="selectCard(this, 'purpose')">
+            <span class="emoji">🪙</span>
+            <span class="option-card-title">Coste / Ahorro</span>
+            <span class="option-card-desc">Prioriza el ahorro de material y la fiabilidad. Malla de relleno mínima y velocidades seguras para evitar fallos catastróficos que desperdicien plástico.</span>
+          </div>
         </div>
       </div>
 
@@ -927,7 +937,7 @@
         const x3 = pos.getX(i3), y3 = pos.getY(i3), z3 = pos.getZ(i3);
         const ax = x2 - x1, ay = y2 - y1, az = z2 - z1;
         const bx = x3 - x1, by = y3 - y1, bz = z3 - z1;
-        const nx = ay*bz - az*by, ny = az*bx - ax*bz, nz = az*by - ay*bx;
+        const nx = ay*bz - az*by, ny = az*bx - ax*bz, nz = ax*by - ay*bx;
         const len = Math.sqrt(nx*nx + ny*ny + nz*nz);
         const nnx = len ? nx/len : 0, nny = len ? ny/len : 0, nnz = len ? nz/len : 1;
         
@@ -1071,6 +1081,27 @@
           const overhangLocal = calculateOverhangArea(geom, sMesh);
           const optimizedMeshBase64 = exportSTL(geom);
 
+          // Configuración local estructurada según propósito adaptado
+          let lh = parseFloat(answers.nozzleSize) * 0.5;
+          let wl = 3;
+          let id = 20;
+          let pat = "giroide";
+          let spMult = 0.7;
+
+          if (answers.purpose === "aesthetic") {
+            lh = parseFloat(answers.nozzleSize) * 0.3;
+            wl = 2; id = 12; pat = "lightning"; spMult = 0.4;
+          } else if (answers.purpose === "speed") {
+            lh = parseFloat(answers.nozzleSize) * 0.6;
+            wl = 2; id = 10; pat = "lightning"; spMult = 1.0;
+          } else if (answers.purpose === "cost") {
+            lh = parseFloat(answers.nozzleSize) * 0.45;
+            wl = 2; id = 8; pat = "lightning"; spMult = 0.6;
+          } else { // functional
+            lh = parseFloat(answers.nozzleSize) * 0.55;
+            wl = 5; id = 40; pat = "giroide"; spMult = 0.7;
+          }
+
           sessionStorage.setItem("printlab_analysis", JSON.stringify({
             volume: volumeLocal,
             dimensions: dimsLocal,
@@ -1080,17 +1111,17 @@
             optimized_base64: optimizedMeshBase64,
             slicer_settings: {
               material: answers.material || "PLA",
-              nozzle_temperature: answers.material === "PLA" ? 215 : (answers.material === "ABS" || answers.material === "ASA" ? 255 : (answers.material === "TPU" ? 225 : 240)),
+              nozzle_temperature: (answers.material === "PLA" ? 215 : (answers.material === "ABS" || answers.material === "ASA" ? 255 : (answers.material === "TPU" ? 225 : 240))) + (answers.purpose === "functional" ? 8 : (answers.purpose === "speed" ? 5 : 0)),
               hot_plate_temp: answers.material === "PLA" ? 60 : (answers.material === "ABS" || answers.material === "ASA" ? 100 : (answers.material === "TPU" ? 50 : 80)),
-              layer_height: parseFloat(answers.nozzleSize) * (answers.purpose === "aesthetic" ? 0.3 : 0.5),
+              layer_height: lh,
               initial_layer_print_height: 0.2,
-              wall_loops: answers.purpose === "aesthetic" ? 2 : 5,
-              sparse_infill_density: answers.purpose === "aesthetic" ? 12 : 40,
-              sparse_infill_pattern: answers.purpose === "aesthetic" ? "lightning" : "giroide",
-              outer_wall_speed: answers.purpose === "aesthetic" ? 40 : 80,
-              inner_wall_speed: answers.purpose === "aesthetic" ? 60 : 100,
+              wall_loops: wl,
+              sparse_infill_density: id,
+              sparse_infill_pattern: pat,
+              outer_wall_speed: Math.round(180 * spMult * 0.8),
+              inner_wall_speed: Math.round(180 * spMult * 1.0),
               travel_speed: 200,
-              enable_support: overhangLocal > 0.5,
+              enable_support: overhangLocal > 0.5 ? 1 : 0,
               support_type: overhangLocal > 0.5 ? "normal" : "none",
               support_style: overhangLocal > 5.0 ? "tree" : "normal",
               filament_max_volumetric_speed: answers.material === "PLA" ? 15.0 : (answers.material === "PETG" ? 10.0 : (answers.material === "TPU" ? 3.5 : 12.0)),
