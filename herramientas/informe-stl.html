@@ -78,8 +78,6 @@
   <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/controls/OrbitControls.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../assets/js/auth-helper.js?v=11"></script>
-  
-  <!-- Inyección de JSZip para compresión nativa 3MF en caliente -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
@@ -369,7 +367,7 @@
       if (analysis.optimized_base64) {
         init3DViewer("canvas3dContainer", analysis.optimized_base64, analysis.critical_points);
 
-        // --- CONSTRUCTOR DE ARCHIVO DE PROYECTO .3MF EN CALIENTE DESDE EL CLIENTE ---
+        // --- CONSTRUCTOR DE ARCHIVO DE PROYECTO .3MF PROTEGIDO ---
         document.getElementById("download3mfBtn").addEventListener("click", async () => {
           const downloadBtn = document.getElementById("download3mfBtn");
           downloadBtn.disabled = true;
@@ -387,14 +385,14 @@
 </Types>`;
             zip.file("[Content_Types].xml", contentTypesXml);
 
-            // 2. _rels/.rels (Define relaciones internas de ruta)
+            // 2. _rels/.rels (Define relaciones de la escena raíz)
             const relsXml = `<?xml version="1.0" encoding="UTF-8"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
   <Relationship Id="rel0" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel" Target="/3D/3dmodel.model"/>
 </Relationships>`;
             zip.file("_rels/.rels", relsXml);
 
-            // 3. 3D/3dmodel.model (Compila la geometría orientada en XML nativo de 3MF)
+            // 3. 3D/3dmodel.model (Compila la geometría orientada en XML de 3MF)
             if (!activeMesh || !activeMesh.geometry) {
               throw new Error("Geometría del visor 3D no inicializada.");
             }
@@ -436,36 +434,41 @@
 </model>`;
             zip.file("3D/3dmodel.model", modelXml);
 
-            // 4. Metadata/project_settings.config (Incrusta los parámetros reales calculados de OrcaSlicer en JSON)
-            const orcaSettingsJson = [
-              {
-                "type": "process",
-                "setting_id": "printlab_orcaslicer_profile",
-                "name": "PrintLab Exact Slicer Preset",
-                "layer_height": s.layer_height !== undefined ? s.layer_height.toString() : "0.2",
-                "first_layer_height": s.first_layer_height !== undefined ? s.first_layer_height.toString() : "0.2",
-                "wall_loops": s.wall_loops !== undefined ? s.wall_loops.toString() : "3",
-                "sparse_infill_density": s.sparse_infill_density !== undefined ? s.sparse_infill_density.toString() + "%" : "20%",
-                "sparse_infill_pattern": s.sparse_infill_pattern || "giroide",
-                "outer_wall_speed": s.outer_wall_speed !== undefined ? s.outer_wall_speed.toString() : "100",
-                "inner_wall_speed": s.inner_wall_speed !== undefined ? s.inner_wall_speed.toString() : "140",
-                "travel_speed": s.travel_speed !== undefined ? s.travel_speed.toString() : "200",
-                "travel_acceleration": s.travel_acceleration !== undefined ? s.travel_acceleration.toString() : "5000",
-                "nozzle_temperature": [ s.nozzle_temp !== undefined ? s.nozzle_temp.toString() : "220" ],
-                "bed_temperature": s.bed_temp !== undefined ? s.bed_temp.toString() : "60",
-                "enable_support": s.enable_support ? "1" : "0",
-                "support_type": s.support_type || "normal",
-                "brim_type": s.brim_type || "none",
-                "brim_width": s.brim_width !== undefined ? s.brim_width.toString() : "0",
-                "flow_ratio": [ s.flow_ratio !== undefined ? s.flow_ratio.toString() : "0.98" ],
-                "pressure_advance": [ s.pressure_advance !== undefined ? s.pressure_advance.toString() : "0.02" ],
-                "retraction_length": [ s.retraction_length !== undefined ? s.retraction_length.toString() : "0.8" ],
-                "retraction_speed": [ s.retraction_speed !== undefined ? s.retraction_speed.toString() : "30" ]
-              }
-            ];
+            // 4. Metadata/project_settings.config (Lógica de objeto JSON y blindaje de anulación de perfil de sistema)
+            const orcaSettingsJson = {
+              "from": "project",
+              "name": "project_settings",
+              "printer_model": q.printer || "Prusa i3 MK4",
+              "nozzle_diameter": [ q.nozzleSize ? q.nozzleSize.toString() : "0.4" ],
+              "layer_height": s.layer_height !== undefined ? s.layer_height.toString() : "0.2",
+              "initial_layer_print_height": s.first_layer_height !== undefined ? s.first_layer_height.toString() : "0.2",
+              "wall_loops": s.wall_loops !== undefined ? s.wall_loops.toString() : "3",
+              "sparse_infill_density": s.sparse_infill_density !== undefined ? s.sparse_infill_density.toString() + "%" : "20%",
+              "sparse_infill_pattern": s.sparse_infill_pattern || "giroide",
+              "outer_wall_speed": s.outer_wall_speed !== undefined ? s.outer_wall_speed.toString() : "100",
+              "inner_wall_speed": s.inner_wall_speed !== undefined ? s.inner_wall_speed.toString() : "140",
+              "travel_speed": s.travel_speed !== undefined ? s.travel_speed.toString() : "200",
+              "travel_acceleration": s.travel_acceleration !== undefined ? s.travel_acceleration.toString() : "5000",
+              "nozzle_temperature": [ s.nozzle_temp !== undefined ? s.nozzle_temp.toString() : "220" ],
+              "hot_plate_temp": s.bed_temp !== undefined ? s.bed_temp.toString() : "60",
+              "hot_plate_temp_initial": s.bed_temp !== undefined ? s.bed_temp.toString() : "60",
+              "enable_support": s.enable_support ? "1" : "0",
+              "support_type": s.support_type || "normal",
+              "brim_type": s.brim_type || "none",
+              "brim_width": s.brim_width !== undefined ? s.brim_width.toString() : "0",
+              "flow_ratio": [ s.flow_ratio !== undefined ? s.flow_ratio.toString() : "0.98" ],
+              "pressure_advance": [ s.pressure_advance !== undefined ? s.pressure_advance.toString() : "0.02" ],
+              "retraction_length": [ s.retraction_length !== undefined ? s.retraction_length.toString() : "0.8" ],
+              "retraction_speed": [ s.retraction_speed !== undefined ? s.retraction_speed.toString() : "30" ],
+              // CLAVE CRÍTICA: Declarar los parámetros en la lista de cambios del sistema para bloquear su sobreescritura automática al importar
+              "different_settings_to_system": [
+                "layer_height;initial_layer_print_height;wall_loops;sparse_infill_density;sparse_infill_pattern;outer_wall_speed;inner_wall_speed;travel_speed;travel_acceleration;nozzle_temperature;hot_plate_temp;hot_plate_temp_initial;enable_support;support_type;brim_type;brim_width;flow_ratio;pressure_advance;retraction_length;retraction_speed",
+                "", "", "", "", "", ""
+              ]
+            };
             zip.file("Metadata/project_settings.config", JSON.stringify(orcaSettingsJson, null, 2));
 
-            // 5. Compresión y empaquetado del Blob final .3mf
+            // 5. Compresión y descarga del proyecto de impresión .3mf
             const content = await zip.generateAsync({ type: "blob" });
             const url = URL.createObjectURL(content);
 
