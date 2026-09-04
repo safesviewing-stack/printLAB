@@ -1067,6 +1067,32 @@ main.wrap{min-height:calc(100vh - 95px)}
 
         const session = await getCurrentSession();
 
+        // Comprobar créditos antes de iniciar el análisis (pregunta 5 / Orientación Interactiva).
+        // Si el usuario real no tiene créditos, se envía directamente a Precios.
+        if (client && session && session !== mockSession) {
+          try {
+            const { data: profile, error: profileError } = await client
+              .from("profiles")
+              .select("credits")
+              .eq("id", session.user.id)
+              .single();
+
+            if (profileError) throw profileError;
+
+            if (!profile || Number(profile.credits || 0) < 1) {
+              sessionStorage.setItem("printlab_resume_analysis", "true");
+              window.location.href = "precios.html";
+              return;
+            }
+          } catch (creditError) {
+            console.error("No se pudo comprobar el saldo de créditos:", creditError);
+            nextBtn.disabled = false;
+            nextBtn.textContent = "Iniciar Análisis Real";
+            alert("No se ha podido comprobar tu saldo de créditos. Inténtalo de nuevo.");
+            return;
+          }
+        }
+
         if (!client || session === mockSession) {
           nextBtn.textContent = "Analizando geometría (Modo Demo)...";
           try {
