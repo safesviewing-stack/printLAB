@@ -57,7 +57,6 @@
     .param-box{background:var(--bg); border:1.5px solid var(--line); border-radius:16px; padding:24px; margin-bottom: 20px;}
     .param-title{font-size:14px; text-transform:uppercase; font-weight:800; color:var(--muted); margin-bottom: 12px;}
     
-    /* Listado compacto de parámetros sin descripción superflua */
     .param-row{display:flex; justify-content:space-between; border-bottom:1px dashed var(--line); padding:10px 0; font-size:14.5px;}
     .param-row:last-child{border-bottom:none;}
     .param-row strong{font-weight:800;}
@@ -79,6 +78,9 @@
   <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/controls/OrbitControls.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../assets/js/auth-helper.js?v=11"></script>
+  
+  <!-- Inyección de JSZip para compresión nativa 3MF en caliente -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
 
@@ -145,7 +147,7 @@
 
           <div id="problemsContainer"></div>
 
-          <!-- Parámetros de OrcaSlicer Completos sin explicaciones superfluas -->
+          <!-- Parámetros de OrcaSlicer Completos -->
           <div class="param-box">
             <h4 class="param-title">Parámetros Completos de OrcaSlicer</h4>
             
@@ -182,20 +184,10 @@
           </div>
 
           <div class="download-panel">
-            <h4 style="margin:0 0 16px; font-weight:800;">Exportación Real a Slicers</h4>
+            <h4 style="margin:0 0 16px; font-weight:800;">Exportación Directa</h4>
             
-            <label style="font-weight:800; font-size:12.5px; color:var(--muted); margin-bottom:8px; display:block;">¿Qué laminador utilizas?</label>
-            <select id="slicerSelector" style="width:100%; padding:12px; border:1.5px solid var(--line); border-radius:12px; font-weight:700; background:var(--bg); color:var(--ink); outline:none; margin-bottom:16px;">
-              <option value="OrcaSlicer">OrcaSlicer</option>
-              <option value="Bambu Studio">Bambu Studio</option>
-              <option value="PrusaSlicer">PrusaSlicer</option>
-            </select>
-
-            <button class="btn-download-stl" id="downloadStlBtn" style="margin-bottom:12px; background:var(--accent); color:var(--ink); border-color:var(--ink);">
-              Descargar STL Orientado Real
-            </button>
-            <button class="btn-download-stl" id="downloadProfileBtn" style="background:#fff; color:var(--ink);">
-              Descargar Perfil de Slicer Compatible
+            <button class="btn-download-stl" id="download3mfBtn" style="background:var(--accent); color:var(--ink); border-color:var(--ink);">
+              Abrir Proyecto Completo en OrcaSlicer (.3MF)
             </button>
           </div>
         </div>
@@ -353,7 +345,7 @@
       }
       document.getElementById("problemsContainer").innerHTML = problemsHtml;
 
-      // Inyección exacta de TODOS los parámetros de OrcaSlicer en el DOM
+      // Inyección exacta de TODOS los parámetros de OrcaSlicer en el informe
       document.getElementById("oLayerHeight").textContent = s.layer_height !== undefined ? `${s.layer_height} mm` : "--";
       document.getElementById("oFirstLayerHeight").textContent = s.first_layer_height !== undefined ? `${s.first_layer_height} mm` : "--";
       document.getElementById("oWallLoops").textContent = s.wall_loops !== undefined ? `${s.wall_loops} bucles` : "--";
@@ -377,77 +369,120 @@
       if (analysis.optimized_base64) {
         init3DViewer("canvas3dContainer", analysis.optimized_base64, analysis.critical_points);
 
-        document.getElementById("downloadStlBtn").addEventListener("click", () => {
-          const binary = atob(analysis.optimized_base64);
-          const array = new Uint8Array(binary.length);
-          for (let i = 0; i < binary.length; i++) { array[i] = binary.charCodeAt(i); }
-          const blob = new Blob([array.buffer], { type: "model/stl" });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = (analysis.file_name || "mesh").replace(/\.[^/.]+$/, "") + "_orientado.stl";
-          a.click();
-          URL.revokeObjectURL(url);
-        });
+        // --- CONSTRUCTOR DE ARCHIVO DE PROYECTO .3MF EN CALIENTE DESDE EL CLIENTE ---
+        document.getElementById("download3mfBtn").addEventListener("click", async () => {
+          const downloadBtn = document.getElementById("download3mfBtn");
+          downloadBtn.disabled = true;
+          downloadBtn.textContent = "Empaquetando Proyecto .3MF...";
 
-        document.getElementById("downloadProfileBtn").addEventListener("click", () => {
-          const slicer = document.getElementById("slicerSelector").value;
-          let filename = "";
-          let content = "";
+          try {
+            const zip = new JSZip();
 
-          // COINCIDENCIA EXACTA: Exportar los parámetros reales que se muestran exactamente en el informe
-          if (slicer === "PrusaSlicer") {
-            filename = "printlab_profile_prusa.ini";
-            content = `# Perfil PrintLab para PrusaSlicer
-layer_height = ${s.layer_height}
-first_layer_height = ${s.first_layer_height}
-perimeters = ${s.wall_loops}
-fill_density = ${s.sparse_infill_density}%
-fill_pattern = ${s.sparse_infill_pattern === 'giroide' ? 'gyroid' : 'grid'}
-nozzle_diameter = ${q.nozzleSize}
-temperature = ${s.nozzle_temp}
-first_layer_temperature = ${s.nozzle_temp}
-bed_temperature = ${s.bed_temp}
-first_layer_bed_temperature = ${s.bed_temp}
-infill_speed = ${s.inner_wall_speed}
-travel_speed = ${s.travel_speed}
-retract_length = ${s.retraction_length}
-retract_speed = ${s.retraction_speed}
-`;
-          } else { // Bambu Studio u OrcaSlicer (Exportación de JSON de perfil exacto sin variaciones sintéticas)
-            filename = `printlab_profile_${slicer.toLowerCase().replace(/\s+/g, '_')}.json`;
-            content = JSON.stringify({
-              "setting_id": "printlab_custom_profile",
-              "name": "PrintLab Exact Slicer Preset",
-              "layer_height": s.layer_height,
-              "first_layer_height": s.first_layer_height,
-              "wall_loops": s.wall_loops,
-              "sparse_infill_density": s.sparse_infill_density.toString() + "%",
-              "sparse_infill_pattern": s.sparse_infill_pattern,
-              "nozzle_temperature": s.nozzle_temp,
-              "bed_temperature": s.bed_temp,
-              "outer_wall_speed": s.outer_wall_speed,
-              "inner_wall_speed": s.inner_wall_speed,
-              "travel_speed": s.travel_speed,
-              "travel_acceleration": s.travel_acceleration,
-              "enable_support": s.enable_support,
-              "support_type": s.support_type,
-              "brim_type": s.brim_type,
-              "brim_width": s.brim_width,
-              "flow_ratio": s.flow_ratio,
-              "pressure_advance": s.pressure_advance,
-              "retraction_length": s.retraction_length,
-              "retraction_speed": s.retraction_speed
-            }, null, 2);
+            // 1. [Content_Types].xml (Define la estructura del contenedor OPC del 3MF)
+            const contentTypesXml = `<?xml version="1.0" encoding="UTF-8"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="model" ContentType="application/vnd.ms-package.3dmanufacturing-3dmodel+xml"/>
+  <Default Extension="config" ContentType="application/xml"/>
+</Types>`;
+            zip.file("[Content_Types].xml", contentTypesXml);
+
+            // 2. _rels/.rels (Define relaciones internas de ruta)
+            const relsXml = `<?xml version="1.0" encoding="UTF-8"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rel0" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel" Target="/3D/3dmodel.model"/>
+</Relationships>`;
+            zip.file("_rels/.rels", relsXml);
+
+            // 3. 3D/3dmodel.model (Compila la geometría orientada en XML nativo de 3MF)
+            if (!activeMesh || !activeMesh.geometry) {
+              throw new Error("Geometría del visor 3D no inicializada.");
+            }
+            const geom = activeMesh.geometry;
+            const position = geom.attributes.position;
+            
+            let verticesXml = "";
+            for (let i = 0; i < position.count; i++) {
+              verticesXml += `          <vertex x="${position.getX(i).toFixed(4)}" y="${position.getY(i).toFixed(4)}" z="${position.getZ(i).toFixed(4)}"/>\n`;
+            }
+
+            let trianglesXml = "";
+            if (geom.index) {
+              const idxAttr = geom.index;
+              for (let i = 0; i < idxAttr.count; i += 3) {
+                trianglesXml += `          <triangle v1="${idxAttr.getX(i)}" v2="${idxAttr.getX(i+1)}" v3="${idxAttr.getX(i+2)}"/>\n`;
+              }
+            } else {
+              for (let i = 0; i < position.count; i += 3) {
+                trianglesXml += `          <triangle v1="${i}" v2="${i+1}" v3="${i+2}"/>\n`;
+              }
+            }
+
+            const modelXml = `<?xml version="1.0" encoding="UTF-8"?>
+<model xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02" unit="millimeter" xml:lang="en-US">
+  <resources>
+    <object id="1" type="model">
+      <mesh>
+        <vertices>
+\n${verticesXml}        </vertices>
+        <triangles>
+\n${trianglesXml}        </triangles>
+      </mesh>
+    </object>
+  </resources>
+  <build>
+    <item objectid="1"/>
+  </build>
+</model>`;
+            zip.file("3D/3dmodel.model", modelXml);
+
+            // 4. Metadata/project_settings.config (Incrusta los parámetros reales calculados de OrcaSlicer en JSON)
+            const orcaSettingsJson = [
+              {
+                "type": "process",
+                "setting_id": "printlab_orcaslicer_profile",
+                "name": "PrintLab Exact Slicer Preset",
+                "layer_height": s.layer_height !== undefined ? s.layer_height.toString() : "0.2",
+                "first_layer_height": s.first_layer_height !== undefined ? s.first_layer_height.toString() : "0.2",
+                "wall_loops": s.wall_loops !== undefined ? s.wall_loops.toString() : "3",
+                "sparse_infill_density": s.sparse_infill_density !== undefined ? s.sparse_infill_density.toString() + "%" : "20%",
+                "sparse_infill_pattern": s.sparse_infill_pattern || "giroide",
+                "outer_wall_speed": s.outer_wall_speed !== undefined ? s.outer_wall_speed.toString() : "100",
+                "inner_wall_speed": s.inner_wall_speed !== undefined ? s.inner_wall_speed.toString() : "140",
+                "travel_speed": s.travel_speed !== undefined ? s.travel_speed.toString() : "200",
+                "travel_acceleration": s.travel_acceleration !== undefined ? s.travel_acceleration.toString() : "5000",
+                "nozzle_temperature": [ s.nozzle_temp !== undefined ? s.nozzle_temp.toString() : "220" ],
+                "bed_temperature": s.bed_temp !== undefined ? s.bed_temp.toString() : "60",
+                "enable_support": s.enable_support ? "1" : "0",
+                "support_type": s.support_type || "normal",
+                "brim_type": s.brim_type || "none",
+                "brim_width": s.brim_width !== undefined ? s.brim_width.toString() : "0",
+                "flow_ratio": [ s.flow_ratio !== undefined ? s.flow_ratio.toString() : "0.98" ],
+                "pressure_advance": [ s.pressure_advance !== undefined ? s.pressure_advance.toString() : "0.02" ],
+                "retraction_length": [ s.retraction_length !== undefined ? s.retraction_length.toString() : "0.8" ],
+                "retraction_speed": [ s.retraction_speed !== undefined ? s.retraction_speed.toString() : "30" ]
+              }
+            ];
+            zip.file("Metadata/project_settings.config", JSON.stringify(orcaSettingsJson, null, 2));
+
+            // 5. Compresión y empaquetado del Blob final .3mf
+            const content = await zip.generateAsync({ type: "blob" });
+            const url = URL.createObjectURL(content);
+
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = (analysis.file_name || "project").replace(/\.[^/.]+$/, "") + ".project.3mf";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+          } catch (err) {
+            alert("Error al construir el archivo de proyecto 3MF: " + err.message);
+          } finally {
+            downloadBtn.disabled = false;
+            downloadBtn.textContent = "Abrir Proyecto Completo en OrcaSlicer (.3MF)";
           }
-
-          const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = filename;
-          a.click();
-          URL.revokeObjectURL(url);
         });
       }
     });
