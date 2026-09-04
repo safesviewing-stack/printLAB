@@ -415,6 +415,7 @@ main.wrap{min-height:calc(100vh - 95px)}
       purpose: [],
       selectedSupportFace: null,
       supportFaceNormal: null,
+      supportFacePoint: null,
       transformationMatrix: null
     };
 
@@ -616,7 +617,6 @@ main.wrap{min-height:calc(100vh - 95px)}
         sControls.target.copy(geometry.boundingBox.getCenter(new THREE.Vector3()));
         sControls.update();
         
-        optimizeZRotationToFit();
       };
       reader.readAsArrayBuffer(window.selectedSTLFile);
 
@@ -646,6 +646,16 @@ main.wrap{min-height:calc(100vh - 95px)}
 
           answers.selectedSupportFace = hit.faceIndex;
           answers.supportFaceNormal = [localNormal.x, localNormal.y, localNormal.z];
+
+          // Guardamos un punto real de la superficie seleccionada en
+          // coordenadas locales. La orientación automática usará este punto
+          // para mantener ESTA superficie exactamente sobre Z=0.
+          const supportPointLocal = sMesh.worldToLocal(hit.point.clone());
+          answers.supportFacePoint = [
+            supportPointLocal.x,
+            supportPointLocal.y,
+            supportPointLocal.z
+          ];
 
           const target = new THREE.Vector3(0, 0, -1);
           const q = new THREE.Quaternion().setFromUnitVectors(localNormal, target);
@@ -733,146 +743,308 @@ main.wrap{min-height:calc(100vh - 95px)}
         };
       }
 
-      function applyOptimizedBaseRotation(baseQuat, rad) {
-        const finalZRot = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,0,1), rad);
-        sMesh.quaternion.copy(baseQuat.clone().premultiply(finalZRot));
-        sMesh.position.set(0,0,0);
-        sMesh.updateMatrixWorld(true);
+      // ================================================================
+      // ORIENTACIÓN AUTOMÁTICA REAL
+      //
+      // Después de elegir una superficie de apoyo, esa superficie queda
+      // bloqueada como base. La única rotación permitida es el giro sobre
+      // la normal de esa superficie (yaw). La traslación XY es libre porque
+      // la pieza puede colocarse en cualquier punto de la cama.
+      //
+      // Se prueban TODAS las orientaciones de 0 a 180 grados con paso
+      // 0,001°. 180.000 posiciones. No hay una búsqueda gruesa que pueda
+      // saltarse una ventana válida de unos pocos milésimos de grado.
+      // ================================================================
 
-        const finalBbox = new THREE.Box3().setFromObject(sMesh);
-        sMesh.position.x = -((finalBbox.min.x + finalBbox.max.x) / 2);
-        sMesh.position.y = -((finalBbox.min.y + finalBbox.max.y) / 2);
-        // La superficie elegida sigue siendo la base: jamás se eleva ni se
-        // inclina después de haber sido alineada con Z.
-        sMesh.position.z = -finalBbox.min.z;
-        sMesh.updateMatrixWorld(true);
+      function getSupportPointLocal() {
+        if (!answers.supportFacePoint) {
+          return new THREE.Vector3(0, 0, 0);
+        }
+        return new THREE.Vector3(
+          answers.supportFacePoint[0],
+          answers.supportFacePoint[1],
+          answers.supportFacePoint[2]
+        );
       }
 
-      function finalizeOrientation(baseQuat, bestAngle, limits, search, sourceLabel) {
-        applyOptimizedBaseRotation(baseQuat, bestAngle);
-        const finalBbox = new THREE.Box3().setFromObject(sMesh);
-        const modelSize = finalBbox.getSize(new THREE.Vector3());
-        const fits = modelSize.x <= limits.x + 1e-6 && modelSize.y <= limits.y + 1e-6 && modelSize.z <= limits.z + 1e-6;
-        const warningBanner = document.getElementById("limitWarningBanner");
+      function setBaseOrientation(baseQuat, yawRad) {
+        const yaw = new THREE.Quaternion().setFromAxisAngle(
+          new THREE.Vector3(0, 0, 1),
+          yawRad
+        );
 
-        if (fits) {
+        // Yaw en el sistema de la cama, después de haber apoyado la cara.
+        sMesh.quaternion.copy(yaw.multiply(baseQuat.clone()));
+        sMesh.updateMatrixWorld(true);
+
+        // La superficie elegida, y no el bounding box, determina Z=0.
+        const p = getSupportPointLocal().applyQuaternion(sMesh.quaternion);
+        sMesh.position.set(-p.x, -p.y, -p.z);
+        sMesh.updateMatrixWorld(true);
+
+        // Una segunda corrección XY deja el centro de la envolvente
+        // proyectada en el centro de la cama. No cambia Z.
+        const bbox = new THREE.Box3().setFromObject(sMesh);
+        const limits = printerLimits[answers.printer];
+        if (limits) {
+          sMesh.position.x += limits.x / 2 - (bbox.min.x + bbox.max.x) / 2;
+          sMesh.position.y += limits.y / 2 - (bbox.min.y + bbox.max.y) / 2;
+          sMesh.updateMatrixWorld(true);
+        }
+      }
+
+      function buildSearchData(baseQuat) {
+        const pos = sMesh.geometry.attributes.position;
+        const v = new THREE.Vector3();
+        const points = [];
+        let minZ = Infinity;
+        let maxZ = -Infinity;
+
+        for (let i = 0; i < pos.count; i++) {
+          v.fromBufferAttribute(pos, i).applyQuaternion(baseQuat);
+          points.push({x: v.x, y: v.y});
+          if (v.z < minZ) minZ = v.z;
+          if (v.z > maxZ) maxZ = v.z;
+        }
+
+        return {
+          hull: buildProjectedHull(points),
+          height: maxZ - minZ
+        };
+      }
+
+      function measureHullAtYaw(hull, rad) {
+        const c = Math.cos(rad);
+        const sn = Math.sin(rad);
+
+        let minX = Infinity, maxX = -Infinity;
+        let minY = Infinity, maxY = -Infinity;
+
+        for (let i = 0; i < hull.length; i++) {
+          const p = hull[i];
+          const x = p.x * c - p.y * sn;
+          const y = p.x * sn + p.y * c;
+
+          if (x < minX) minX = x;
+          if (x > maxX) maxX = x;
+          if (y < minY) minY = y;
+          if (y > maxY) maxY = y;
+        }
+
+        return {
+          minX, maxX, minY, maxY,
+          width: maxX - minX,
+          depth: maxY - minY
+        };
+      }
+
+      function evaluateYaw(search, rad, limits) {
+        const m = measureHullAtYaw(search.hull, rad);
+
+        // La cama puede recibir la pieza en cualquier XY. Por tanto,
+        // si la anchura y profundidad proyectadas son menores que la cama,
+        // SIEMPRE existe una traslación XY válida.
+        const tolerance = 0.001;
+
+        const fitsXY =
+          m.width <= limits.x + tolerance &&
+          m.depth <= limits.y + tolerance;
+
+        const fitsZ = search.height <= limits.z + tolerance;
+
+        return {
+          ...m,
+          fits: fitsXY && fitsZ,
+          margin: Math.min(
+            limits.x - m.width,
+            limits.y - m.depth,
+            limits.z - search.height
+          ),
+          excess: Math.max(
+            m.width - limits.x,
+            m.depth - limits.y,
+            search.height - limits.z
+          )
+        };
+      }
+
+      function finalizeAutomaticOrientation(baseQuat, bestAngle, search, limits, foundFit) {
+        // Aplicación final: primero base elegida, después yaw.
+        const yaw = new THREE.Quaternion().setFromAxisAngle(
+          new THREE.Vector3(0, 0, 1),
+          bestAngle
+        );
+        sMesh.quaternion.copy(yaw.multiply(baseQuat.clone()));
+        sMesh.updateMatrixWorld(true);
+
+        // Z queda determinado EXCLUSIVAMENTE por la superficie seleccionada.
+        const supportPoint = getSupportPointLocal().applyQuaternion(sMesh.quaternion);
+        sMesh.position.set(-supportPoint.x, -supportPoint.y, -supportPoint.z);
+        sMesh.updateMatrixWorld(true);
+
+        // Ahora sí, solo traslación XY para encontrar una posición válida
+        // dentro del rectángulo de la cama.
+        const bbox = new THREE.Box3().setFromObject(sMesh);
+        const shiftX = (limits.x / 2) - ((bbox.min.x + bbox.max.x) / 2);
+        const shiftY = (limits.y / 2) - ((bbox.min.y + bbox.max.y) / 2);
+        sMesh.position.x += shiftX;
+        sMesh.position.y += shiftY;
+        sMesh.updateMatrixWorld(true);
+
+        const finalBox = new THREE.Box3().setFromObject(sMesh);
+        const finalSize = finalBox.getSize(new THREE.Vector3());
+
+        // Comprobación final independiente: lo que se muestra debe ser
+        // exactamente lo que se ha comprobado.
+        const finalFits =
+          finalBox.min.x >= -0.001 &&
+          finalBox.min.y >= -0.001 &&
+          finalBox.max.x <= limits.x + 0.001 &&
+          finalBox.max.y <= limits.y + 0.001 &&
+          finalBox.min.z >= -0.001 &&
+          finalBox.max.z <= limits.z + 0.001;
+
+        const warningBanner = document.getElementById("limitWarningBanner");
+        const oldSuccess = document.getElementById("scaleSuccessBanner");
+        if (oldSuccess) oldSuccess.remove();
+
+        if (finalFits && foundFit) {
           sMesh.material.color.setHex(0x90caf9);
           warningBanner.style.display = "none";
-          const oldSuccess=document.getElementById("scaleSuccessBanner");
-          if(oldSuccess) oldSuccess.remove();
-          const successBanner=document.createElement("div");
-          successBanner.id="scaleSuccessBanner";
-          successBanner.style="background:#eef2ee; border:1.5px solid #2e7d32; color:#2e7d32; padding:12px; border-radius:10px; font-size:13.5px; font-weight:700; margin-bottom:12px; line-height:1.4; text-align:center;";
-          successBanner.innerHTML=`✓ <strong>Orientación optimizada a 0,001°:</strong> se ha buscado la mejor rotación sobre la superficie de apoyo seleccionada. Tamaño en cama: <strong>${modelSize.x.toFixed(3)} × ${modelSize.y.toFixed(3)} mm</strong>. Margen mínimo: <strong>${Math.min(limits.x-modelSize.x,limits.y-modelSize.y).toFixed(3)} mm</strong>. ${sourceLabel}`;
-          warningBanner.parentNode.insertBefore(successBanner,warningBanner);
+
+          const successBanner = document.createElement("div");
+          successBanner.id = "scaleSuccessBanner";
+          successBanner.style =
+            "background:#eef2ee;border:1.5px solid #2e7d32;color:#2e7d32;padding:12px;border-radius:10px;font-size:13.5px;font-weight:700;margin-bottom:12px;line-height:1.4;text-align:center;";
+
+          const angleDeg = THREE.MathUtils.radToDeg(bestAngle);
+          const marginX = limits.x - finalSize.x;
+          const marginY = limits.y - finalSize.y;
+          const marginZ = limits.z - finalSize.z;
+          const minMargin = Math.min(marginX, marginY, marginZ);
+
+          successBanner.innerHTML =
+            `✓ <strong>Orientación encontrada.</strong> Se han comprobado ` +
+            `<strong>180.000 posiciones angulares</strong> a 0,001°. ` +
+            `Ángulo: <strong>${angleDeg.toFixed(3)}°</strong>. ` +
+            `Tamaño: <strong>${finalSize.x.toFixed(3)} × ${finalSize.y.toFixed(3)} × ${finalSize.z.toFixed(3)} mm</strong>. ` +
+            `Margen mínimo: <strong>${minMargin.toFixed(3)} mm</strong>. ` +
+            `<br>La superficie de apoyo seleccionada se mantiene en la cama.`;
+
+          warningBanner.parentNode.insertBefore(successBanner, warningBanner);
         } else {
           sMesh.material.color.setHex(0xb42318);
-          warningBanner.style.display="block";
-          warningBanner.innerHTML=`<div style="margin-bottom:10px;">⚠️ <strong>¡Límite de impresión excedido!</strong> Tras buscar la orientación de la base seleccionada con precisión de 0,001°, la pieza queda en <strong>${modelSize.x.toFixed(3)} × ${modelSize.y.toFixed(3)} × ${modelSize.z.toFixed(3)} mm</strong> frente a una cama de <strong>${limits.x} × ${limits.y} × ${limits.z} mm</strong>.</div><button type="button" onclick="scaleMeshToFit()" style="background:#b42318;color:#fff;border:1.5px solid #fff;padding:8px 16px;border-radius:8px;font-weight:800;cursor:pointer;font-size:12px;">Auto-escalar pieza para ajustar al volumen de la cama</button>`;
+          warningBanner.style.display = "block";
+          warningBanner.innerHTML =
+            `<div style="margin-bottom:10px;">` +
+            `⚠️ <strong>No existe una posición válida</strong> manteniendo exactamente ` +
+            `la superficie seleccionada como base. ` +
+            `Mejor posición encontrada: <strong>${finalSize.x.toFixed(3)} × ${finalSize.y.toFixed(3)} × ${finalSize.z.toFixed(3)} mm</strong>. ` +
+            `Cama: <strong>${limits.x} × ${limits.y} × ${limits.z} mm</strong>.` +
+            `</div>`;
+
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.textContent = "Auto-escalar pieza para ajustar al volumen de la cama";
+          btn.style =
+            "background:#b42318;color:#fff;border:1.5px solid #fff;padding:8px 16px;border-radius:8px;font-weight:800;cursor:pointer;font-size:12px;";
+          btn.onclick = () => scaleMeshToFit();
+          warningBanner.appendChild(btn);
         }
 
-        const te=sMesh.matrix.elements;
-        answers.transformationMatrix=[[te[0],te[4],te[8],te[12]],[te[1],te[5],te[9],te[13]],[te[2],te[6],te[10],te[14]],[te[3],te[7],te[11],te[15]]];
-        answers.orientationSearch={angle_deg:THREE.MathUtils.radToDeg(bestAngle),precision_deg:0.001,base_kept_on_bed:true,bed_margin_mm:Math.min(limits.x-modelSize.x,limits.y-modelSize.y)};
+        const te = sMesh.matrix.elements;
+        answers.transformationMatrix = [
+          [te[0], te[4], te[8], te[12]],
+          [te[1], te[5], te[9], te[13]],
+          [te[2], te[6], te[10], te[14]],
+          [te[3], te[7], te[11], te[15]]
+        ];
+
+        answers.orientationSearch = {
+          angle_deg: Number(THREE.MathUtils.radToDeg(bestAngle).toFixed(3)),
+          precision_deg: 0.001,
+          positions_checked: 180000,
+          base_face_index: answers.selectedSupportFace,
+          base_kept_on_bed: true,
+          final_size_mm: {
+            x: Number(finalSize.x.toFixed(3)),
+            y: Number(finalSize.y.toFixed(3)),
+            z: Number(finalSize.z.toFixed(3))
+          }
+        };
       }
 
-      function optimizeZRotationToFit() {
-        if(!sMesh || !answers.printer) return;
-        const limits=printerLimits[answers.printer]; if(!limits) return;
-        const baseQuat=sMesh.quaternion.clone();
-        const search=prepareBaseSearch(baseQuat);
-        let bestAngle=0,bestMargin=-Infinity,foundFit=false;
-
-        // Exploración global: 0,01° en todo el giro. Es mucho más fina que
-        // el antiguo paso de 5° y no depende de que casualmente caigamos en
-        // una orientación concreta.
-        for(let i=0;i<18000;i++){
-          const rad=THREE.MathUtils.degToRad(i/100);
-          const r=fitAtAngle(search,rad,limits);
-          if(r.fits && r.margin>bestMargin){bestMargin=r.margin;bestAngle=rad;foundFit=true;}
+      window.autoOrientZToFit = function() {
+        if (!sMesh || !answers.printer) {
+          alert("Por favor, selecciona primero tu impresora 3D.");
+          return;
         }
 
-        // Refinamiento final a 0,001° alrededor de la mejor solución.
-        if(foundFit){
-          const centerDeg=THREE.MathUtils.radToDeg(bestAngle);
-          const start=Math.max(0,Math.floor((centerDeg-0.02)*1000));
-          const end=Math.min(179999,Math.ceil((centerDeg+0.02)*1000));
-          for(let i=start;i<=end;i++){
-            const rad=THREE.MathUtils.degToRad(i/1000);
-            const r=fitAtAngle(search,rad,limits);
-            if(r.fits && r.margin>bestMargin){bestMargin=r.margin;bestAngle=rad;}
-          }
+        if (
+          answers.selectedSupportFace === null ||
+          !answers.supportFaceNormal ||
+          !answers.supportFacePoint
+        ) {
+          alert(
+            "Primero selecciona la superficie que quieres utilizar como apoyo. " +
+            "Después pulsa \"Orientación automática\"."
+          );
+          return;
         }
 
-        // Si no hay ajuste exacto, conservamos la orientación que minimiza
-        // el peor exceso, en lugar de cambiar de base o levantarla.
-        if(!foundFit){
-          let bestViolation=Infinity;
-          for(let i=0;i<18000;i++){
-            const rad=THREE.MathUtils.degToRad(i/100);
-            const r=fitAtAngle(search,rad,limits);
-            const violation=Math.max(r.width-limits.x,r.height-limits.y,search.height-limits.z);
-            if(violation<bestViolation){bestViolation=violation;bestAngle=rad;}
-          }
-        }
-        finalizeOrientation(baseQuat,bestAngle,limits,search,"La superficie seleccionada se ha mantenido como base.");
-      }
+        const limits = printerLimits[answers.printer];
+        if (!limits) return;
 
-      window.autoOrientZToFit = function(){
-        if(!sMesh || !answers.printer){alert("Por favor, selecciona primero tu impresora 3D.");return;}
-        if(answers.selectedSupportFace===null || !answers.supportFaceNormal){alert("Por favor, selecciona primero una superficie de apoyo haciendo clic sobre el modelo 3D.");return;}
-
-        const limits=printerLimits[answers.printer]; if(!limits)return;
-        const localNormal=new THREE.Vector3(
+        // Fijamos la cara seleccionada. Su normal queda perpendicular a la
+        // cama y su plano queda exactamente en Z=0.
+        const localNormal = new THREE.Vector3(
           answers.supportFaceNormal[0],
           answers.supportFaceNormal[1],
           answers.supportFaceNormal[2]
         ).normalize();
 
-        // Esta es la cara elegida por el usuario. Se fija contra Z=0 y,
-        // durante toda la búsqueda, SOLO se permite girar alrededor de
-        // la normal de esta cara.
-        const target=new THREE.Vector3(0,0,-1);
-        const baseQuat=new THREE.Quaternion().setFromUnitVectors(localNormal,target);
+        const baseQuat = new THREE.Quaternion().setFromUnitVectors(
+          localNormal,
+          new THREE.Vector3(0, 0, -1)
+        );
 
-        sMesh.scale.set(1,1,1);
-        sMesh.quaternion.copy(baseQuat);
-        sMesh.position.set(0,0,0);
-        sMesh.updateMatrixWorld(true);
+        // NO se usa la orientación previa del visor.
+        // La búsqueda parte siempre de la cara elegida.
+        const search = buildSearchData(baseQuat);
 
-        const search=prepareBaseSearch(baseQuat);
-        let bestAngle=0,bestMargin=-Infinity,foundFit=false;
+        let bestAngle = 0;
+        let bestMargin = -Infinity;
+        let bestViolation = Infinity;
+        let foundFit = false;
 
-        // IMPORTANTE: solo se permite girar alrededor de Z después de apoyar
-        // la cara elegida. Eso significa que la cara elegida permanece en Z=0
-        // durante toda la búsqueda y nunca se cambia por otra cara.
-        for(let i=0;i<18000;i++){
-          const rad=THREE.MathUtils.degToRad(i/100);
-          const r=fitAtAngle(search,rad,limits);
-          if(r.fits && r.margin>bestMargin){bestMargin=r.margin;bestAngle=rad;foundFit=true;}
+        // ============================================================
+        // BÚSQUEDA EXHAUSTIVA: 0,000° ... 179,999°
+        // No hay muestreo previo de 0,01° que pueda saltarse una ventana.
+        // ============================================================
+        for (let i = 0; i < 180000; i++) {
+          const rad = THREE.MathUtils.degToRad(i * 0.001);
+          const result = evaluateYaw(search, rad, limits);
+
+          if (result.fits) {
+            if (!foundFit || result.margin > bestMargin) {
+              foundFit = true;
+              bestMargin = result.margin;
+              bestAngle = rad;
+            }
+          } else if (!foundFit && result.excess < bestViolation) {
+            bestViolation = result.excess;
+            bestAngle = rad;
+          }
         }
 
-        if(foundFit){
-          const centerDeg=THREE.MathUtils.radToDeg(bestAngle);
-          const start=Math.max(0,Math.floor((centerDeg-0.02)*1000));
-          const end=Math.min(179999,Math.ceil((centerDeg+0.02)*1000));
-          for(let i=start;i<=end;i++){
-            const rad=THREE.MathUtils.degToRad(i/1000);
-            const r=fitAtAngle(search,rad,limits);
-            if(r.fits && r.margin>bestMargin){bestMargin=r.margin;bestAngle=rad;}
-          }
-          finalizeOrientation(baseQuat,bestAngle,limits,search,"La cara que has seleccionado no se ha levantado de la cama.");
-        }else{
-          let bestViolation=Infinity;
-          for(let i=0;i<18000;i++){
-            const rad=THREE.MathUtils.degToRad(i/100);
-            const r=fitAtAngle(search,rad,limits);
-            const violation=Math.max(r.width-limits.x,r.height-limits.y,search.height-limits.z);
-            if(violation<bestViolation){bestViolation=violation;bestAngle=rad;}
-          }
-          finalizeOrientation(baseQuat,bestAngle,limits,search,"No se ha cambiado la superficie de apoyo.");
-          alert("No se ha encontrado una orientación que entre en la cama manteniendo exactamente la superficie seleccionada como base. No se ha levantado ni sustituido esa superficie.");
-        }
+        finalizeAutomaticOrientation(
+          baseQuat,
+          bestAngle,
+          search,
+          limits,
+          foundFit
+        );
+        validateCurrentStep();
       };
 
       window.scaleMeshToFit = function() {
