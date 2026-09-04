@@ -207,7 +207,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../assets/js/auth-helper.js?v=11"></script>
   
-  <!-- Three.js para renderizado en 3D -->
+  <!-- Three.js + Controles y Cargadores -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/STLLoader.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/controls/OrbitControls.js"></script>
@@ -267,7 +267,7 @@
 
       <!-- PREGUNTA 1: TIPO DE BOQUILLA -->
       <div class="wizard-step" id="step-nozzle">
-        <div class="step-title"><span>¿Qué diámetro de boquilla utilizas?</span> <span style="font-size:14px; color:var(--muted);">1 / 3</span></div>
+        <div class="step-title"><span>¿Qué diámetro de boquilla utilizas?</span> <span style="font-size:14px; color:var(--muted);">1 / 4</span></div>
         <div class="step-subtitle">Afectará la resolución de detalles y las directrices de espesor de pared.</div>
         <div class="option-grid">
           <div class="option-card" data-val="0.2" onclick="selectCard(this, 'nozzleSize')">
@@ -293,10 +293,48 @@
         </div>
       </div>
 
-      <!-- PREGUNTA 2: SELECCIÓN DE IMPRESORA COMPLETA -->
+      <!-- PREGUNTA 2: TIPO DE MATERIAL (NUEVA PREGUNTA) -->
+      <div class="wizard-step" id="step-material">
+        <div class="step-title"><span>¿Qué tipo de material utilizarás?</span> <span style="font-size:14px; color:var(--muted);">2 / 4</span></div>
+        <div class="step-subtitle">Determina directamente los perfiles térmicos y dinámicos del laminador.</div>
+        <div class="option-grid">
+          <div class="option-card" data-val="PLA" onclick="selectCard(this, 'material')">
+            <span class="emoji">🌱</span>
+            <span class="option-card-title">PLA</span>
+            <span class="option-card-desc">Fácil de imprimir, alta rigidez y baja contracción térmica.</span>
+          </div>
+          <div class="option-card" data-val="PETG" onclick="selectCard(this, 'material')">
+            <span class="emoji">🧪</span>
+            <span class="option-card-title">PETG</span>
+            <span class="option-card-desc">Excelente tenacidad, resistencia al impacto y resistencia térmica media.</span>
+          </div>
+          <div class="option-card" data-val="ABS" onclick="selectCard(this, 'material')">
+            <span class="emoji">🔥</span>
+            <span class="option-card-title">ABS</span>
+            <span class="option-card-desc">Alta resistencia mecánica y térmica, ideal para posprocesado.</span>
+          </div>
+          <div class="option-card" data-val="ASA" onclick="selectCard(this, 'material')">
+            <span class="emoji">☀️</span>
+            <span class="option-card-title">ASA</span>
+            <span class="option-card-desc">Gran estabilidad molecular frente a la intemperie y radiación solar UV.</span>
+          </div>
+          <div class="option-card" data-val="TPU" onclick="selectCard(this, 'material')">
+            <span class="emoji">🩹</span>
+            <span class="option-card-title">TPU (Flexible)</span>
+            <span class="option-card-desc">Excelente flexibilidad elastomérica y amortiguación física.</span>
+          </div>
+          <div class="option-card" data-val="Nylon" onclick="selectCard(this, 'material')">
+            <span class="emoji">⚙️</span>
+            <span class="option-card-title">Nylon (PA)</span>
+            <span class="option-card-desc">Bajo coeficiente de fricción y altísima resistencia al desgaste.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PREGUNTA 3: SELECCIÓN DE IMPRESORA -->
       <div class="wizard-step" id="step-printer">
-        <div class="step-title"><span>¿Qué impresora 3D utilizarás?</span> <span style="font-size:14px; color:var(--muted);">2 / 3</span></div>
-        <div class="step-subtitle">Determinará los límites físicos reales de volumen y temperaturas.</div>
+        <div class="step-title"><span>¿Qué impresora 3D utilizarás?</span> <span style="font-size:14px; color:var(--muted);">3 / 4</span></div>
+        <div class="step-subtitle">Determinará los límites físicos reales de volumen y velocidades.</div>
         
         <div class="form-group" style="width:100%; margin-top:10px;">
           <select id="printerSelect" onchange="selectPrinterDropdown(this)" style="width:100%; padding:14px; border:1.5px solid var(--line); border-radius:12px; font-weight:700; background:var(--bg); color:var(--ink); outline:none;">
@@ -333,7 +371,7 @@
 
       <!-- VISOR 3D: SELECCIÓN DE SUPERFICIE DE APOYO -->
       <div class="wizard-step" id="step-viewer">
-        <div class="step-title"><span>Orientación Interactiva</span> <span style="font-size:14px; color:var(--muted);">3 / 3</span></div>
+        <div class="step-title"><span>Orientación Interactiva</span> <span style="font-size:14px; color:var(--muted);">4 / 4</span></div>
         <div class="step-subtitle" style="color:var(--ink); font-weight:700;">Haz clic sobre la superficie que quieres apoyar en la cama.</div>
         <div id="selector3dContainer" style="width:100%; height:380px; background:#161d1a; border-radius:16px; position:relative; overflow:hidden; border:2px solid var(--line); margin-bottom:12px;"></div>
       </div>
@@ -362,6 +400,7 @@
   <script>
     const answers = {
       nozzleSize: "",
+      material: "",
       printer: "",
       selectedSupportFace: null,
       supportFaceNormal: null,
@@ -371,6 +410,7 @@
     const steps = [
       "step-upload",
       "step-nozzle",
+      "step-material",
       "step-printer",
       "step-viewer"
     ];
@@ -395,8 +435,9 @@
 
       if (currentStepIdx === 0) isValid = window.selectedSTLFile != null;
       else if (currentStepIdx === 1) isValid = answers.nozzleSize !== "";
-      else if (currentStepIdx === 2) isValid = answers.printer !== "";
-      else if (currentStepIdx === 3) isValid = answers.selectedSupportFace !== null;
+      else if (currentStepIdx === 2) isValid = answers.material !== "";
+      else if (currentStepIdx === 3) isValid = answers.printer !== "";
+      else if (currentStepIdx === 4) isValid = answers.selectedSupportFace !== null;
 
       nextBtn.disabled = !isValid;
     }
@@ -430,14 +471,14 @@
       document.getElementById("prevBtn").style.visibility = currentStepIdx === 0 ? "hidden" : "visible";
       document.getElementById("nextBtn").textContent = currentStepIdx === steps.length - 1 ? "Iniciar Análisis Real" : "Siguiente";
 
-      if (currentStepIdx === 3) {
+      if (currentStepIdx === 4) {
         initSelector3D();
       }
 
       validateCurrentStep();
     }
 
-    // --- VISOR 3D CON CENTRADO COMPLETO ---
+    // --- VISOR 3D CON CUADRÍCULA AGRANDADA ---
     let sScene, sCamera, sRenderer, sControls, sMesh, highlightRing;
 
     function initSelector3D() {
@@ -464,8 +505,8 @@
       sControls = new THREE.OrbitControls(sCamera, sRenderer.domElement);
       sControls.enableDamping = true;
 
-      // Rejilla de la cama de impresión
-      const gridHelper = new THREE.GridHelper(160, 16, 0x5e6661, 0x2e3a35);
+      // Rejilla de la cama de impresión duplicada (Tamaño: 300 con 30 divisiones)
+      const gridHelper = new THREE.GridHelper(300, 30, 0x5e6661, 0x2e3a35);
       gridHelper.rotation.x = Math.PI / 2;
       sScene.add(gridHelper);
 
@@ -541,7 +582,7 @@
           highlightRing.position.addScaledVector(ringNormal, 0.4);
           sScene.add(highlightRing);
 
-          // SOLUCIÓN AL ERROR DE MATRIZ (4,4): Convertir array plano de Three.js column-major a un array bidimensional real de 4x4 row-major
+          // Convertir array plano de Three.js column-major a un array bidimensional real de 4x4 row-major
           const te = sMesh.matrix.elements;
           answers.transformationMatrix = [
             [ te[0], te[4], te[8],  te[12] ],
@@ -673,6 +714,7 @@
             console.warn("Servidor de cálculo fuera de línea o con problemas de red. Usando simulación de contingencia.", e);
           }
 
+          // Respuesta local mock de seguridad exacta
           sessionStorage.setItem("printlab_analysis", JSON.stringify({
             volume: 38.45,
             dimensions: "110.2 x 90.5 x 42.0 mm",
@@ -681,15 +723,26 @@
             file_name: window.selectedSTLFile.name,
             optimized_base64: null,
             slicer_settings: {
-              material: "PETG",
-              material_reason: "Se recomienda PETG como estándar para garantizar una unión de capas mecánicamente estable.",
-              nozzle_temp: 240,
-              bed_temp: 80,
+              material: answers.material || "PETG",
+              nozzle_temp: answers.material === "PLA" ? 215 : (answers.material === "ABS" || answers.material === "ASA" ? 255 : (answers.material === "TPU" ? 225 : 240)),
+              bed_temp: answers.material === "PLA" ? 60 : (answers.material === "ABS" || answers.material === "ASA" ? 100 : (answers.material === "TPU" ? 50 : 80)),
               layer_height: parseFloat(answers.nozzleSize) * 0.5,
-              perimeters: 3,
-              infill_density: 20,
-              infill_pattern: "giroide",
-              print_speed: 100,
+              first_layer_height: 0.2,
+              wall_loops: answers.material === "PLA" || answers.material === "PETG" ? 3 : 4,
+              sparse_infill_density: 20,
+              sparse_infill_pattern: "giroide",
+              outer_wall_speed: 100,
+              inner_wall_speed: 140,
+              travel_speed: 200,
+              enable_support: true,
+              support_type: "normal",
+              brim_type: "none",
+              brim_width: 0,
+              flow_ratio: 0.98,
+              pressure_advance: 0.02,
+              retraction_length: 0.8,
+              retraction_speed: 30,
+              travel_acceleration: 5000,
               overhang_area_cm2: 10.5,
               min_thickness_mm: 1.5,
               thin_wall_warning: null
