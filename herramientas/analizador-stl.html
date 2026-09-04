@@ -915,13 +915,17 @@ main.wrap{min-height:calc(100vh - 95px)}
         sMesh.updateMatrixWorld(true);
 
         // Primero apoyamos exactamente la superficie seleccionada.
+        // IMPORTANTE: el punto de apoyo también tiene coordenadas X/Y.
+        // La versión anterior las ignoraba y luego aplicaba tx/ty como si
+        // ese punto estuviera en el origen. Eso podía desplazar la pieza
+        // fuera del cubo aunque el ángulo sí fuese válido.
         const supportPoint = getSupportPointLocal().applyQuaternion(sMesh.quaternion);
-        sMesh.position.set(0, 0, -supportPoint.z);
+        sMesh.position.set(
+          -supportPoint.x + bestEval.tx,
+          -supportPoint.y + bestEval.ty,
+          -supportPoint.z
+        );
         sMesh.updateMatrixWorld(true);
-
-        // Aplicamos las dos traslaciones óptimas calculadas para ESTE ángulo.
-        sMesh.position.x += bestEval.tx;
-        sMesh.position.y += bestEval.ty;
         sMesh.updateMatrixWorld(true);
 
         const finalBox = new THREE.Box3().setFromObject(sMesh);
@@ -938,13 +942,14 @@ main.wrap{min-height:calc(100vh - 95px)}
         // pequeños errores de coma flotante al transformar la malla, así que
         // usamos una tolerancia geométrica razonable para la validación final.
         const finalFits =
-          finalBox.min.x >= bedMinX - 0.01 &&
-          finalBox.max.x <= bedMaxX + 0.01 &&
-          finalBox.min.y >= bedMinY - 0.01 &&
-          finalBox.max.y <= bedMaxY + 0.01 &&
-          finalBox.min.z >= -0.01 &&
-          finalBox.max.z <= limits.z + 0.01 &&
-          bestEval && bestEval.fits;
+          !!bestEval &&
+          bestEval.fits &&
+          finalBox.min.x >= bedMinX - 0.05 &&
+          finalBox.max.x <= bedMaxX + 0.05 &&
+          finalBox.min.y >= bedMinY - 0.05 &&
+          finalBox.max.y <= bedMaxY + 0.05 &&
+          finalBox.min.z >= -0.05 &&
+          finalBox.max.z <= limits.z + 0.05;
 
         const warningBanner = document.getElementById("limitWarningBanner");
         const oldSuccess = document.getElementById("scaleSuccessBanner");
@@ -953,8 +958,9 @@ main.wrap{min-height:calc(100vh - 95px)}
         warningBanner.innerHTML = "";
 
         if (finalFits && foundFit) {
-          // La pieza cabe: azul/normal, nunca rojo.
+          // POSICIÓN VÁLIDA: eliminar cualquier estado rojo anterior.
           sMesh.material.color.setHex(0x90caf9);
+          sMesh.material.needsUpdate = true;
           warningBanner.style.display = "none";
           warningBanner.innerHTML = "";
 
