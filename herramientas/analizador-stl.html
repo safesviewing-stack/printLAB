@@ -850,6 +850,10 @@ main.wrap{min-height:calc(100vh - 95px)}
           m.width <= limits.x + tolerance &&
           m.depth <= limits.y + tolerance;
 
+        // La posición XY no se discretiza: si la envolvente proyectada cabe
+        // en la cama, existe una traslación continua que la coloca dentro
+        // del cubo centrado en el origen.
+
         const fitsZ = search.height <= limits.z + tolerance;
 
         return {
@@ -882,27 +886,54 @@ main.wrap{min-height:calc(100vh - 95px)}
         sMesh.position.set(-supportPoint.x, -supportPoint.y, -supportPoint.z);
         sMesh.updateMatrixWorld(true);
 
-        // Ahora sí, solo traslación XY para encontrar una posición válida
-        // dentro del rectángulo de la cama.
+        // ============================================================
+        // COORDENADAS REALES DEL CUBO VISIBLE
+        //
+        // El cubo de impresión está centrado en X=0,Y=0:
+        //   X = [-limits.x/2, +limits.x/2]
+        //   Y = [-limits.y/2, +limits.y/2]
+        //   Z = [0, limits.z]
+        //
+        // Antes se desplazaba la pieza al intervalo [0, limits], pero
+        // el cubo visible está centrado en el origen. Esto hacía que una
+        // pieza perfectamente válida apareciera fuera del cubo.
+        // ============================================================
         const bbox = new THREE.Box3().setFromObject(sMesh);
-        const shiftX = (limits.x / 2) - ((bbox.min.x + bbox.max.x) / 2);
-        const shiftY = (limits.y / 2) - ((bbox.min.y + bbox.max.y) / 2);
-        sMesh.position.x += shiftX;
-        sMesh.position.y += shiftY;
+
+        // Primero garantizamos que la cara elegida siga apoyada sobre Z=0.
+        // Solo se permite corregir el pequeño error numérico de la malla.
+        sMesh.position.z -= bbox.min.z;
+        sMesh.updateMatrixWorld(true);
+
+        const bedMinX = -limits.x / 2;
+        const bedMaxX =  limits.x / 2;
+        const bedMinY = -limits.y / 2;
+        const bedMaxY =  limits.y / 2;
+
+        const placedBox = new THREE.Box3().setFromObject(sMesh);
+
+        // La traslación XY es libre. En vez de asumir una posición,
+        // calculamos una posición que queda EXACTAMENTE dentro del cubo.
+        const placedCenterX = (placedBox.min.x + placedBox.max.x) / 2;
+        const placedCenterY = (placedBox.min.y + placedBox.max.y) / 2;
+
+        sMesh.position.x += -placedCenterX;
+        sMesh.position.y += -placedCenterY;
         sMesh.updateMatrixWorld(true);
 
         const finalBox = new THREE.Box3().setFromObject(sMesh);
         const finalSize = finalBox.getSize(new THREE.Vector3());
 
-        // Comprobación final independiente: lo que se muestra debe ser
-        // exactamente lo que se ha comprobado.
+        // Comprobación final en el MISMO sistema de coordenadas que el
+        // cubo que se ve en pantalla.
+        const eps = 0.001;
         const finalFits =
-          finalBox.min.x >= -0.001 &&
-          finalBox.min.y >= -0.001 &&
-          finalBox.max.x <= limits.x + 0.001 &&
-          finalBox.max.y <= limits.y + 0.001 &&
-          finalBox.min.z >= -0.001 &&
-          finalBox.max.z <= limits.z + 0.001;
+          finalBox.min.x >= bedMinX - eps &&
+          finalBox.max.x <= bedMaxX + eps &&
+          finalBox.min.y >= bedMinY - eps &&
+          finalBox.max.y <= bedMaxY + eps &&
+          finalBox.min.z >= -eps &&
+          finalBox.max.z <= limits.z + eps;
 
         const warningBanner = document.getElementById("limitWarningBanner");
         const oldSuccess = document.getElementById("scaleSuccessBanner");
@@ -929,7 +960,7 @@ main.wrap{min-height:calc(100vh - 95px)}
             `Ángulo: <strong>${angleDeg.toFixed(3)}°</strong>. ` +
             `Tamaño: <strong>${finalSize.x.toFixed(3)} × ${finalSize.y.toFixed(3)} × ${finalSize.z.toFixed(3)} mm</strong>. ` +
             `Margen mínimo: <strong>${minMargin.toFixed(3)} mm</strong>. ` +
-            `<br>La superficie de apoyo seleccionada se mantiene en la cama.`;
+            `<br>La superficie de apoyo seleccionada se mantiene sobre Z=0 y la pieza queda dentro del cubo de impresión.`;
 
           warningBanner.parentNode.insertBefore(successBanner, warningBanner);
         } else {
