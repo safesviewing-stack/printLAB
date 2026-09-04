@@ -35,28 +35,69 @@
     .btn-auth.light:hover { transform: translateY(-1px); box-shadow: 0 4px 0px var(--ink); }
     .btn-auth.green { background: var(--accent); color: var(--ink); box-shadow: 0 3px 0px var(--ink); }
 
-    .tool-header{padding:60px 0 20px; border-bottom:1px solid var(--line); margin-bottom:20px;}
+    .tool-header{padding:56px 0 20px; border-bottom:1px solid var(--line); margin-bottom:0;}
     .tool-header h1{font-size:clamp(32px, 4.5vw, 54px); letter-spacing:-0.03em; line-height:1.05; margin:0 0 12px; font-weight:800;}
     .tool-header p{font-size:18px; color:var(--muted); max-width:900px; margin:0; line-height:1.5;}
 
-    .report-grid{display:grid; grid-template-columns: 1fr 1.1fr; gap:40px; padding:20px 0 60px;}
-    
-    .mesh-comparison{background:var(--dark); border-radius:24px; padding:32px; color:#fff; display:flex; flex-direction:column; gap:24px; box-shadow:0 15px 35px rgba(0,0,0,0.15);}
-    .mesh-canvas{background:#161d1a; border-radius:16px; height:380px; display:flex; align-items:center; justify-content:center; border:1px dashed #2e3a35; position:relative; overflow:hidden;}
-    
-    /* PANELES TOTALMENTE DIFERENCIADOS */
-    .score-card{background:var(--card); border:2px solid var(--line); border-radius:20px; padding:30px; margin-bottom:24px;}
+    .report-grid{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      gap:24px;
+      align-items:start;
+      padding:24px 0 64px;
+    }
+    .report-grid > div{
+      min-width:0;
+      width:100%;
+    }
+    .report-grid > div > *{width:100%;}
+
+    .mesh-comparison{
+      background:var(--dark);
+      border-radius:24px;
+      padding:24px;
+      color:#fff;
+      display:flex;
+      flex-direction:column;
+      gap:20px;
+      box-shadow:0 15px 35px rgba(0,0,0,0.12);
+    }
+    .mesh-canvas{
+      background:#161d1a;
+      border-radius:16px;
+      height:380px;
+      width:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border:1px dashed #2e3a35;
+      position:relative;
+      overflow:hidden;
+    }
+
+    /* Tarjetas con geometría y espaciado uniformes */
+    .score-card{
+      background:var(--card);
+      border:2px solid var(--line);
+      border-radius:20px;
+      padding:24px;
+      margin-bottom:24px;
+      min-height:150px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+    }
     .score-title{font-size:14px; text-transform:uppercase; font-weight:800; color:var(--muted); margin:0 0 10px;}
     .score-value{font-size:32px; font-weight:800; line-height:1.2; color:var(--ink); margin:0 0 10px; letter-spacing: -1px;}
 
-    .prob-card{background:var(--card); border:1.5px solid var(--line); border-radius:16px; padding:24px; margin-bottom: 20px;}
+    .prob-card{background:var(--card); border:1.5px solid var(--line); border-radius:18px; padding:24px; margin-bottom:24px;}
     .prob-card.err{border-color:var(--error); border-left:6px solid var(--error);}
     .prob-card.warn{border-color:var(--warning); border-left:6px solid var(--warning);}
     .prob-header{display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;}
     .prob-title{font-size:18px; font-weight:800; margin:0;}
     .prob-badge{font-size:11px; font-weight:800; padding:4px 10px; border-radius:6px; text-transform:uppercase;}
 
-    .param-box{background:var(--card); border:2px solid var(--line); border-radius:16px; padding:24px; margin-bottom: 20px;}
+    .param-box{background:var(--card); border:2px solid var(--line); border-radius:20px; padding:24px; margin-bottom:24px;}
     .param-title{font-size:14px; text-transform:uppercase; font-weight:800; color:var(--muted); margin-bottom: 12px;}
     
     /* Tarjeta Geométrica Real (Azul suave) */
@@ -122,7 +163,7 @@
       line-height: 1.35;
     }
 
-    .download-panel{background:var(--card); border:1.5px solid var(--line); border-radius:24px; padding:36px; margin-top:32px;}
+    .download-panel{background:var(--card); border:1.5px solid var(--line); border-radius:20px; padding:24px; margin-top:24px;}
     .btn-download-stl{display:inline-flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:16px; background:var(--ink); color:#fff; border:2px solid var(--ink); border-radius:12px; font-weight:800; font-size:15px; cursor:pointer;}
 
     .no-session-card { text-align: center; padding: 60px 40px; background: var(--card); border: 1.5px solid var(--line); border-radius: 24px; max-width: 580px; margin: 80px auto; box-shadow: 0 10px 30px rgba(0,0,0,0.02); }
@@ -131,7 +172,15 @@
     .footer-bottom { border-top: 1px solid var(--line); padding-top: 24px; display:flex; justify-content:center; align-items:center; text-align:center; font-size: 13px; color: #7d8782;}
 
     @media(max-width:992px) {
-      .report-grid { grid-template-columns: 1fr; }
+      .report-grid { grid-template-columns:1fr; gap:20px; }
+      .mesh-canvas { height:360px; }
+    }
+
+    @media(max-width:600px) {
+      .wrap { padding-left:20px; padding-right:20px; }
+      .tool-header { padding-top:40px; }
+      .mesh-comparison, .score-card, .geom-card, .param-box, .download-panel { padding:20px; }
+      .mesh-canvas { height:320px; }
     }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
