@@ -349,7 +349,7 @@ main.wrap{min-height:calc(100vh - 95px)}
           <div id="limitWarningBanner" style="display:none; background:#fcebe8; border:1.5px solid var(--error); color:#9e3223; padding:16px; border-radius:12px; font-size:13.5px; font-weight:700; margin-bottom:12px; line-height:1.4; text-align:center;"></div>
           <div class="viewer-wrap">
             <div class="viewer-toolbar">
-              <button type="button" class="auto-orient-btn" onclick="autoOrientZToFit()" title="Orientar automáticamente la pieza para ajustarla a la cama">
+              <button type="button" class="auto-orient-btn" onclick="autoOrientZToFit()" title="Buscar una rotación que haga que la pieza quepa manteniendo la superficie seleccionada como base">
                 🤖 Orientación automática
               </button>
             </div>
@@ -665,7 +665,9 @@ main.wrap{min-height:calc(100vh - 95px)}
           highlightRing.position.addScaledVector(ringNormal, 0.4);
           sScene.add(highlightRing);
 
-          optimizeZRotationToFit();
+          // Seleccionar una cara NO inicia la búsqueda angular.
+          // Primero se elige la superficie; después el usuario pulsa
+          // "Orientación automática" para iniciar la búsqueda exhaustiva.
           validateCurrentStep();
         }
       }
@@ -821,9 +823,23 @@ main.wrap{min-height:calc(100vh - 95px)}
         if(answers.selectedSupportFace===null || !answers.supportFaceNormal){alert("Por favor, selecciona primero una superficie de apoyo haciendo clic sobre el modelo 3D.");return;}
 
         const limits=printerLimits[answers.printer]; if(!limits)return;
-        const localNormal=new THREE.Vector3(answers.supportFaceNormal[0],answers.supportFaceNormal[1],answers.supportFaceNormal[2]).normalize();
+        const localNormal=new THREE.Vector3(
+          answers.supportFaceNormal[0],
+          answers.supportFaceNormal[1],
+          answers.supportFaceNormal[2]
+        ).normalize();
+
+        // Esta es la cara elegida por el usuario. Se fija contra Z=0 y,
+        // durante toda la búsqueda, SOLO se permite girar alrededor de
+        // la normal de esta cara.
         const target=new THREE.Vector3(0,0,-1);
         const baseQuat=new THREE.Quaternion().setFromUnitVectors(localNormal,target);
+
+        sMesh.scale.set(1,1,1);
+        sMesh.quaternion.copy(baseQuat);
+        sMesh.position.set(0,0,0);
+        sMesh.updateMatrixWorld(true);
+
         const search=prepareBaseSearch(baseQuat);
         let bestAngle=0,bestMargin=-Infinity,foundFit=false;
 
