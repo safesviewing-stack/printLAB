@@ -44,7 +44,8 @@
     .mesh-comparison{background:var(--dark); border-radius:24px; padding:32px; color:#fff; display:flex; flex-direction:column; gap:24px; box-shadow:0 15px 35px rgba(0,0,0,0.15);}
     .mesh-canvas{background:#161d1a; border-radius:16px; height:380px; display:flex; align-items:center; justify-content:center; border:1px dashed #2e3a35; position:relative; overflow:hidden;}
     
-    .score-card{background:var(--card); border:1.5px solid var(--line); border-radius:20px; padding:30px; margin-bottom:24px;}
+    /* PANELES TOTALMENTE DIFERENCIADOS */
+    .score-card{background:var(--card); border:2px solid var(--line); border-radius:20px; padding:30px; margin-bottom:24px;}
     .score-title{font-size:14px; text-transform:uppercase; font-weight:800; color:var(--muted); margin:0 0 10px;}
     .score-value{font-size:32px; font-weight:800; line-height:1.2; color:var(--ink); margin:0 0 10px; letter-spacing: -1px;}
 
@@ -55,26 +56,31 @@
     .prob-title{font-size:18px; font-weight:800; margin:0;}
     .prob-badge{font-size:11px; font-weight:800; padding:4px 10px; border-radius:6px; text-transform:uppercase;}
 
-    .param-box{background:var(--card); border:1.5px solid var(--line); border-radius:16px; padding:24px; margin-bottom: 20px;}
+    .param-box{background:var(--card); border:2px solid var(--line); border-radius:16px; padding:24px; margin-bottom: 20px;}
     .param-title{font-size:14px; text-transform:uppercase; font-weight:800; color:var(--muted); margin-bottom: 12px;}
     
-    /* Tarjeta Geométrica Diferenciada */
+    /* Tarjeta Geométrica Real (Azul suave) */
     .geom-card {
-      background: #f0f5f9;
-      border: 1.5px solid #bcd1db;
+      background: #f0f6fa;
+      border: 2px solid #bcd1db;
       border-radius: 20px;
       padding: 24px;
       margin-top: 24px;
     }
+    .geom-card h4 {
+      color: #1a3c48;
+      margin: 0 0 16px;
+      font-weight: 800;
+    }
     
-    /* Contenedor compacto con barra de scroll interna */
+    /* Contenedor Compacto con Scroll */
     .scrollable-params-container {
       max-height: 320px;
       overflow-y: auto;
       padding: 8px;
       border: 1.5px solid var(--line);
       border-radius: 10px;
-      background: #fbfbfc;
+      background: #fafafa;
     }
     .scrollable-params-container::-webkit-scrollbar {
       width: 6px;
@@ -83,11 +89,11 @@
       background: transparent;
     }
     .scrollable-params-container::-webkit-scrollbar-thumb {
-      background: #d1d5db;
+      background: #cccfc9;
       border-radius: 3px;
     }
     .scrollable-params-container::-webkit-scrollbar-thumb:hover {
-      background: #9ca3af;
+      background: #abb0a7;
     }
 
     .param-row {
@@ -97,11 +103,11 @@
       padding: 6px 10px;
       margin-bottom: 2px;
       font-size: 13px;
-      border-radius: 6px;
+      border-radius: 5px;
       transition: background 0.15s ease;
     }
     .param-row:nth-child(even) {
-      background: rgba(0, 0, 0, 0.025);
+      background: rgba(0, 0, 0, 0.02);
     }
     .param-row:hover {
       background: rgba(184, 255, 61, 0.12);
@@ -113,7 +119,7 @@
     }
     .param-row span {
       word-break: break-word;
-      line-height: 1.3;
+      line-height: 1.35;
     }
 
     .download-panel{background:var(--card); border:1.5px solid var(--line); border-radius:24px; padding:36px; margin-top:32px;}
@@ -180,18 +186,19 @@
             <div class="mesh-canvas" id="canvas3dContainer"></div>
           </div>
 
+          <!-- Tarjeta de Análisis Geométrico (Azul diferenciador) -->
           <div class="geom-card">
-            <h4 style="margin:0 0 16px; font-weight:800; color: #1e3a47;">Análisis Geométrico Real</h4>
-            <div class="param-row"><span>Volumen:</span> <strong id="reportVolume">Calculando...</strong></div>
-            <div class="param-row"><span>Dimensiones:</span> <strong id="reportDimensions">Calculando...</strong></div>
+            <h4>Análisis Geométrico Real</h4>
+            <div class="param-row"><span>Volumen de la pieza:</span> <strong id="reportVolume">Calculando...</strong></div>
+            <div class="param-row"><span>Dimensiones límite de caja:</span> <strong id="reportDimensions">Calculando...</strong></div>
             <div class="param-row"><span>Aristas Manifold (Estanco):</span> <strong id="reportManifold">Calculando...</strong></div>
-            <div class="param-row"><span>Grosor mínimo de pared:</span> <strong id="reportThickness">Calculando...</strong></div>
-            <div class="param-row"><span>Área de voladizo crítico:</span> <strong id="reportOverhang">Calculando...</strong></div>
+            <div class="param-row"><span>Grosor de pared local mínimo:</span> <strong id="reportThickness">Calculando...</strong></div>
+            <div class="param-row"><span>Área física de voladizo crítico:</span> <strong id="reportOverhang">Calculando...</strong></div>
           </div>
 
-          <!-- CONCLUSIÓN DINÁMICA DEL PROPÓSITO (DIFERENCIADA) -->
-          <div style="margin-top:24px; padding:24px; background:#fdfdfc; border:1.5px solid #dcdbd8; border-radius:20px;">
-            <h4 style="margin:0 0 12px; font-weight:800;">Conclusión del Propósito de Impresión</h4>
+          <!-- Tarjeta de Conclusiones de Propósito (Blanco hueso suave) -->
+          <div style="margin-top:24px; padding:24px; background:#fbfbf9; border:1.5px solid #d3d3cf; border-radius:20px;">
+            <h4 style="margin:0 0 12px; font-weight:800; color: #32322c;">Propósito del Laminado</h4>
             <div id="purposeConclusionBox" style="font-size: 14px; line-height:1.5; color: var(--muted);"></div>
           </div>
         </div>
@@ -208,10 +215,10 @@
 
           <!-- Parámetros de OrcaSlicer Completos con Buscador y Scroll -->
           <div class="param-box" style="padding: 24px;">
-            <h4 class="param-title" style="margin-bottom: 4px;">Parámetros del Slicer (OrcaSlicer)</h4>
-            <p style="font-size: 13px; color: var(--muted); margin-bottom: 16px; margin-top:0;">Todos los nombres de variables se han simplificado y adaptado para una lectura cómoda.</p>
+            <h4 class="param-title" style="margin-bottom: 4px;">Parámetros del Slicer (Base de datos unificada)</h4>
+            <p style="font-size: 13px; color: var(--muted); margin-bottom: 16px; margin-top:0;">Fusión de parámetros equivalentes para OrcaSlicer, BambuStudio, PrusaSlicer y Cura.</p>
             
-            <input type="text" id="paramSearch" placeholder="🔍 Filtrar parámetro por código o descripción..." style="width:100%; padding: 12px 16px; border-radius: 12px; border: 1.5px solid var(--line); font-family: inherit; font-size:14px; outline:none; margin-bottom: 24px; background:var(--bg); color:var(--ink);">
+            <input type="text" id="paramSearch" placeholder="🔍 Filtrar parámetro por código, descripción o laminador..." style="width:100%; padding: 12px 16px; border-radius: 12px; border: 1.5px solid var(--line); font-family: inherit; font-size:14px; outline:none; margin-bottom: 24px; background:var(--bg); color:var(--ink);">
 
             <div class="scrollable-params-container">
               <div id="parametersDynamicContainer"></div>
@@ -219,7 +226,7 @@
           </div>
 
           <div class="download-panel">
-            <h4 style="margin:0 0 16px; font-weight:800;">Exportación Directa</h4>
+            <h4 style="margin:0 0 16px; font-weight:800;">Exportación de Proyecto</h4>
             
             <button class="btn-download-stl" id="download3mfBtn" style="background:var(--accent); color:var(--ink); border-color:var(--ink); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 18px 24px;">
               <span style="font-size: 16px; font-weight: 800;">Abrir proyecto en laminador (.3MF)</span>
@@ -246,7 +253,6 @@
   <script>
     let scene, camera, renderer, controls, activeMesh;
 
-    // Estructura de límites físicos reales de las impresoras (para el centrado absoluto)
     const printerLimits = {
       "Bambu Lab X1 Carbon": { x: 256, y: 256, z: 256 },
       "Bambu Lab P1S": { x: 256, y: 256, z: 256 },
@@ -266,157 +272,125 @@
       "Voron 2.4 (350)": { x: 350, y: 350, z: 350 }
     };
 
-    // Estructura de variables internas reales de OrcaSlicer con etiquetas claras en español
+    // Estructura integrada sin paréntesis y con nombres de equivalencia para Orca, BambuStudio, PrusaSlicer y Cura
     const parameterGroups = {
       "Calidad / Calidad de impresión": [
-        { key: "layer_height", label: "Altura de capa", unit: "mm" },
-        { key: "initial_layer_print_height", label: "Altura de capa inicial", unit: "mm" },
-        { key: "outer_wall_line_width", label: "Ancho de línea (Pared exterior)", unit: "mm" },
-        { key: "inner_wall_line_width", label: "Ancho de línea (Pared interior)", unit: "mm" },
-        { key: "sparse_infill_line_width", label: "Ancho de línea (Relleno de esparcido)", unit: "mm" },
-        { key: "internal_solid_infill_line_width", label: "Ancho de línea (Relleno sólido interno)", unit: "mm" },
-        { key: "top_surface_line_width", label: "Ancho de línea (Superficie superior)", unit: "mm" },
-        { key: "initial_layer_line_width", label: "Ancho de línea (Capa inicial)", unit: "mm" },
-        { key: "wall_generator", label: "Generador de paredes (Arachne/Classic)" },
-        { key: "wall_transition_length", label: "Longitud de transición de pared", unit: "%" },
-        { key: "wall_transition_filter_deviation", label: "Desviación de filtro de transición", unit: "%" },
-        { key: "wall_transition_angle", label: "Ángulo de transición de pared", unit: "º" },
-        { key: "detect_thin_wall", label: "Detectar paredes delgadas" },
-        { key: "detect_overhang_wall", label: "Detectar paredes en voladizo" },
-        { key: "arc_fitting", label: "Ajuste de arcos (G2/G3)" },
-        { key: "slice_closing_radius", label: "Radio de cierre de rebanado", unit: "mm" }
+        { key: "layer_height", label: "Altura de capa", slicers: "Orca/Bambu: layer_height | Prusa: layer_height | Cura: layer_height", unit: "mm" },
+        { key: "initial_layer_print_height", label: "Altura de capa inicial", slicers: "Orca/Bambu: initial_layer_print_height | Prusa: first_layer_height | Cura: layer_height_0", unit: "mm" },
+        { key: "outer_wall_line_width", label: "Ancho de línea (Pared exterior)", slicers: "Orca/Bambu: outer_wall_line_width | Prusa: external_perimeter_extrusion_width | Cura: wall_line_width_x", unit: "mm" },
+        { key: "inner_wall_line_width", label: "Ancho de línea (Pared interior)", slicers: "Orca/Bambu: inner_wall_line_width | Prusa: perimeter_extrusion_width | Cura: wall_line_width_0", unit: "mm" },
+        { key: "sparse_infill_line_width", label: "Ancho de línea (Relleno de esparcido)", slicers: "Orca/Bambu: sparse_infill_line_width | Prusa: infill_extrusion_width | Cura: infill_line_width", unit: "mm" },
+        { key: "internal_solid_infill_line_width", label: "Ancho de línea (Relleno sólido)", slicers: "Orca/Bambu: internal_solid_infill_line_width | Prusa: solid_infill_extrusion_width | Cura: solid_infill_line_width", unit: "mm" },
+        { key: "top_surface_line_width", label: "Ancho de línea (Superficie superior)", slicers: "Orca/Bambu: top_surface_line_width | Prusa: top_infill_extrusion_width | Cura: top_bottom_line_width", unit: "mm" },
+        { key: "initial_layer_line_width", label: "Ancho de línea (Capa inicial)", slicers: "Orca/Bambu: initial_layer_line_width | Prusa: first_layer_extrusion_width | Cura: sk_br_line_width", unit: "mm" },
+        { key: "wall_generator", label: "Generador de paredes", slicers: "Orca/Bambu: wall_generator | Prusa: perimeter_generator | Cura: wall_transition_filter_deviation" },
+        { key: "wall_transition_length", label: "Longitud de transición de pared", slicers: "Orca/Bambu/Prusa: wall_transition_length | Cura: wall_transition_length", unit: "%" },
+        { key: "wall_transition_filter_deviation", label: "Desviación de filtro de transición", slicers: "Orca/Bambu/Prusa: wall_transition_filter_deviation | Cura: wall_transition_filter_deviation", unit: "%" },
+        { key: "wall_transition_angle", label: "Ángulo de transición de pared", slicers: "Orca/Bambu: wall_transition_angle | Prusa: wall_transition_angle", unit: "º" },
+        { key: "detect_thin_wall", label: "Detectar paredes delgadas", slicers: "Orca/Bambu: detect_thin_wall | Prusa: thin_walls | Cura: fill_outline_gaps" },
+        { key: "detect_overhang_wall", label: "Detectar paredes en voladizo", slicers: "Orca/Bambu: detect_overhang_wall | Prusa: over_walls" },
+        { key: "arc_fitting", label: "Ajuste de arcos (G2/G3)", slicers: "Orca/Bambu: arc_fitting | Prusa: export_g2g3" },
+        { key: "slice_closing_radius", label: "Radio de cierre de rebanado", slicers: "Orca/Bambu: slice_closing_radius | Prusa: slice_closing_radius", unit: "mm" }
       ],
       "Fuerza y Estructura": [
-        { key: "wall_loops", label: "Bucles de pared (Perímetros)", unit: "bucles" },
-        { key: "top_shell_layers", label: "Capas de caparazón superior", unit: "capas" },
-        { key: "bottom_shell_layers", label: "Capas de caparazón inferior", unit: "capas" },
-        { key: "top_shell_thickness", label: "Espesor de caparazón superior", unit: "mm" },
-        { key: "bottom_shell_thickness", label: "Espesor de caparazón inferior", unit: "mm" },
-        { key: "sparse_infill_density", label: "Densidad de relleno de esparcido", unit: "%" },
-        { key: "sparse_infill_pattern", label: "Patrón de relleno de esparcido" },
-        { key: "top_surface_pattern", label: "Patrón de superficie superior" },
-        { key: "bottom_surface_pattern", label: "Patrón de superficie inferior" },
-        { key: "infill_direction", label: "Dirección de relleno", unit: "º" },
-        { key: "sparse_infill_line_distance", label: "Distancia entre líneas de relleno", unit: "mm" },
-        { key: "infill_combination", label: "Combinación de relleno" },
-        { key: "infill_solid_every", label: "Relleno sólido cada N capas", unit: "capas" },
-        { key: "infill_anchor", label: "Anclaje del relleno", unit: "mm" },
-        { key: "infill_anchor_max", label: "Anclaje máximo del relleno", unit: "mm" }
+        { key: "wall_loops", label: "Bucles de pared (Perímetros)", slicers: "Orca/Bambu: wall_loops | Prusa: perimeters | Cura: wall_line_count", unit: "bucles" },
+        { key: "top_shell_layers", label: "Capas de caparazón superior", slicers: "Orca/Bambu: top_shell_layers | Prusa: top_solid_layers | Cura: top_layers", unit: "capas" },
+        { key: "bottom_shell_layers", label: "Capas de caparazón inferior", slicers: "Orca/Bambu: bottom_shell_layers | Prusa: bottom_solid_layers | Cura: bottom_layers", unit: "capas" },
+        { key: "top_shell_thickness", label: "Espesor de caparazón superior", slicers: "Orca/Bambu: top_shell_thickness | Prusa: top_solid_min_thickness | Cura: top_thickness", unit: "mm" },
+        { key: "bottom_shell_thickness", label: "Espesor de caparazón inferior", slicers: "Orca/Bambu: bottom_shell_thickness | Prusa: bottom_solid_min_thickness | Cura: bottom_thickness", unit: "mm" },
+        { key: "sparse_infill_density", label: "Densidad de relleno de esparcido", slicers: "Orca/Bambu: sparse_infill_density | Prusa: fill_density | Cura: infill_sparse_density", unit: "%" },
+        { key: "sparse_infill_pattern", label: "Patrón de relleno de esparcido", slicers: "Orca/Bambu: sparse_infill_pattern | Prusa: fill_pattern | Cura: infill_pattern" },
+        { key: "top_surface_pattern", label: "Patrón de superficie superior", slicers: "Orca/Bambu: top_surface_pattern | Prusa: top_fill_pattern | Cura: top_pattern" },
+        { key: "bottom_surface_pattern", label: "Patrón de superficie inferior", slicers: "Orca/Bambu: bottom_surface_pattern | Prusa: bottom_fill_pattern | Cura: bottom_pattern" },
+        { key: "infill_direction", label: "Dirección de relleno", slicers: "Orca/Bambu: infill_direction | Prusa: fill_angle | Cura: infill_angles", unit: "º" },
+        { key: "sparse_infill_line_distance", label: "Distancia entre líneas de relleno", slicers: "Orca/Bambu: sparse_infill_line_distance | Prusa: fill_line_distance", unit: "mm" },
+        { key: "infill_combination", label: "Combinación de relleno", slicers: "Orca/Bambu: infill_combination | Prusa: infill_every_layers" },
+        { key: "infill_solid_every", label: "Relleno sólido cada N capas", slicers: "Orca/Bambu: infill_solid_every | Prusa: solid_infill_every_layers", unit: "capas" },
+        { key: "infill_anchor", label: "Anclaje del relleno", slicers: "Orca/Bambu: infill_anchor | Prusa: infill_anchor", unit: "mm" },
+        { key: "infill_anchor_max", label: "Anclaje máximo del relleno", slicers: "Orca/Bambu: infill_anchor_max | Prusa: infill_anchor_max", unit: "mm" }
       ],
       "Velocidades": [
-        { key: "outer_wall_speed", label: "Velocidad de pared exterior", unit: "mm/s" },
-        { key: "inner_wall_speed", label: "Velocidad de pared interior", unit: "mm/s" },
-        { key: "sparse_infill_speed", label: "Velocidad de relleno de esparcido", unit: "mm/s" },
-        { key: "internal_solid_infill_speed", label: "Velocidad de relleno sólido interno", unit: "mm/s" },
-        { key: "top_surface_speed", label: "Velocidad de superficie superior", unit: "mm/s" },
-        { key: "gap_fill_speed", label: "Velocidad de relleno de huecos", unit: "mm/s" },
-        { key: "bridge_speed", label: "Velocidad de puentes", unit: "mm/s" },
-        { key: "initial_layer_speed", label: "Velocidad de capa inicial", unit: "mm/s" },
-        { key: "initial_layer_infill_speed", label: "Velocidad de relleno de capa inicial", unit: "mm/s" },
-        { key: "travel_speed", label: "Velocidad de viaje", unit: "mm/s" },
-        { key: "slow_down_for_layer_cooling", label: "Ralentizar por enfriamiento" },
-        { key: "min_print_speed", label: "Velocidad de impresión mínima", unit: "mm/s" },
-        { key: "overhang_1_4_speed", label: "Velocidad voladizo (1/4)", unit: "mm/s" },
-        { key: "overhang_2_4_speed", label: "Velocidad voladizo (2/4)", unit: "mm/s" },
-        { key: "overhang_3_4_speed", label: "Velocidad voladizo (3/4)", unit: "mm/s" },
-        { key: "overhang_4_4_speed", label: "Velocidad voladizo (4/4)", unit: "mm/s" }
+        { key: "outer_wall_speed", label: "Velocidad de pared exterior", slicers: "Orca/Bambu: outer_wall_speed | Prusa: external_perimeter_speed | Cura: speed_wall_x", unit: "mm/s" },
+        { key: "inner_wall_speed", label: "Velocidad de pared interior", slicers: "Orca/Bambu: inner_wall_speed | Prusa: perimeter_speed | Cura: speed_wall_0", unit: "mm/s" },
+        { key: "sparse_infill_speed", label: "Velocidad de relleno de esparcido", slicers: "Orca/Bambu: sparse_infill_speed | Prusa: infill_speed | Cura: speed_infill", unit: "mm/s" },
+        { key: "internal_solid_infill_speed", label: "Velocidad de relleno sólido interno", slicers: "Orca/Bambu: internal_solid_infill_speed | Prusa: solid_infill_speed | Cura: speed_solid_infill", unit: "mm/s" },
+        { key: "top_surface_speed", label: "Velocidad de superficie superior", slicers: "Orca/Bambu: top_surface_speed | Prusa: top_solid_infill_speed | Cura: speed_topbottom", unit: "mm/s" },
+        { key: "gap_fill_speed", label: "Velocidad de relleno de huecos", slicers: "Orca/Bambu: gap_fill_speed | Prusa: gap_fill_speed | Cura: speed_equalize_flow", unit: "mm/s" },
+        { key: "bridge_speed", label: "Velocidad de puentes", slicers: "Orca/Bambu: bridge_speed | Prusa: bridge_speed | Cura: speed_equalize_flow", unit: "mm/s" },
+        { key: "initial_layer_speed", label: "Velocidad de capa inicial", slicers: "Orca/Bambu: initial_layer_speed | Prusa: first_layer_speed | Cura: speed_layer_0", unit: "mm/s" },
+        { key: "initial_layer_infill_speed", label: "Velocidad de relleno de capa inicial", slicers: "Orca/Bambu: initial_layer_infill_speed | Prusa: first_layer_speed_infill", unit: "mm/s" },
+        { key: "travel_speed", label: "Velocidad de viaje", slicers: "Orca/Bambu: travel_speed | Prusa: travel_speed | Cura: speed_travel", unit: "mm/s" },
+        { key: "slow_down_for_layer_cooling", label: "Ralentizar por enfriamiento", slicers: "Orca/Bambu: slow_down_for_layer_cooling | Prusa: fan_below_layer_time" },
+        { key: "min_print_speed", label: "Velocidad de impresión mínima", slicers: "Orca/Bambu: min_print_speed | Prusa: min_print_speed", unit: "mm/s" },
+        { key: "overhang_1_4_speed", label: "Velocidad voladizo (1/4)", slicers: "Orca/Bambu: overhang_1_4_speed | Prusa: overhangs_speed_1", unit: "mm/s" },
+        { key: "overhang_2_4_speed", label: "Velocidad voladizo (2/4)", slicers: "Orca/Bambu: overhang_2_4_speed | Prusa: overhangs_speed_2", unit: "mm/s" },
+        { key: "overhang_3_4_speed", label: "Velocidad voladizo (3/4)", slicers: "Orca/Bambu: overhang_3_4_speed | Prusa: overhangs_speed_3", unit: "mm/s" },
+        { key: "overhang_4_4_speed", label: "Velocidad voladizo (4/4)", slicers: "Orca/Bambu: overhang_4_4_speed | Prusa: overhangs_speed_4", unit: "mm/s" }
       ],
       "Dinámicas y Aceleraciones": [
-        { key: "default_acceleration", label: "Aceleración por defecto", unit: "mm/s²" },
-        { key: "outer_wall_acceleration", label: "Aceleración de pared exterior", unit: "mm/s²" },
-        { key: "inner_wall_acceleration", label: "Aceleración de pared interior", unit: "mm/s²" },
-        { key: "sparse_infill_acceleration", label: "Aceleración de relleno", unit: "mm/s²" },
-        { key: "internal_solid_infill_acceleration", label: "Aceleración de relleno sólido", unit: "mm/s²" },
-        { key: "top_surface_acceleration", label: "Aceleración de superficie superior", unit: "mm/s²" },
-        { key: "travel_acceleration", label: "Aceleración de viaje", unit: "mm/s²" },
-        { key: "initial_layer_acceleration", label: "Aceleración de capa inicial", unit: "mm/s²" },
-        { key: "bridge_acceleration", label: "Aceleración de puentes", unit: "mm/s²" },
-        { key: "jerk_xy_item", label: "Jerk XY", unit: "mm/s" },
-        { key: "jerk_z_item", label: "Jerk Z", unit: "mm/s" },
-        { key: "jerk_e_item", label: "Jerk Extrusor", unit: "mm/s" }
+        { key: "default_acceleration", label: "Aceleración por defecto", slicers: "Orca/Bambu: default_acceleration | Prusa: default_acceleration | Cura: acceleration_print", unit: "mm/s²" },
+        { key: "outer_wall_acceleration", label: "Aceleración de pared exterior", slicers: "Orca/Bambu: outer_wall_acceleration | Prusa: external_perimeter_acceleration | Cura: acceleration_wall_x", unit: "mm/s²" },
+        { key: "inner_wall_acceleration", label: "Aceleración de pared interior", slicers: "Orca/Bambu: inner_wall_acceleration | Prusa: perimeter_acceleration | Cura: acceleration_wall_0", unit: "mm/s²" },
+        { key: "sparse_infill_acceleration", label: "Aceleración de relleno", slicers: "Orca/Bambu: sparse_infill_acceleration | Prusa: infill_acceleration | Cura: acceleration_infill", unit: "mm/s²" },
+        { key: "internal_solid_infill_acceleration", label: "Aceleración de relleno sólido", slicers: "Orca/Bambu: internal_solid_infill_acceleration | Prusa: solid_infill_acceleration", unit: "mm/s²" },
+        { key: "top_surface_acceleration", label: "Aceleración de superficie superior", slicers: "Orca/Bambu: top_surface_acceleration | Prusa: top_solid_infill_acceleration", unit: "mm/s²" },
+        { key: "travel_acceleration", label: "Aceleración de viaje", slicers: "Orca/Bambu: travel_acceleration | Prusa: travel_acceleration | Cura: acceleration_travel", unit: "mm/s²" },
+        { key: "initial_layer_acceleration", label: "Aceleración de capa inicial", slicers: "Orca/Bambu: initial_layer_acceleration | Prusa: first_layer_acceleration | Cura: acceleration_layer_0", unit: "mm/s²" },
+        { key: "bridge_acceleration", label: "Aceleración de puentes", slicers: "Orca/Bambu: bridge_acceleration | Prusa: bridge_acceleration", unit: "mm/s²" },
+        { key: "jerk_xy_item", label: "Jerk XY", slicers: "Orca/Bambu: jerk_xy_item | Prusa: jerk_xy | Cura: jerk_print", unit: "mm/s" },
+        { key: "jerk_z_item", label: "Jerk Z", slicers: "Orca/Bambu: jerk_z_item | Prusa: jerk_z | Cura: jerk_travel", unit: "mm/s" },
+        { key: "jerk_e_item", label: "Jerk Extrusor", slicers: "Orca/Bambu: jerk_e_item | Prusa: jerk_e | Cura: jerk_travel", unit: "mm/s" }
       ],
       "Filamento y Extrusión": [
-        { key: "nozzle_temperature", label: "Temperatura de boquilla", unit: "ºC" },
-        { key: "nozzle_temperature_initial_layer", label: "Temp. boquilla (Capa inicial)", unit: "ºC" },
-        { key: "hot_plate_temp", label: "Temperatura de cama", unit: "ºC" },
-        { key: "hot_plate_temp_initial", label: "Temp. cama (Capa inicial)", unit: "ºC" },
-        { key: "flow_ratio", label: "Relación de flujo" },
-        { key: "pressure_advance", label: "Avance de presión" },
-        { key: "filament_max_volumetric_speed", label: "Velocidad volumétrica máxima", unit: "mm³/s" },
-        { key: "filament_shrinkage", label: "Contracción de filamento", unit: "%" },
-        { key: "filament_density", label: "Densidad de filamento", unit: "g/cm³" },
-        { key: "filament_cost", label: "Costo de filamento", unit: "€/kg" },
-        { key: "filament_diameter", label: "Diámetro de filamento", unit: "mm" },
-        { key: "retraction_length", label: "Longitud de retracción", unit: "mm" },
-        { key: "retraction_speed", label: "Velocidad de retracción", unit: "mm/s" },
-        { key: "deretraction_speed", label: "Velocidad de desretracción", unit: "mm/s" },
-        { key: "z_hop_height", label: "Altura de Z-Hop", unit: "mm" },
-        { key: "z_hop_type", label: "Tipo de Z-Hop" },
-        { key: "retract_before_wipe", label: "Retraer antes de limpiar" },
-        { key: "wipe_distance", label: "Distancia de limpieza", unit: "mm" }
+        { key: "nozzle_temperature", label: "Temperatura de boquilla", slicers: "Orca/Bambu: nozzle_temperature | Prusa: temperature | Cura: material_print_temperature", unit: "ºC" },
+        { key: "nozzle_temperature_initial_layer", label: "Temp. boquilla (Capa inicial)", slicers: "Orca/Bambu: nozzle_temperature_initial_layer | Prusa: first_layer_temperature | Cura: material_print_temperature_layer_0", unit: "ºC" },
+        { key: "hot_plate_temp", label: "Temperatura de cama", slicers: "Orca/Bambu: hot_plate_temp | Prusa: bed_temperature | Cura: material_bed_temperature", unit: "ºC" },
+        { key: "hot_plate_temp_initial", label: "Temp. cama (Capa inicial)", slicers: "Orca/Bambu: hot_plate_temp_initial | Prusa: first_layer_bed_temperature | Cura: material_bed_temperature_layer_0", unit: "ºC" },
+        { key: "flow_ratio", label: "Relación de flujo", slicers: "Orca/Bambu: flow_ratio | Prusa: extrusion_multiplier | Cura: material_flow" },
+        { key: "pressure_advance", label: "Avance de presión", slicers: "Orca/Bambu: pressure_advance | Prusa: pressure_advance | Cura: linear_advance" },
+        { key: "filament_max_volumetric_speed", label: "Velocidad volumétrica máxima", slicers: "Orca/Bambu: filament_max_volumetric_speed | Prusa: filament_max_volumetric_speed", unit: "mm³/s" },
+        { key: "filament_shrinkage", label: "Contracción de filamento", slicers: "Orca/Bambu: filament_shrinkage | Prusa: filament_shrinkage", unit: "%" },
+        { key: "filament_density", label: "Densidad de filamento", slicers: "Orca/Bambu: filament_density | Prusa: filament_density | Cura: material_density", unit: "g/cm³" },
+        { key: "filament_cost", label: "Costo de filamento", slicers: "Orca/Bambu: filament_cost | Prusa: filament_cost | Cura: material_cost", unit: "€/kg" },
+        { key: "filament_diameter", label: "Diámetro de filamento", slicers: "Orca/Bambu: filament_diameter | Prusa: filament_diameter | Cura: material_diameter", unit: "mm" },
+        { key: "retraction_length", label: "Longitud de retracción", slicers: "Orca/Bambu: retraction_length | Prusa: retract_length | Cura: retraction_amount", unit: "mm" },
+        { key: "retraction_speed", label: "Velocidad de retracción", slicers: "Orca/Bambu: retraction_speed | Prusa: retract_speed | Cura: retraction_retract_speed", unit: "mm/s" },
+        { key: "deretraction_speed", label: "Velocidad de desretracción", slicers: "Orca/Bambu: deretraction_speed | Prusa: deretract_speed | Cura: retraction_prime_speed", unit: "mm/s" },
+        { key: "z_hop_height", label: "Altura de Z-Hop", slicers: "Orca/Bambu: z_hop_height | Prusa: retract_lift | Cura: retraction_hop", unit: "mm" },
+        { key: "z_hop_type", label: "Tipo de Z-Hop", slicers: "Orca/Bambu: z_hop_type | Prusa: retract_lift_above" },
+        { key: "retract_before_wipe", label: "Retraer antes de limpiar", slicers: "Orca/Bambu: retract_before_wipe | Prusa: retract_before_wipe" },
+        { key: "wipe_distance", label: "Distancia de limpieza", slicers: "Orca/Bambu: wipe_distance | Prusa: wipe_distance", unit: "mm" }
       ],
       "Enfriamiento y Enfriado": [
-        { key: "fan_cooling_speed", label: "Velocidad del ventilador de capa", unit: "%" },
-        { key: "fan_speed_min", label: "Velocidad mínima del ventilador", unit: "%" },
-        { key: "fan_speed_max", label: "Velocidad máxima del ventilador", unit: "%" },
-        { key: "cool_plate_fan_speed", label: "Ventilador para cama fría", unit: "%" },
-        { key: "additional_cooling_fan_speed", label: "Ventilador adicional", unit: "%" },
-        { key: "exhaust_fan_speed", label: "Ventilador extractor", unit: "%" },
-        { key: "cooling_threshold_time", label: "Tiempo umbral de enfriamiento", unit: "s" },
-        { key: "fan_speed_overhangs", label: "Ventilador para voladizos" }
+        { key: "fan_cooling_speed", label: "Velocidad del ventilador de capa", slicers: "Orca/Bambu: fan_cooling_speed | Prusa: fan_always_on | Cura: cool_fan_speed", unit: "%" },
+        { key: "fan_speed_min", label: "Velocidad mínima del ventilador", slicers: "Orca/Bambu: fan_speed_min | Prusa: min_fan_speed | Cura: cool_fan_speed_min", unit: "%" },
+        { key: "fan_speed_max", label: "Velocidad máxima del ventilador", slicers: "Orca/Bambu: fan_speed_max | Prusa: max_fan_speed | Cura: cool_fan_speed_max", unit: "%" },
+        { key: "cool_plate_fan_speed", label: "Ventilador para cama fría", slicers: "Orca/Bambu: cool_plate_fan_speed | Prusa: cool_plate_fan_speed", unit: "%" },
+        { key: "additional_cooling_fan_speed", label: "Ventilador adicional", slicers: "Orca/Bambu: additional_cooling_fan_speed", unit: "%" },
+        { key: "exhaust_fan_speed", label: "Ventilador extractor", slicers: "Orca/Bambu: exhaust_fan_speed", unit: "%" },
+        { key: "cooling_threshold_time", label: "Tiempo umbral de enfriamiento", slicers: "Orca/Bambu: cooling_threshold_time | Prusa: slow_down_below", unit: "s" },
+        { key: "fan_speed_overhangs", label: "Ventilador para voladizos", slicers: "Orca/Bambu: fan_speed_overhangs" }
       ],
       "Soportes y Adhesión": [
-        { key: "enable_support", label: "Soportes activados" },
-        { key: "support_type", label: "Tipo de soporte" },
-        { key: "support_style", label: "Estilo de soporte" },
-        { key: "support_on_build_plate_only", label: "Soporte solo en la cama" },
-        { key: "support_top_z_distance", label: "Distancia Z superior de soporte", unit: "mm" },
-        { key: "support_bottom_z_distance", label: "Distancia Z inferior de soporte", unit: "mm" },
-        { key: "support_interface_layers", label: "Capas de interfaz de soporte", unit: "capas" },
-        { key: "support_interface_spacing", label: "Espaciado de interfaz", unit: "mm" },
-        { key: "support_interface_speed", label: "Velocidad de interfaz", unit: "%" },
-        { key: "support_base_pattern", label: "Patrón de base de soporte" },
-        { key: "support_interface_pattern", label: "Patrón de interfaz de soporte" },
-        { key: "brim_type", label: "Tipo de visera" },
-        { key: "brim_width", label: "Ancho de visera", unit: "mm" },
-        { key: "brim_object_gap", label: "Espacio entre visera y objeto", unit: "mm" },
-        { key: "skirt_loops", label: "Bucles de falda", unit: "bucles" },
-        { key: "skirt_distance", label: "Distancia de falda", unit: "mm" },
-        { key: "skirt_height", label: "Altura de falda", unit: "capas" }
+        { key: "enable_support", label: "Soportes activados", slicers: "Orca/Bambu: enable_support | Prusa: support_material | Cura: support_enable" },
+        { key: "support_type", label: "Tipo de soporte", slicers: "Orca/Bambu: support_type | Prusa: support_material_style | Cura: support_structure" },
+        { key: "support_style", label: "Estilo de soporte", slicers: "Orca/Bambu: support_style | Prusa: support_material_style | Cura: support_type" },
+        { key: "support_on_build_plate_only", label: "Soporte solo en la cama", slicers: "Orca/Bambu: support_on_build_plate_only | Prusa: support_material_on_build_plate_only | Cura: support_on_build_plate_only" },
+        { key: "support_top_z_distance", label: "Distancia Z superior de soporte", slicers: "Orca/Bambu: support_top_z_distance | Prusa: support_material_contact_distance | Cura: support_z_distance", unit: "mm" },
+        { key: "support_bottom_z_distance", label: "Distancia Z inferior de soporte", slicers: "Orca/Bambu: support_bottom_z_distance | Prusa: support_material_contact_distance | Cura: support_z_distance", unit: "mm" },
+        { key: "support_interface_layers", label: "Capas de interfaz de soporte", slicers: "Orca/Bambu: support_interface_layers | Prusa: support_material_interface_layers | Cura: support_interface_layers", unit: "capas" },
+        { key: "support_interface_spacing", label: "Espaciado de interfaz", slicers: "Orca/Bambu: support_interface_spacing | Prusa: support_material_interface_spacing | Cura: support_interface_density", unit: "mm" },
+        { key: "support_interface_speed", label: "Velocidad de interfaz", slicers: "Orca/Bambu: support_interface_speed | Prusa: support_material_interface_speed | Cura: speed_support_interface", unit: "%" },
+        { key: "support_base_pattern", label: "Patrón de base de soporte", slicers: "Orca/Bambu: support_base_pattern | Prusa: support_material_pattern | Cura: support_pattern" },
+        { key: "support_interface_pattern", label: "Patrón de interfaz de soporte", slicers: "Orca/Bambu: support_interface_pattern | Prusa: support_material_interface_pattern | Cura: support_interface_pattern" },
+        { key: "brim_type", label: "Tipo de visera", slicers: "Orca/Bambu: brim_type | Prusa: skirt_brim | Cura: adhesion_type" },
+        { key: "brim_width", label: "Ancho de visera", slicers: "Orca/Bambu: brim_width | Prusa: brim_width | Cura: brim_width", unit: "mm" },
+        { key: "brim_object_gap", label: "Espacio entre visera y objeto", slicers: "Orca/Bambu: brim_object_gap | Prusa: brim_object_gap | Cura: brim_gap", unit: "mm" },
+        { key: "skirt_loops", label: "Bucles de falda", slicers: "Orca/Bambu: skirt_loops | Prusa: skirt_line | Cura: skirt_line_count", unit: "bucles" },
+        { key: "skirt_distance", label: "Distancia de falda", slicers: "Orca/Bambu: skirt_distance | Prusa: skirt_distance | Cura: skirt_distance", unit: "mm" },
+        { key: "skirt_height", label: "Altura de falda", slicers: "Orca/Bambu: skirt_height | Prusa: skirt_height", unit: "capas" }
       ]
     };
-
-    // --- FUNCIÓN DE TRADUCCIÓN DE ENUMS PARA EVITAR ADVERTENCIAS EN ORCASLICER ---
-    function translateToOrcaValue(key, val) {
-      if (val === null || val === undefined) return "";
-      const sVal = val.toString().toLowerCase();
-
-      if (key === "sparse_infill_pattern") {
-        const patterns = {
-          "giroide": "gyroid",
-          "lightning": "lightning",
-          "rayo": "lightning",
-          "rejilla": "grid",
-          "rectilineo": "rectilinear",
-          "cubico": "cubic"
-        };
-        return patterns[sVal] || sVal;
-      }
-      if (key === "support_type") {
-        if (sVal === "none") return "normal(auto)";
-        return sVal === "tree" ? "tree(auto)" : "normal(auto)";
-      }
-      if (key === "support_style") {
-        if (sVal === "normal") return "default";
-        if (sVal === "tree") return "organic";
-        return sVal;
-      }
-      if (key === "brim_type") {
-        if (sVal === "none") return "no_brim";
-        return sVal; // "outer_only", "auto_brim", etc.
-      }
-      return val.toString();
-    }
 
     function init3DViewer(containerId, base64Data, criticalPoints) {
       const container = document.getElementById(containerId);
@@ -574,7 +548,7 @@
         for (const groupName in parameterGroups) {
           const groupVariables = parameterGroups[groupName];
           const filtered = groupVariables.filter(v => {
-            return v.key.toLowerCase().includes(lowerFilter) || v.label.toLowerCase().includes(lowerFilter);
+            return v.key.toLowerCase().includes(lowerFilter) || v.label.toLowerCase().includes(lowerFilter) || v.slicers.toLowerCase().includes(lowerFilter);
           });
 
           if (filtered.length > 0) {
@@ -592,10 +566,10 @@
               row.className = "param-row";
               
               const labelSpan = document.createElement("span");
-              // Colocación en una sola línea de la descripción física con el código en miniatura
+              // Colocación en una sola línea de la descripción física con el código en miniatura (SIN PARÉNTESIS)
               labelSpan.innerHTML = `
-                <span style="font-size:13px; font-weight:700; color:var(--ink);">${v.label}</span>
-                <code style="font-size:10.5px; color:var(--muted); margin-left:4px; font-family: monospace;">(${v.key})</code>
+                <span style="font-size:13px; font-weight:700; color:var(--ink);">${v.label}</span><br>
+                <code style="font-size:10.5px; color:var(--muted); font-family: monospace;">${v.key}</code>
               `;
               row.appendChild(labelSpan);
 
@@ -634,8 +608,7 @@
           try {
             const zip = new JSZip();
 
-            const contentTypesXml = `xml
-<?xml version="1.0" encoding="UTF-8"?>
+            const contentTypesXml = `<?xml version="1.0" encoding="UTF-8"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
   <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
   <Default Extension="model" ContentType="application/vnd.ms-package.3dmanufacturing-3dmodel+xml"/>
@@ -643,8 +616,7 @@
 </Types>`;
             zip.file("[Content_Types].xml", contentTypesXml);
 
-            const relsXml = `xml
-<?xml version="1.0" encoding="UTF-8"?>
+            const relsXml = `<?xml version="1.0" encoding="UTF-8"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
   <Relationship Id="rel0" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel" Target="/3D/3dmodel.model"/>
 </Relationships>`;
@@ -689,8 +661,7 @@
               }
             }
 
-            const modelXml = `xml
-<?xml version="1.0" encoding="UTF-8"?>
+            const modelXml = `<?xml version="1.0" encoding="UTF-8"?>
 <model xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02" unit="millimeter" xml:lang="en-US">
   <resources>
     <object id="1" type="model">
@@ -764,7 +735,11 @@
             alert("Error al construir el archivo de proyecto 3MF: " + err.message);
           } finally {
             downloadBtn.disabled = false;
-            downloadBtn.textContent = "Abrir Proyecto Completo en OrcaSlicer (.3MF)";
+            // Restauración exacta de la interfaz genérica solicitada sin el nombre de OrcaSlicer
+            downloadBtn.innerHTML = `
+              <span style="font-size: 16px; font-weight: 800;">Abrir proyecto en laminador (.3MF)</span>
+              <span style="font-size: 11px; font-weight: 500; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.5px;">Abrir dentro del laminador</span>
+            `;
           }
         });
       }
