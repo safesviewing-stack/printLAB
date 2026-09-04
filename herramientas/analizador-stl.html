@@ -114,6 +114,38 @@ main.wrap{min-height:calc(100vh - 95px)}
 </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../assets/js/auth-helper.js?v=11"></script>
+
+  <style>
+    /* El analizador requiere una sesión iniciada. Evita mostrar el contenido antes de comprobarla. */
+    body { visibility: hidden; }
+    body.auth-verified { visibility: visible; }
+  </style>
+  <script>
+    (async function requireAnalyzerLogin(){
+      try {
+        const authClient = window.supabaseClient || null;
+        if (!authClient) {
+          window.location.replace("login.html?redirect=analizador-stl.html");
+          return;
+        }
+
+        const { data, error } = await authClient.auth.getSession();
+        if (error || !data || !data.session) {
+          sessionStorage.setItem("printlab_auth_redirect", "analizador-stl.html");
+          window.location.replace("login.html?redirect=analizador-stl.html");
+          return;
+        }
+
+        document.addEventListener("DOMContentLoaded", function(){
+          document.body.classList.add("auth-verified");
+        }, { once: true });
+      } catch (e) {
+        console.error("No se pudo verificar la sesión:", e);
+        sessionStorage.setItem("printlab_auth_redirect", "analizador-stl.html");
+        window.location.replace("login.html?redirect=analizador-stl.html");
+      }
+    })();
+  </script>
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/STLLoader.js"></script>
