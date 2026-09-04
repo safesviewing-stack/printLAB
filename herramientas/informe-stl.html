@@ -51,7 +51,6 @@
     .prob-card{background:var(--card); border:1.5px solid var(--line); border-radius:16px; padding:24px; margin-bottom: 20px;}
     .prob-card.err{border-color:var(--error); border-left:6px solid var(--error);}
     .prob-card.warn{border-color:var(--warning); border-left:6px solid var(--warning);}
-    .prob-card.warn{border-color:var(--warning); border-left:6px solid var(--warning);}
     .prob-header{display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;}
     .prob-title{font-size:18px; font-weight:800; margin:0;}
     .prob-badge{font-size:11px; font-weight:800; padding:4px 10px; border-radius:6px; text-transform:uppercase;}
@@ -59,11 +58,20 @@
     .param-box{background:var(--card); border:1.5px solid var(--line); border-radius:16px; padding:24px; margin-bottom: 20px;}
     .param-title{font-size:14px; text-transform:uppercase; font-weight:800; color:var(--muted); margin-bottom: 12px;}
     
+    /* Tarjeta Geométrica Diferenciada */
+    .geom-card {
+      background: #f0f5f9;
+      border: 1.5px solid #bcd1db;
+      border-radius: 20px;
+      padding: 24px;
+      margin-top: 24px;
+    }
+    
     /* Contenedor compacto con barra de scroll interna */
     .scrollable-params-container {
       max-height: 320px;
       overflow-y: auto;
-      padding: 6px;
+      padding: 8px;
       border: 1.5px solid var(--line);
       border-radius: 10px;
       background: #fbfbfc;
@@ -172,8 +180,8 @@
             <div class="mesh-canvas" id="canvas3dContainer"></div>
           </div>
 
-          <div style="margin-top:24px; padding:24px; background:var(--card); border:1.5px solid var(--line); border-radius:20px;">
-            <h4 style="margin:0 0 16px; font-weight:800;">Análisis Geométrico Real</h4>
+          <div class="geom-card">
+            <h4 style="margin:0 0 16px; font-weight:800; color: #1e3a47;">Análisis Geométrico Real</h4>
             <div class="param-row"><span>Volumen:</span> <strong id="reportVolume">Calculando...</strong></div>
             <div class="param-row"><span>Dimensiones:</span> <strong id="reportDimensions">Calculando...</strong></div>
             <div class="param-row"><span>Aristas Manifold (Estanco):</span> <strong id="reportManifold">Calculando...</strong></div>
@@ -181,8 +189,8 @@
             <div class="param-row"><span>Área de voladizo crítico:</span> <strong id="reportOverhang">Calculando...</strong></div>
           </div>
 
-          <!-- CONCLUSIÓN DINÁMICA DEL PROPÓSITO -->
-          <div style="margin-top:24px; padding:24px; background:var(--card); border:1.5px solid var(--line); border-radius:20px;">
+          <!-- CONCLUSIÓN DINÁMICA DEL PROPÓSITO (DIFERENCIADA) -->
+          <div style="margin-top:24px; padding:24px; background:#fdfdfc; border:1.5px solid #dcdbd8; border-radius:20px;">
             <h4 style="margin:0 0 12px; font-weight:800;">Conclusión del Propósito de Impresión</h4>
             <div id="purposeConclusionBox" style="font-size: 14px; line-height:1.5; color: var(--muted);"></div>
           </div>
@@ -213,8 +221,9 @@
           <div class="download-panel">
             <h4 style="margin:0 0 16px; font-weight:800;">Exportación Directa</h4>
             
-            <button class="btn-download-stl" id="download3mfBtn" style="background:var(--accent); color:var(--ink); border-color:var(--ink);">
-              Abrir Proyecto Completo en OrcaSlicer (.3MF)
+            <button class="btn-download-stl" id="download3mfBtn" style="background:var(--accent); color:var(--ink); border-color:var(--ink); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 18px 24px;">
+              <span style="font-size: 16px; font-weight: 800;">Abrir proyecto en laminador (.3MF)</span>
+              <span style="font-size: 11px; font-weight: 500; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.5px;">Abrir dentro del laminador</span>
             </button>
           </div>
         </div>
@@ -504,9 +513,13 @@
       const purpose = q.purpose || "aesthetic";
       const purposeBox = document.getElementById("purposeConclusionBox");
       if (purpose === "aesthetic") {
-        purposeBox.innerHTML = `🎨 <strong style="color: var(--ink);">Orientación Estética Detectada:</strong> Se ha configurado para priorizar un acabado impecable y minimizar tiempos de impresión mediante un espesor de capa reducido (<strong>${s.layer_height} mm</strong>), un patrón de relleno de alta eficiencia (<strong>${s.sparse_infill_pattern}</strong>) y paredes delgadas óptimas.`;
-      } else {
-        purposeBox.innerHTML = `⚙️ <strong style="color: var(--ink);">Orientación Estructural Detectada:</strong> Se ha configurado para máxima rigidez. Se aplican capas gruesas (<strong>${s.layer_height} mm</strong>), perímetros de pared robustos (<strong>${s.wall_loops} perímetros</strong>), densidad del relleno de esparcido densa (<strong>${s.sparse_infill_density}%</strong>) y un aumento térmico para maximizar la fusión intercapa.`;
+        purposeBox.innerHTML = `🎨 <strong style="color: var(--ink);">Orientación Estética:</strong> Configurado para priorizar un acabado impecable y libre de líneas de unión. Espesor de capa reducido (<strong>${s.layer_height} mm</strong>), patrón de relleno de alta eficiencia (<strong>${s.sparse_infill_pattern}</strong>) y velocidades lentas para la pared exterior para pulir el acabado del plástico.`;
+      } else if (purpose === "speed") {
+        purposeBox.innerHTML = `⚡ <strong style="color: var(--ink);">Orientación de Velocidad:</strong> Configurado para reducir el tiempo de impresión al máximo. Se aplican alturas de capa gruesas (<strong>${s.layer_height} mm</strong>), velocidades de pared máximas y un incremento térmico para permitir flujos volumétricos amplios.`;
+      } else if (purpose === "cost") {
+        purposeBox.innerHTML = `🪙 <strong style="color: var(--ink);">Orientación de Ahorro/Coste:</strong> Configurado para minimizar el desperdicio de material. Se utiliza un patrón de relleno ultra-ahorrativo de baja densidad (<strong>${s.sparse_infill_density}%</strong>), perímetros optimizados y velocidades seguras para mitigar errores que puedan suponer pérdidas de filamento.`;
+      } else { // functional
+        purposeBox.innerHTML = `⚙️ <strong style="color: var(--ink);">Orientación Estructural:</strong> Configurado para máxima rigidez. Se aplican capas estables (<strong>${s.layer_height} mm</strong>), perímetros de pared robustos (<strong>${s.wall_loops} perímetros</strong>), densidad del relleno densa (<strong>${s.sparse_infill_density}%</strong>) y aumento de temperatura para consolidar la unión mecánica.`;
       }
 
       let scoreText = "ÓPTIMO";
@@ -621,7 +634,8 @@
           try {
             const zip = new JSZip();
 
-            const contentTypesXml = `<?xml version="1.0" encoding="UTF-8"?>
+            const contentTypesXml = `xml
+<?xml version="1.0" encoding="UTF-8"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
   <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
   <Default Extension="model" ContentType="application/vnd.ms-package.3dmanufacturing-3dmodel+xml"/>
@@ -629,7 +643,8 @@
 </Types>`;
             zip.file("[Content_Types].xml", contentTypesXml);
 
-            const relsXml = `<?xml version="1.0" encoding="UTF-8"?>
+            const relsXml = `xml
+<?xml version="1.0" encoding="UTF-8"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
   <Relationship Id="rel0" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel" Target="/3D/3dmodel.model"/>
 </Relationships>`;
@@ -674,7 +689,8 @@
               }
             }
 
-            const modelXml = `<?xml version="1.0" encoding="UTF-8"?>
+            const modelXml = `xml
+<?xml version="1.0" encoding="UTF-8"?>
 <model xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02" unit="millimeter" xml:lang="en-US">
   <resources>
     <object id="1" type="model">
@@ -729,11 +745,8 @@
 
             // --- GENERACIÓN DE NOMBRE DE PROYECTO COMERCIAL Y LIMPIO ---
             const rawName = analysis.file_name || "Modelo";
-            // Limpia extensiones como .stl o .obj
             let cleanName = rawName.replace(/\.[^/.]+$/, "");
-            // Remueve etiquetas del navegador de descargas múltiples tipo (1), (2), _1, _2
             cleanName = cleanName.replace(/\s*\(\d+\)/g, "").replace(/_\d+$/g, "");
-            // Formatea espacios por guiones bajos
             cleanName = cleanName.trim().replace(/\s+/g, "_");
 
             const mat = (s.material || "PLA").toUpperCase();
