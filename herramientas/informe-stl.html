@@ -1079,18 +1079,160 @@
 
             // Presets padre: permiten que OrcaSlicer sepa de qué perfil
             // parte y, sobre todo, qué valores del proyecto son overrides.
-            const printProfile = `0.20mm Standard @${printerName}`;
-            const printerProfile = `${printerName} ${nozzleStr} nozzle`;
+            // ============================================================
+            // IDENTIDAD REAL DE LA MÁQUINA
+            // No basta con indicar el nombre: OrcaSlicer usa también
+            // printable_area / printable_height para decidir si un objeto
+            // cabe en la cama. Antes solo se estaba "simulando" el perfil
+            // y Orca podía terminar usando las dimensiones de otra máquina.
+            // ============================================================
+            const machineInfo = {
+              "Bambu Lab X1 Carbon": {
+                model: "Bambu Lab X1 Carbon",
+                variant: nozzleStr,
+                profile: `Bambu Lab X1 Carbon ${nozzleStr} nozzle`,
+                process: `0.20mm Standard @BBL X1C ${nozzleStr}`,
+                x: 256, y: 256, z: 256
+              },
+              "Bambu Lab P1S": {
+                model: "Bambu Lab P1S",
+                variant: nozzleStr,
+                profile: `Bambu Lab P1S ${nozzleStr} nozzle`,
+                process: `0.20mm Standard @BBL P1S ${nozzleStr}`,
+                x: 256, y: 256, z: 256
+              },
+              "Bambu Lab A1": {
+                model: "Bambu Lab A1",
+                variant: nozzleStr,
+                profile: `Bambu Lab A1 ${nozzleStr} nozzle`,
+                process: `0.20mm Standard @BBL A1 ${nozzleStr}`,
+                x: 256, y: 256, z: 256
+              },
+              "Bambu Lab A1 Mini": {
+                model: "Bambu Lab A1 mini",
+                variant: nozzleStr,
+                profile: `Bambu Lab A1 mini ${nozzleStr} nozzle`,
+                process: `0.20mm Standard @BBL A1 mini ${nozzleStr}`,
+                x: 180, y: 180, z: 180
+              },
+              "Prusa i3 MK4": {
+                model: "Prusa MK4",
+                variant: nozzleStr,
+                profile: `Prusa MK4 ${nozzleStr} nozzle`,
+                process: `0.20mm Standard @Prusa MK4`,
+                x: 250, y: 210, z: 220
+              },
+              "Prusa MINI+": {
+                model: "Prusa MINI+",
+                variant: nozzleStr,
+                profile: `Prusa MINI+ ${nozzleStr} nozzle`,
+                process: `0.20mm Standard @Prusa MINI+`,
+                x: 180, y: 180, z: 180
+              },
+              "Prusa XL": {
+                model: "Prusa XL",
+                variant: nozzleStr,
+                profile: `Prusa XL ${nozzleStr} nozzle`,
+                process: `0.20mm Standard @Prusa XL`,
+                x: 360, y: 360, z: 360
+              },
+              "Creality Ender-3 V3 SE": {
+                model: "Creality Ender-3 V3 SE",
+                variant: nozzleStr,
+                profile: `Creality Ender-3 V3 SE ${nozzleStr} nozzle`,
+                process: `0.20mm Standard @Creality Ender3V3SE ${nozzleStr}`,
+                x: 220, y: 220, z: 250
+              },
+              "Creality Ender 3 V2": {
+                model: "Creality Ender-3 V2",
+                variant: nozzleStr,
+                profile: `Creality Ender-3 V2 ${nozzleStr} nozzle`,
+                process: `0.20mm Standard @Creality Ender3V2`,
+                x: 220, y: 220, z: 250
+              },
+              "Creality K1": {
+                model: "Creality K1",
+                variant: nozzleStr,
+                profile: `Creality K1 ${nozzleStr} nozzle`,
+                process: `0.20mm Standard @Creality K1 (${nozzleStr} nozzle)`,
+                x: 220, y: 220, z: 250
+              },
+              "Creality K1 Max": {
+                model: "Creality K1 Max",
+                variant: nozzleStr,
+                profile: `Creality K1 Max ${nozzleStr} nozzle`,
+                process: `0.20mm Standard @Creality K1Max (${nozzleStr} nozzle)`,
+                x: 300, y: 300, z: 300
+              },
+              "Elegoo Neptune 4": {
+                model: "Elegoo Neptune 4",
+                variant: nozzleStr,
+                profile: `Elegoo Neptune 4 ${nozzleStr} nozzle`,
+                process: `0.20mm Standard @Elegoo Neptune 4`,
+                x: 225, y: 225, z: 265
+              },
+              "Elegoo Neptune 4 Max": {
+                model: "Elegoo Neptune 4 Max",
+                variant: nozzleStr,
+                profile: `Elegoo Neptune 4 Max ${nozzleStr} nozzle`,
+                process: `0.20mm Standard @Elegoo Neptune 4 Max`,
+                x: 420, y: 420, z: 480
+              },
+              "Voron 2.4 (300)": {
+                model: "Voron 2.4",
+                variant: "300",
+                profile: `Voron 2.4 300 ${nozzleStr} nozzle`,
+                process: `0.20mm Standard @Voron 2.4`,
+                x: 300, y: 300, z: 300
+              },
+              "Voron 2.4 (350)": {
+                model: "Voron 2.4",
+                variant: "350",
+                profile: `Voron 2.4 350 ${nozzleStr} nozzle`,
+                process: `0.20mm Standard @Voron 2.4`,
+                x: 350, y: 350, z: 350
+              }
+            };
+
+            const fallbackLimits = printerLimits[printerName] || { x: 220, y: 220, z: 250 };
+            const machine = machineInfo[printerName] || {
+              model: printerName,
+              variant: nozzleStr,
+              profile: `${printerName} ${nozzleStr} nozzle`,
+              process: `0.20mm Standard @${printerName}`,
+              x: fallbackLimits.x,
+              y: fallbackLimits.y,
+              z: fallbackLimits.z
+            };
+
+            const printProfile = machine.process;
+            const printerProfile = machine.profile;
             const filamentProfile = `Generic PLA @${printerName}`;
+
+            const printableArea = [
+              `0x0`,
+              `${machine.x}x0`,
+              `${machine.x}x${machine.y}`,
+              `0x${machine.y}`
+            ];
 
             const orcaSettingsJson = {
               "from": "project",
               "name": "project_settings",
               "version": "02.04.00.70",
 
-              "printer_model": printerName,
+              "inherits": "fdm",
+              "inherits_group": ["process", "filament", "printer"],
+
+              "printer_model": machine.model,
+              "printer_variant": machine.variant,
               "printer_settings_id": printerProfile,
               "print_compatible_printers": [printerProfile],
+
+              // Estas dos propiedades son las que realmente describen
+              // el volumen útil de la máquina dentro del proyecto.
+              "printable_area": printableArea,
+              "printable_height": String(machine.z),
 
               "print_settings_id": printProfile,
               "default_print_profile": printProfile,
@@ -1103,7 +1245,13 @@
               "filament_vendor": ["Generic"],
               "filament_diameter": ["1.75"],
               "filament_density": [String(s.filament_density ?? "1.24")],
-              "filament_colour": ["#B8FF3D"]
+              "filament_colour": ["#B8FF3D"],
+
+              "printer_technology": "FFF",
+              "extruder_printable_area": [printableArea.join(";")],
+              "extruder_printable_height": [String(machine.z)],
+              "printer_extruder_id": "1",
+              "printer_extruder_variant": [nozzleStr]
             };
 
             // Estos son parámetros que OrcaSlicer trata como valores de
@@ -1238,7 +1386,11 @@
               "Metadata/printlab_report_settings.json",
               JSON.stringify({
                 printer: printerName,
+                printer_model: machine.model,
+                printer_variant: machine.variant,
                 nozzle: q.nozzleSize ?? 0.4,
+                build_volume_mm: { x: machine.x, y: machine.y, z: machine.z },
+                printable_area: printableArea,
                 slicer_settings: s,
                 exported_process_overrides: processOverrideKeys,
                 exported_filament_overrides: filamentOverrideKeys,
