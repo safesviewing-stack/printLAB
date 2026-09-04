@@ -1219,48 +1219,302 @@ main.wrap{min-height:calc(100vh - 95px)}
           answers.supportFaceNormal[2]
         ).normalize();
 
+        // Esta rotación lleva EXCLUSIVAMENTE la normal de la cara
+        // seleccionada a la dirección de apoyo -Z.
         const baseQuat = new THREE.Quaternion().setFromUnitVectors(
           localNormal,
           new THREE.Vector3(0, 0, -1)
         );
 
-        const search = buildSearchData(baseQuat);
+        const supportPoint = getSupportPointLocal();
 
-        // Evaluador auxiliar: calcula si una orientación tiene alguna
-        // posibilidad de entrar en X/Y/Z antes de hacer la comprobación
-        // real de la posición.
+        const pos = sMesh.geometry.attributes.position;
+        const v = new THREE.Vector3();
+        const p = new THREE.Vector3();
+
+        const bedMinX = -limits.x / 2;
+        const bedMaxX =  limits.x / 2;
+        const bedMinY = -limits.y / 2;
+        const bedMaxY =  limits.y / 2;
+
+        let found = false;
         let bestAngle = 0;
-        let bestEval = null;
+        let bestX = 0;
+        let bestY = 0;
         let bestMargin = -Infinity;
-        let bestViolation = Infinity;
-        let foundFit = false;
+        let bestSize = null;
+        let bestBox = null;
 
+        let angleChecks = 0;
+        let coordinateChecks = 0;
+
+        // ============================================================
+        // BÚSQUEDA EXACTA SOBRE TODA LA CIRCUNFERENCIA
+        //
+        // 360.000 orientaciones, cada 0,001°.
+        //
+        // Para CADA ángulo:
+        //   1. se transforma CADA VÉRTICE del STL;
+        //   2. se obtiene su X/Y/Z real;
+        //   3. se calcula el intervalo CONTINUO completo de X posible;
+        //   4. se calcula el intervalo CONTINUO completo de Y posible;
+        //   5. se escoge un punto dentro de esos intervalos;
+        //   6. se vuelve a comprobar la geometría REAL.
+        //
+        // No hay una cuadrícula de coordenadas que pueda saltarse una
+        // posición. Matemáticamente se comprueba todo el intervalo.
+        // ============================================================
         for (let i = 0; i < 360000; i++) {
-          const rad = THREE.MathUtils.degToRad(i * 0.001);
-          const result = evaluateYaw(search, rad, limits);
+          const angle = THREE.MathUtils.degToRad(i * 0.001);
+          angleChecks++;
 
-          if (result.fits) {
-            if (!foundFit || result.margin > bestMargin) {
-              foundFit = true;
-              bestMargin = result.margin;
-              bestAngle = rad;
-              bestEval = result;
-            }
-          } else if (!foundFit && result.excess < bestViolation) {
-            bestViolation = result.excess;
-            bestAngle = rad;
-            bestEval = result;
+          const yaw = new THREE.Quaternion().setFromAxisAngle(
+            new THREE.Vector3(0, 0, 1),
+            angle
+          );
+          const q = yaw.multiply(baseQuat.clone());
+
+          let minX = Infinity;
+          let maxX = -Infinity;
+          let minY = Infinity;
+          let maxY = -Infinity;
+          let minZ = Infinity;
+          let maxZ = -Infinity;
+
+          // Transformación exacta de todos los vértices.
+          for (let j = 0; j < pos.count; j++) {
+            v.fromBufferAttribute(pos, j);
+            p.copy(v).applyQuaternion(q);
+
+            if (p.x < minX) minX = p.x;
+            if (p.x > maxX) maxX = p.x;
+            if (p.y < minY) minY = p.y;
+            if (p.y > maxY) maxY = p.y;
+            if (p.z < minZ) minZ = p.z;
+            if (p.z > maxZ) maxZ = p.z;
+          }
+
+          // La cara elegida es la referencia de apoyo. El yaw alrededor
+          // de Z no cambia su altura relativa.
+          const supportZ = supportPoint.clone().applyQuaternion(q).z;
+          const relativeMinZ = minZ - supportZ;
+          const relativeMaxZ = maxZ - supportZ;
+
+          // Si la pieza supera la altura de la máquina o queda por debajo
+          // de la cama al mantener la cara elegida apoyada, este ángulo
+          // es imposible independientemente de X/Y.
+          if (relativeMinZ < 0 || relativeMaxZ > limits.z) {
+            continue;
+          }
+
+          const width = maxX - minX;
+          const depth = maxY - minY;
+
+          // Intervalos CONTINUOS de traslación permitidos.
+          const xLow = bedMinX - minX;
+          const xHigh = bedMaxX - maxX;
+          const yLow = bedMinY - minY;
+          const yHigh = bedMaxY - maxY;
+
+          if (xLow > xHigh || yLow > yHigh) {
+            continue;
+          }
+
+          // Todo el intervalo [xLow,xHigh] y [yLow,yHigh] es válido.
+          // Elegimos el centro para maximizar la distancia mínima a
+          // todos los límites, sin introducir ningún margen artificial.
+          const x = (xLow + xHigh) / 2;
+          const y = (yLow + yHigh) / 2;
+
+          // Comprobación REAL de la posición elegida.
+          sMesh.quaternion.copy(q);
+          sMesh.position.set(x, y, -supportZ);
+          sMesh.updateMatrixWorld(true);
+
+          const box = new THREE.Box3().setFromObject(sMesh);
+          coordinateChecks++;
+
+          const fits =
+            box.min.x >= bedMinX &&
+            box.max.x <= bedMaxX &&
+            box.min.y >= bedMinY &&
+            box.max.y <= bedMaxY &&
+            box.min.z >= 0 &&
+            box.max.z <= limits.z;
+
+          if (!fits) continue;
+
+          const mx = Math.min(
+            box.min.x - bedMinX,
+            bedMaxX - box.max.x
+          );
+          const my = Math.min(
+            box.min.y - bedMinY,
+            bedMaxY - box.max.y
+          );
+          const mz = Math.min(
+            box.min.z,
+            limits.z - box.max.z
+          );
+          const margin = Math.min(mx, my, mz);
+
+          // Guardamos la solución con mayor margen REAL.
+          if (!found || margin > bestMargin) {
+            found = true;
+            bestMargin = margin;
+            bestAngle = angle;
+            bestX = x;
+            bestY = y;
+            bestSize = box.getSize(new THREE.Vector3());
+            bestBox = box.clone();
           }
         }
 
-        finalizeAutomaticOrientation(
-          baseQuat,
-          bestAngle,
-          bestEval,
-          search,
-          limits,
-          foundFit
+        // ============================================================
+        // APLICACIÓN DEFINITIVA
+        // ============================================================
+        const yaw = new THREE.Quaternion().setFromAxisAngle(
+          new THREE.Vector3(0, 0, 1),
+          bestAngle
         );
+        const finalQuat = yaw.multiply(baseQuat.clone());
+
+        sMesh.quaternion.copy(finalQuat);
+        sMesh.position.set(0, 0, 0);
+        sMesh.updateMatrixWorld(true);
+
+        // SOLO Z se utiliza para que la superficie seleccionada quede
+        // exactamente apoyada. X/Y se determinan independientemente.
+        const finalSupportPoint =
+          getSupportPointLocal().applyQuaternion(finalQuat);
+
+        sMesh.position.set(
+          found ? bestX : 0,
+          found ? bestY : 0,
+          -finalSupportPoint.z
+        );
+        sMesh.updateMatrixWorld(true);
+
+        // Validación FINAL sobre la geometría visible.
+        const finalBox = new THREE.Box3().setFromObject(sMesh);
+        const finalSize = finalBox.getSize(new THREE.Vector3());
+
+        const finalFits =
+          found &&
+          finalBox.min.x >= bedMinX &&
+          finalBox.max.x <= bedMaxX &&
+          finalBox.min.y >= bedMinY &&
+          finalBox.max.y <= bedMaxY &&
+          finalBox.min.z >= 0 &&
+          finalBox.max.z <= limits.z;
+
+        const warningBanner =
+          document.getElementById("limitWarningBanner");
+        const oldSuccess =
+          document.getElementById("scaleSuccessBanner");
+        if (oldSuccess) oldSuccess.remove();
+
+        if (finalFits) {
+          // AZUL = válido.
+          sMesh.material.color.setHex(0x90caf9);
+          sMesh.material.needsUpdate = true;
+
+          warningBanner.style.display = "none";
+          warningBanner.innerHTML = "";
+
+          const successBanner = document.createElement("div");
+          successBanner.id = "scaleSuccessBanner";
+          successBanner.style =
+            "background:#eef2ee;border:1.5px solid #2e7d32;color:#2e7d32;padding:12px;border-radius:10px;font-size:13.5px;font-weight:700;margin-bottom:12px;line-height:1.4;text-align:center;";
+
+          const angleDeg =
+            THREE.MathUtils.radToDeg(bestAngle);
+
+          const marginX = Math.min(
+            finalBox.min.x - bedMinX,
+            bedMaxX - finalBox.max.x
+          );
+          const marginY = Math.min(
+            finalBox.min.y - bedMinY,
+            bedMaxY - finalBox.max.y
+          );
+          const marginZ = Math.min(
+            finalBox.min.z,
+            limits.z - finalBox.max.z
+          );
+          const realMinMargin =
+            Math.min(marginX, marginY, marginZ);
+
+          successBanner.innerHTML =
+            `✓ <strong>POSICIÓN VÁLIDA.</strong> ` +
+            `Se han comprobado <strong>${angleChecks.toLocaleString("es-ES")}</strong> ` +
+            `orientaciones de 360° a 0,001°. ` +
+            `Para cada orientación se ha calculado el intervalo continuo completo de X/Y ` +
+            `y se ha verificado la geometría real. ` +
+            `Ángulo: <strong>${angleDeg.toFixed(3)}°</strong>. ` +
+            `X: <strong>${sMesh.position.x.toFixed(3)} mm</strong>. ` +
+            `Y: <strong>${sMesh.position.y.toFixed(3)} mm</strong>. ` +
+            `Tamaño: <strong>${finalSize.x.toFixed(3)} × ${finalSize.y.toFixed(3)} × ${finalSize.z.toFixed(3)} mm</strong>. ` +
+            `Margen real: <strong>${realMinMargin.toFixed(3)} mm</strong>.`;
+
+          warningBanner.parentNode.insertBefore(
+            successBanner,
+            warningBanner
+          );
+        } else {
+          sMesh.material.color.setHex(0xb42318);
+          sMesh.material.needsUpdate = true;
+
+          warningBanner.style.display = "block";
+          warningBanner.innerHTML =
+            `<div style="margin-bottom:10px;">` +
+            `⚠️ <strong>No se encontró una posición válida.</strong> ` +
+            `Se comprobaron <strong>${angleChecks.toLocaleString("es-ES")}</strong> ` +
+            `orientaciones completas. ` +
+            `Resultado: <strong>${finalSize.x.toFixed(3)} × ${finalSize.y.toFixed(3)} × ${finalSize.z.toFixed(3)} mm</strong>. ` +
+            `Cama: <strong>${limits.x} × ${limits.y} × ${limits.z} mm</strong>.` +
+            `</div>`;
+
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.textContent =
+            "Auto-escalar pieza para ajustar al volumen de la cama";
+          btn.style =
+            "background:#b42318;color:#fff;border:1.5px solid #fff;padding:8px 16px;border-radius:8px;font-weight:800;cursor:pointer;font-size:12px;";
+          btn.onclick = () => scaleMeshToFit();
+          warningBanner.appendChild(btn);
+        }
+
+        const te = sMesh.matrix.elements;
+        answers.transformationMatrix = [
+          [te[0], te[4], te[8], te[12]],
+          [te[1], te[5], te[9], te[13]],
+          [te[2], te[6], te[10], te[14]],
+          [te[3], te[7], te[11], te[15]]
+        ];
+
+        answers.orientationSearch = {
+          angle_deg: Number(
+            THREE.MathUtils.radToDeg(bestAngle).toFixed(3)
+          ),
+          precision_deg: 0.001,
+          angle_range_deg: 360,
+          angle_positions_checked: angleChecks,
+          exact_vertex_checks_per_angle: pos.count,
+          xy_translation_space: "continuous",
+          xy_position_validations: coordinateChecks,
+          base_face_index: answers.selectedSupportFace,
+          base_kept_on_bed: true,
+          x_mm: Number(sMesh.position.x.toFixed(3)),
+          y_mm: Number(sMesh.position.y.toFixed(3)),
+          final_size_mm: {
+            x: Number(finalSize.x.toFixed(3)),
+            y: Number(finalSize.y.toFixed(3)),
+            z: Number(finalSize.z.toFixed(3))
+          },
+          final_geometry_fits: finalFits
+        };
+
         validateCurrentStep();
       };
 
