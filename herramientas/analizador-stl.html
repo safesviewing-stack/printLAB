@@ -909,73 +909,74 @@ main.wrap{min-height:calc(100vh - 95px)}
       }
 
       function finalizeAutomaticOrientation(baseQuat, bestAngle, bestEval, search, limits, foundFit) {
-        // ============================================================
-        // APLICACIÓN DE LOS 3 GRADOS DE MOVIMIENTO:
-        //
-        // 1) Rotación alrededor de la normal de la superficie seleccionada.
-        // 2) Traslación X dentro del intervalo válido para ese ángulo.
-        // 3) Traslación Y dentro del intervalo válido para ese ángulo.
-        //
-        // Z NO es un grado de libertad: la superficie elegida permanece
-        // apoyada en Z=0.
-        // ============================================================
+        // Aplicamos la orientación encontrada.
         const yaw = new THREE.Quaternion().setFromAxisAngle(
           new THREE.Vector3(0, 0, 1),
           bestAngle
         );
-
         sMesh.quaternion.copy(yaw.multiply(baseQuat.clone()));
+        sMesh.position.set(0, 0, 0);
         sMesh.updateMatrixWorld(true);
 
-        // La búsqueda de X/Y se ha calculado sobre la geometría completa
-        // después de aplicar baseQuat + yaw, es decir, con el origen local
-        // de la malla como referencia. Por eso NO debemos volver a restar
-        // supportPoint.x/y aquí: hacerlo aplicaría la traslación dos veces
-        // y sacaría la pieza del cubo.
+        // ============================================================
+        // POSICIÓN FINAL REAL
         //
-        // Z sí se corrige usando el punto de la cara seleccionada para que
-        // esa superficie quede exactamente sobre Z=0.
+        // No confiamos en una traslación calculada en otro sistema de
+        // referencia. Primero colocamos la superficie seleccionada en Z=0
+        // y después calculamos X/Y directamente desde el bounding box REAL
+        // de la malla ya rotada.
+        //
+        // Si las dimensiones reales caben en la cama, centrar la pieza
+        // dentro del cubo es una posición válida. No se añade ningún
+        // margen de seguridad.
+        // ============================================================
+
+        // Mantener la superficie seleccionada como apoyo.
         const supportPoint = getSupportPointLocal().applyQuaternion(sMesh.quaternion);
-        sMesh.position.set(
-          bestEval.tx,
-          bestEval.ty,
-          -supportPoint.z
-        );
+        sMesh.position.z = -supportPoint.z;
         sMesh.updateMatrixWorld(true);
 
-        const finalBox = new THREE.Box3().setFromObject(sMesh);
-        const finalSize = finalBox.getSize(new THREE.Vector3());
+        // Ahora obtenemos la caja REAL después de la rotación y del apoyo.
+        let box = new THREE.Box3().setFromObject(sMesh);
 
         const bedMinX = -limits.x / 2;
         const bedMaxX =  limits.x / 2;
         const bedMinY = -limits.y / 2;
         const bedMaxY =  limits.y / 2;
-        const eps = 0.001;
 
-        // Comprobación final robusta: la búsqueda ya ha demostrado que
-        // este ángulo y estos X/Y son admisibles. Box3 puede introducir
-        // pequeños errores de coma flotante al transformar la malla, así que
-        // usamos una tolerancia geométrica razonable para la validación final.
+        // X/Y son grados de libertad completos. Colocamos el centro exacto
+        // de la caja en el centro de la cama. Esto NO introduce margen:
+        // los límites siguen siendo exactamente los de la máquina.
+        sMesh.position.x += ((bedMinX + bedMaxX) / 2) - ((box.min.x + box.max.x) / 2);
+        sMesh.position.y += ((bedMinY + bedMaxY) / 2) - ((box.min.y + box.max.y) / 2);
+        sMesh.updateMatrixWorld(true);
+
+        box = new THREE.Box3().setFromObject(sMesh);
+        const finalSize = box.getSize(new THREE.Vector3());
+
+        // ============================================================
+        // VALIDACIÓN ÚNICA Y DEFINITIVA
+        //
+        // Se valida la geometría REAL que el usuario está viendo.
+        // Tocar un límite exactamente es válido.
+        // ============================================================
         const finalFits =
-          !!bestEval &&
-          bestEval.fits &&
-          finalBox.min.x >= bedMinX &&
-          finalBox.max.x <= bedMaxX &&
-          finalBox.min.y >= bedMinY &&
-          finalBox.max.y <= bedMaxY &&
-          finalBox.min.z >= 0 &&
-          finalBox.max.z <= limits.z;
+          box.min.x >= bedMinX &&
+          box.max.x <= bedMaxX &&
+          box.min.y >= bedMinY &&
+          box.max.y <= bedMaxY &&
+          box.min.z >= 0 &&
+          box.max.z <= limits.z;
 
         const warningBanner = document.getElementById("limitWarningBanner");
         const oldSuccess = document.getElementById("scaleSuccessBanner");
         if (oldSuccess) oldSuccess.remove();
-        warningBanner.style.display = "none";
-        warningBanner.innerHTML = "";
 
-        if (finalFits && foundFit) {
-          // POSICIÓN VÁLIDA: eliminar cualquier estado rojo anterior.
+        if (finalFits) {
+          // LA PIEZA CABE: siempre azul y sin mensaje rojo.
           sMesh.material.color.setHex(0x90caf9);
           sMesh.material.needsUpdate = true;
+
           warningBanner.style.display = "none";
           warningBanner.innerHTML = "";
 
@@ -985,39 +986,30 @@ main.wrap{min-height:calc(100vh - 95px)}
             "background:#eef2ee;border:1.5px solid #2e7d32;color:#2e7d32;padding:12px;border-radius:10px;font-size:13.5px;font-weight:700;margin-bottom:12px;line-height:1.4;text-align:center;";
 
           const angleDeg = THREE.MathUtils.radToDeg(bestAngle);
-          const marginX = Math.min(
-            finalBox.min.x - bedMinX,
-            bedMaxX - finalBox.max.x
-          );
-          const marginY = Math.min(
-            finalBox.min.y - bedMinY,
-            bedMaxY - finalBox.max.y
-          );
-          const marginZ = Math.min(
-            finalBox.min.z,
-            limits.z - finalBox.max.z
-          );
+          const marginX = Math.min(box.min.x - bedMinX, bedMaxX - box.max.x);
+          const marginY = Math.min(box.min.y - bedMinY, bedMaxY - box.max.y);
+          const marginZ = Math.min(box.min.z, limits.z - box.max.z);
           const minMargin = Math.min(marginX, marginY, marginZ);
 
           successBanner.innerHTML =
-            `✓ <strong>Posición encontrada dentro del cubo.</strong> ` +
-            `Se han comprobado <strong>180.000 ángulos</strong> a 0,001°. ` +
+            `✓ <strong>Posición válida.</strong> La pieza está completamente dentro del cubo de impresión. ` +
             `Ángulo: <strong>${angleDeg.toFixed(3)}°</strong>. ` +
-            `Movimiento X: <strong>${sMesh.position.x.toFixed(3)} mm</strong>, ` +
+            `X: <strong>${sMesh.position.x.toFixed(3)} mm</strong>, ` +
             `Y: <strong>${sMesh.position.y.toFixed(3)} mm</strong>. ` +
             `Tamaño: <strong>${finalSize.x.toFixed(3)} × ${finalSize.y.toFixed(3)} × ${finalSize.z.toFixed(3)} mm</strong>. ` +
-            `Margen geométrico mínimo: <strong>${minMargin.toFixed(3)} mm</strong>. ` +
-            `<br>La superficie seleccionada permanece apoyada sobre Z=0.`;
+            `Margen geométrico real: <strong>${minMargin.toFixed(3)} mm</strong>.`;
 
           warningBanner.parentNode.insertBefore(successBanner, warningBanner);
         } else {
+          // Solo rojo si la comprobación REAL de la geometría falla.
           sMesh.material.color.setHex(0xb42318);
+          sMesh.material.needsUpdate = true;
           warningBanner.style.display = "block";
           warningBanner.innerHTML =
             `<div style="margin-bottom:10px;">` +
             `⚠️ <strong>No se ha encontrado una posición válida</strong> ` +
             `manteniendo la superficie seleccionada como base. ` +
-            `Mejor posición: <strong>${finalSize.x.toFixed(3)} × ${finalSize.y.toFixed(3)} × ${finalSize.z.toFixed(3)} mm</strong>. ` +
+            `Posición comprobada: <strong>${finalSize.x.toFixed(3)} × ${finalSize.y.toFixed(3)} × ${finalSize.z.toFixed(3)} mm</strong>. ` +
             `Cama: <strong>${limits.x} × ${limits.y} × ${limits.z} mm</strong>.` +
             `</div>`;
 
@@ -1044,21 +1036,14 @@ main.wrap{min-height:calc(100vh - 95px)}
           positions_checked: 180000,
           base_face_index: answers.selectedSupportFace,
           base_kept_on_bed: true,
-          x_mm: Number(bestEval.tx.toFixed(3)),
-          y_mm: Number(bestEval.ty.toFixed(3)),
-          allowed_x_range_mm: [
-            Number(bestEval.xMin.toFixed(3)),
-            Number(bestEval.xMax.toFixed(3))
-          ],
-          allowed_y_range_mm: [
-            Number(bestEval.yMin.toFixed(3)),
-            Number(bestEval.yMax.toFixed(3))
-          ],
+          x_mm: Number(sMesh.position.x.toFixed(3)),
+          y_mm: Number(sMesh.position.y.toFixed(3)),
           final_size_mm: {
             x: Number(finalSize.x.toFixed(3)),
             y: Number(finalSize.y.toFixed(3)),
             z: Number(finalSize.z.toFixed(3))
-          }
+          },
+          final_geometry_fits: finalFits
         };
       };
 
