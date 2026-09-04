@@ -1,3 +1,4 @@
+<!-- analizador-stl.html -->
 <!doctype html>
 <html lang="es">
 <head>
@@ -341,7 +342,6 @@
     ];
     let currentStepIdx = 0;
 
-    // Base de datos de límites físicos reales de las impresoras (X, Y, Z) en mm
     const printerLimits = {
       "Bambu Lab X1 Carbon": { x: 256, y: 256, z: 256 },
       "Bambu Lab P1S": { x: 256, y: 256, z: 256 },
@@ -423,13 +423,38 @@
       validateCurrentStep();
     }
 
-    // --- VISOR 3D CON CORRECCIÓN AUTOMÁTICA DE AJUSTE EN Z Y ESCALADO PROPORCIONAL ---
+    // --- VISOR 3D CON CORRECCIÓN AUTOMÁTICA DE AJUSTE EN Z ---
     let sScene, sCamera, sRenderer, sControls, sMesh, highlightRing, gridHelper, printVolumeBox;
 
+    function disposeRendererAndScene() {
+      if (sRenderer) {
+        sRenderer.dispose();
+        const container = document.getElementById("selector3dContainer");
+        if (container && sRenderer.domElement && container.contains(sRenderer.domElement)) {
+          container.removeChild(sRenderer.domElement);
+        }
+      }
+      if (sScene) {
+        sScene.traverse(object => {
+          if (object.geometry) object.geometry.dispose();
+          if (object.material) {
+            if (Array.isArray(object.material)) {
+              object.material.forEach(mat => mat.dispose());
+            } else {
+              object.material.dispose();
+            }
+          }
+        });
+        sScene = null;
+      }
+      if (highlightRing) highlightRing = null;
+    }
+
     function initSelector3D() {
+      disposeRendererAndScene();
+
       const container = document.getElementById("selector3dContainer");
       if (!container) return;
-      container.innerHTML = "";
 
       sScene = new THREE.Scene();
       sScene.background = new THREE.Color(0x111715);
@@ -450,7 +475,6 @@
       sControls = new THREE.OrbitControls(sCamera, sRenderer.domElement);
       sControls.enableDamping = true;
 
-      // Generar tamaño de cuadrícula dinámico basado en la impresora elegida
       const limits = printerLimits[answers.printer] || { x: 220, y: 220, z: 250 };
       const gridSize = Math.max(limits.x, limits.y);
       
@@ -458,7 +482,6 @@
       gridHelper.rotation.x = Math.PI / 2;
       sScene.add(gridHelper);
 
-      // Dibujar volumen de construcción virtual de la máquina seleccionada
       const boxGeo = new THREE.BoxGeometry(limits.x, limits.y, limits.z);
       const edges = new THREE.EdgesGeometry(boxGeo);
       const lineMaterial = new THREE.LineBasicMaterial({ color: 0x5e6661, transparent: true, opacity: 0.15 });
@@ -543,7 +566,6 @@
         }
       }
 
-      // --- ALGORITMO DE AUTO-ORIENTACIÓN EN Z (BÚSQUEDA BÁSICA) ---
       function optimizeZRotationToFit() {
         if (!sMesh || !answers.printer) return;
         const limits = printerLimits[answers.printer];
@@ -594,7 +616,7 @@
         const warningBanner = document.getElementById("limitWarningBanner");
 
         if (exceeds) {
-          sMesh.material.color.setHex(0xb42318); // Rojo
+          sMesh.material.color.setHex(0xb42318); 
           warningBanner.style.display = "block";
           warningBanner.innerHTML = `
             <div style="margin-bottom: 10px;">
@@ -605,7 +627,7 @@
             </button>
           `;
         } else {
-          sMesh.material.color.setHex(0x90caf9); // Azul estándar si cabe
+          sMesh.material.color.setHex(0x90caf9); 
           warningBanner.style.display = "none";
         }
 
@@ -618,7 +640,7 @@
         ];
       }
 
-      // --- ALGORITMO EXCLUSIVO: GIRA LA PIEZA 360º SOBRE TU BASE SELECCIONADA ---
+      // --- ALGORITMO EXCLUSIVO COARSE-TO-FINE (360º OPTIMIZADO) ---
       window.autoOrientZToFit = function() {
         if (!sMesh || !answers.printer) {
           alert("Por favor, selecciona primero tu impresora 3D.");
@@ -632,7 +654,6 @@
         const limits = printerLimits[answers.printer];
         if (!limits) return;
 
-        // Recuperar la orientación de apoyo de la normal sin rotaciones Z
         const localNormal = new THREE.Vector3(
           answers.supportFaceNormal[0],
           answers.supportFaceNormal[1],
@@ -645,8 +666,9 @@
         let bestMargin = -1;
         let foundFit = false;
 
-        // Escaneo completo de 360 grados en intervalos finos de 1 grado
-        for (let deg = 0; deg < 360; deg += 1) {
+        // PASO 1: Búsqueda gruesa (Cada 10 grados - 36 iteraciones)
+        let candidates = [];
+        for (let deg = 0; deg < 360; deg += 10) {
           const rad = THREE.MathUtils.degToRad(deg);
           const zRotation = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), rad);
           const tempQuat = baseQuat.clone().premultiply(zRotation);
@@ -659,17 +681,44 @@
           const tempSize = new THREE.Vector3();
           tempBbox.getSize(tempSize);
 
-          // Verificar si el modelo cabe en este ángulo
           if (tempSize.x <= limits.x && tempSize.y <= limits.y && tempSize.z <= limits.z) {
-            foundFit = true;
-            // Se prefiere el ángulo que maximice la holgura de seguridad respecto a las paredes de la cama
             const marginX = limits.x - tempSize.x;
             const marginY = limits.y - tempSize.y;
             const minMargin = Math.min(marginX, marginY);
-            
-            if (minMargin > bestMargin) {
-              bestMargin = minMargin;
-              bestAngle = rad;
+            candidates.push({ rad, minMargin });
+          }
+        }
+
+        // PASO 2: Búsqueda fina selectiva si encontramos candidatos gruesos (20 iteraciones)
+        if (candidates.length > 0) {
+          foundFit = true;
+          candidates.sort((a, b) => b.minMargin - a.minMargin);
+          const bestCoarse = candidates[0];
+          const bestCoarseDeg = THREE.MathUtils.radToDeg(bestCoarse.rad);
+
+          for (let degOffset = -10; degOffset <= 10; degOffset += 1) {
+            const testDeg = (bestCoarseDeg + degOffset + 360) % 360;
+            const rad = THREE.MathUtils.degToRad(testDeg);
+            const zRotation = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), rad);
+            const tempQuat = baseQuat.clone().premultiply(zRotation);
+
+            sMesh.quaternion.copy(tempQuat);
+            sMesh.position.set(0, 0, 0);
+            sMesh.updateMatrixWorld(true);
+
+            const tempBbox = new THREE.Box3().setFromObject(sMesh);
+            const tempSize = new THREE.Vector3();
+            tempBbox.getSize(tempSize);
+
+            if (tempSize.x <= limits.x && tempSize.y <= limits.y && tempSize.z <= limits.z) {
+              const marginX = limits.x - tempSize.x;
+              const marginY = limits.y - tempSize.y;
+              const minMargin = Math.min(marginX, marginY);
+              
+              if (minMargin > bestMargin) {
+                bestMargin = minMargin;
+                bestAngle = rad;
+              }
             }
           }
         }
@@ -690,7 +739,7 @@
 
           const warningBanner = document.getElementById("limitWarningBanner");
           warningBanner.style.display = "none";
-          sMesh.material.color.setHex(0x90caf9); // Azul estándar
+          sMesh.material.color.setHex(0x90caf9); 
 
           const oldSuccess = document.getElementById("scaleSuccessBanner");
           if (oldSuccess) oldSuccess.remove();
@@ -698,7 +747,7 @@
           const successBanner = document.createElement("div");
           successBanner.id = "scaleSuccessBanner";
           successBanner.style = "background:#eef2ee; border:1.5px solid #2e7d32; color:#2e7d32; padding:12px; border-radius:10px; font-size:13.5px; font-weight:700; margin-bottom:12px; line-height:1.4; text-align:center;";
-          successBanner.innerHTML = `✓ <strong>Rotación optimizada:</strong> Se ha girado la pieza sobre tu base elegida para que encaje dentro del área de impresión de tu ${answers.printer}.`;
+          successBanner.innerHTML = `✓ <strong>Rotación optimizada (Coarse-to-Fine):</strong> Se ha girado la pieza sobre tu base elegida para que encaje dentro del área de impresión de tu ${answers.printer}.`;
           warningBanner.parentNode.insertBefore(successBanner, warningBanner);
         } else {
           alert("Ninguna rotación sobre esta base permite alojar la pieza en la cama de impresión. Se aplicará el escalado proporcional automático.");
@@ -715,7 +764,6 @@
         validateCurrentStep();
       };
 
-      // --- FUNCIÓN DE AUTOCORRECCIÓN DE ESCALA EN CALIENTE ---
       window.scaleMeshToFit = function() {
         if (!sMesh || !answers.printer) return;
         const limits = printerLimits[answers.printer];
@@ -1030,6 +1078,9 @@
               travel_speed: 200,
               enable_support: overhangLocal > 0.5,
               support_type: overhangLocal > 0.5 ? "normal" : "none",
+              support_style: overhangLocal > 5.0 ? "tree" : "normal",
+              filament_max_volumetric_speed: answers.material === "PLA" ? 15.0 : (answers.material === "PETG" ? 10.0 : (answers.material === "TPU" ? 3.5 : 12.0)),
+              fan_cooling_speed: answers.material === "PLA" ? 100 : (answers.material === "PETG" ? 40 : (answers.material === "TPU" ? 100 : 15)),
               brim_type: "none",
               brim_width: 0,
               flow_ratio: 0.98,
