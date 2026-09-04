@@ -541,7 +541,15 @@
           highlightRing.position.addScaledVector(ringNormal, 0.4);
           sScene.add(highlightRing);
 
-          answers.transformationMatrix = sMesh.matrix.toArray();
+          // SOLUCIÓN AL ERROR DE MATRIZ (4,4): Convertir array plano de Three.js column-major a un array bidimensional real de 4x4 row-major
+          const te = sMesh.matrix.elements;
+          answers.transformationMatrix = [
+            [ te[0], te[4], te[8],  te[12] ],
+            [ te[1], te[5], te[9],  te[13] ],
+            [ te[2], te[6], te[10], te[14] ],
+            [ te[3], te[7], te[11], te[15] ]
+          ];
+          
           validateCurrentStep();
         }
       }
@@ -586,7 +594,6 @@
       if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
     });
 
-    // Evento de click para seleccionar el archivo local
     accessButton.addEventListener("click", e => {
       e.preventDefault();
       if (accessButton.dataset.state === "has-file") {
@@ -602,12 +609,11 @@
       }
     });
 
-    // --- INTEGRACIÓN DE MOCK CON SESIÓN MÚLTIPLE DE CONTINGENCIA ---
     const client = window.supabaseClient || null;
     let mockSession = { user: { id: "mock-user-id", email: "demo@printlab.com" } };
 
     async function getCurrentSession() {
-      if (!client) return mockSession; // Fallback automático si estamos en GitHub Pages local o de prueba
+      if (!client) return mockSession;
       try { 
         const { data } = await client.auth.getSession(); 
         return data?.session || mockSession; 
@@ -617,7 +623,6 @@
     }
 
     async function updateButtonState() {
-      // Permitir subir archivo y avanzar incluso si la base de datos no está activa
       if (window.selectedSTLFile) {
         accessButton.textContent = "Comenzar Cuestionario";
         accessButton.dataset.state = "has-file";
@@ -641,7 +646,6 @@
 
         const session = await getCurrentSession();
 
-        // Si es una ejecución local, demo o falla Supabase, utilizar contingencia segura
         if (!client || session === mockSession) {
           nextBtn.textContent = "Analizando geometría (Modo Demo)...";
           try {
@@ -666,10 +670,9 @@
               return;
             }
           } catch (e) {
-            console.warn("Servidor de cálculo desconectado, usando simulación estática de desarrollo local.", e);
+            console.warn("Servidor de cálculo fuera de línea o con problemas de red. Usando simulación de contingencia.", e);
           }
 
-          // Respuesta simulada local de seguridad si no hay red con el backend
           sessionStorage.setItem("printlab_analysis", JSON.stringify({
             volume: 38.45,
             dimensions: "110.2 x 90.5 x 42.0 mm",
@@ -697,7 +700,6 @@
           return;
         }
 
-        // Flujo tradicional si se está en el entorno de producción completo
         try {
           nextBtn.textContent = "Almacenando archivo...";
           const filePath = `uploads/${session.user.id}/${Date.now()}.stl`;
