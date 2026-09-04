@@ -909,159 +909,198 @@ main.wrap{min-height:calc(100vh - 95px)}
       }
 
       function finalizeAutomaticOrientation(baseQuat, bestAngle, bestEval, search, limits, foundFit) {
-        const yaw = new THREE.Quaternion().setFromAxisAngle(
-          new THREE.Vector3(0, 0, 1),
-          bestAngle
-        );
-
-        sMesh.quaternion.copy(yaw.multiply(baseQuat.clone()));
-        sMesh.position.set(0, 0, 0);
-        sMesh.updateMatrixWorld(true);
-
-        // Mantener exactamente la superficie seleccionada sobre Z=0.
-        const supportPoint = getSupportPointLocal().applyQuaternion(sMesh.quaternion);
-        sMesh.position.z = -supportPoint.z;
-        sMesh.updateMatrixWorld(true);
-
         const bedMinX = -limits.x / 2;
         const bedMaxX =  limits.x / 2;
         const bedMinY = -limits.y / 2;
         const bedMaxY =  limits.y / 2;
 
-        // ============================================================
-        // BÚSQUEDA FINAL DE POSICIÓN
-        //
-        // No damos por válida la posición simplemente porque las
-        // dimensiones "parezcan" caber. Probamos la geometría REAL.
-        //
-        // Primero intentamos todas las posiciones razonables alrededor
-        // del centro y, para cada una, hacemos una corrección exacta
-        // contra los cuatro límites de la cama.
-        // ============================================================
-
         let valid = false;
+        let chosenAngle = bestAngle;
         let chosenX = 0;
         let chosenY = 0;
         let bestFinalBox = null;
+        let bestMargin = -Infinity;
         let checks = 0;
 
-        // La posición inicial se usa como punto de partida.
-        const initialX = sMesh.position.x;
-        const initialY = sMesh.position.y;
+        // ============================================================
+        // COMPROBACIÓN REAL DE UNA COMBINACIÓN:
+        // ROTACIÓN + X + Y
+        //
+        // La cara seleccionada permanece exactamente sobre Z=0.
+        // X/Y se aplican DESPUÉS de fijar esa cara, por lo que nunca
+        // levantan ni hunden la superficie de apoyo.
+        // ============================================================
+        const testCombination = (angle, x, y) => {
+          const yaw = new THREE.Quaternion().setFromAxisAngle(
+            new THREE.Vector3(0, 0, 1),
+            angle
+          );
 
-        // Comprobaciones densas. 0.5 mm entre candidatos en un área de
-        // 220x220 son decenas de miles de posiciones por orientación.
-        // Además, cada candidato se comprueba con Box3 real.
-        const step = 0.5;
-        const maxXSteps = Math.ceil(limits.x / step);
-        const maxYSteps = Math.ceil(limits.y / step);
+          sMesh.quaternion.copy(yaw.multiply(baseQuat.clone()));
+          sMesh.position.set(0, 0, 0);
+          sMesh.updateMatrixWorld(true);
 
-        // Función que comprueba una posición REAL.
-        const testPosition = (x, y) => {
+          // Solo Z se determina por la superficie elegida.
+          const supportPoint = getSupportPointLocal().applyQuaternion(sMesh.quaternion);
+          sMesh.position.z = -supportPoint.z;
+
+          // X/Y son las dos traslaciones libres.
           sMesh.position.x = x;
           sMesh.position.y = y;
           sMesh.updateMatrixWorld(true);
 
-          const b = new THREE.Box3().setFromObject(sMesh);
-
-          const fits =
-            b.min.x >= bedMinX &&
-            b.max.x <= bedMaxX &&
-            b.min.y >= bedMinY &&
-            b.max.y <= bedMaxY &&
-            b.min.z >= 0 &&
-            b.max.z <= limits.z;
-
+          const box = new THREE.Box3().setFromObject(sMesh);
           checks++;
 
+          const fits =
+            box.min.x >= bedMinX &&
+            box.max.x <= bedMaxX &&
+            box.min.y >= bedMinY &&
+            box.max.y <= bedMaxY &&
+            box.min.z >= 0 &&
+            box.max.z <= limits.z;
+
           if (fits) {
-            valid = true;
-            chosenX = x;
-            chosenY = y;
-            bestFinalBox = b.clone();
-            return true;
-          }
-          return false;
-        };
+            const mx = Math.min(box.min.x - bedMinX, bedMaxX - box.max.x);
+            const my = Math.min(box.min.y - bedMinY, bedMaxY - box.max.y);
+            const mz = Math.min(box.min.z, limits.z - box.max.z);
+            const margin = Math.min(mx, my, mz);
 
-        // ============================================================
-        // 1. INTENTO DIRECTO: posición central.
-        // ============================================================
-        let b0 = new THREE.Box3().setFromObject(sMesh);
-        const centerX = -((b0.min.x + b0.max.x) / 2);
-        const centerY = -((b0.min.y + b0.max.y) / 2);
-
-        if (!testPosition(centerX, centerY)) {
-          // ==========================================================
-          // 2. BÚSQUEDA MASIVA X/Y.
-          //
-          // Se recorren posiciones dentro de todo el volumen útil.
-          // Para evitar un bucle innecesariamente enorme, se empieza
-          // por el centro y se va ampliando radialmente.
-          // ==========================================================
-          const candidates = [];
-
-          for (let ix = -maxXSteps; ix <= maxXSteps; ix++) {
-            const x = bedMinX + ix * step;
-            if (x < bedMinX || x > bedMaxX) continue;
-
-            for (let iy = -maxYSteps; iy <= maxYSteps; iy++) {
-              const y = bedMinY + iy * step;
-              if (y < bedMinY || y > bedMaxY) continue;
-
-              const dx = x - centerX;
-              const dy = y - centerY;
-              candidates.push({ x, y, d2: dx * dx + dy * dy });
+            if (!valid || margin > bestMargin) {
+              valid = true;
+              bestMargin = margin;
+              chosenAngle = angle;
+              chosenX = x;
+              chosenY = y;
+              bestFinalBox = box.clone();
             }
           }
 
-          candidates.sort((a, b) => a.d2 - b.d2);
+          return fits;
+        };
 
-          for (const c of candidates) {
-            if (testPosition(c.x, c.y)) break;
+        // ============================================================
+        // BÚSQUEDA EXACTA DE X/Y PARA UN ÁNGULO
+        //
+        // No usamos una cuadrícula de 0,5 mm que pueda saltarse una
+        // posición. Para cada ángulo calculamos el intervalo CONTINUO
+        // completo de X y Y permitido por los límites de la máquina.
+        //
+        // Después comprobamos varias combinaciones reales con Box3:
+        // centro, esquinas y extremos de esos intervalos.
+        // ============================================================
+        const tryAngle = (angle) => {
+          const m = measureHullAtYaw(search.hull, angle);
+
+          const xMin = bedMinX - m.minX;
+          const xMax = bedMaxX - m.maxX;
+          const yMin = bedMinY - m.minY;
+          const yMax = bedMaxY - m.maxY;
+
+          if (
+            xMin > xMax ||
+            yMin > yMax ||
+            search.minZRelative < 0 ||
+            search.maxZRelative > limits.z
+          ) {
+            return false;
           }
+
+          const xCenter = (xMin + xMax) / 2;
+          const yCenter = (yMin + yMax) / 2;
+
+          // El centro suele ser la posición más robusta y deja la
+          // mayor separación posible de los límites, pero no se usa
+          // ningún margen de seguridad.
+          const candidates = [
+            [xCenter, yCenter],
+            [xMin, yCenter],
+            [xMax, yCenter],
+            [xCenter, yMin],
+            [xCenter, yMax],
+            [xMin, yMin],
+            [xMin, yMax],
+            [xMax, yMin],
+            [xMax, yMax]
+          ];
+
+          let angleValid = false;
+
+          for (const [x, y] of candidates) {
+            if (testCombination(angle, x, y)) {
+              angleValid = true;
+              // Ya tenemos una posición válida para este ángulo.
+              // No hace falta seguir probando otras X/Y salvo que
+              // queramos mejorar el margen; el centro ya se prueba primero.
+              break;
+            }
+          }
+
+          return angleValid;
+        };
+
+        // ============================================================
+        // 360 GRADOS COMPLETOS A 0,001°
+        //
+        // 360.000 orientaciones. Para cada una:
+        //   1) rotación alrededor de la superficie seleccionada
+        //   2) intervalo completo de X
+        //   3) intervalo completo de Y
+        //   4) comprobación geométrica real de la pieza
+        //
+        // Esto evita limitar la búsqueda a 180°.
+        // ============================================================
+        for (let i = 0; i < 360000; i++) {
+          const angle = THREE.MathUtils.degToRad(i * 0.001);
+          tryAngle(angle);
         }
 
-        // ============================================================
-        // 3. SI TODAVÍA NO CABE, hacemos una corrección matemática
-        // exacta a partir del Box3 actual. Esto permite entrar incluso
-        // cuando el paso de 0.5 mm no cae exactamente en la posición.
-        // ============================================================
+        // Si no hay una solución exacta, dejamos la mejor orientación
+        // calculada por el evaluador y la comprobamos en el centro de la
+        // cama para mostrar el estado real.
         if (!valid) {
-          sMesh.position.x = centerX;
-          sMesh.position.y = centerY;
+          const angle = bestAngle;
+          const yaw = new THREE.Quaternion().setFromAxisAngle(
+            new THREE.Vector3(0, 0, 1),
+            angle
+          );
+
+          sMesh.quaternion.copy(yaw.multiply(baseQuat.clone()));
+          sMesh.position.set(0, 0, 0);
+          sMesh.updateMatrixWorld(true);
+
+          const supportPoint = getSupportPointLocal().applyQuaternion(sMesh.quaternion);
+          sMesh.position.z = -supportPoint.z;
           sMesh.updateMatrixWorld(true);
 
           const b = new THREE.Box3().setFromObject(sMesh);
+          sMesh.position.x = -((b.min.x + b.max.x) / 2);
+          sMesh.position.y = -((b.min.y + b.max.y) / 2);
+          sMesh.updateMatrixWorld(true);
+        } else {
+          // Aplicar exactamente la combinación ganadora.
+          const yaw = new THREE.Quaternion().setFromAxisAngle(
+            new THREE.Vector3(0, 0, 1),
+            chosenAngle
+          );
 
-          const correctedX =
-            sMesh.position.x +
-            (bedMinX - b.min.x < 0 && b.max.x > bedMaxX
-              ? ((bedMinX + bedMaxX) / 2) - ((b.min.x + b.max.x) / 2)
-              : (b.min.x < bedMinX ? bedMinX - b.min.x :
-                 b.max.x > bedMaxX ? bedMaxX - b.max.x : 0));
-
-          const bAfterX = new THREE.Box3().setFromObject(sMesh);
-          sMesh.position.x = correctedX;
+          sMesh.quaternion.copy(yaw.multiply(baseQuat.clone()));
+          sMesh.position.set(0, 0, 0);
           sMesh.updateMatrixWorld(true);
 
-          const b2 = new THREE.Box3().setFromObject(sMesh);
-          const correctedY =
-            sMesh.position.y +
-            (b2.min.y < bedMinY ? bedMinY - b2.min.y :
-             b2.max.y > bedMaxY ? bedMaxY - b2.max.y : 0);
+          const supportPoint = getSupportPointLocal().applyQuaternion(sMesh.quaternion);
+          sMesh.position.z = -supportPoint.z;
+          sMesh.position.x = chosenX;
+          sMesh.position.y = chosenY;
+          sMesh.updateMatrixWorld(true);
 
-          if (testPosition(correctedX, correctedY)) {
-            // valid
-          }
+          bestFinalBox = new THREE.Box3().setFromObject(sMesh);
         }
 
-        // ============================================================
-        // 4. RESULTADO
-        // ============================================================
         const finalBox = bestFinalBox || new THREE.Box3().setFromObject(sMesh);
         const finalSize = finalBox.getSize(new THREE.Vector3());
 
+        // Validación final SIN margen de seguridad.
         const finalFits =
           valid &&
           finalBox.min.x >= bedMinX &&
@@ -1087,7 +1126,7 @@ main.wrap{min-height:calc(100vh - 95px)}
           successBanner.style =
             "background:#eef2ee;border:1.5px solid #2e7d32;color:#2e7d32;padding:12px;border-radius:10px;font-size:13.5px;font-weight:700;margin-bottom:12px;line-height:1.4;text-align:center;";
 
-          const angleDeg = THREE.MathUtils.radToDeg(bestAngle);
+          const angleDeg = THREE.MathUtils.radToDeg(chosenAngle);
           const marginX = Math.min(finalBox.min.x - bedMinX, bedMaxX - finalBox.max.x);
           const marginY = Math.min(finalBox.min.y - bedMinY, bedMaxY - finalBox.max.y);
           const marginZ = Math.min(finalBox.min.z, limits.z - finalBox.max.z);
@@ -1095,8 +1134,7 @@ main.wrap{min-height:calc(100vh - 95px)}
 
           successBanner.innerHTML =
             `✓ <strong>Posición válida encontrada.</strong> ` +
-            `Se han realizado <strong>${checks.toLocaleString("es-ES")}</strong> comprobaciones de posición ` +
-            `para esta orientación. ` +
+            `<strong>360.000 orientaciones</strong> comprobadas a 0,001° y combinaciones de X/Y. ` +
             `Ángulo: <strong>${angleDeg.toFixed(3)}°</strong>. ` +
             `X: <strong>${sMesh.position.x.toFixed(3)} mm</strong>, ` +
             `Y: <strong>${sMesh.position.y.toFixed(3)} mm</strong>. ` +
@@ -1111,11 +1149,11 @@ main.wrap{min-height:calc(100vh - 95px)}
           warningBanner.style.display = "block";
           warningBanner.innerHTML =
             `<div style="margin-bottom:10px;">` +
-            `⚠️ <strong>No se ha encontrado una posición válida</strong> ` +
-            `manteniendo la superficie seleccionada como base. ` +
+            `⚠️ <strong>No se ha encontrado una combinación válida</strong> ` +
+            `de rotación + X + Y manteniendo la superficie seleccionada como base. ` +
             `Mejor posición comprobada: <strong>${finalSize.x.toFixed(3)} × ${finalSize.y.toFixed(3)} × ${finalSize.z.toFixed(3)} mm</strong>. ` +
             `Cama: <strong>${limits.x} × ${limits.y} × ${limits.z} mm</strong>. ` +
-            `Comprobaciones X/Y: <strong>${checks.toLocaleString("es-ES")}</strong>.` +
+            `Comprobaciones: <strong>${checks.toLocaleString("es-ES")}</strong>.` +
             `</div>`;
 
           const btn = document.createElement("button");
@@ -1136,9 +1174,11 @@ main.wrap{min-height:calc(100vh - 95px)}
         ];
 
         answers.orientationSearch = {
-          angle_deg: Number(THREE.MathUtils.radToDeg(bestAngle).toFixed(3)),
+          angle_deg: Number(THREE.MathUtils.radToDeg(chosenAngle).toFixed(3)),
           precision_deg: 0.001,
-          positions_checked: checks,
+          angle_range_deg: 360,
+          angle_positions_checked: 360000,
+          xy_combinations_checked: checks,
           base_face_index: answers.selectedSupportFace,
           base_kept_on_bed: true,
           x_mm: Number(sMesh.position.x.toFixed(3)),
@@ -1186,19 +1226,16 @@ main.wrap{min-height:calc(100vh - 95px)}
 
         const search = buildSearchData(baseQuat);
 
+        // Evaluador auxiliar: calcula si una orientación tiene alguna
+        // posibilidad de entrar en X/Y/Z antes de hacer la comprobación
+        // real de la posición.
         let bestAngle = 0;
         let bestEval = null;
         let bestMargin = -Infinity;
         let bestViolation = Infinity;
         let foundFit = false;
 
-        // ============================================================
-        // BÚSQUEDA DE ORIENTACIÓN A 0,001°
-        //
-        // Para cada ángulo se calcula la geometría y después se hace la
-        // búsqueda masiva de posiciones X/Y en finalize...().
-        // ============================================================
-        for (let i = 0; i < 180000; i++) {
+        for (let i = 0; i < 360000; i++) {
           const rad = THREE.MathUtils.degToRad(i * 0.001);
           const result = evaluateYaw(search, rad, limits);
 
