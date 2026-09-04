@@ -288,8 +288,8 @@
         <div class="step-title"><span>Orientación Interactiva</span> <span style="font-size:14px; color:var(--muted);">4 / 4</span></div>
         <div class="step-subtitle" style="color:var(--ink); font-weight:700;">Haz clic sobre la superficie que quieres apoyar en la cama.</div>
         
-        <!-- Banner dinámico para advertir si sobrepasa los límites reales del volumen de impresión -->
-        <div id="limitWarningBanner" style="display:none; background:#fcebe8; border:1.5px solid var(--error); color:#9e3223; padding:12px; border-radius:10px; font-size:13.5px; font-weight:700; margin-bottom:12px; line-height:1.4;"></div>
+        <!-- Banner dinámico para advertir si sobrepasa los límites reales con botón de autocorrección -->
+        <div id="limitWarningBanner" style="display:none; background:#fcebe8; border:1.5px solid var(--error); color:#9e3223; padding:16px; border-radius:12px; font-size:13.5px; font-weight:700; margin-bottom:12px; line-height:1.4; text-align:center;"></div>
         
         <div id="selector3dContainer" style="width:100%; height:380px; background:#161d1a; border-radius:16px; position:relative; overflow:hidden; border:2px solid var(--line); margin-bottom:12px;"></div>
       </div>
@@ -416,7 +416,7 @@
       validateCurrentStep();
     }
 
-    // --- VISOR 3D CON AUTO-ORIENTACIÓN DE AJUSTE MÁXIMO EN Z ---
+    // --- VISOR 3D CON CORRECCIÓN AUTOMÁTICA DE AJUSTE MÁXIMO EN Z Y ESCALADO PROPORCIONAL ---
     let sScene, sCamera, sRenderer, sControls, sMesh, highlightRing, gridHelper, printVolumeBox;
 
     function initSelector3D() {
@@ -482,7 +482,6 @@
         sControls.target.copy(geometry.boundingBox.getCenter(new THREE.Vector3()));
         sControls.update();
         
-        // Verificar límites en la posición inicial por defecto
         optimizeZRotationToFit();
       };
       reader.readAsArrayBuffer(window.selectedSTLFile);
@@ -500,6 +499,15 @@
         const intersects = raycaster.intersectObject(sMesh);
 
         if (intersects.length > 0) {
+          // RESTABLECER ESCALA A 1 antes de calcular una nueva orientación para evitar escalados sucesivos erróneos
+          sMesh.scale.set(1, 1, 1);
+          sMesh.quaternion.set(0, 0, 0, 1);
+          sMesh.position.set(0, 0, 0);
+          sMesh.updateMatrixWorld(true);
+
+          const oldSuccess = document.getElementById("scaleSuccessBanner");
+          if (oldSuccess) oldSuccess.remove();
+
           const hit = intersects[0];
           const localNormal = hit.face.normal.clone();
 
@@ -524,7 +532,6 @@
           highlightRing.position.addScaledVector(ringNormal, 0.4);
           sScene.add(highlightRing);
 
-          // Optimizar la rotación vertical para que entre en la cama
           optimizeZRotationToFit();
           validateCurrentStep();
         }
@@ -540,7 +547,6 @@
         let foundFit = false;
         let optimalAngle = 0;
 
-        // Probar rotaciones en Z en pasos de 5 grados para encontrar acomodo estable
         for (let deg = 0; deg < 180; deg += 5) {
           const rad = THREE.MathUtils.degToRad(deg);
           const zRotation = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), rad);
@@ -561,13 +567,11 @@
           }
         }
 
-        // Aplicar la rotación Z óptima calculada (o mantener la base si no cupiera)
         const finalZRot = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), foundFit ? optimalAngle : 0);
         sMesh.quaternion.copy(baseQuat.clone().premultiply(finalZRot));
         sMesh.position.set(0, 0, 0);
         sMesh.updateMatrixWorld(true);
 
-        // Recentrar la geometría matemáticamente en la cama
         const finalBbox = new THREE.Box3().setFromObject(sMesh);
         const boxCenter = new THREE.Vector3();
         finalBbox.getCenter(boxCenter);
@@ -577,7 +581,6 @@
         sMesh.position.z = -finalBbox.min.z;
         sMesh.updateMatrixWorld(true);
 
-        // Comprobación final y disparo de alertas físicas
         const modelSize = new THREE.Vector3();
         finalBbox.getSize(modelSize);
 
@@ -587,13 +590,19 @@
         if (exceeds) {
           sMesh.material.color.setHex(0xb42318); // Rojo
           warningBanner.style.display = "block";
-          warningBanner.innerHTML = `⚠️ <strong>¡Límite de Impresión Excedido!</strong> La pieza orientada (${modelSize.x.toFixed(1)} x ${modelSize.y.toFixed(1)} x ${modelSize.z.toFixed(1)} mm) supera el volumen útil máximo de tu ${answers.printer} (${limits.x} x ${limits.y} x ${limits.z} mm) bajo cualquier rotación en Z.`;
+          warningBanner.innerHTML = `
+            <div style="margin-bottom: 10px;">
+              ⚠️ <strong>¡Límite de Impresión Excedido!</strong> La pieza orientada (${modelSize.x.toFixed(1)} x ${modelSize.y.toFixed(1)} x ${modelSize.z.toFixed(1)} mm) supera el volumen útil máximo de tu ${answers.printer} (${limits.x} x ${limits.y} x ${limits.z} mm).
+            </div>
+            <button type="button" onclick="scaleMeshToFit()" style="background:#b42318; color:#fff; border:1.5px solid #fff; padding:8px 16px; border-radius:8px; font-weight:800; cursor:pointer; font-size:12px; transition:0.2s;">
+              Auto-escalar pieza para ajustar al volumen de la cama
+            </button>
+          `;
         } else {
           sMesh.material.color.setHex(0x90caf9); // Azul estándar si cabe
           warningBanner.style.display = "none";
         }
 
-        // Convertir array plano de Three.js column-major a un array bidimensional real de 4x4 row-major
         const te = sMesh.matrix.elements;
         answers.transformationMatrix = [
           [ te[0], te[4], te[8],  te[12] ],
@@ -601,6 +610,62 @@
           [ te[2], te[6], te[10], te[14] ],
           [ te[3], te[7], te[11], te[15] ]
         ];
+      }
+
+      // --- FUNCIÓN DE AUTOCORRECCIÓN DE ESCALA EN CALIENTE ---
+      window.scaleMeshToFit = function() {
+        if (!sMesh || !answers.printer) return;
+        const limits = printerLimits[answers.printer];
+        if (!limits) return;
+
+        const currentBbox = new THREE.Box3().setFromObject(sMesh);
+        const modelSize = new THREE.Vector3();
+        currentBbox.getSize(modelSize);
+
+        // Calcular el factor de escala uniforme óptimo (con un margen del 2%)
+        const scaleX = limits.x / modelSize.x;
+        const scaleY = limits.y / modelSize.y;
+        const scaleZ = limits.z / modelSize.z;
+        const minScale = Math.min(scaleX, scaleY, scaleZ) * 0.98;
+
+        // Aplicar escala a la malla
+        sMesh.scale.multiplyScalar(minScale);
+        sMesh.updateMatrix();
+        sMesh.updateMatrixWorld(true);
+
+        // Recentrar la malla escalada físicamente sobre Z=0 y centrarla en X,Y
+        const finalBbox = new THREE.Box3().setFromObject(sMesh);
+        const boxCenter = new THREE.Vector3();
+        finalBbox.getCenter(boxCenter);
+        
+        sMesh.position.x = -boxCenter.x;
+        sMesh.position.y = -boxCenter.y;
+        sMesh.position.z = -finalBbox.min.z;
+        sMesh.updateMatrixWorld(true);
+
+        // Actualizar la matriz de transformación 4x4 con la escala integrada para que el backend la asimile
+        const te = sMesh.matrix.elements;
+        answers.transformationMatrix = [
+          [ te[0], te[4], te[8],  te[12] ],
+          [ te[1], te[5], te[9],  te[13] ],
+          [ te[2], te[6], te[10], te[14] ],
+          [ te[3], te[7], te[11], te[15] ]
+        ];
+
+        sMesh.material.color.setHex(0x90caf9); // Cambiar de rojo de alerta a azul estándar
+        const warningBanner = document.getElementById("limitWarningBanner");
+        warningBanner.style.display = "none";
+
+        // Mostrar cartel de éxito con el porcentaje aplicado
+        const successBanner = document.createElement("div");
+        successBanner.id = "scaleSuccessBanner";
+        successBanner.style = "background:#eef2ee; border:1.5px solid #2e7d32; color:#2e7d32; padding:12px; border-radius:10px; font-size:13.5px; font-weight:700; margin-bottom:12px; line-height:1.4; text-align:center;";
+        successBanner.innerHTML = `✓ <strong>Escala ajustada:</strong> Modelo escalado al ${(minScale * 100).toFixed(1)}% para caber perfectamente en el volumen de impresión de tu ${answers.printer}.`;
+        
+        const oldSuccess = document.getElementById("scaleSuccessBanner");
+        if (oldSuccess) oldSuccess.remove();
+        
+        warningBanner.parentNode.insertBefore(successBanner, warningBanner);
       }
 
       function animate() {
