@@ -1,3 +1,4 @@
+<!-- informe-stl.html -->
 <!doctype html>
 <html lang="es">
 <head>
@@ -54,7 +55,7 @@
     .prob-title{font-size:18px; font-weight:800; margin:0;}
     .prob-badge{font-size:11px; font-weight:800; padding:4px 10px; border-radius:6px; text-transform:uppercase;}
 
-    .param-box{background:var(--bg); border:1.5px solid var(--line); border-radius:16px; padding:24px; margin-bottom: 20px;}
+    .param-box{background:var(--card); border:1.5px solid var(--line); border-radius:16px; padding:24px; margin-bottom: 20px;}
     .param-title{font-size:14px; text-transform:uppercase; font-weight:800; color:var(--muted); margin-bottom: 12px;}
     
     .param-row{display:flex; justify-content:space-between; border-bottom:1px dashed var(--line); padding:10px 0; font-size:14.5px;}
@@ -147,37 +148,37 @@
 
           <!-- Parámetros de OrcaSlicer Completos -->
           <div class="param-box">
-            <h4 class="param-title">Parámetros Completos de OrcaSlicer</h4>
+            <h4 class="param-title" style="padding: 10px 0 0 0; margin: 0;">Parámetros Completos de OrcaSlicer</h4>
             
             <div style="font-size: 12px; font-weight: 800; color: var(--muted); margin: 15px 0 5px; border-bottom: 2px solid var(--line); padding-bottom: 4px;">ALTURA DE CAPA</div>
             <div class="param-row"><span>layer_height (Altura de capa):</span> <strong id="oLayerHeight">--</strong></div>
-            <div class="param-row"><span>first_layer_height (Altura de primera capa):</span> <strong id="oFirstLayerHeight">--</strong></div>
+            <div class="param-row"><span>initial_layer_print_height (Altura de capa inicial):</span> <strong id="oFirstLayerHeight">--</strong></div>
 
             <div style="font-size: 12px; font-weight: 800; color: var(--muted); margin: 15px 0 5px; border-bottom: 2px solid var(--line); padding-bottom: 4px;">PAREDES Y RELLENO</div>
-            <div class="param-row"><span>wall_loops (Perímetros de pared):</span> <strong id="oWallLoops">--</strong></div>
-            <div class="param-row"><span>sparse_infill_density (Densidad de relleno):</span> <strong id="oInfillDensity">--</strong></div>
-            <div class="param-row"><span>sparse_infill_pattern (Patrón de relleno):</span> <strong id="oInfillPattern">--</strong></div>
+            <div class="param-row"><span>wall_loops (Bucles de pared):</span> <strong id="oWallLoops">--</strong></div>
+            <div class="param-row"><span>sparse_infill_density (Densidad de relleno de esparcido):</span> <strong id="oInfillDensity">--</strong></div>
+            <div class="param-row"><span>sparse_infill_pattern (Patrón de relleno de esparcido):</span> <strong id="oInfillPattern">--</strong></div>
 
             <div style="font-size: 12px; font-weight: 800; color: var(--muted); margin: 15px 0 5px; border-bottom: 2px solid var(--line); padding-bottom: 4px;">VELOCIDADES Y ACELERACIÓN</div>
-            <div class="param-row"><span>outer_wall_speed (Velocidad pared exterior):</span> <strong id="oOuterWallSpeed">--</strong></div>
-            <div class="param-row"><span>inner_wall_speed (Velocidad pared interior):</span> <strong id="oInnerWallSpeed">--</strong></div>
+            <div class="param-row"><span>outer_wall_speed (Velocidad de pared exterior):</span> <strong id="oOuterWallSpeed">--</strong></div>
+            <div class="param-row"><span>inner_wall_speed (Velocidad de pared interior):</span> <strong id="oInnerWallSpeed">--</strong></div>
             <div class="param-row"><span>travel_speed (Velocidad de viaje):</span> <strong id="oTravelSpeed">--</strong></div>
             <div class="param-row"><span>travel_acceleration (Aceleración de viaje):</span> <strong id="oTravelAccel">--</strong></div>
 
             <div style="font-size: 12px; font-weight: 800; color: var(--muted); margin: 15px 0 5px; border-bottom: 2px solid var(--line); padding-bottom: 4px;">EXTRUSIÓN Y TEMPERATURAS</div>
-            <div class="param-row"><span>nozzle_temperature (Temperatura boquilla):</span> <strong id="oNozzleTemp">--</strong></div>
-            <div class="param-row"><span>bed_temperature (Temperatura cama):</span> <strong id="oBedTemp">--</strong></div>
-            <div class="param-row"><span>flow_ratio (Multiplicador de extrusión):</span> <strong id="oFlowRatio">--</strong></div>
-            <div class="param-row"><span>pressure_advance (Presión anticipada):</span> <strong id="oPA">--</strong></div>
+            <div class="param-row"><span>nozzle_temperature (Temperatura de la boquilla):</span> <strong id="oNozzleTemp">--</strong></div>
+            <div class="param-row"><span>hot_plate_temp (Temperatura de la base caliente):</span> <strong id="oBedTemp">--</strong></div>
+            <div class="param-row"><span>flow_ratio (Relación de flujo):</span> <strong id="oFlowRatio">--</strong></div>
+            <div class="param-row"><span>pressure_advance (Avance de presión):</span> <strong id="oPA">--</strong></div>
 
             <div style="font-size: 12px; font-weight: 800; color: var(--muted); margin: 15px 0 5px; border-bottom: 2px solid var(--line); padding-bottom: 4px;">SOPORTES Y ADHESIÓN</div>
-            <div class="param-row"><span>enable_support (Soportes activados):</span> <strong id="oEnableSupport">--</strong></div>
+            <div class="param-row"><span>enable_support (Activar soporte):</span> <strong id="oEnableSupport">--</strong></div>
             <div class="param-row"><span>support_type (Tipo de soporte):</span> <strong id="oSupportType">--</strong></div>
-            <div class="param-row"><span>brim_type (Tipo de visera):</span> <strong id="oBrimType">--</strong></div>
-            <div class="param-row"><span>brim_width (Ancho de visera):</span> <strong id="oBrimWidth">--</strong></div>
+            <div class="param-row"><span>brim_type (Tipo de borde):</span> <strong id="oBrimType">--</strong></div>
+            <div class="param-row"><span>brim_width (Ancho del borde):</span> <strong id="oBrimWidth">--</strong></div>
 
             <div style="font-size: 12px; font-weight: 800; color: var(--muted); margin: 15px 0 5px; border-bottom: 2px solid var(--line); padding-bottom: 4px;">RETRACCIÓN</div>
-            <div class="param-row"><span>retraction_length (Distancia de retracción):</span> <strong id="oRetractLength">--</strong></div>
+            <div class="param-row"><span>retraction_length (Longitud de retracción):</span> <strong id="oRetractLength">--</strong></div>
             <div class="param-row"><span>retraction_speed (Velocidad de retracción):</span> <strong id="oRetractSpeed">--</strong></div>
           </div>
 
@@ -231,7 +232,6 @@
       controls = new THREE.OrbitControls(camera, renderer.domElement);
       controls.enableDamping = true;
 
-      // Rejilla de la cama de impresión duplicada en tamaño (Tamaño: 300 con 30 divisiones)
       const gridHelper = new THREE.GridHelper(300, 30, 0x5e6661, 0x2e3a35);
       gridHelper.rotation.x = Math.PI / 2;
       scene.add(gridHelper);
@@ -345,7 +345,7 @@
 
       // Inyección exacta de TODOS los parámetros de OrcaSlicer en el informe
       document.getElementById("oLayerHeight").textContent = s.layer_height !== undefined ? `${s.layer_height} mm` : "--";
-      document.getElementById("oFirstLayerHeight").textContent = s.first_layer_height !== undefined ? `${s.first_layer_height} mm` : "--";
+      document.getElementById("oFirstLayerHeight").textContent = s.initial_layer_print_height !== undefined ? `${s.initial_layer_print_height} mm` : "--";
       document.getElementById("oWallLoops").textContent = s.wall_loops !== undefined ? `${s.wall_loops} bucles` : "--";
       document.getElementById("oInfillDensity").textContent = s.sparse_infill_density !== undefined ? `${s.sparse_infill_density}%` : "--";
       document.getElementById("oInfillPattern").textContent = s.sparse_infill_pattern !== undefined ? `${s.sparse_infill_pattern}` : "--";
@@ -353,8 +353,8 @@
       document.getElementById("oInnerWallSpeed").textContent = s.inner_wall_speed !== undefined ? `${s.inner_wall_speed} mm/s` : "--";
       document.getElementById("oTravelSpeed").textContent = s.travel_speed !== undefined ? `${s.travel_speed} mm/s` : "--";
       document.getElementById("oTravelAccel").textContent = s.travel_acceleration !== undefined ? `${s.travel_acceleration} mm/s²` : "--";
-      document.getElementById("oNozzleTemp").textContent = s.nozzle_temp !== undefined ? `${s.nozzle_temp} ºC` : "--";
-      document.getElementById("oBedTemp").textContent = s.bed_temp !== undefined ? `${s.bed_temp} ºC` : "--";
+      document.getElementById("oNozzleTemp").textContent = s.nozzle_temperature !== undefined ? `${s.nozzle_temperature} ºC` : "--";
+      document.getElementById("oBedTemp").textContent = s.hot_plate_temp !== undefined ? `${s.hot_plate_temp} ºC` : "--";
       document.getElementById("oFlowRatio").textContent = s.flow_ratio !== undefined ? `${s.flow_ratio}` : "--";
       document.getElementById("oPA").textContent = s.pressure_advance !== undefined ? `${s.pressure_advance}` : "--";
       document.getElementById("oEnableSupport").textContent = s.enable_support !== undefined ? (s.enable_support ? "SÍ" : "NO") : "--";
@@ -367,7 +367,7 @@
       if (analysis.optimized_base64) {
         init3DViewer("canvas3dContainer", analysis.optimized_base64, analysis.critical_points);
 
-        // --- CONSTRUCTOR DE ARCHIVO DE PROYECTO .3MF PROTEGIDO CONTRA SOBREESCRITURAS ---
+        // --- CONSTRUCTOR DE ARCHIVO DE PROYECTO .3MF ---
         document.getElementById("download3mfBtn").addEventListener("click", async () => {
           const downloadBtn = document.getElementById("download3mfBtn");
           downloadBtn.disabled = true;
@@ -376,7 +376,6 @@
           try {
             const zip = new JSZip();
 
-            // 1. [Content_Types].xml (Define la estructura del contenedor OPC del 3MF)
             const contentTypesXml = `<?xml version="1.0" encoding="UTF-8"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
   <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
@@ -385,14 +384,12 @@
 </Types>`;
             zip.file("[Content_Types].xml", contentTypesXml);
 
-            // 2. _rels/.rels (Define relaciones de la escena raíz)
             const relsXml = `<?xml version="1.0" encoding="UTF-8"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
   <Relationship Id="rel0" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel" Target="/3D/3dmodel.model"/>
 </Relationships>`;
             zip.file("_rels/.rels", relsXml);
 
-            // 3. 3D/3dmodel.model (Compila la geometría orientada en XML de 3MF)
             if (!activeMesh || !activeMesh.geometry) {
               throw new Error("Geometría del visor 3D no inicializada.");
             }
@@ -434,7 +431,6 @@
 </model>`;
             zip.file("3D/3dmodel.model", modelXml);
 
-            // Traducir dinámicamente los términos de relleno en castellano a la nomenclatura en inglés nativa de OrcaSlicer
             const patternMapping = {
               "giroide": "gyroid",
               "rejilla": "grid",
@@ -444,14 +440,14 @@
             };
             const engPattern = patternMapping[s.sparse_infill_pattern] || "gyroid";
 
-            // 4. Metadata/project_settings.config (Incrustación exacta de parámetros y vectores de protección)
+            // Metadata/project_settings.config - Integración nativa de parámetros
             const orcaSettingsJson = {
               "from": "project",
               "name": "project_settings",
               "printer_model": q.printer || "Prusa i3 MK4",
               "nozzle_diameter": [ q.nozzleSize ? q.nozzleSize.toString() : "0.4" ],
               "layer_height": s.layer_height !== undefined ? s.layer_height.toString() : "0.2",
-              "initial_layer_print_height": s.first_layer_height !== undefined ? s.first_layer_height.toString() : "0.2",
+              "initial_layer_print_height": s.initial_layer_print_height !== undefined ? s.initial_layer_print_height.toString() : "0.2",
               "wall_loops": s.wall_loops !== undefined ? s.wall_loops.toString() : "3",
               "sparse_infill_density": s.sparse_infill_density !== undefined ? s.sparse_infill_density.toString() + "%" : "20%",
               "sparse_infill_pattern": engPattern,
@@ -459,9 +455,9 @@
               "inner_wall_speed": s.inner_wall_speed !== undefined ? s.inner_wall_speed.toString() : "140",
               "travel_speed": s.travel_speed !== undefined ? s.travel_speed.toString() : "200",
               "travel_acceleration": s.travel_acceleration !== undefined ? s.travel_acceleration.toString() : "5000",
-              "nozzle_temperature": [ s.nozzle_temp !== undefined ? s.nozzle_temp.toString() : "220" ],
-              "hot_plate_temp": [ s.bed_temp !== undefined ? s.bed_temp.toString() : "60" ],
-              "hot_plate_temp_initial": [ s.bed_temp !== undefined ? s.bed_temp.toString() : "60" ],
+              "nozzle_temperature": [ s.nozzle_temperature !== undefined ? s.nozzle_temperature.toString() : "220" ],
+              "hot_plate_temp": [ s.hot_plate_temp !== undefined ? s.hot_plate_temp.toString() : "60" ],
+              "hot_plate_temp_initial": [ s.hot_plate_temp !== undefined ? s.hot_plate_temp.toString() : "60" ],
               "enable_support": s.enable_support ? "1" : "0",
               "support_type": s.support_type || "normal",
               "brim_type": s.brim_type || "none",
@@ -477,7 +473,6 @@
             };
             zip.file("Metadata/project_settings.config", JSON.stringify(orcaSettingsJson, null, 2));
 
-            // 5. Compresión y descarga del proyecto de impresión .3mf
             const content = await zip.generateAsync({ type: "blob" });
             const url = URL.createObjectURL(content);
 
