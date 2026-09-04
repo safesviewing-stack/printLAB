@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Analizador y Optimizador STL con IA — PrintLab PRO</title>
+  <title>Analizador y Optimizador STL — PrintLab PRO</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
@@ -185,11 +185,6 @@
       margin-top: 1px;
     }
 
-    .form-group{margin-bottom:16px; display:flex; flex-direction:column;}
-    .form-group label{font-size:12.5px; font-weight:800; margin-bottom:6px; color:var(--muted);}
-    .form-group input, .form-group textarea, .form-group select{padding:12px; border:1.5px solid var(--line); border-radius:12px; font-size:14.5px; font-weight:700; background:var(--bg); color:var(--ink); outline:none; font-family:inherit;}
-    .form-group input:focus, .form-group textarea:focus, .form-group select:focus{background:#fff; border-color:var(--ink);}
-
     .wizard-nav-buttons{display:flex; justify-content:space-between; margin-top:28px; border-top:1.5px solid var(--line); padding-top:20px;}
     .btn-green{display:inline-block; background:var(--accent); color:var(--ink); padding:14px 30px; border-radius:9999px; font-weight:800; font-size:14.5px; border:2px solid var(--ink); box-shadow:0 4px 0 var(--ink); cursor:pointer;}
     .btn-green:hover:not(:disabled){transform:translateY(-1px); box-shadow:0 6px 0 var(--ink);}
@@ -207,8 +202,6 @@
     .footer-links { display: flex; flex-direction: column; gap: 10px; }
     .footer-links a { color: var(--muted); transition: color 0.15s ease, transform 0.15s ease; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
     .footer-links a:hover { color: var(--ink); transform: translateX(2px); }
-    .footer-links a span.arrow { transition: color 0.15s ease; }
-    .footer-links a:hover span.arrow { color: var(--accent); }
     .footer-bottom { border-top: 1px solid var(--line); padding-top: 24px; display:flex; justify-content:center; align-items:center; text-align:center; font-size: 13px; color: #7d8782;}
 
     @media(max-width:992px){
@@ -222,11 +215,14 @@
     @media(max-width:480px){
       .option-grid{grid-template-columns:1fr;}
     }
-    @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../assets/js/auth-helper.js?v=11"></script>
+  
+  <!-- Librerías 3D necesarias para el Selector Interactivo -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/STLLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/controls/OrbitControls.js"></script>
 </head>
 <body>
 
@@ -270,7 +266,7 @@
       <div class="wizard-step active" id="step-upload">
         <div class="upload-icon-wrapper">📁</div>
         <h3 class="upload-title" style="text-align:center;">Analizar nuevo modelo STL</h3>
-        <p class="upload-desc" style="text-align:center;">Soporte para FDM, SLA y SLS. Límite: 500MB por archivo.</p>
+        <p class="upload-desc" style="text-align:center;">Soporte para FDM industrial. Límite: 500MB por archivo.</p>
         
         <input type="file" id="stlFile" accept=".stl" hidden>
         
@@ -279,12 +275,11 @@
         </div>
 
         <div class="selected-file" id="selectedFile">
-          <div style="display:flex; align-items:center; gap:12px; text-align:left; width: 100%;">
+          <div style="display:flex; align-items:center; gap:12px; text-align:left;">
             <div style="font-size:24px;">📄</div>
-            <div style="flex-grow:1;">
+            <div>
               <div class="selected-file-name" id="selectedFileName"></div>
               <div class="selected-file-size" id="selectedFileSize"></div>
-              <div id="localFileMetrics" style="font-size:11px; margin-top:4px; color:var(--muted); line-height:1.4;"></div>
             </div>
           </div>
           <button type="button" class="btn-remove-file" id="removeFileBtn">✕</button>
@@ -292,266 +287,100 @@
         <div class="drag-help" style="text-align:center;">También puedes arrastrar y soltar aquí tu archivo STL.</div>
       </div>
 
-      <!-- PREGUNTA 1: USO DE LA PIEZA -->
-      <div class="wizard-step" id="step-part-use">
-        <div class="step-title"><span>¿Para qué vas a utilizar la pieza?</span> <span style="font-size:14px; color:var(--muted);">1 / 8</span></div>
-        <div class="step-subtitle">Selecciona el propósito de ingeniería del objeto para calcular perfiles optimizados.</div>
+      <!-- PREGUNTA 1: FUNCIÓN DE LA PIEZA -->
+      <div class="wizard-step" id="step-part-type">
+        <div class="step-title"><span>¿Qué función tiene la pieza?</span> <span style="font-size:14px; color:var(--muted);">1 / 4</span></div>
+        <div class="step-subtitle">Determina los parámetros y patrones de relleno recomendados.</div>
         <div class="option-grid">
-          <div class="option-card" data-val="estructural" onclick="selectCard(this, 'partUse')">
-            <span class="emoji">🏗️</span>
-            <span class="option-card-title">Pieza estructural</span>
-            <span class="option-card-desc">Soportará cargas mecánicas o pesos estáticos constantes.</span>
-          </div>
-          <div class="option-card" data-val="mecanica" onclick="selectCard(this, 'partUse')">
-            <span class="emoji">⚙️</span>
-            <span class="option-card-title">Pieza mecánica</span>
-            <span class="option-card-desc">Sometida a fricciones, engranajes o movimientos activos.</span>
-          </div>
-          <div class="option-card" data-val="carcasa" onclick="selectCard(this, 'partUse')">
-            <span class="emoji">💻</span>
-            <span class="option-card-title">Carcasa</span>
-            <span class="option-card-desc">Protecciones y envolventes para sistemas electrónicos.</span>
-          </div>
-          <div class="option-card" data-val="union" onclick="selectCard(this, 'partUse')">
-            <span class="emoji">🔩</span>
-            <span class="option-card-title">Unión / soporte</span>
-            <span class="option-card-desc">Acoples, bridas, juntas, herrajes de fijación o escuadras.</span>
-          </div>
-          <div class="option-card" data-val="decorativa" onclick="selectCard(this, 'partUse')">
+          <div class="option-card" data-val="Decorativa" onclick="selectCard(this, 'partType')">
             <span class="emoji">💎</span>
             <span class="option-card-title">Decorativa</span>
-            <span class="option-card-desc">Modelos estéticos, figuras sin requerimientos mecánicos.</span>
+            <span class="option-card-desc">Prioriza la calidad superficial y la resolución estética.</span>
           </div>
-          <div class="option-card" data-val="prototipo" onclick="selectCard(this, 'partUse')">
+          <div class="option-card" data-val="Funcional" onclick="selectCard(this, 'partType')">
+            <span class="emoji">⚙️</span>
+            <span class="option-card-title">Funcional</span>
+            <span class="option-card-desc">Equilibrio entre tolerancias precisas, fiabilidad y resistencia.</span>
+          </div>
+          <div class="option-card" data-val="Estructural" onclick="selectCard(this, 'partType')">
+            <span class="emoji">🏗️</span>
+            <span class="option-card-title">Estructural</span>
+            <span class="option-card-desc">Máxima tenacidad mecánica y densidad de material optimizada.</span>
+          </div>
+          <div class="option-card" data-val="Pieza de montaje" onclick="selectCard(this, 'partType')">
+            <span class="emoji">🔩</span>
+            <span class="option-card-title">Pieza de montaje</span>
+            <span class="option-card-desc">Optimización para uniones mecánicas, agujeros y holguras.</span>
+          </div>
+          <div class="option-card" data-val="Prototipo" onclick="selectCard(this, 'partType')">
             <span class="emoji">🔬</span>
             <span class="option-card-title">Prototipo</span>
-            <span class="option-card-desc">Pruebas rápidas de volumen antes de fabricación definitiva.</span>
+            <span class="option-card-desc">Velocidad dimensional rápida de validación geométrica antes de producción.</span>
           </div>
-          <div class="option-card" data-val="repuesto" onclick="selectCard(this, 'partUse')">
-            <span class="emoji">🔄</span>
-            <span class="option-card-title">Repuesto</span>
-            <span class="option-card-desc">Reemplazo funcional de un componente original.</span>
-          </div>
-          <div class="option-card" data-val="otro" onclick="selectCard(this, 'partUse')">
-            <span class="emoji">📝</span>
+          <div class="option-card" data-val="Otro" onclick="selectCard(this, 'partType')">
+            <span class="emoji">📦</span>
             <span class="option-card-title">Otro</span>
-            <span class="option-card-desc">Usos especializados no clasificados anteriormente.</span>
+            <span class="option-card-desc">Usar algoritmo de cálculo neutro para propósitos generales.</span>
           </div>
         </div>
       </div>
 
-      <!-- PREGUNTA 2: TIPO DE FUERZA PRINCIPAL -->
-      <div class="wizard-step" id="step-force-type">
-        <div class="step-title"><span>¿De dónde viene principalmente la fuerza?</span> <span style="font-size:14px; color:var(--muted);">2 / 8</span></div>
-        <div class="step-subtitle">Determina el tipo de esfuerzo físico principal que soportará el modelo.</div>
-        <div class="option-grid">
-          <div class="option-card" data-val="traccion" onclick="selectCard(this, 'forceType')">
-            <span class="emoji">⬆️</span>
-            <span class="option-card-title">Tracción</span>
-            <span class="option-card-desc">Fuerzas axiales que estiran el objeto longitudinalmente.</span>
-          </div>
-          <div class="option-card" data-val="compresion" onclick="selectCard(this, 'forceType')">
-            <span class="emoji">⬇️</span>
-            <span class="option-card-title">Compresión</span>
-            <span class="option-card-desc">Presión axial que tiende a aplastar o encoger el modelo.</span>
-          </div>
-          <div class="option-card" data-val="flexion" onclick="selectCard(this, 'forceType')">
-            <span class="emoji">↩️</span>
-            <span class="option-card-title">Flexión</span>
-            <span class="option-card-desc">Esfuerzo transversal que deforma el eje del objeto.</span>
-          </div>
-          <div class="option-card" data-val="torsion" onclick="selectCard(this, 'forceType')">
-            <span class="emoji">🔄</span>
-            <span class="option-card-title">Torsión</span>
-            <span class="option-card-desc">Fuerza rotacional que retuerce las secciones planas.</span>
-          </div>
-          <div class="option-card" data-val="cizalladura" onclick="selectCard(this, 'forceType')">
-            <span class="emoji">✂️</span>
-            <span class="option-card-title">Cizalladura</span>
-            <span class="option-card-desc">Esfuerzo de corte transversal o plano de deslizamiento.</span>
-          </div>
-          <div class="option-card" data-val="combinadas" onclick="selectCard(this, 'forceType')">
-            <span class="emoji">⛓️</span>
-            <span class="option-card-title">Fuerzas combinadas</span>
-            <span class="option-card-desc">Suma dinámica de cargas mecánicas simultáneas.</span>
-          </div>
-          <div class="option-card" data-val="ninguna" onclick="selectCard(this, 'forceType')">
-            <span class="emoji">🍃</span>
-            <span class="option-card-title">Sin cargas importantes</span>
-            <span class="option-card-desc">La pieza no trabajará bajo tensiones físicas críticas.</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- PREGUNTA 3: DIRECCIÓN DE LA FUERZA -->
-      <div class="wizard-step" id="step-force-direction">
-        <div class="step-title"><span>¿Desde qué dirección se aplica la fuerza?</span> <span style="font-size:14px; color:var(--muted);">3 / 8</span></div>
-        <div class="step-subtitle">Indica el vector de carga para calcular la orientación óptima de capas de impresión.</div>
-        <div class="option-grid">
-          <div class="option-card" data-val="arriba" onclick="selectCard(this, 'forceDirection')">
-            <span class="emoji">⬇️</span>
-            <span class="option-card-title">Arriba</span>
-            <span class="option-card-desc">Fuerza descendente vertical sobre el eje Z.</span>
-          </div>
-          <div class="option-card" data-val="abajo" onclick="selectCard(this, 'forceDirection')">
-            <span class="emoji">⬆️</span>
-            <span class="option-card-title">Abajo</span>
-            <span class="option-card-desc">Tirón ascendente vertical sobre el eje Z.</span>
-          </div>
-          <div class="option-card" data-val="izquierda" onclick="selectCard(this, 'forceDirection')">
-            <span class="emoji">⬅️</span>
-            <span class="option-card-title">Izquierda</span>
-            <span class="option-card-desc">Esfuerzo horizontal sobre el eje X negativo.</span>
-          </div>
-          <div class="option-card" data-val="derecha" onclick="selectCard(this, 'forceDirection')">
-            <span class="emoji">➡️</span>
-            <span class="option-card-title">Derecha</span>
-            <span class="option-card-desc">Esfuerzo horizontal sobre el eje X positivo.</span>
-          </div>
-          <div class="option-card" data-val="frente" onclick="selectCard(this, 'forceDirection')">
-            <span class="emoji">↙️</span>
-            <span class="option-card-title">Frente</span>
-            <span class="option-card-desc">Presión frontal en dirección del plano Y.</span>
-          </div>
-          <div class="option-card" data-val="atras" onclick="selectCard(this, 'forceDirection')">
-            <span class="emoji">↗️</span>
-            <span class="option-card-title">Atrás</span>
-            <span class="option-card-desc">Tracción trasera opuesta en dirección del plano Y.</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- PREGUNTA 4: MATERIAL -->
-      <div class="wizard-step" id="step-material">
-        <div class="step-title"><span>¿Qué material vas a utilizar?</span> <span style="font-size:14px; color:var(--muted);">4 / 8</span></div>
-        <div class="step-subtitle">Elección del filamento para parametrizar tolerancias y encogimientos térmicos.</div>
-        <div class="option-grid">
-          <div class="option-card" data-val="PLA" onclick="selectCard(this, 'material')">
-            <span class="option-card-title">PLA</span>
-          </div>
-          <div class="option-card" data-val="PETG" onclick="selectCard(this, 'material')">
-            <span class="option-card-title">PETG</span>
-          </div>
-          <div class="option-card" data-val="ABS" onclick="selectCard(this, 'material')">
-            <span class="option-card-title">ABS</span>
-          </div>
-          <div class="option-card" data-val="ASA" onclick="selectCard(this, 'material')">
-            <span class="option-card-title">ASA</span>
-          </div>
-          <div class="option-card" data-val="TPU" onclick="selectCard(this, 'material')">
-            <span class="option-card-title">TPU</span>
-          </div>
-          <div class="option-card" data-val="PA_Nylon" onclick="selectCard(this, 'material')">
-            <span class="option-card-title">PA / Nylon</span>
-          </div>
-          <div class="option-card" data-val="PC" onclick="selectCard(this, 'material')">
-            <span class="option-card-title">PC</span>
-          </div>
-          <div class="option-card" data-val="PLA_CF" onclick="selectCard(this, 'material')">
-            <span class="option-card-title">PLA-CF</span>
-          </div>
-          <div class="option-card" data-val="PETG_CF" onclick="selectCard(this, 'material')">
-            <span class="option-card-title">PETG-CF</span>
-          </div>
-          <div class="option-card" data-val="PA_CF" onclick="selectCard(this, 'material')">
-            <span class="option-card-title">PA-CF</span>
-          </div>
-          <div class="option-card" data-val="Otro" onclick="selectCard(this, 'material')">
-            <span class="option-card-title">Otro</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- PREGUNTA 5: IMPRESORA -->
-      <div class="wizard-step" id="step-printer">
-        <div class="step-title"><span>¿Qué impresora vas a utilizar?</span> <span style="font-size:14px; color:var(--muted);">5 / 8</span></div>
-        <div class="step-subtitle">Permite limitar el volumen de construcción y calibrar las retracciones mecánicas de extrusión.</div>
-        <div class="form-group" style="margin-bottom:12px;">
-          <label>Fabricante o Marca</label>
-          <select id="q-printer-brand" onchange="updatePrinterModels()">
-            <option value="">Selecciona fabricante...</option>
-            <option value="BambuLab">Bambu Lab</option>
-            <option value="Prusa">Prusa</option>
-            <option value="Creality">Creality</option>
-            <option value="Elegoo">Elegoo</option>
-            <option value="Anycubic">Anycubic</option>
-            <option value="Voron">Voron</option>
-            <option value="manual">No encuentro mi impresora</option>
-          </select>
-        </div>
-        <div class="form-group" id="group-printer-model" style="margin-bottom:12px;">
-          <label>Modelo de impresora</label>
-          <select id="q-printer-model" onchange="validateCurrentStep()">
-            <option value="">Selecciona modelo...</option>
-          </select>
-        </div>
-        <div id="manualPrinterParams" style="display:none; padding:16px; background:#f0f4f0; border-radius:12px;">
-          <div class="form-group">
-            <label>Dimensiones límites de cama (X, Y, Z en mm)</label>
-            <input type="text" id="q-manual-dims" placeholder="Ej: 220 x 220 x 250">
-          </div>
-        </div>
-      </div>
-
-      <!-- PREGUNTA 6: BOQUILLA -->
+      <!-- PREGUNTA 2: TIPO DE BOQUILLA -->
       <div class="wizard-step" id="step-nozzle">
-        <div class="step-title"><span>¿Qué boquilla utilizas?</span> <span style="font-size:14px; color:var(--muted);">6 / 8</span></div>
-        <div class="step-subtitle">Condiciona los anchos de línea y la resolución mínima del modelo.</div>
+        <div class="step-title"><span>¿Qué diámetro de boquilla utilizas?</span> <span style="font-size:14px; color:var(--muted);">2 / 4</span></div>
+        <div class="step-subtitle">Afectará la resolución, espesor de paredes mínimo y las anchuras de extrusión.</div>
         <div class="option-grid">
-          <div class="option-card" data-val="0.2" onclick="selectCard(this, 'nozzle')">
-            <span class="option-card-title">0.2 mm</span>
+          <div class="option-card" data-val="0.2" onclick="selectCard(this, 'nozzleSize')">
+            <span class="emoji">🔬</span>
+            <span class="option-card-title">0,2 mm</span>
+            <span class="option-card-desc">Ultra-detallado, paredes delgadas de alta resolución de detalle.</span>
           </div>
-          <div class="option-card" data-val="0.4" onclick="selectCard(this, 'nozzle')">
-            <span class="option-card-title">0.4 mm</span>
+          <div class="option-card" data-val="0.4" onclick="selectCard(this, 'nozzleSize')">
+            <span class="emoji">🎯</span>
+            <span class="option-card-title">0,4 mm</span>
+            <span class="option-card-desc">Estándar equilibrado para la mayoría de geometrías industriales.</span>
           </div>
-          <div class="option-card" data-val="0.6" onclick="selectCard(this, 'nozzle')">
-            <span class="option-card-title">0.6 mm</span>
+          <div class="option-card" data-val="0.6" onclick="selectCard(this, 'nozzleSize')">
+            <span class="emoji">⚡</span>
+            <span class="option-card-title">0,6 mm</span>
+            <span class="option-card-desc">Velocidad y resistencia estructural media mejorada.</span>
           </div>
-          <div class="option-card" data-val="0.8" onclick="selectCard(this, 'nozzle')">
-            <span class="option-card-title">0.8 mm</span>
-          </div>
-          <div class="option-card" data-val="otra" onclick="selectCard(this, 'nozzle')">
-            <span class="option-card-title">Otra</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- PREGUNTA 7: PRIORIDADES (SISTEMA VISUAL SLIDERS) -->
-      <div class="wizard-step" id="step-priorities">
-        <div class="step-title"><span>¿Qué priorizas?</span> <span style="font-size:14px; color:var(--muted);">7 / 8</span></div>
-        <div class="step-subtitle">Ajusta los ponderadores mecánicos y económicos para afinar los algoritmos de laminación.</div>
-        <div style="display:flex; flex-direction:column; gap:16px; margin-top:10px;">
-          <div class="form-group">
-            <label style="display:flex; justify-content:space-between;"><span>Velocidad</span> <span id="val-prio-speed">50%</span></label>
-            <input type="range" id="prio-speed" min="0" max="100" value="50" oninput="updatePrioritySlider('speed', this.value)">
-          </div>
-          <div class="form-group">
-            <label style="display:flex; justify-content:space-between;"><span>Resistencia</span> <span id="val-prio-strength">50%</span></label>
-            <input type="range" id="prio-strength" min="0" max="100" value="50" oninput="updatePrioritySlider('strength', this.value)">
-          </div>
-          <div class="form-group">
-            <label style="display:flex; justify-content:space-between;"><span>Precisión</span> <span id="val-prio-precision">50%</span></label>
-            <input type="range" id="prio-precision" min="0" max="100" value="50" oninput="updatePrioritySlider('precision', this.value)">
-          </div>
-          <div class="form-group">
-            <label style="display:flex; justify-content:space-between;"><span>Calidad superficial</span> <span id="val-prio-surface">50%</span></label>
-            <input type="range" id="prio-surface" min="0" max="100" value="50" oninput="updatePrioritySlider('surface', this.value)">
-          </div>
-          <div class="form-group">
-            <label style="display:flex; justify-content:space-between;"><span>Coste</span> <span id="val-prio-cost">50%</span></label>
-            <input type="range" id="prio-cost" min="0" max="100" value="50" oninput="updatePrioritySlider('cost', this.value)">
+          <div class="option-card" data-val="0.8" onclick="selectCard(this, 'nozzleSize')">
+            <span class="emoji">🏗️</span>
+            <span class="option-card-title">0,8 mm</span>
+            <span class="option-card-desc">Velocidad masiva para piezas robustas sin detalles pequeños.</span>
           </div>
         </div>
       </div>
 
-      <!-- PREGUNTA 8: DESCRIPCIÓN LIBRE -->
-      <div class="wizard-step" id="step-description-free">
-        <div class="step-title"><span>Describe qué necesitas de la pieza</span> <span style="font-size:14px; color:var(--muted);">8 / 8</span></div>
-        <div class="step-subtitle">Aporta indicaciones adicionales sobre vibraciones, encajes mecánicos o exigencias finales.</div>
-        <div class="form-group">
-          <label>Indicaciones de diseño</label>
-          <textarea id="q-desc-free" rows="5" placeholder="Ej: Es un soporte de motor que estará sometido a vibraciones dinámicas a unas temperaturas de hasta 50ºC."></textarea>
+      <!-- PREGUNTA 3: IMPRESORA -->
+      <div class="wizard-step" id="step-printer">
+        <div class="step-title"><span>¿Qué impresora 3D utilizarás?</span> <span style="font-size:14px; color:var(--muted);">3 / 4</span></div>
+        <div class="step-subtitle">Los límites físicos de volumen y velocidades se obtienen de datos reales.</div>
+        <div class="option-grid">
+          <div class="option-card" data-val="Bambu Lab X1 Carbon" onclick="selectCard(this, 'printer')">
+            <span class="emoji">🚀</span>
+            <span class="option-card-title">Bambu Lab X1 Carbon</span>
+            <span class="option-card-desc">Cama: 256x256x256 mm | Temp: 300 ºC max</span>
+          </div>
+          <div class="option-card" data-val="Prusa i3 MK4" onclick="selectCard(this, 'printer')">
+            <span class="emoji">🔧</span>
+            <span class="option-card-title">Prusa i3 MK4</span>
+            <span class="option-card-desc">Cama: 250x210x220 mm | Temp: 300 ºC max</span>
+          </div>
+          <div class="option-card" data-val="Creality Ender 3 V3" onclick="selectCard(this, 'printer')">
+            <span class="emoji">🔥</span>
+            <span class="option-card-title">Creality Ender 3 V3</span>
+            <span class="option-card-desc">Cama: 220x220x250 mm | Temp: 300 ºC max</span>
+          </div>
         </div>
+      </div>
+
+      <!-- VISOR 3D: SELECCIÓN DE SUPERFICIE DE APOYO -->
+      <div class="wizard-step" id="step-viewer">
+        <div class="step-title"><span>Ajuste de Orientación en Cama</span> <span style="font-size:14px; color:var(--muted);">4 / 4</span></div>
+        <div class="step-subtitle" style="color:var(--ink); font-weight:700;">Haz clic sobre la superficie que quieres apoyar en la cama.</div>
+        <div id="selector3dContainer" style="width:100%; height:380px; background:#161d1a; border-radius:16px; position:relative; overflow:hidden; border:2px solid var(--line); margin-bottom:12px;"></div>
       </div>
 
       <!-- BOTONES NAVEGACIÓN -->
@@ -568,7 +397,7 @@
       <div class="footergrid">
         <div class="footer-col">
           <h3>PrintLab — Ingeniería 3D</h3>
-          <p>Plataforma profesional de análisis y optimización STL mediante Inteligencia Artificial y simuladores paramétricos. Transformamos modelos 3D con problemas en geometrías de ingeniería listas para fabricar, ahorrando tiempo, material y costes en entornos de taller industrial.</p>
+          <p>Plataforma profesional de análisis y optimización STL mediante Inteligencia Artificial y simuladores paramétricos. Transformamos modelos 3D con problemas en geometrías perfectas listas para fabricar, ahorrando tiempo, material y costes en entornos industriales.</p>
           <p class="footer-secondary-text">Desarrollado bajo principios de Privacy by Design. Los datos y archivos STL se procesan con estricta confidencialidad.</p>
         </div>
         
@@ -606,7 +435,6 @@
     function toggleMenu() {
       document.getElementById('mainMenu').classList.toggle('show');
     }
-
     window.onclick = function(event) {
       if (!event.target.closest('.menu-dropdown') && !event.target.closest('.hamburger')) {
         var dropdowns = document.getElementsByClassName("dropdown-content");
@@ -619,134 +447,49 @@
 
   <script>
     const answers = {
-      partUse: "",
-      forceType: "",
-      forceDirection: "",
-      material: "",
-      printerBrand: "",
-      printerModel: "",
-      manualDims: "",
-      nozzle: "",
-      priorities: {
-        speed: 50,
-        strength: 50,
-        precision: 50,
-        surface: 50,
-        cost: 50
-      },
-      description: ""
+      partType: "",
+      nozzleSize: "",
+      printer: "",
+      selectedSupportFace: null,
+      supportFaceNormal: null,
+      transformationMatrix: null
     };
 
     const steps = [
       "step-upload",
-      "step-part-use",
-      "step-force-type",
-      "step-force-direction",
-      "step-material",
-      "step-printer",
+      "step-part-type",
       "step-nozzle",
-      "step-priorities",
-      "step-description-free"
+      "step-printer",
+      "step-viewer"
     ];
     let currentStepIdx = 0;
 
-    const printerModels = {
-      BambuLab: ["X1 Carbon", "P1S", "P1P", "A1", "A1 Mini"],
-      Prusa: ["i3 MK4", "MK3S+", "MINI+", "XL"],
-      Creality: ["Ender-3 V3", "K1 Max", "K1", "CR-10 SE"],
-      Elegoo: ["Neptune 4 Pro", "Neptune 4 Max", "Neptune 3"],
-      Anycubic: ["Kobra 2 Pro", "Kobra 2 Neo", "Kobra Max"],
-      Voron: ["Voron 2.4 R2", "Voron Trident", "Voron V0.2"]
-    };
-
-    function updatePrinterModels() {
-      const brand = document.getElementById("q-printer-brand").value;
-      const modelSelect = document.getElementById("q-printer-model");
-      const manualBox = document.getElementById("manualPrinterParams");
-      
-      answers.printerBrand = brand;
-      modelSelect.innerHTML = '<option value="">Selecciona modelo...</option>';
-      
-      if (brand === "manual") {
-        manualBox.style.display = "block";
-        modelSelect.parentNode.style.display = "none";
-        answers.printerModel = "manual";
-      } else {
-        manualBox.style.display = "none";
-        modelSelect.parentNode.style.display = "block";
-        
-        if (printerModels[brand]) {
-          printerModels[brand].forEach(m => {
-            const op = document.createElement("option");
-            op.value = m;
-            op.textContent = m;
-            modelSelect.appendChild(op);
-          });
-        }
-      }
-      validateCurrentStep();
-    }
-
-    function updatePrioritySlider(key, val) {
-      document.getElementById(`val-prio-${key}`).textContent = `${val}%`;
-      answers.priorities[key] = parseInt(val);
-      validateCurrentStep();
-    }
-
-    // === IndexedDB Helpers para guardar estado (Archivo STL + Respuestas) ===
     const IDB_DB_NAME = "PrintLabDB";
     const IDB_STORE_NAME = "pendingAnalysis";
 
     function saveStateToIDB(file, answers, step) {
       return new Promise((resolve, reject) => {
         const req = indexedDB.open(IDB_DB_NAME, 1);
-        req.onupgradeneeded = e => {
-          e.target.result.createObjectStore(IDB_STORE_NAME);
-        };
+        req.onupgradeneeded = e => { e.target.result.createObjectStore(IDB_STORE_NAME); };
         req.onsuccess = e => {
           const db = e.target.result;
-          if (!db.objectStoreNames.contains(IDB_STORE_NAME)) {
-             const version = db.version + 1;
-             db.close();
-             const req2 = indexedDB.open(IDB_DB_NAME, version);
-             req2.onupgradeneeded = e2 => e2.target.result.createObjectStore(IDB_STORE_NAME);
-             req2.onsuccess = e2 => {
-                 const db2 = e2.target.result;
-                 const tx = db2.transaction(IDB_STORE_NAME, "readwrite");
-                 tx.objectStore(IDB_STORE_NAME).put({ file, answers, step }, "currentState");
-                 tx.oncomplete = () => resolve();
-             };
-             return;
-          }
           const tx = db.transaction(IDB_STORE_NAME, "readwrite");
-          const store = tx.objectStore(IDB_STORE_NAME);
-          store.put({ file, answers, step }, "currentState");
+          tx.objectStore(IDB_STORE_NAME).put({ file, answers, step }, "currentState");
           tx.oncomplete = () => resolve();
-          tx.onerror = () => reject(tx.error);
         };
-        req.onerror = e => reject(e.target.error);
       });
     }
 
     function loadStateFromIDB() {
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         const req = indexedDB.open(IDB_DB_NAME, 1);
-        req.onupgradeneeded = e => {
-          e.target.result.createObjectStore(IDB_STORE_NAME);
-        };
         req.onsuccess = e => {
           const db = e.target.result;
-          if (!db.objectStoreNames.contains(IDB_STORE_NAME)) {
-            resolve(null);
-            return;
-          }
+          if (!db.objectStoreNames.contains(IDB_STORE_NAME)) { resolve(null); return; }
           const tx = db.transaction(IDB_STORE_NAME, "readonly");
-          const store = tx.objectStore(IDB_STORE_NAME);
-          const getReq = store.get("currentState");
+          const getReq = tx.objectStore(IDB_STORE_NAME).get("currentState");
           getReq.onsuccess = () => resolve(getReq.result);
-          getReq.onerror = () => reject(getReq.error);
         };
-        req.onerror = e => reject(e.target.error);
       });
     }
 
@@ -755,93 +498,7 @@
       req.onsuccess = e => {
         const db = e.target.result;
         if (db.objectStoreNames.contains(IDB_STORE_NAME)) {
-          const tx = db.transaction(IDB_STORE_NAME, "readwrite");
-          tx.objectStore(IDB_STORE_NAME).delete("currentState");
-        }
-      };
-    }
-
-    // Algoritmo local de análisis matemático del STL en cliente
-    function parseSTL(arrayBuffer) {
-      const view = new DataView(arrayBuffer);
-      let isBinary = true;
-      if (arrayBuffer.byteLength < 84) {
-        isBinary = false;
-      } else {
-        const decoder = new TextDecoder('utf-8');
-        const header = decoder.decode(new Uint8Array(arrayBuffer, 0, 80));
-        if (header.trim().startsWith('solid') && !header.includes('\0')) {
-          isBinary = false;
-        }
-      }
-
-      let triangles = 0;
-      let minX = Infinity, maxX = -Infinity;
-      let minY = Infinity, maxY = -Infinity;
-      let minZ = Infinity, maxZ = -Infinity;
-      let volume = 0; 
-
-      if (isBinary) {
-        triangles = view.getUint32(80, true);
-        let offset = 84;
-        for (let i = 0; i < triangles; i++) {
-          if (offset + 50 > arrayBuffer.byteLength) break;
-          offset += 12; // saltar normal
-          const v1x = view.getFloat32(offset, true);
-          const v1y = view.getFloat32(offset + 4, true);
-          const v1z = view.getFloat32(offset + 8, true);
-          
-          const v2x = view.getFloat32(offset + 12, true);
-          const v2y = view.getFloat32(offset + 16, true);
-          const v2z = view.getFloat32(offset + 20, true);
-          
-          const v3x = view.getFloat32(offset + 24, true);
-          const v3y = view.getFloat32(offset + 28, true);
-          const v3z = view.getFloat32(offset + 32, true);
-          
-          offset += 38; // 36 de vertices + 2 de atributo
-
-          minX = Math.min(minX, v1x, v2x, v3x);
-          maxX = Math.max(maxX, v1x, v2x, v3x);
-          minY = Math.min(minY, v1y, v2y, v3y);
-          maxY = Math.max(maxY, v1y, v2y, v3y);
-          minZ = Math.min(minZ, v1z, v2z, v3z);
-          maxZ = Math.max(maxZ, v1z, v2z, v3z);
-
-          volume += (-v3x*v2y*v1z + v2x*v3y*v1z + v3x*v1y*v2z - v1x*v3y*v2z - v2x*v1y*v3z + v1x*v2y*v3z) / 6.0;
-        }
-      } else {
-        const text = new TextDecoder('utf-8').decode(arrayBuffer);
-        const lines = text.split('\n');
-        let v = [];
-        for (let line of lines) {
-          line = line.trim();
-          if (line.startsWith('vertex')) {
-            const parts = line.split(/\s+/);
-            const x = parseFloat(parts[1]);
-            const y = parseFloat(parts[2]);
-            const z = parseFloat(parts[3]);
-            v.push({x, y, z});
-            minX = Math.min(minX, x); maxX = Math.max(maxX, x);
-            minY = Math.min(minY, y); maxY = Math.max(maxY, y);
-            minZ = Math.min(minZ, z); maxZ = Math.max(maxZ, z);
-            if (v.length === 3) {
-              triangles++;
-              const v1 = v[0], v2 = v[1], v3 = v[2];
-              volume += (-v3.x*v2.y*v1.z + v2.x*v3.y*v1.z + v3.x*v1.y*v2.z - v1.x*v3.y*v2.z - v2.x*v1.y*v3.z + v1.x*v2.y*v3.z) / 6.0;
-              v = [];
-            }
-          }
-        }
-      }
-
-      return {
-        triangles,
-        volume: Math.abs(volume) / 1000, 
-        dimensions: {
-          x: maxX - minX,
-          y: maxY - minY,
-          z: maxZ - minZ
+          db.transaction(IDB_STORE_NAME, "readwrite").objectStore(IDB_STORE_NAME).delete("currentState");
         }
       };
     }
@@ -853,12 +510,8 @@
     const selectedFileName = document.getElementById("selectedFileName");
     const selectedFileSize = document.getElementById("selectedFileSize");
     const removeFileBtn = document.getElementById("removeFileBtn");
-
     const wizardNav = document.getElementById("wizardNavigation");
     const progressContainer = document.getElementById("progressContainer");
-
-    document.getElementById("q-desc-free").addEventListener("input", validateCurrentStep);
-    document.getElementById("q-manual-dims").addEventListener("input", validateCurrentStep);
 
     function selectCard(cardElement, field) {
       const parent = cardElement.parentNode;
@@ -870,43 +523,19 @@
 
     function validateCurrentStep() {
       const nextBtn = document.getElementById("nextBtn");
-      let isValid = false;
+      let isValid = true;
 
-      if (currentStepIdx === 0) {
-        isValid = window.selectedSTLFile != null;
-      } else if (currentStepIdx === 1) {
-        isValid = answers.partUse !== "";
-      } else if (currentStepIdx === 2) {
-        isValid = answers.forceType !== "";
-      } else if (currentStepIdx === 3) {
-        isValid = answers.forceDirection !== "";
-      } else if (currentStepIdx === 4) {
-        isValid = answers.material !== "";
-      } else if (currentStepIdx === 5) {
-        if (answers.printerBrand === "manual") {
-          const dims = document.getElementById("q-manual-dims").value.trim();
-          answers.manualDims = dims;
-          isValid = dims.length > 3;
-        } else {
-          isValid = answers.printerBrand !== "" && document.getElementById("q-printer-model").value !== "";
-        }
-      } else if (currentStepIdx === 6) {
-        isValid = answers.nozzle !== "";
-      } else if (currentStepIdx === 7) {
-        isValid = true;
-      } else if (currentStepIdx === 8) {
-        const text = document.getElementById("q-desc-free").value.trim();
-        isValid = text.length > 5;
-        answers.description = text;
-      }
+      if (currentStepIdx === 0) isValid = window.selectedSTLFile != null;
+      else if (currentStepIdx === 1) isValid = answers.partType !== "";
+      else if (currentStepIdx === 2) isValid = answers.nozzleSize !== "";
+      else if (currentStepIdx === 3) isValid = answers.printer !== "";
+      else if (currentStepIdx === 4) isValid = answers.selectedSupportFace !== null;
 
       nextBtn.disabled = !isValid;
     }
 
     function navigateStep(direction) {
-      if (currentStepIdx === steps.length - 1 && direction === 1) {
-        return;
-      }
+      if (currentStepIdx === steps.length - 1 && direction === 1) return;
 
       const targetStepIdx = currentStepIdx + direction;
       
@@ -914,16 +543,12 @@
         document.getElementById(steps[currentStepIdx]).classList.remove("active");
         currentStepIdx = 0;
         document.getElementById(steps[0]).classList.add("active");
-        
         document.querySelector(".upload-title").style.display = "block";
         document.querySelector(".upload-desc").style.display = "block";
         accessButton.style.display = "inline-block";
         document.querySelector(".drag-help").style.display = "block";
-
         progressContainer.style.display = "none";
         wizardNav.style.display = "none";
-        
-        document.getElementById("progressBar").style.width = "0%";
         validateCurrentStep();
         return;
       }
@@ -935,328 +560,265 @@
       const progressPercent = (currentStepIdx / (steps.length - 1)) * 100;
       document.getElementById("progressBar").style.width = `${progressPercent}%`;
 
-      const prevBtn = document.getElementById("prevBtn");
-      const nextBtn = document.getElementById("nextBtn");
+      document.getElementById("prevBtn").style.visibility = currentStepIdx === 0 ? "hidden" : "visible";
+      document.getElementById("nextBtn").textContent = currentStepIdx === steps.length - 1 ? "Iniciar Análisis Real" : "Siguiente";
 
-      prevBtn.style.visibility = currentStepIdx === 0 ? "hidden" : "visible";
-      
-      if (currentStepIdx === steps.length - 1) {
-        nextBtn.textContent = "Iniciar Optimización Real";
-      } else {
-        nextBtn.textContent = "Siguiente";
+      if (currentStepIdx === 4) {
+        initSelector3D();
       }
 
       validateCurrentStep();
     }
 
-    function handleFile(file) {
-      if (!file) return;
-      if (!file.name.toLowerCase().endsWith(".stl")) {
-        alert("Por favor, sube un archivo geométrico con formato .stl válido.");
-        return;
-      }
-      if (file.size > 500 * 1024 * 1024) {
-        alert("El archivo excede el límite de 500 MB.");
-        return;
-      }
+    // --- VISOR 3D INTERACTIVO CON PICKING Y ORIENTACIÓN EN CAMA ---
+    let sScene, sCamera, sRenderer, sControls, sMesh, highlightRing;
 
-      window.selectedSTLFile = file;
-      selectedFileName.textContent = file.name;
-      
-      if (file.size < 1024 * 1024) {
-        selectedFileSize.textContent = (file.size / 1024).toFixed(0) + " KB";
-      } else {
-        selectedFileSize.textContent = (file.size / (1024 * 1024)).toFixed(1) + " MB";
-      }
-      
-      selectedFile.classList.add("show");
+    function initSelector3D() {
+      const container = document.getElementById("selector3dContainer");
+      if (!container) return;
+      container.innerHTML = "";
 
-      // Leer archivo localmente para calcular volumen y triangulación en cliente [page 1]
+      sScene = new THREE.Scene();
+      sScene.background = new THREE.Color(0x111715);
+
+      sCamera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 1, 1000);
+      sCamera.position.set(120, 120, 150);
+      sCamera.up.set(0, 0, 1); // Definir eje Z como vertical ascendente de cama de impresión
+
+      sRenderer = new THREE.WebGLRenderer({ antialias: true });
+      sRenderer.setSize(container.clientWidth, container.clientHeight);
+      container.appendChild(sRenderer.domElement);
+
+      const light1 = new THREE.DirectionalLight(0xffffff, 1.3);
+      light1.position.set(1, 1, 3).normalize();
+      sScene.add(light1);
+      sScene.add(new THREE.AmbientLight(0x505050));
+
+      sControls = new THREE.OrbitControls(sCamera, sRenderer.domElement);
+      sControls.enableDamping = true;
+
+      // Cama de Impresión (Rejilla sobre plano XY)
+      const gridHelper = new THREE.GridHelper(160, 16, 0x5e6661, 0x2e3a35);
+      gridHelper.rotation.x = Math.PI / 2;
+      sScene.add(gridHelper);
+
       const reader = new FileReader();
       reader.onload = function(e) {
-        const metrics = parseSTL(e.target.result);
-        document.getElementById("localFileMetrics").innerHTML = `
-          <strong>Geometría calculada:</strong><br>
-          Dimensiones límites: ${metrics.dimensions.x.toFixed(1)} x ${metrics.dimensions.y.toFixed(1)} x ${metrics.dimensions.z.toFixed(1)} mm<br>
-          Volumen: ${metrics.volume.toFixed(2)} cm³ | Triángulos: ${metrics.triangles.toLocaleString()}
-        `;
-        window.localMetrics = metrics;
-      };
-      reader.readAsArrayBuffer(file);
+        const loader = new THREE.STLLoader();
+        const geometry = loader.parse(e.target.result);
+        geometry.center();
+        geometry.computeBoundingBox();
 
+        const material = new THREE.MeshPhongMaterial({ 
+          color: 0x90caf9, 
+          specular: 0x222222, 
+          shininess: 40, 
+          side: THREE.DoubleSide 
+        });
+
+        sMesh = new THREE.Mesh(geometry, material);
+        // Colocar base inicialmente sobre la cama (Z=0)
+        sMesh.position.z = -geometry.boundingBox.min.z;
+        sScene.add(sMesh);
+
+        const size = geometry.boundingBox.getSize(new THREE.Vector3()).length();
+        sCamera.position.set(size * 1.3, size * 1.3, size * 1.3);
+        sControls.target.copy(geometry.boundingBox.getCenter(new THREE.Vector3()));
+        sControls.update();
+      };
+      reader.readAsArrayBuffer(window.selectedSTLFile);
+
+      sRenderer.domElement.addEventListener("click", onMeshClick);
+
+      function onMeshClick(event) {
+        const rect = sRenderer.domElement.getBoundingClientRect();
+        const mouse = new THREE.Vector2();
+        mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+        const raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(mouse, sCamera);
+        const intersects = raycaster.intersectObject(sMesh);
+
+        if (intersects.length > 0) {
+          const hit = intersects[0];
+          const localNormal = hit.face.normal.clone();
+
+          answers.selectedSupportFace = hit.faceIndex;
+          answers.supportFaceNormal = [localNormal.x, localNormal.y, localNormal.z];
+
+          // Cuaternión para girar normal local seleccionada hacia el vector vertical negativo [0, 0, -1]
+          const target = new THREE.Vector3(0, 0, -1);
+          const q = new THREE.Quaternion().setFromUnitVectors(localNormal, target);
+
+          sMesh.quaternion.copy(q);
+          sMesh.position.set(0, 0, 0);
+          sMesh.updateMatrixWorld(true);
+
+          // Restablecer la base matemáticamente a Z=0 para que apoye perfectamente y no atraviese
+          const currentBbox = new THREE.Box3().setFromObject(sMesh);
+          sMesh.position.z = -currentBbox.min.z;
+          sMesh.updateMatrixWorld(true);
+
+          // Anillo amarillo de resaltado visual sobre la cara seleccionada
+          if (highlightRing) sScene.remove(highlightRing);
+          const ringGeo = new THREE.RingGeometry(2.5, 3.2, 32);
+          const ringMat = new THREE.MeshBasicMaterial({ color: 0xb8ff3d, side: THREE.DoubleSide });
+          highlightRing = new THREE.Mesh(ringGeo, ringMat);
+          highlightRing.position.copy(hit.point);
+
+          const ringNormal = localNormal.clone().applyQuaternion(q);
+          highlightRing.quaternion.copy(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), ringNormal));
+          highlightRing.position.addScaledVector(ringNormal, 0.4); // Evitar z-fighting
+          sScene.add(highlightRing);
+
+          // Almacenar la matriz de transformación 4x4
+          answers.transformationMatrix = sMesh.matrix.toArray();
+          validateCurrentStep();
+        }
+      }
+
+      function animate() {
+        requestAnimationFrame(animate);
+        sControls.update();
+        sRenderer.render(sScene, sCamera);
+      }
+      animate();
+    }
+
+    function handleFile(file) {
+      if (!file || !file.name.toLowerCase().endsWith(".stl")) {
+        alert("Sube un archivo geométrico válido .stl"); return;
+      }
+      window.selectedSTLFile = file;
+      selectedFileName.textContent = file.name;
+      selectedFileSize.textContent = file.size < 1024*1024 ? (file.size/1024).toFixed(0) + " KB" : (file.size/(1024*1024)).toFixed(1) + " MB";
+      selectedFile.classList.add("show");
       updateButtonState();
     }
 
     removeFileBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      window.selectedSTLFile = null;
-      window.localMetrics = null;
-      fileInput.value = "";
-      document.getElementById("localFileMetrics").innerHTML = "";
-      updateButtonState();
+      e.stopPropagation(); window.selectedSTLFile = null; fileInput.value = ""; updateButtonState();
     });
-
-    fileInput.addEventListener("change", () => {
-      if (fileInput.files.length > 0) handleFile(fileInput.files[0]);
-    });
-
-    uploadContainer.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      uploadContainer.classList.add("drag-over");
-    });
-    uploadContainer.addEventListener("dragleave", (e) => {
-      if (e.relatedTarget && uploadContainer.contains(e.relatedTarget)) return;
-      uploadContainer.classList.remove("drag-over");
-    });
-    uploadContainer.addEventListener("drop", async (e) => {
-      e.preventDefault();
-      uploadContainer.classList.remove("drag-over");
+    fileInput.addEventListener("change", () => { if (fileInput.files.length > 0) handleFile(fileInput.files[0]); });
+    uploadContainer.addEventListener("dragover", e => { e.preventDefault(); uploadContainer.classList.add("drag-over"); });
+    uploadContainer.addEventListener("dragleave", () => uploadContainer.classList.remove("drag-over"));
+    uploadContainer.addEventListener("drop", e => {
+      e.preventDefault(); uploadContainer.classList.remove("drag-over");
       if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
     });
 
-    accessButton.addEventListener("click", async (e) => {
+    accessButton.addEventListener("click", e => {
       e.preventDefault();
-      const state = accessButton.dataset.state;
-      
-      if (state === "logged-out") {
-        window.location.href = "login.html";
-      } else if (state === "logged-in-no-file") {
-        fileInput.click();
-      } else if (state === "has-file") {
+      if (accessButton.dataset.state === "has-file") {
         document.querySelector(".upload-title").style.display = "none";
         document.querySelector(".upload-desc").style.display = "none";
         accessButton.style.display = "none";
         document.querySelector(".drag-help").style.display = "none";
-
         progressContainer.style.display = "block";
         wizardNav.style.display = "flex";
         navigateStep(1);
+      } else {
+        fileInput.click();
       }
     });
 
-    const client = window.supabaseClient || (typeof supabaseClient !== "undefined" ? supabaseClient : null);
-
+    const client = window.supabaseClient || null;
     async function getCurrentSession() {
       if (!client) return null;
-      try {
-        const { data } = await client.auth.getSession();
-        return data?.session || null;
-      } catch { return null; }
+      try { const { data } = await client.auth.getSession(); return data?.session || null; } catch { return null; }
     }
 
     async function updateButtonState() {
       const session = await getCurrentSession();
       if (!session) {
         accessButton.textContent = "Seleccionar archivo STL";
-        accessButton.dataset.state = "logged-in-no-file";
         selectedFile.classList.remove("show");
         window.selectedSTLFile = null;
+      } else if (window.selectedSTLFile) {
+        accessButton.textContent = "Comenzar Cuestionario";
+        accessButton.dataset.state = "has-file";
       } else {
-        if (window.selectedSTLFile) {
-          accessButton.textContent = "Comenzar Cuestionario";
-          accessButton.dataset.state = "has-file";
-        } else {
-          accessButton.textContent = "Seleccionar archivo STL";
-          accessButton.dataset.state = "logged-in-no-file";
-          selectedFile.classList.remove("show");
-        }
+        accessButton.textContent = "Seleccionar archivo STL";
+        accessButton.dataset.state = "logged-in-no-file";
+        selectedFile.classList.remove("show");
       }
     }
 
-    document.addEventListener("DOMContentLoaded", async function () {
+    document.addEventListener("DOMContentLoaded", async () => {
       const session = await getCurrentSession();
-      if (!session) {
-        window.location.href = "login.html?redirect=analizador-stl.html";
-        return;
-      }
+      if (!session) { window.location.href = "login.html?redirect=analizador-stl.html"; return; }
 
       const urlParams = new URLSearchParams(window.location.search);
-      const isResume = urlParams.get("action") === "resume";
-
-      if (isResume && sessionStorage.getItem("printlab_resume_analysis") === "true") {
+      if (urlParams.get("action") === "resume" && sessionStorage.getItem("printlab_resume_analysis") === "true") {
         sessionStorage.removeItem("printlab_resume_analysis");
         try {
-          const savedState = await loadStateFromIDB();
-          if (savedState && savedState.file) {
-             window.selectedSTLFile = savedState.file;
-             Object.assign(answers, savedState.answers);
-             
-             selectedFileName.textContent = savedState.file.name;
-             if (savedState.file.size < 1024 * 1024) {
-               selectedFileSize.textContent = (savedState.file.size / 1024).toFixed(0) + " KB";
-             } else {
-               selectedFileSize.textContent = (savedState.file.size / (1024 * 1024)).toFixed(1) + " MB";
-             }
-             selectedFile.classList.add("show");
-             await updateButtonState();
-
-             if(answers.partUse) {
-               const card = document.querySelector(`#step-part-use .option-card[data-val="${answers.partUse}"]`);
-               if(card) card.classList.add('selected');
-             }
-             if(answers.forceType) {
-               const card = document.querySelector(`#step-force-type .option-card[data-val="${answers.forceType}"]`);
-               if(card) card.classList.add('selected');
-             }
-             if(answers.forceDirection) {
-               const card = document.querySelector(`#step-force-direction .option-card[data-val="${answers.forceDirection}"]`);
-               if(card) card.classList.add('selected');
-             }
-             if(answers.material) {
-               const card = document.querySelector(`#step-material .option-card[data-val="${answers.material}"]`);
-               if(card) card.classList.add('selected');
-             }
-             if(answers.printerBrand) {
-               document.getElementById("q-printer-brand").value = answers.printerBrand;
-               updatePrinterModels();
-               if(answers.printerModel) {
-                 document.getElementById("q-printer-model").value = answers.printerModel;
-               }
-             }
-             if(answers.nozzle) {
-               const card = document.querySelector(`#step-nozzle .option-card[data-val="${answers.nozzle}"]`);
-               if(card) card.classList.add('selected');
-             }
-             if(answers.description) {
-               document.getElementById("q-desc-free").value = answers.description;
-             }
-
-             document.querySelector(".upload-title").style.display = "none";
-             document.querySelector(".upload-desc").style.display = "none";
-             accessButton.style.display = "none";
-             document.querySelector(".drag-help").style.display = "none";
-
-             progressContainer.style.display = "block";
-             wizardNav.style.display = "flex";
-             
-             document.getElementById(steps[0]).classList.remove("active");
-             currentStepIdx = 8;
-             document.getElementById(steps[currentStepIdx]).classList.add("active");
-             
-             const progressPercent = (currentStepIdx / (steps.length - 1)) * 100;
-             document.getElementById("progressBar").style.width = `${progressPercent}%`;
-             
-             const prevBtn = document.getElementById("prevBtn");
-             const nextBtn = document.getElementById("nextBtn");
-             prevBtn.style.visibility = "visible";
-             nextBtn.textContent = "Iniciar Optimización Real";
-
-             validateCurrentStep();
-             clearStateFromIDB();
-          } else {
-             await updateButtonState();
+          const state = await loadStateFromIDB();
+          if (state && state.file) {
+            window.selectedSTLFile = state.file;
+            Object.assign(answers, state.answers);
+            await updateButtonState();
+            navigateStep(4);
           }
-        } catch (e) {
-          console.error("Error al recuperar estado de IndexedDB:", e);
-          await updateButtonState();
-        }
+        } catch (e) { console.error(e); }
       } else {
         sessionStorage.removeItem("printlab_resume_analysis");
         clearStateFromIDB();
         await updateButtonState();
       }
 
-      if (client && client.auth && typeof client.auth.onAuthStateChange === "function") {
-        client.auth.onAuthStateChange((event, session) => { 
-          if (!session) {
-            window.location.href = "login.html?redirect=analizador-stl.html";
-            return;
-          }
-          updateButtonState(); 
-        });
-      }
+      document.getElementById("nextBtn").addEventListener("click", async () => {
+        if (document.getElementById("nextBtn").disabled) return;
+        if (currentStepIdx < steps.length - 1) { navigateStep(1); return; }
 
-      const nextBtn = document.getElementById("nextBtn");
-      nextBtn.addEventListener("click", async (e) => {
-        e.preventDefault();
-        if (nextBtn.disabled) return;
+        const nextBtn = document.getElementById("nextBtn");
+        nextBtn.disabled = true;
+        nextBtn.textContent = "Procesando...";
 
-        if (currentStepIdx < steps.length - 1) {
-          navigateStep(1);
-        } else {
-          nextBtn.disabled = true;
-          nextBtn.textContent = "Procesando...";
+        try {
+          const profileReq = await client.from("profiles").select("credits").eq("id", (await getCurrentSession()).user.id).single();
+          if (profileReq.error) throw profileReq.error;
 
-          const activeSession = await getCurrentSession();
-          if (!activeSession) {
-            window.location.href = "login.html";
+          if (!profileReq.data || profileReq.data.credits < 1) {
+            await saveStateToIDB(window.selectedSTLFile, answers, currentStepIdx);
+            sessionStorage.setItem("printlab_resume_analysis", "true");
+            window.location.href = "precios.html";
             return;
           }
 
-          try {
-            const { data: profile, error: profileError } = await client
-              .from("profiles")
-              .select("credits")
-              .eq("id", activeSession.user.id)
-              .single();
+          nextBtn.textContent = "Almacenando archivo...";
+          const filePath = `uploads/${(await getCurrentSession()).user.id}/${Date.now()}.stl`;
+          await client.storage.from('stls').upload(filePath, window.selectedSTLFile, { cacheControl: '3600', 'upsert': true });
 
-            if (profileError) throw profileError;
+          nextBtn.textContent = "Analizando geometría...";
+          const formData = new FormData();
+          formData.append("file", window.selectedSTLFile);
+          formData.append("questionnaire", JSON.stringify(answers));
 
-            if (!profile || profile.credits < 1) {
-              nextBtn.textContent = "Guardando progreso...";
-              await saveStateToIDB(window.selectedSTLFile, answers, currentStepIdx);
-              sessionStorage.setItem("printlab_resume_analysis", "true");
-              window.location.href = "precios.html";
-              return;
-            }
+          const res = await fetch("https://printlab-backend-dy7v.onrender.com/analyze", { method: "POST", body: formData });
+          if (!res.ok) throw new Error("Error en servidor. Código: " + res.status);
 
-            nextBtn.textContent = "Almacenando archivo...";
-            const fileExt = window.selectedSTLFile.name.split('.').pop();
-            const fileName = `${activeSession.user.id}/${Date.now()}.${fileExt}`;
-            const filePath = `uploads/${fileName}`;
+          const analysisData = await res.json();
+          if (!analysisData || !analysisData.success) throw new Error(analysisData?.error || "Error de cálculo geométrico.");
 
-            await client
-              .storage
-              .from('stls')
-              .upload(filePath, window.selectedSTLFile, { cacheControl: '3600', 'upsert': true });
+          sessionStorage.setItem("printlab_analysis", JSON.stringify({
+            volume: analysisData.volume_cm3,
+            dimensions: analysisData.dimensions,
+            watertight: analysisData.is_watertight,
+            critical_points: analysisData.critical_points || [],
+            file_name: window.selectedSTLFile.name,
+            optimized_base64: analysisData.optimized_mesh_base64 || null,
+            slicer_settings: analysisData.slicer_settings || null,
+            user_questionnaire: answers
+          }));
 
-            nextBtn.textContent = "Optimizando geometría...";
-
-            const formData = new FormData();
-            formData.append("file", window.selectedSTLFile);
-            formData.append("questionnaire", JSON.stringify(answers));
-
-            const apiResponse = await fetch("https://printlab-backend-dy7v.onrender.com/analyze", {
-              method: "POST",
-              body: formData
-            });
-
-            if (!apiResponse.ok) {
-              throw new Error("El servidor de análisis no responde. Código: " + apiResponse.status);
-            }
-
-            const analysisData = await apiResponse.json();
-            if (!analysisData || !analysisData.success) {
-              throw new Error(analysisData?.error || "Error de cálculo geométrico paramétrico en el backend.");
-            }
-
-            // Guardar en sessionStorage para el visor de resultados comparativos [page 7, page 12]
-            sessionStorage.setItem("printlab_analysis", JSON.stringify({
-              volume: window.localMetrics ? window.localMetrics.volume.toFixed(2) : analysisData.volume_cm3,
-              dimensions: window.localMetrics 
-                ? `${window.localMetrics.dimensions.x.toFixed(1)}x${window.localMetrics.dimensions.y.toFixed(1)}x${window.localMetrics.dimensions.z.toFixed(1)} mm` 
-                : analysisData.dimensions,
-              watertight: analysisData.is_watertight,
-              critical_points: analysisData.critical_points || [],
-              file_name: window.selectedSTLFile.name,
-              optimized_base64: analysisData.optimized_mesh_base64 || null,
-              slicer_settings: analysisData.slicer_settings || null,
-              user_questionnaire: answers
-            }));
-
-            nextBtn.textContent = "Confirmando créditos...";
-            const { data: success, error: rpcError } = await client.rpc("deduct_analysis_credit");
-            if (rpcError || !success) {
-              throw new Error("Transacción denegada. Compruebe su saldo.");
-            }
-
-            window.location.href = "informe-stl.html";
-
-          } catch (err) {
-            alert("Error de procesamiento: " + err.message);
-            nextBtn.disabled = false;
-            nextBtn.textContent = "Iniciar Optimización Real";
-          }
+          nextBtn.textContent = "Confirmando créditos...";
+          await client.rpc("deduct_analysis_credit");
+          window.location.href = "informe-stl.html";
+        } catch (err) {
+          alert("Error: " + err.message);
+          nextBtn.disabled = false;
+          nextBtn.textContent = "Iniciar Análisis Real";
         }
       });
     });
