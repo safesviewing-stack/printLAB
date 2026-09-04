@@ -1,4 +1,3 @@
-<!-- analizador-stl.html -->
 <!doctype html>
 <html lang="es">
 <head>
@@ -287,12 +286,12 @@
       <!-- VISOR 3D: SELECCIÓN DE SUPERFICIE DE APOYO -->
       <div class="wizard-step" id="step-viewer">
         <div class="step-title"><span>Orientación Interactiva</span> <span style="font-size:14px; color:var(--muted);">4 / 4</span></div>
-        <div class="step-subtitle" style="color:var(--ink); font-weight:700; margin-bottom:12px;">Haz clic sobre la superficie que quieres apoyar en la cama o usa la auto-orientación inteligente.</div>
+        <div class="step-subtitle" style="color:var(--ink); font-weight:700; margin-bottom:12px;">Haz clic sobre la superficie que quieres apoyar en la cama.</div>
         
-        <!-- Botón de Auto-Orientación -->
+        <!-- Botón de Auto-Orientación sobre la cara seleccionada -->
         <div style="margin-bottom:14px;">
-          <button type="button" onclick="autoOrientMesh()" style="background:var(--accent); color:var(--ink); border:2px solid var(--ink); padding:10px 22px; border-radius:12px; font-weight:800; cursor:pointer; font-size:13.5px; box-shadow:0 3px 0 var(--ink); display: inline-flex; align-items:center; gap:8px;">
-            🤖 Auto-orientar base óptima
+          <button type="button" onclick="autoOrientZToFit()" style="background:var(--accent); color:var(--ink); border:2px solid var(--ink); padding:10px 22px; border-radius:12px; font-weight:800; cursor:pointer; font-size:13.5px; box-shadow:0 3px 0 var(--ink); display: inline-flex; align-items:center; gap:8px;">
+            🤖 Girar pieza para ajustar a la cama
           </button>
         </div>
 
@@ -424,7 +423,7 @@
       validateCurrentStep();
     }
 
-    // --- VISOR 3D CON CORRECCIÓN AUTOMÁTICA DE AJUSTE MÁXIMO EN Z Y ESCALADO PROPORCIONAL ---
+    // --- VISOR 3D CON CORRECCIÓN AUTOMÁTICA DE AJUSTE EN Z Y ESCALADO PROPORCIONAL ---
     let sScene, sCamera, sRenderer, sControls, sMesh, highlightRing, gridHelper, printVolumeBox;
 
     function initSelector3D() {
@@ -507,7 +506,6 @@
         const intersects = raycaster.intersectObject(sMesh);
 
         if (intersects.length > 0) {
-          // RESTABLECER ESCALA A 1 antes de calcular una nueva orientación para evitar escalados sucesivos erróneos
           sMesh.scale.set(1, 1, 1);
           sMesh.quaternion.set(0, 0, 0, 1);
           sMesh.position.set(0, 0, 0);
@@ -545,7 +543,7 @@
         }
       }
 
-      // --- ALGORITMO DE AUTO-ORIENTACIÓN EN Z ---
+      // --- ALGORITMO DE AUTO-ORIENTACIÓN EN Z (BÚSQUEDA BÁSICA) ---
       function optimizeZRotationToFit() {
         if (!sMesh || !answers.printer) return;
         const limits = printerLimits[answers.printer];
@@ -620,67 +618,102 @@
         ];
       }
 
-      // --- ALGORITMO DE AUTO-ORIENTACIÓN DE BASE PLANTA ÓPTIMA ---
-      window.autoOrientMesh = function() {
-        if (!sMesh || !sMesh.geometry) return;
-        
-        const geometry = sMesh.geometry;
-        const pos = geometry.attributes.position;
-        const index = geometry.index;
-        
-        let maxArea = 0;
-        let optimalNormal = new THREE.Vector3(0, 0, 1);
-        
-        const vA = new THREE.Vector3(), vB = new THREE.Vector3(), vC = new THREE.Vector3();
-        const cb = new THREE.Vector3(), ab = new THREE.Vector3();
-        
-        const processFace = (i1, i2, i3) => {
-          vA.fromBufferAttribute(pos, i1);
-          vB.fromBufferAttribute(pos, i2);
-          vC.fromBufferAttribute(pos, i3);
-          cb.subVectors(vC, vB);
-          ab.subVectors(vA, vB);
-          cb.cross(ab);
-          const area = cb.length() * 0.5;
-          if (area > maxArea) {
-            maxArea = area;
-            optimalNormal.copy(cb).normalize();
-          }
-        };
-
-        if (index) {
-          for (let i = 0; i < index.count; i += 3) { processFace(index.getX(i), index.getX(i+1), index.getX(i+2)); }
-        } else {
-          for (let i = 0; i < pos.count; i += 3) { processFace(i, i+1, i+2); }
+      // --- ALGORITMO EXCLUSIVO: GIRA LA PIEZA 360º SOBRE TU BASE SELECCIONADA ---
+      window.autoOrientZToFit = function() {
+        if (!sMesh || !answers.printer) {
+          alert("Por favor, selecciona primero tu impresora 3D.");
+          return;
         }
-        
-        sMesh.scale.set(1, 1, 1);
-        sMesh.quaternion.set(0, 0, 0, 1);
-        sMesh.position.set(0, 0, 0);
-        sMesh.updateMatrixWorld(true);
-        
+        if (answers.selectedSupportFace === null || !answers.supportFaceNormal) {
+          alert("Por favor, selecciona primero una superficie de apoyo haciendo clic sobre el modelo 3D.");
+          return;
+        }
+
+        const limits = printerLimits[answers.printer];
+        if (!limits) return;
+
+        // Recuperar la orientación de apoyo de la normal sin rotaciones Z
+        const localNormal = new THREE.Vector3(
+          answers.supportFaceNormal[0],
+          answers.supportFaceNormal[1],
+          answers.supportFaceNormal[2]
+        );
         const target = new THREE.Vector3(0, 0, -1);
-        const q = new THREE.Quaternion().setFromUnitVectors(optimalNormal, target);
-        sMesh.quaternion.copy(q);
-        sMesh.updateMatrixWorld(true);
-        
-        optimizeZRotationToFit();
-        
-        answers.selectedSupportFace = 0; 
-        answers.supportFaceNormal = [optimalNormal.x, optimalNormal.y, optimalNormal.z];
+        const baseQuat = new THREE.Quaternion().setFromUnitVectors(localNormal, target);
+
+        let bestAngle = 0;
+        let bestMargin = -1;
+        let foundFit = false;
+
+        // Escaneo completo de 360 grados en intervalos finos de 1 grado
+        for (let deg = 0; deg < 360; deg += 1) {
+          const rad = THREE.MathUtils.degToRad(deg);
+          const zRotation = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), rad);
+          const tempQuat = baseQuat.clone().premultiply(zRotation);
+
+          sMesh.quaternion.copy(tempQuat);
+          sMesh.position.set(0, 0, 0);
+          sMesh.updateMatrixWorld(true);
+
+          const tempBbox = new THREE.Box3().setFromObject(sMesh);
+          const tempSize = new THREE.Vector3();
+          tempBbox.getSize(tempSize);
+
+          // Verificar si el modelo cabe en este ángulo
+          if (tempSize.x <= limits.x && tempSize.y <= limits.y && tempSize.z <= limits.z) {
+            foundFit = true;
+            // Se prefiere el ángulo que maximice la holgura de seguridad respecto a las paredes de la cama
+            const marginX = limits.x - tempSize.x;
+            const marginY = limits.y - tempSize.y;
+            const minMargin = Math.min(marginX, marginY);
+            
+            if (minMargin > bestMargin) {
+              bestMargin = minMargin;
+              bestAngle = rad;
+            }
+          }
+        }
+
+        if (foundFit) {
+          const finalZRot = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), bestAngle);
+          sMesh.quaternion.copy(baseQuat.clone().premultiply(finalZRot));
+          
+          sMesh.position.set(0, 0, 0);
+          sMesh.updateMatrixWorld(true);
+          const finalBbox = new THREE.Box3().setFromObject(sMesh);
+          const boxCenter = new THREE.Vector3();
+          finalBbox.getCenter(boxCenter);
+          sMesh.position.x = -boxCenter.x;
+          sMesh.position.y = -boxCenter.y;
+          sMesh.position.z = -finalBbox.min.z;
+          sMesh.updateMatrixWorld(true);
+
+          const warningBanner = document.getElementById("limitWarningBanner");
+          warningBanner.style.display = "none";
+          sMesh.material.color.setHex(0x90caf9); // Azul estándar
+
+          const oldSuccess = document.getElementById("scaleSuccessBanner");
+          if (oldSuccess) oldSuccess.remove();
+
+          const successBanner = document.createElement("div");
+          successBanner.id = "scaleSuccessBanner";
+          successBanner.style = "background:#eef2ee; border:1.5px solid #2e7d32; color:#2e7d32; padding:12px; border-radius:10px; font-size:13.5px; font-weight:700; margin-bottom:12px; line-height:1.4; text-align:center;";
+          successBanner.innerHTML = `✓ <strong>Rotación optimizada:</strong> Se ha girado la pieza sobre tu base elegida para que encaje dentro del área de impresión de tu ${answers.printer}.`;
+          warningBanner.parentNode.insertBefore(successBanner, warningBanner);
+        } else {
+          alert("Ninguna rotación sobre esta base permite alojar la pieza en la cama de impresión. Se aplicará el escalado proporcional automático.");
+          scaleMeshToFit();
+        }
+
+        const te = sMesh.matrix.elements;
+        answers.transformationMatrix = [
+          [ te[0], te[4], te[8],  te[12] ],
+          [ te[1], te[5], te[9],  te[13] ],
+          [ te[2], te[6], te[10], te[14] ],
+          [ te[3], te[7], te[11], te[15] ]
+        ];
         validateCurrentStep();
-        
-        const successBanner = document.createElement("div");
-        successBanner.id = "scaleSuccessBanner";
-        successBanner.style = "background:#eef2ee; border:1.5px solid #2e7d32; color:#2e7d32; padding:12px; border-radius:10px; font-size:13.5px; font-weight:700; margin-bottom:12px; line-height:1.4; text-align:center;";
-        successBanner.innerHTML = `✓ <strong>Auto-orientación completada:</strong> Se ha detectado la base plana de mayor superficie y se ha apoyado sobre la cama.`;
-        
-        const oldSuccess = document.getElementById("scaleSuccessBanner");
-        if (oldSuccess) oldSuccess.remove();
-        
-        const warningBanner = document.getElementById("limitWarningBanner");
-        warningBanner.parentNode.insertBefore(successBanner, warningBanner);
-      }
+      };
 
       // --- FUNCIÓN DE AUTOCORRECCIÓN DE ESCALA EN CALIENTE ---
       window.scaleMeshToFit = function() {
@@ -964,7 +997,7 @@
             console.warn("Servidor ocupado. Usando motor matemático CAD local de contingencia.", e);
           }
 
-          // FALLBACK LOCAL INTERACTIVO DETERMINISTA DE ALTA PRECISIÓN:
+          // FALLBACK LOCAL INTERACTIVO DETERMINISTA:
           const geom = sMesh.geometry;
           const isWatertight = checkIsWatertight(geom);
           const volumeLocal = isWatertight ? calculateVolume(geom) : null;
