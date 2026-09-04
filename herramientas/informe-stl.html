@@ -58,33 +58,53 @@
     .param-box{background:var(--card); border:1.5px solid var(--line); border-radius:16px; padding:24px; margin-bottom: 20px;}
     .param-title{font-size:14px; text-transform:uppercase; font-weight:800; color:var(--muted); margin-bottom: 12px;}
     
-    /* Contenedor comprimido con barra de scroll interna */
+    /* Contenedor compacto con barra de scroll interna */
     .scrollable-params-container {
-      max-height: 480px;
+      max-height: 380px;
       overflow-y: auto;
-      padding: 16px;
+      padding: 8px;
       border: 1.5px solid var(--line);
-      border-radius: 12px;
+      border-radius: 10px;
       background: #fbfbfc;
     }
     .scrollable-params-container::-webkit-scrollbar {
-      width: 8px;
+      width: 6px;
     }
     .scrollable-params-container::-webkit-scrollbar-track {
       background: transparent;
     }
     .scrollable-params-container::-webkit-scrollbar-thumb {
-      background: #c1c7c3;
-      border-radius: 4px;
+      background: #d1d5db;
+      border-radius: 3px;
     }
     .scrollable-params-container::-webkit-scrollbar-thumb:hover {
-      background: #a3aaa5;
+      background: #9ca3af;
     }
 
-    .param-row{display:flex; justify-content:space-between; border-bottom:1px dashed var(--line); padding:12px 0; font-size:14.5px; align-items: center; gap: 12px;}
-    .param-row:last-child{border-bottom:none;}
-    .param-row strong{font-weight:800; white-space: nowrap;}
-    .param-row span{word-break: break-word; line-height: 1.35;}
+    .param-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 10px;
+      margin-bottom: 2px;
+      font-size: 13px;
+      border-radius: 6px;
+      transition: background 0.15s ease;
+    }
+    .param-row:nth-child(even) {
+      background: rgba(0, 0, 0, 0.025);
+    }
+    .param-row:hover {
+      background: rgba(184, 255, 61, 0.12);
+    }
+    .param-row strong {
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .param-row span {
+      word-break: break-word;
+      line-height: 1.35;
+    }
 
     .download-panel{background:var(--card); border:1.5px solid var(--line); border-radius:24px; padding:36px; margin-top:32px;}
     .btn-download-stl{display:inline-flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:16px; background:var(--ink); color:#fff; border:2px solid var(--ink); border-radius:12px; font-weight:800; font-size:15px; cursor:pointer;}
@@ -224,7 +244,7 @@
       "Prusa i3 MK4": { x: 250, y: 210, z: 220 },
       "Prusa MINI+": { x: 180, y: 180, z: 180 },
       "Prusa XL": { x: 360, y: 360, z: 360 },
-      "Creality Ender 3 V3": { x: 220, y: 220, z: 250 },
+      "Creality Ender-3 V3 SE": { x: 220, y: 220, z: 250 },
       "Creality Ender 3 V2": { x: 220, y: 220, z: 250 },
       "Creality K1": { x: 220, y: 220, z: 250 },
       "Creality K1 Max": { x: 300, y: 300, z: 300 },
@@ -530,7 +550,7 @@
       }
       document.getElementById("problemsContainer").innerHTML = problemsHtml;
 
-      // --- RENDERIZADO DINÁMICO DE LOS 102 PARÁMETROS CON NOMBRE CLARO Y COMPRENSIBLE ---
+      // --- RENDERIZADO DINÁMICO DE LOS 102 PARÁMETROS EN DISEÑO COMPACTO DE FILA ÚNICA ---
       function renderParameters(filterText = "") {
         const container = document.getElementById("parametersDynamicContainer");
         container.innerHTML = "";
@@ -544,10 +564,10 @@
 
           if (filtered.length > 0) {
             const groupDiv = document.createElement("div");
-            groupDiv.style.marginBottom = "24px";
+            groupDiv.style.marginBottom = "16px";
 
             const groupHeader = document.createElement("div");
-            groupHeader.style = "font-size: 12.5px; font-weight: 800; color: var(--muted); margin: 15px 0 5px; border-bottom: 2px solid var(--line); padding-bottom: 4px; text-transform: uppercase;";
+            groupHeader.style = "font-size: 11.5px; font-weight: 800; color: var(--muted); margin: 10px 0 4px; border-bottom: 2.5px solid var(--line); padding-bottom: 2px; text-transform: uppercase;";
             groupHeader.textContent = groupName;
             groupDiv.appendChild(groupHeader);
 
@@ -557,11 +577,15 @@
               row.className = "param-row";
               
               const labelSpan = document.createElement("span");
-              // Muestra el nombre comprensible arriba en negrita, y el código OrcaSlicer debajo más pequeño
-              labelSpan.innerHTML = `<span style="font-size:14px; font-weight:800; color:var(--ink);">${v.label}</span><br><code style="font-size:11.5px; color:var(--muted);">${v.key}</code>`;
+              // Colocación en una sola línea de la descripción física con el código en miniatura
+              labelSpan.innerHTML = `
+                <span style="font-size:13px; font-weight:700; color:var(--ink);">${v.label}</span>
+                <code style="font-size:10.5px; color:var(--muted); margin-left:4px; font-family: monospace;">(${v.key})</code>
+              `;
               row.appendChild(labelSpan);
 
               const valStrong = document.createElement("strong");
+              valStrong.style = "font-size:13px; color:var(--ink);";
               let displayVal = val !== undefined && val !== null ? val : "--";
               if (displayVal !== "--" && v.unit) {
                 displayVal = `${displayVal} ${v.unit}`;
@@ -670,7 +694,8 @@
             const orcaSettingsJson = {
               "from": "project",
               "name": "project_settings",
-              "printer_model": q.printer || "Prusa i3 MK4"
+              "printer_model": q.printer || "Creality Ender-3 V3 SE",
+              "printer_variant": q.nozzleSize ? q.nozzleSize.toString() : "0.4"
             };
 
             for (const groupName in parameterGroups) {
@@ -688,7 +713,7 @@
               });
             }
 
-            const activeList = Object.keys(orcaSettingsJson).filter(k => k !== "from" && k !== "name" && k !== "printer_model").join(';');
+            const activeList = Object.keys(orcaSettingsJson).filter(k => k !== "from" && k !== "name" && k !== "printer_model" && k !== "printer_variant").join(';');
             orcaSettingsJson["different_settings_to_system"] = [
               activeList, "", "", "", "", "", ""
             ];
