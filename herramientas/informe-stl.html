@@ -58,9 +58,10 @@
     .param-box{background:var(--card); border:1.5px solid var(--line); border-radius:16px; padding:24px; margin-bottom: 20px;}
     .param-title{font-size:14px; text-transform:uppercase; font-weight:800; color:var(--muted); margin-bottom: 12px;}
     
-    .param-row{display:flex; justify-content:space-between; border-bottom:1px dashed var(--line); padding:10px 0; font-size:14.5px;}
+    .param-row{display:flex; justify-content:space-between; border-bottom:1px dashed var(--line); padding:10px 0; font-size:14.5px; align-items: center; gap: 12px;}
     .param-row:last-child{border-bottom:none;}
-    .param-row strong{font-weight:800;}
+    .param-row strong{font-weight:800; white-space: nowrap;}
+    .param-row span{word-break: break-all;}
 
     .download-panel{background:var(--card); border:1.5px solid var(--line); border-radius:24px; padding:36px; margin-top:32px;}
     .btn-download-stl{display:inline-flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:16px; background:var(--ink); color:#fff; border:2px solid var(--ink); border-radius:12px; font-weight:800; font-size:15px; cursor:pointer;}
@@ -134,6 +135,12 @@
             <div class="param-row"><span>Grosor mínimo de pared:</span> <strong id="reportThickness">Calculando...</strong></div>
             <div class="param-row"><span>Área de voladizo crítico:</span> <strong id="reportOverhang">Calculando...</strong></div>
           </div>
+
+          <!-- CONCLUSIÓN DINÁMICA DEL PROPÓSITO -->
+          <div style="margin-top:24px; padding:24px; background:var(--card); border:1.5px solid var(--line); border-radius:20px;">
+            <h4 style="margin:0 0 12px; font-weight:800;">Conclusión del Propósito de Impresión</h4>
+            <div id="purposeConclusionBox" style="font-size: 14px; line-height:1.5; color: var(--muted);"></div>
+          </div>
         </div>
 
         <!-- SECCIÓN 3, 4 & 5: PROBLEMAS Y PARÁMETROS ORCASLICER COMPLETOS -->
@@ -146,43 +153,14 @@
 
           <div id="problemsContainer"></div>
 
-          <!-- Parámetros de OrcaSlicer Completos -->
-          <div class="param-box">
-            <h4 class="param-title" style="padding: 10px 0 0 0; margin: 0;">Parámetros Completos de OrcaSlicer</h4>
+          <!-- Parámetros de OrcaSlicer Completos con Buscador -->
+          <div class="param-box" style="padding: 24px;">
+            <h4 class="param-title" style="margin-bottom: 4px;">Parámetros del Slicer (OrcaSlicer)</h4>
+            <p style="font-size: 13px; color: var(--muted); margin-bottom: 16px; margin-top:0;">Todos los nombres de variables coinciden con la nomenclatura interna de configuración de OrcaSlicer.</p>
             
-            <div style="font-size: 12px; font-weight: 800; color: var(--muted); margin: 15px 0 5px; border-bottom: 2px solid var(--line); padding-bottom: 4px;">ALTURA DE CAPA</div>
-            <div class="param-row"><span>layer_height (Altura de capa):</span> <strong id="oLayerHeight">--</strong></div>
-            <div class="param-row"><span>initial_layer_print_height (Altura de capa inicial):</span> <strong id="oFirstLayerHeight">--</strong></div>
+            <input type="text" id="paramSearch" placeholder="🔍 Filtrar parámetro por código o descripción..." style="width:100%; padding: 12px 16px; border-radius: 12px; border: 1.5px solid var(--line); font-family: inherit; font-size:14px; outline:none; margin-bottom: 24px; background:var(--bg); color:var(--ink);">
 
-            <div style="font-size: 12px; font-weight: 800; color: var(--muted); margin: 15px 0 5px; border-bottom: 2px solid var(--line); padding-bottom: 4px;">PAREDES Y RELLENO</div>
-            <div class="param-row"><span>wall_loops (Bucles de pared):</span> <strong id="oWallLoops">--</strong></div>
-            <div class="param-row"><span>sparse_infill_density (Densidad de relleno de esparcido):</span> <strong id="oInfillDensity">--</strong></div>
-            <div class="param-row"><span>sparse_infill_pattern (Patrón de relleno de esparcido):</span> <strong id="oInfillPattern">--</strong></div>
-
-            <div style="font-size: 12px; font-weight: 800; color: var(--muted); margin: 15px 0 5px; border-bottom: 2px solid var(--line); padding-bottom: 4px;">VELOCIDADES Y ACELERACIÓN</div>
-            <div class="param-row"><span>outer_wall_speed (Velocidad de pared exterior):</span> <strong id="oOuterWallSpeed">--</strong></div>
-            <div class="param-row"><span>inner_wall_speed (Velocidad de pared interior):</span> <strong id="oInnerWallSpeed">--</strong></div>
-            <div class="param-row"><span>travel_speed (Velocidad de viaje):</span> <strong id="oTravelSpeed">--</strong></div>
-            <div class="param-row"><span>travel_acceleration (Aceleración de viaje):</span> <strong id="oTravelAccel">--</strong></div>
-
-            <div style="font-size: 12px; font-weight: 800; color: var(--muted); margin: 15px 0 5px; border-bottom: 2px solid var(--line); padding-bottom: 4px;">EXTRUSIÓN Y TEMPERATURAS</div>
-            <div class="param-row"><span>nozzle_temperature (Temperatura de la boquilla):</span> <strong id="oNozzleTemp">--</strong></div>
-            <div class="param-row"><span>hot_plate_temp (Temperatura de la base caliente):</span> <strong id="oBedTemp">--</strong></div>
-            <div class="param-row"><span>flow_ratio (Relación de flujo):</span> <strong id="oFlowRatio">--</strong></div>
-            <div class="param-row"><span>pressure_advance (Avance de presión):</span> <strong id="oPA">--</strong></div>
-            <div class="param-row"><span>filament_max_volumetric_speed (Velocidad volumétrica máxima del filamento):</span> <strong id="oVolumetricSpeed">--</strong></div>
-
-            <div style="font-size: 12px; font-weight: 800; color: var(--muted); margin: 15px 0 5px; border-bottom: 2px solid var(--line); padding-bottom: 4px;">SOPORTES Y ADHESIÓN</div>
-            <div class="param-row"><span>enable_support (Activar soporte):</span> <strong id="oEnableSupport">--</strong></div>
-            <div class="param-row"><span>support_type (Tipo de soporte):</span> <strong id="oSupportType">--</strong></div>
-            <div class="param-row"><span>support_style (Estilo de soporte):</span> <strong id="oSupportStyle">--</strong></div>
-            <div class="param-row"><span>brim_type (Tipo de borde):</span> <strong id="oBrimType">--</strong></div>
-            <div class="param-row"><span>brim_width (Ancho del borde):</span> <strong id="oBrimWidth">--</strong></div>
-
-            <div style="font-size: 12px; font-weight: 800; color: var(--muted); margin: 15px 0 5px; border-bottom: 2px solid var(--line); padding-bottom: 4px;">RETRACCIÓN Y VENTILACIÓN</div>
-            <div class="param-row"><span>retraction_length (Longitud de retracción):</span> <strong id="oRetractLength">--</strong></div>
-            <div class="param-row"><span>retraction_speed (Velocidad de retracción):</span> <strong id="oRetractSpeed">--</strong></div>
-            <div class="param-row"><span>fan_cooling_speed (Velocidad del ventilador de capa):</span> <strong id="oFanSpeed">--</strong></div>
+            <div id="parametersDynamicContainer"></div>
           </div>
 
           <div class="download-panel">
@@ -211,6 +189,126 @@
 
   <script>
     let scene, camera, renderer, controls, activeMesh;
+
+    // Estructura completa de variables internas reales de OrcaSlicer
+    const parameterGroups = {
+      "Calidad / Calidad de impresión": [
+        { key: "layer_height", label: "layer_height (Altura de capa)", unit: "mm" },
+        { key: "initial_layer_print_height", label: "initial_layer_print_height (Altura de capa inicial)", unit: "mm" },
+        { key: "outer_wall_line_width", label: "outer_wall_line_width (Ancho de línea de pared exterior)", unit: "mm" },
+        { key: "inner_wall_line_width", label: "inner_wall_line_width (Ancho de línea de pared interior)", unit: "mm" },
+        { key: "sparse_infill_line_width", label: "sparse_infill_line_width (Ancho de línea de relleno de esparcido)", unit: "mm" },
+        { key: "internal_solid_infill_line_width", label: "internal_solid_infill_line_width (Ancho de línea de relleno sólido interno)", unit: "mm" },
+        { key: "top_surface_line_width", label: "top_surface_line_width (Ancho de línea de superficie superior)", unit: "mm" },
+        { key: "initial_layer_line_width", label: "initial_layer_line_width (Ancho de línea de capa inicial)", unit: "mm" },
+        { key: "wall_generator", label: "wall_generator (Generador de paredes)" },
+        { key: "wall_transition_length", label: "wall_transition_length (Longitud de transición de pared)", unit: "%" },
+        { key: "wall_transition_filter_deviation", label: "wall_transition_filter_deviation (Desviación de filtro de transición)", unit: "%" },
+        { key: "wall_transition_angle", label: "wall_transition_angle (Ángulo de transición de pared)", unit: "º" },
+        { key: "detect_thin_wall", label: "detect_thin_wall (Detectar paredes delgadas)" },
+        { key: "detect_overhang_wall", label: "detect_overhang_wall (Detectar paredes en voladizo)" },
+        { key: "arc_fitting", label: "arc_fitting (Ajuste de arcos G2/G3)" },
+        { key: "slice_closing_radius", label: "slice_closing_radius (Radio de cierre de rebanado)", unit: "mm" }
+      ],
+      "Fuerza y Estructura": [
+        { key: "wall_loops", label: "wall_loops (Bucles de pared / Perímetros)" },
+        { key: "top_shell_layers", label: "top_shell_layers (Capas de caparazón superior)" },
+        { key: "bottom_shell_layers", label: "bottom_shell_layers (Capas de caparazón inferior)" },
+        { key: "top_shell_thickness", label: "top_shell_thickness (Espesor de caparazón superior)", unit: "mm" },
+        { key: "bottom_shell_thickness", label: "bottom_shell_thickness (Espesor de caparazón inferior)", unit: "mm" },
+        { key: "sparse_infill_density", label: "sparse_infill_density (Densidad de relleno de esparcido)", unit: "%" },
+        { key: "sparse_infill_pattern", label: "sparse_infill_pattern (Patrón de relleno de esparcido)" },
+        { key: "top_surface_pattern", label: "top_surface_pattern (Patrón de superficie superior)" },
+        { key: "bottom_surface_pattern", label: "bottom_surface_pattern (Patrón de superficie inferior)" },
+        { key: "infill_direction", label: "infill_direction (Dirección de relleno)", unit: "º" },
+        { key: "sparse_infill_line_distance", label: "sparse_infill_line_distance (Distancia entre líneas de relleno)", unit: "mm" },
+        { key: "infill_combination", label: "infill_combination (Combinación de relleno)" },
+        { key: "infill_solid_every", label: "infill_solid_every (Relleno sólido cada N capas)" },
+        { key: "infill_anchor", label: "infill_anchor (Anclaje del relleno)", unit: "mm" },
+        { key: "infill_anchor_max", label: "infill_anchor_max (Anclaje máximo del relleno)", unit: "mm" }
+      ],
+      "Velocidades": [
+        { key: "outer_wall_speed", label: "outer_wall_speed (Velocidad de pared exterior)", unit: "mm/s" },
+        { key: "inner_wall_speed", label: "inner_wall_speed (Velocidad de pared interior)", unit: "mm/s" },
+        { key: "sparse_infill_speed", label: "sparse_infill_speed (Velocidad de relleno de esparcido)", unit: "mm/s" },
+        { key: "internal_solid_infill_speed", label: "internal_solid_infill_speed (Velocidad de relleno sólido interno)", unit: "mm/s" },
+        { key: "top_surface_speed", label: "top_surface_speed (Velocidad de superficie superior)", unit: "mm/s" },
+        { key: "gap_fill_speed", label: "gap_fill_speed (Velocidad de relleno de huecos)", unit: "mm/s" },
+        { key: "bridge_speed", label: "bridge_speed (Velocidad de puentes)", unit: "mm/s" },
+        { key: "initial_layer_speed", label: "initial_layer_speed (Velocidad de capa inicial)", unit: "mm/s" },
+        { key: "initial_layer_infill_speed", label: "initial_layer_infill_speed (Velocidad de relleno de capa inicial)", unit: "mm/s" },
+        { key: "travel_speed", label: "travel_speed (Velocidad de viaje)", unit: "mm/s" },
+        { key: "slow_down_for_layer_cooling", label: "slow_down_for_layer_cooling (Ralentizar por enfriamiento)" },
+        { key: "min_print_speed", label: "min_print_speed (Velocidad de impresión mínima)", unit: "mm/s" },
+        { key: "overhang_1_4_speed", label: "overhang_1_4_speed (Velocidad voladizo 1/4)", unit: "mm/s" },
+        { key: "overhang_2_4_speed", label: "overhang_2_4_speed (Velocidad voladizo 2/4)", unit: "mm/s" },
+        { key: "overhang_3_4_speed", label: "overhang_3_4_speed (Velocidad voladizo 3/4)", unit: "mm/s" },
+        { key: "overhang_4_4_speed", label: "overhang_4_4_speed (Velocidad voladizo 4/4)", unit: "mm/s" }
+      ],
+      "Dinámicas y Aceleraciones": [
+        { key: "default_acceleration", label: "default_acceleration (Aceleración por defecto)", unit: "mm/s²" },
+        { key: "outer_wall_acceleration", label: "outer_wall_acceleration (Aceleración de pared exterior)", unit: "mm/s²" },
+        { key: "inner_wall_acceleration", label: "inner_wall_acceleration (Aceleración de pared interior)", unit: "mm/s²" },
+        { key: "sparse_infill_acceleration", label: "sparse_infill_acceleration (Aceleración de relleno)", unit: "mm/s²" },
+        { key: "internal_solid_infill_acceleration", label: "internal_solid_infill_acceleration (Aceleración de relleno sólido)", unit: "mm/s²" },
+        { key: "top_surface_acceleration", label: "top_surface_acceleration (Aceleración de superficie superior)", unit: "mm/s²" },
+        { key: "travel_acceleration", label: "travel_acceleration (Aceleración de viaje)", unit: "mm/s²" },
+        { key: "initial_layer_acceleration", label: "initial_layer_acceleration (Aceleración de capa inicial)", unit: "mm/s²" },
+        { key: "bridge_acceleration", label: "bridge_acceleration (Aceleración de puentes)", unit: "mm/s²" },
+        { key: "jerk_xy_item", label: "jerk_xy_item (Jerk XY)", unit: "mm/s" },
+        { key: "jerk_z_item", label: "jerk_z_item (Jerk Z)", unit: "mm/s" },
+        { key: "jerk_e_item", label: "jerk_e_item (Jerk Extrusor)", unit: "mm/s" }
+      ],
+      "Filamento y Extrusión": [
+        { key: "nozzle_temperature", label: "nozzle_temperature (Temperatura de boquilla)", unit: "ºC" },
+        { key: "nozzle_temperature_initial_layer", label: "nozzle_temperature_initial_layer (Temp. boquilla capa inicial)", unit: "ºC" },
+        { key: "hot_plate_temp", label: "hot_plate_temp (Temperatura de cama)", unit: "ºC" },
+        { key: "hot_plate_temp_initial", label: "hot_plate_temp_initial (Temp. cama capa inicial)", unit: "ºC" },
+        { key: "flow_ratio", label: "flow_ratio (Relación de flujo)" },
+        { key: "pressure_advance", label: "pressure_advance (Avance de presión)" },
+        { key: "filament_max_volumetric_speed", label: "filament_max_volumetric_speed (Velocidad volumétrica máxima)", unit: "mm³/s" },
+        { key: "filament_shrinkage", label: "filament_shrinkage (Contracción de filamento)", unit: "%" },
+        { key: "filament_density", label: "filament_density (Densidad de filamento)", unit: "g/cm³" },
+        { key: "filament_cost", label: "filament_cost (Costo de filamento)", unit: "€/kg" },
+        { key: "filament_diameter", label: "filament_diameter (Diámetro de filamento)", unit: "mm" },
+        { key: "retraction_length", label: "retraction_length (Longitud de retracción)", unit: "mm" },
+        { key: "retraction_speed", label: "retraction_speed (Velocidad de retracción)", unit: "mm/s" },
+        { key: "deretraction_speed", label: "deretraction_speed (Velocidad de desretracción)", unit: "mm/s" },
+        { key: "z_hop_height", label: "z_hop_height (Altura de Z-Hop)", unit: "mm" },
+        { key: "z_hop_type", label: "z_hop_type (Tipo de Z-Hop)" },
+        { key: "retract_before_wipe", label: "retract_before_wipe (Retraer antes de limpiar)" },
+        { key: "wipe_distance", label: "wipe_distance (Distancia de limpieza)", unit: "mm" }
+      ],
+      "Enfriamiento y Enfriado": [
+        { key: "fan_cooling_speed", label: "fan_cooling_speed (Velocidad del ventilador de capa)", unit: "%" },
+        { key: "fan_speed_min", label: "fan_speed_min (Velocidad mínima del ventilador)", unit: "%" },
+        { key: "fan_speed_max", label: "fan_speed_max (Velocidad máxima del ventilador)", unit: "%" },
+        { key: "cool_plate_fan_speed", label: "cool_plate_fan_speed (Ventilador para cama fría)", unit: "%" },
+        { key: "additional_cooling_fan_speed", label: "additional_cooling_fan_speed (Ventilador adicional)", unit: "%" },
+        { key: "exhaust_fan_speed", label: "exhaust_fan_speed (Ventilador extractor)", unit: "%" },
+        { key: "cooling_threshold_time", label: "cooling_threshold_time (Tiempo umbral de enfriamiento)", unit: "s" },
+        { key: "fan_speed_overhangs", label: "fan_speed_overhangs (Ventilador para voladizos)" }
+      ],
+      "Soportes y Adhesión": [
+        { key: "enable_support", label: "enable_support (Soportes activados)" },
+        { key: "support_type", label: "support_type (Tipo de soporte)" },
+        { key: "support_style", label: "support_style (Estilo de soporte)" },
+        { key: "support_on_build_plate_only", label: "support_on_build_plate_only (Soporte solo en la cama)" },
+        { key: "support_top_z_distance", label: "support_top_z_distance (Distancia Z superior de soporte)", unit: "mm" },
+        { key: "support_bottom_z_distance", label: "support_bottom_z_distance (Distancia Z inferior de soporte)", unit: "mm" },
+        { key: "support_interface_layers", label: "support_interface_layers (Capas de interfaz de soporte)" },
+        { key: "support_interface_spacing", label: "support_interface_spacing (Espaciado de interfaz)", unit: "mm" },
+        { key: "support_interface_speed", label: "support_interface_speed (Velocidad de interfaz)", unit: "%" },
+        { key: "support_base_pattern", label: "support_base_pattern (Patrón de base de soporte)" },
+        { key: "support_interface_pattern", label: "support_interface_pattern (Patrón de interfaz de soporte)" },
+        { key: "brim_type", label: "brim_type (Tipo de visera)" },
+        { key: "brim_width", label: "brim_width (Ancho de visera)", unit: "mm" },
+        { key: "brim_object_gap", label: "brim_object_gap (Espacio entre visera y objeto)", unit: "mm" },
+        { key: "skirt_loops", label: "skirt_loops (Bucles de falda)" },
+        { key: "skirt_distance", label: "skirt_distance (Distancia de falda)", unit: "mm" },
+        { key: "skirt_height", label: "skirt_height (Altura de falda)", unit: "capas" }
+      ]
+    };
 
     function init3DViewer(containerId, base64Data, criticalPoints) {
       const container = document.getElementById(containerId);
@@ -261,7 +359,6 @@
           const sphereGeo = new THREE.SphereGeometry(1.2, 16, 16);
           const sphereMat = new THREE.MeshBasicMaterial({ color: 0xd9432f });
           const sphere = new THREE.Mesh(sphereGeo, sphereMat);
-          this.scene = scene; // local ref
           sphere.position.set(pt.x, pt.y, pt.z);
           activeMesh.add(sphere);
         });
@@ -303,6 +400,15 @@
       document.getElementById("reportManifold").textContent = analysis.watertight ? "SÍ (Estanco)" : "NO (Malla abierta con agujeros)";
       document.getElementById("reportThickness").textContent = s.min_thickness_mm ? `${s.min_thickness_mm} mm` : "[NO CALCULADO]";
       document.getElementById("reportOverhang").textContent = s.overhang_area_cm2 !== undefined ? `${s.overhang_area_cm2} cm²` : "0.0 cm²";
+
+      // --- CONCLUSIÓN DINÁMICA DE PROPÓSITO ---
+      const purpose = q.purpose || "aesthetic";
+      const purposeBox = document.getElementById("purposeConclusionBox");
+      if (purpose === "aesthetic") {
+        purposeBox.innerHTML = `🎨 <strong style="color: var(--ink);">Orientación Estética Detectada:</strong> Se ha configurado para priorizar un acabado impecable y minimizar tiempos de impresión mediante un espesor de capa reducido (<strong>${s.layer_height} mm</strong>), un patrón de relleno de alta eficiencia (<strong>${s.sparse_infill_pattern}</strong>) y paredes delgadas óptimas.`;
+      } else {
+        purposeBox.innerHTML = `⚙️ <strong style="color: var(--ink);">Orientación Estructural Detectada:</strong> Se ha configurado para máxima rigidez. Se aplican capas gruesas (<strong>${s.layer_height} mm</strong>), perímetros de pared robustos (<strong>${s.wall_loops} perímetros</strong>), densidad del relleno de esparcido densa (<strong>${s.sparse_infill_density}%</strong>) y un aumento térmico para maximizar la fusión intercapa.`;
+      }
 
       let scoreText = "ÓPTIMO";
       let scoreColor = "var(--accent)";
@@ -347,33 +453,62 @@
       }
       document.getElementById("problemsContainer").innerHTML = problemsHtml;
 
-      document.getElementById("oLayerHeight").textContent = s.layer_height !== undefined ? `${s.layer_height} mm` : "--";
-      document.getElementById("oFirstLayerHeight").textContent = s.initial_layer_print_height !== undefined ? `${s.initial_layer_print_height} mm` : "--";
-      document.getElementById("oWallLoops").textContent = s.wall_loops !== undefined ? `${s.wall_loops} bucles` : "--";
-      document.getElementById("oInfillDensity").textContent = s.sparse_infill_density !== undefined ? `${s.sparse_infill_density}%` : "--";
-      document.getElementById("oInfillPattern").textContent = s.sparse_infill_pattern !== undefined ? `${s.sparse_infill_pattern}` : "--";
-      document.getElementById("oOuterWallSpeed").textContent = s.outer_wall_speed !== undefined ? `${s.outer_wall_speed} mm/s` : "--";
-      document.getElementById("oInnerWallSpeed").textContent = s.inner_wall_speed !== undefined ? `${s.inner_wall_speed} mm/s` : "--";
-      document.getElementById("oTravelSpeed").textContent = s.travel_speed !== undefined ? `${s.travel_speed} mm/s` : "--";
-      document.getElementById("oTravelAccel").textContent = s.travel_acceleration !== undefined ? `${s.travel_acceleration} mm/s²` : "--";
-      document.getElementById("oNozzleTemp").textContent = s.nozzle_temperature !== undefined ? `${s.nozzle_temperature} ºC` : "--";
-      document.getElementById("oBedTemp").textContent = s.hot_plate_temp !== undefined ? `${s.hot_plate_temp} ºC` : "--";
-      document.getElementById("oFlowRatio").textContent = s.flow_ratio !== undefined ? `${s.flow_ratio}` : "--";
-      document.getElementById("oPA").textContent = s.pressure_advance !== undefined ? `${s.pressure_advance}` : "--";
-      document.getElementById("oVolumetricSpeed").textContent = s.filament_max_volumetric_speed !== undefined ? `${s.filament_max_volumetric_speed} mm³/s` : "--";
-      document.getElementById("oEnableSupport").textContent = s.enable_support !== undefined ? (s.enable_support ? "SÍ" : "NO") : "--";
-      document.getElementById("oSupportType").textContent = s.support_type !== undefined ? `${s.support_type}` : "--";
-      document.getElementById("oSupportStyle").textContent = s.support_style !== undefined ? `${s.support_style}` : "--";
-      document.getElementById("oBrimType").textContent = s.brim_type !== undefined ? `${s.brim_type}` : "--";
-      document.getElementById("oBrimWidth").textContent = s.brim_width !== undefined ? `${s.brim_width} mm` : "--";
-      document.getElementById("oRetractLength").textContent = s.retraction_length !== undefined ? `${s.retraction_length} mm` : "--";
-      document.getElementById("oRetractSpeed").textContent = s.retraction_speed !== undefined ? `${s.retraction_speed} mm/s` : "--";
-      document.getElementById("oFanSpeed").textContent = s.fan_cooling_speed !== undefined ? `${s.fan_cooling_speed}%` : "--";
+      // --- RENDERIZADO DINÁMICO DE LOS 102 PARÁMETROS CON BUSCADOR ---
+      function renderParameters(filterText = "") {
+        const container = document.getElementById("parametersDynamicContainer");
+        container.innerHTML = "";
+        const lowerFilter = filterText.toLowerCase();
+
+        for (const groupName in parameterGroups) {
+          const groupVariables = parameterGroups[groupName];
+          const filtered = groupVariables.filter(v => {
+            return v.key.toLowerCase().includes(lowerFilter) || v.label.toLowerCase().includes(lowerFilter);
+          });
+
+          if (filtered.length > 0) {
+            const groupDiv = document.createElement("div");
+            groupDiv.style.marginBottom = "24px";
+
+            const groupHeader = document.createElement("div");
+            groupHeader.style = "font-size: 12.5px; font-weight: 800; color: var(--muted); margin: 15px 0 5px; border-bottom: 2px solid var(--line); padding-bottom: 4px; text-transform: uppercase;";
+            groupHeader.textContent = groupName;
+            groupDiv.appendChild(groupHeader);
+
+            filtered.forEach(v => {
+              const val = s[v.key];
+              const row = document.createElement("div");
+              row.className = "param-row";
+              
+              const labelSpan = document.createElement("span");
+              labelSpan.innerHTML = `<strong>${v.key}</strong> <span style="color:var(--muted); font-size:12.5px;">(${v.label.split('(')[1].slice(0, -1)})</span>`;
+              row.appendChild(labelSpan);
+
+              const valStrong = document.createElement("strong");
+              let displayVal = val !== undefined && val !== null ? val : "--";
+              if (displayVal !== "--" && v.unit) {
+                displayVal = `${displayVal} ${v.unit}`;
+              }
+              valStrong.textContent = displayVal;
+              row.appendChild(valStrong);
+
+              groupDiv.appendChild(row);
+            });
+
+            container.appendChild(groupDiv);
+          }
+        }
+      }
+
+      renderParameters();
+
+      document.getElementById("paramSearch").addEventListener("input", (e) => {
+        renderParameters(e.target.value);
+      });
 
       if (analysis.optimized_base64) {
         init3DViewer("canvas3dContainer", analysis.optimized_base64, analysis.critical_points);
 
-        // --- CONSTRUCTOR DE PROYECTO .3MF COMPATIBLE CON CONFIGURACIONES ORCASLICER ---
+        // --- CONSTRUCTOR DE PROYECTO .3MF COMPATIBLE ---
         document.getElementById("download3mfBtn").addEventListener("click", async () => {
           const downloadBtn = document.getElementById("download3mfBtn");
           downloadBtn.disabled = true;
@@ -437,49 +572,32 @@
 </model>`;
             zip.file("3D/3dmodel.model", modelXml);
 
-            const patternMapping = {
-              "giroide": "gyroid",
-              "rejilla": "grid",
-              "rectilineo": "rectilinear",
-              "rayo": "lightning",
-              "cubico": "cubic"
-            };
-            const engPattern = patternMapping[s.sparse_infill_pattern] || "gyroid";
-
-            // Inyección extendida de flujos de filamento y velocidades de ventilador nativos
+            // Inyección exhaustiva de los 102 parámetros calculados directamente en OrcaSlicer
             const orcaSettingsJson = {
               "from": "project",
               "name": "project_settings",
-              "printer_model": q.printer || "Prusa i3 MK4",
-              "nozzle_diameter": [ q.nozzleSize ? q.nozzleSize.toString() : "0.4" ],
-              "layer_height": s.layer_height !== undefined ? s.layer_height.toString() : "0.2",
-              "initial_layer_print_height": s.initial_layer_print_height !== undefined ? s.initial_layer_print_height.toString() : "0.2",
-              "wall_loops": s.wall_loops !== undefined ? s.wall_loops.toString() : "3",
-              "sparse_infill_density": s.sparse_infill_density !== undefined ? s.sparse_infill_density.toString() + "%" : "20%",
-              "sparse_infill_pattern": engPattern,
-              "outer_wall_speed": s.outer_wall_speed !== undefined ? s.outer_wall_speed.toString() : "100",
-              "inner_wall_speed": s.inner_wall_speed !== undefined ? s.inner_wall_speed.toString() : "140",
-              "travel_speed": s.travel_speed !== undefined ? s.travel_speed.toString() : "200",
-              "travel_acceleration": s.travel_acceleration !== undefined ? s.travel_acceleration.toString() : "5000",
-              "nozzle_temperature": [ s.nozzle_temperature !== undefined ? s.nozzle_temperature.toString() : "220" ],
-              "hot_plate_temp": [ s.hot_plate_temp !== undefined ? s.hot_plate_temp.toString() : "60" ],
-              "hot_plate_temp_initial": [ s.hot_plate_temp !== undefined ? s.hot_plate_temp.toString() : "60" ],
-              "enable_support": s.enable_support ? "1" : "0",
-              "support_type": s.support_type || "normal",
-              "support_style": s.support_style || "normal",
-              "filament_max_volumetric_speed": [ s.filament_max_volumetric_speed !== undefined ? s.filament_max_volumetric_speed.toString() : "15" ],
-              "fan_cooling_speed": [ s.fan_cooling_speed !== undefined ? s.fan_cooling_speed.toString() : "100" ],
-              "brim_type": s.brim_type || "none",
-              "brim_width": s.brim_width !== undefined ? s.brim_width.toString() : "0",
-              "flow_ratio": [ s.flow_ratio !== undefined ? s.flow_ratio.toString() : "0.98" ],
-              "pressure_advance": [ s.pressure_advance !== undefined ? s.pressure_advance.toString() : "0.02" ],
-              "retraction_length": [ s.retraction_length !== undefined ? s.retraction_length.toString() : "0.8" ],
-              "retraction_speed": [ s.retraction_speed !== undefined ? s.retraction_speed.toString() : "30" ],
-              "different_settings_to_system": [
-                "layer_height;initial_layer_print_height;wall_loops;sparse_infill_density;sparse_infill_pattern;outer_wall_speed;inner_wall_speed;travel_speed;travel_acceleration;nozzle_temperature;hot_plate_temp;hot_plate_temp_initial;enable_support;support_type;support_style;brim_type;brim_width;flow_ratio;pressure_advance;retraction_length;retraction_speed;filament_max_volumetric_speed;fan_cooling_speed",
-                "", "", "", "", "", ""
-              ]
+              "printer_model": q.printer || "Prusa i3 MK4"
             };
+
+            for (const groupName in parameterGroups) {
+              parameterGroups[groupName].forEach(v => {
+                const val = s[v.key];
+                if (val !== undefined && val !== null) {
+                  const arrKeys = ["nozzle_temperature", "hot_plate_temp", "hot_plate_temp_initial", "nozzle_temperature_initial_layer", "flow_ratio", "pressure_advance", "retraction_length", "retraction_speed", "deretraction_speed", "filament_max_volumetric_speed", "fan_cooling_speed", "fan_speed_min", "fan_speed_max", "cool_plate_fan_speed", "additional_cooling_fan_speed", "exhaust_fan_speed"];
+                  if (arrKeys.includes(v.key)) {
+                    orcaSettingsJson[v.key] = [ val.toString() ];
+                  } else {
+                    orcaSettingsJson[v.key] = val.toString();
+                  }
+                }
+              });
+            }
+
+            const activeList = Object.keys(orcaSettingsJson).filter(k => k !== "from" && k !== "name" && k !== "printer_model").join(';');
+            orcaSettingsJson["different_settings_to_system"] = [
+              activeList, "", "", "", "", "", ""
+            ];
+
             zip.file("Metadata/project_settings.config", JSON.stringify(orcaSettingsJson, null, 2));
 
             const content = await zip.generateAsync({ type: "blob" });
