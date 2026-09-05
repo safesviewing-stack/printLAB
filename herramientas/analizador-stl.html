@@ -7,7 +7,7 @@
   <title>Analizador y Optimizador STL — PrintLab PRO</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;700;800&display=swap" rel="stylesheet">
   <style>
 :root{--bg:#f6f7f4;--card:#fff;--ink:#0d1110;--muted:#5e6661;--line:#dfe4df;--accent:#b8ff3d;--dark:#111715;--max:1200px}
 *{box-sizing:border-box}
@@ -504,7 +504,7 @@ main.wrap{min-height:calc(100vh - 95px)}
         document.querySelector(".upload-desc").style.display = "block";
         accessButton.style.display = "inline-block";
         document.querySelector(".drag-help").style.display = "block";
-        progressContainer.style.display = "none";
+        progressContainer.style.display = "block";
         wizardNav.style.display = "none";
         validateCurrentStep();
         return;
@@ -828,20 +828,16 @@ main.wrap{min-height:calc(100vh - 95px)}
 
         let found = false;
         let bestAngle = 0;
-        let bestX = 0;
-        let bestY = 0;
         let bestMargin = -Infinity;
 
         let bestExcess = Infinity;
         let fallbackAngle = 0;
-        let fallbackX = 0;
-        let fallbackY = 0;
 
         let checks = 0;
 
-        // BÚSQUEDA DE 360,000 COMBINACIONES (Ángulo 0-360° en pasos de 0,001°)
-        for (let ai = 0; ai < 360000; ai++) {
-          const angle = ai * 0.001 * Math.PI / 180.0;
+        // BÚSQUEDA EXHAUSTIVA DE 36,000 COMBINACIONES (pasos de 0.01° para alta precisión)
+        for (let ai = 0; ai < 36000; ai++) {
+          const angle = ai * 0.01 * Math.PI / 180.0;
           const cos = Math.cos(angle);
           const sin = Math.sin(angle);
           checks++;
@@ -872,15 +868,10 @@ main.wrap{min-height:calc(100vh - 95px)}
           if (totalExcess < bestExcess) {
             bestExcess = totalExcess;
             fallbackAngle = angle;
-            fallbackX = - (minX + maxX) / 2;
-            fallbackY = - (minY + maxY) / 2;
           }
 
           // Verificación de ajuste exacto (sin márgenes artificiales redundantes)
           if (width <= limits.x + 1e-9 && height <= limits.y + 1e-9 && fitsZ) {
-            const tx = - (minX + maxX) / 2;
-            const ty = - (minY + maxY) / 2;
-
             const marginX = (limits.x - width) / 2;
             const marginY = (limits.y - height) / 2;
             const margin = Math.min(marginX, marginY);
@@ -889,13 +880,11 @@ main.wrap{min-height:calc(100vh - 95px)}
               found = true;
               bestMargin = margin;
               bestAngle = angle;
-              bestX = tx;
-              bestY = ty;
             }
           }
         }
 
-        // APLICACIÓN DE LA ORIENTACIÓN SELECCIONADA EN LA MALLA
+        // APLICACIÓN DE LA ORIENTACIÓN SELECCIONADA EN LA MALLA (100% ESCALA ORIGINAL)
         const chosenAngle = found ? bestAngle : fallbackAngle;
 
         const finalYaw = new THREE.Quaternion().setFromAxisAngle(
@@ -904,84 +893,75 @@ main.wrap{min-height:calc(100vh - 95px)}
         );
         const finalQuat = finalYaw.multiply(baseQuat);
 
-        // Resetear transformaciones de escala y posición previas para evitar desajustes
         sMesh.quaternion.copy(finalQuat);
-        sMesh.scale.set(1, 1, 1);
+        sMesh.scale.set(1, 1, 1); // Siempre conservamos la escala al 100%
         sMesh.position.set(0, 0, 0);
         sMesh.updateMatrixWorld(true);
 
-        // Alinear temporalmente al centro XY y colocar el fondo más bajo de la pieza en Z = 0
-        let tempBox = new THREE.Box3().setFromObject(sMesh);
+        // CALCULAMOS EL BOUNDING BOX REAL DE LA PIEZA ROTADA EN MUNDO.
+        // Esto ignora el origen interno/ficticio del archivo STL y se enfoca estrictamente en su geometría.
+        let finalBox = new THREE.Box3().setFromObject(sMesh);
         let boxCenter = new THREE.Vector3();
-        tempBox.getCenter(boxCenter);
+        finalBox.getCenter(boxCenter);
+
+        // Centramos geométricamente en la base de impresión y asentamos la cara elegida en Z = 0
         sMesh.position.x = -boxCenter.x;
         sMesh.position.y = -boxCenter.y;
-        sMesh.position.z = -tempBox.min.z;
+        sMesh.position.z = -finalBox.min.z;
         sMesh.updateMatrixWorld(true);
 
-        // Obtener tamaño y limites reales ya rotada
-        let finalBox = new THREE.Box3().setFromObject(sMesh);
-        let finalSize = finalBox.getSize(new THREE.Vector3());
+        // Recalculamos dimensiones finales sobre la cama de impresión
+        finalBox.setFromObject(sMesh);
+        const finalSize = finalBox.getSize(new THREE.Vector3());
 
-        // Comprobación si cabe tal cual dentro de los limites de la cama
-        const fitsX = finalSize.x <= limits.x;
-        const fitsY = finalSize.y <= limits.y;
-        const fitsZ_limit = finalSize.z <= limits.z;
-        const finalFitsOriginal = fitsX && fitsY && fitsZ_limit;
-
-        let appliedScale = 1.0;
-
-        if (!finalFitsOriginal) {
-          // Si el modelo es demasiado grande y sobresale, calcula el factor de escala necesario de forma automática
-          // Usamos el 98% (0.98) para dejar un pequeño margen visual del 1% a cada lado del volumen
-          const scaleX = limits.x / finalSize.x;
-          const scaleY = limits.y / finalSize.y;
-          const scaleZ = limits.z / finalSize.z;
-          appliedScale = Math.min(scaleX, scaleY, scaleZ) * 0.98;
-
-          sMesh.scale.set(appliedScale, appliedScale, appliedScale);
-          sMesh.updateMatrixWorld(true);
-
-          // Volver a centrar y asentar sobre la cama tras la nueva escala
-          finalBox.setFromObject(sMesh);
-          finalBox.getCenter(boxCenter);
-          sMesh.position.x = -boxCenter.x;
-          sMesh.position.y = -boxCenter.y;
-          sMesh.position.z = -finalBox.min.z;
-          sMesh.updateMatrixWorld(true);
-
-          // Recalcular caja final
-          finalBox.setFromObject(sMesh);
-          finalSize.copy(finalBox.getSize(new THREE.Vector3()));
-        }
-
-        // Poner color estándar de pieza válida
-        sMesh.material.color.setHex(0x90caf9);
-        sMesh.material.needsUpdate = true;
+        // Comprobación si cabe exactamente en el volumen
+        const fitsInCube =
+          finalBox.min.x >= bedMinX - 1e-5 &&
+          finalBox.max.x <= bedMaxX + 1e-5 &&
+          finalBox.min.y >= bedMinY - 1e-5 &&
+          finalBox.max.y <= bedMaxY + 1e-5 &&
+          finalBox.min.z >= -1e-5 &&
+          finalBox.max.z <= limits.z + 1e-5;
 
         const warningBanner = document.getElementById("limitWarningBanner");
-        warningBanner.style.display = "none";
-        warningBanner.innerHTML = "";
-
         const oldSuccess = document.getElementById("scaleSuccessBanner");
         if (oldSuccess) oldSuccess.remove();
 
-        const successBanner = document.createElement("div");
-        successBanner.id = "scaleSuccessBanner";
-        successBanner.style =
-          "background:#eef2ee;border:1.5px solid #2e7d32;color:#2e7d32;padding:12px;border-radius:10px;font-size:13.5px;font-weight:700;margin-bottom:12px;line-height:1.4;text-align:center;";
+        if (fitsInCube) {
+          sMesh.material.color.setHex(0x90caf9); // Color azul estándar de pieza válida
+          sMesh.material.needsUpdate = true;
 
-        const angleDeg = THREE.MathUtils.radToDeg(chosenAngle);
-        const scalePct = (appliedScale * 100).toFixed(1);
+          warningBanner.style.display = "none";
+          warningBanner.innerHTML = "";
 
-        successBanner.innerHTML =
-          `✓ <strong>PIEZA INTRODUCIDA Y CENTRADA EN LA CAJA DE IMPRESIÓN.</strong><br>` +
-          `Alineación óptima de base lograda con 360° comprobados a 0,001°.<br>` +
-          `Ángulo rotación base: <strong>${angleDeg.toFixed(3)}°</strong>.<br>` +
-          `Escala aplicada: <strong>${scalePct}%</strong> (pieza ajustada de forma segura dentro de la cama).<br>` +
-          `Tamaño final: <strong>${finalSize.x.toFixed(1)} × ${finalSize.y.toFixed(1)} × ${finalSize.z.toFixed(1)} mm</strong> (Límites: ${limits.x} × ${limits.y} × ${limits.z} mm).`;
+          const successBanner = document.createElement("div");
+          successBanner.id = "scaleSuccessBanner";
+          successBanner.style =
+            "background:#eef2ee;border:1.5px solid #2e7d32;color:#2e7d32;padding:12px;border-radius:10px;font-size:13.5px;font-weight:700;margin-bottom:12px;line-height:1.4;text-align:center;";
 
-        warningBanner.parentNode.insertBefore(successBanner, warningBanner);
+          const angleDeg = THREE.MathUtils.radToDeg(chosenAngle);
+          successBanner.innerHTML =
+            `✓ <strong>POSICIÓN VÁLIDA ENCONTRADA A TAMAÑO REAL (100%).</strong><br>` +
+            `Rastreadas las ${checks.toLocaleString("es-ES")} combinaciones posibles (precisión de 0.01°).<br>` +
+            `Ángulo óptimo: <strong>${angleDeg.toFixed(3)}°</strong>.<br>` +
+            `La pieza se ha centrado geométricamente de forma correcta en la cama.<br>` +
+            `Tamaño: <strong>${finalSize.x.toFixed(2)} × ${finalSize.y.toFixed(2)} × ${finalSize.z.toFixed(2)} mm</strong>.`;
+
+          warningBanner.parentNode.insertBefore(successBanner, warningBanner);
+        } else {
+          sMesh.material.color.setHex(0xb42318); // Color rojo si no cabe
+          sMesh.material.needsUpdate = true;
+
+          warningBanner.style.display = "block";
+          warningBanner.innerHTML =
+            `<div style="margin-bottom:10px;">` +
+            `⚠️ <strong>La pieza no cabe a su tamaño original (100%)</strong> ` +
+            `dentro de la impresora seleccionada (${answers.printer}).<br>` +
+            `Tamaño de la pieza: <strong>${finalSize.x.toFixed(2)} × ${finalSize.y.toFixed(2)} × ${finalSize.z.toFixed(2)} mm</strong>.<br>` +
+            `Límites de la cama: <strong>${limits.x} × ${limits.y} × ${limits.z} mm</strong>.<br>` +
+            `Rastreadas las ${checks.toLocaleString("es-ES")} orientaciones posibles.` +
+            `</div>`;
+        }
 
         // GUARDADO DE LA MATRIZ DE TRANSFORMACIÓN Y DATOS DE LA ORIENTACIÓN
         const te = sMesh.matrix.elements;
@@ -994,13 +974,13 @@ main.wrap{min-height:calc(100vh - 95px)}
 
         answers.orientationSearch = {
           angle_deg: Number(THREE.MathUtils.radToDeg(chosenAngle).toFixed(3)),
-          precision_deg: 0.001,
+          precision_deg: 0.01,
           angle_range_deg: 360,
           angle_positions_checked: checks,
           xy_translation_space: "continuous",
           base_face_index: answers.selectedSupportFace,
           base_kept_on_bed: true,
-          scale_factor: appliedScale,
+          scale_factor: 1.0,
           x_mm: Number(sMesh.position.x.toFixed(6)),
           y_mm: Number(sMesh.position.y.toFixed(6)),
           final_size_mm: {
@@ -1008,8 +988,10 @@ main.wrap{min-height:calc(100vh - 95px)}
             y: Number(finalSize.y.toFixed(6)),
             z: Number(finalSize.z.toFixed(6))
           },
-          final_geometry_fits: true
+          final_geometry_fits: fitsInCube
         };
+
+        validateCurrentStep();
       };
 
       window.scaleMeshToFit = function() {
