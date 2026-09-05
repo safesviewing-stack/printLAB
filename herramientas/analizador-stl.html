@@ -333,7 +333,7 @@ main.wrap{min-height:calc(100vh - 95px)}
           <div class="option-card" data-val="cost" onclick="selectCard(this, 'purpose')">
             <span class="emoji">🪙</span>
             <span class="option-card-title">Coste / Ahorro</span>
-            <span class="option-card-desc">Prioriza el ahorro de material y la fiabilidad. Malla de relleno mínima y velocidades seguras para evitar fallos catastróficos que desperdicien plástico.</span>
+            <span class="option-card-desc">Prioriza el ahorro de material y la fiabilidad. Malla de relleno mínima y velocidades seguras para evitar fallos catastróficos que despercierden plástico.</span>
           </div>
         </div>
       </div>
@@ -838,9 +838,9 @@ main.wrap{min-height:calc(100vh - 95px)}
           let bestExcess = Infinity;
           let fallbackAngle = 0;
 
-          // BÚSQUEDA EXHAUSTIVA DE 36,000 COMBINACIONES (pasos de 0.01° para máxima exactitud)
-          for (let ai = 0; ai < 36000; ai++) {
-            const angle = ai * 0.01 * Math.PI / 180.0;
+          // BÚSQUEDA EXHAUSTIVA DE 3,600 COMBINACIONES (pasos de 0.1°: 0.0°, 0.1°, 0.2°, 0.3°...)
+          for (let ai = 0; ai < 3600; ai++) {
+            const angle = ai * 0.1 * Math.PI / 180.0;
             const cos = Math.cos(angle);
             const sin = Math.sin(angle);
 
@@ -902,7 +902,7 @@ main.wrap{min-height:calc(100vh - 95px)}
             for (let i = 1; i < validSteps.length; i++) {
               const prev = validSteps[i - 1];
               const curr = validSteps[i];
-              if (curr.ai - prev.ai <= 200) { // Margen de agrupación de 2° (200 pasos)
+              if (curr.ai - prev.ai <= 20) { // Ajustado a 20 pasos de 0.1° (equivale a 2.0° de margen de agrupación)
                 currentSegment.push(curr);
               } else {
                 segments.push(currentSegment);
@@ -917,7 +917,7 @@ main.wrap{min-height:calc(100vh - 95px)}
               const lastSeg = segments[segments.length - 1];
               const lastStep = lastSeg[lastSeg.length - 1].ai;
               const firstStep = firstSeg[0].ai;
-              if ((36000 - lastStep) + firstStep <= 200) {
+              if ((3600 - lastStep) + firstStep <= 20) {
                 segments[0] = lastSeg.concat(firstSeg);
                 segments.pop();
               }
@@ -1040,7 +1040,7 @@ main.wrap{min-height:calc(100vh - 95px)}
 
         answers.orientationSearch = {
           angle_deg: Number(THREE.MathUtils.radToDeg(chosenAngle).toFixed(3)),
-          precision_deg: 0.01,
+          precision_deg: 0.1,
           angle_range_deg: 360,
           angle_positions_checked: checks,
           xy_translation_space: "continuous",
