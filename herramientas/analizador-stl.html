@@ -109,7 +109,7 @@ main.wrap{min-height:calc(100vh - 95px)}
 
 @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:992px){.footergrid{grid-template-columns:1.2fr 1fr;gap:40px}.option-grid{grid-template-columns:repeat(2,1fr)}.option-grid.option-grid-4{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:768px){.wrap{padding:0 20px}.top nav{min-height:82px}.brand{font-size:23px}.header-left{gap:14px}.footergrid{grid-template-columns:1fr;gap:36px}.upload-container{margin:35px auto;padding:30px 20px}.step-title{font-size:18px}.wizard-nav-buttons{flex-direction:row}.auth-buttons{gap:8px}.btn-auth{padding:10px 14px;font-size:13px}}
+@media(max-width:768px){.wrap{padding:0 20px}.top nav{min-height:82px}.brand{font-size:23px}.header-left{gap:14px}.footergrid{grid-template-columns:1fr;gap:36px}.upload-container{margin:35px auto;padding:30px 20px}.step-title{font-size:18px}.wizard-nav-buttons{flex-direction:row}.auth-buttons{gap:8px}}
 @media(max-width:480px){.option-grid,.option-grid.option-grid-4{grid-template-columns:1fr}.wizard-nav-buttons{gap:10px}.btn-secondary,.btn-green{padding:12px 20px;font-size:13px}.step-title{align-items:flex-start}.step-title span:last-child{white-space:nowrap;font-size:12px!important}}
 </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -256,6 +256,31 @@ main.wrap{min-height:calc(100vh - 95px)}
   white-space:nowrap!important;
 }
 </style>
+
+
+<style id="logout-exact-report">
+#authHeaderContainer .btn-auth{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:12px 24px;
+  border-radius:9999px;
+  font-weight:800;
+  font-size:14px;
+  cursor:pointer;
+  transition:.2s ease;
+  text-decoration:none;
+  border:2px solid var(--ink);
+}
+#authHeaderContainer .btn-auth.light{
+  background:#fff;
+  color:var(--ink);
+  box-shadow:0 3px 0px var(--ink);
+}
+#authHeaderContainer .btn-auth.light:hover{
+  transform:translateY(-1px);
+  box-shadow:0 4px 0px var(--ink);
+}
 
 </head>
 <body>
