@@ -241,7 +241,7 @@ main.wrap{min-height:calc(100vh - 95px)}
           <div class="option-card" data-val="PLA" onclick="selectCard(this, 'material')">
             <span class="emoji">🌱</span>
             <span class="option-card-title">PLA</span>
-            <span class="option-card-desc">Fácil de imprimir, alta rígidez y baja contracción térmica.</span>
+            <span class="option-card-desc">Fácil de imprimir, alta rigidez y baja contracción térmica.</span>
           </div>
           <div class="option-card" data-val="PETG" onclick="selectCard(this, 'material')">
             <span class="emoji">🧪</span>
@@ -783,36 +783,39 @@ main.wrap{min-height:calc(100vh - 95px)}
         // ¿La altura total cabe físicamente en el volumen de impresión?
         const fitsZ = (pieceHeight <= limits.z + 1e-3);
 
-        // Algoritmo de Andrew (Monotone Chain) para hallar la Envolvente Convexa 2D sobre el 100% de puntos reales.
-        // Esto garantiza que ningún contorno exterior se pierda.
-        function get2DConvexHull(pts) {
-          if (pts.length <= 3) return pts.slice();
-          const sortedPts = pts.slice().sort((a, b) => a.x === b.x ? a.y - b.y : a.x - b.x);
-          const lower = [];
-          for (let i = 0; i < sortedPts.length; i++) {
-            while (lower.length >= 2 && crossProduct(lower[lower.length - 2], lower[lower.length - 1], sortedPts[i]) <= 1e-12) {
-              lower.pop();
-            }
-            lower.push(sortedPts[i]);
+        // MAPEO EN SECTORES RADIALES (720 sectores) PARA EVITAR ENVOLVENTES CONVEXAS DEGENERADAS
+        const numSectors = 720;
+        let cx = 0, cy = 0;
+        for (let i = 0; i < count; i++) {
+          cx += alignedPoints[i].x;
+          cy += alignedPoints[i].y;
+        }
+        cx /= count;
+        cy /= count;
+
+        const extremePoints = new Array(numSectors).fill(null);
+        for (let i = 0; i < count; i++) {
+          const p = alignedPoints[i];
+          const dx = p.x - cx;
+          const dy = p.y - cy;
+          const r2 = dx*dx + dy*dy;
+          
+          let angle = Math.atan2(dy, dx);
+          if (angle < 0) angle += Math.PI * 2;
+          const sectorIdx = Math.floor((angle / (Math.PI * 2)) * numSectors) % numSectors;
+
+          if (extremePoints[sectorIdx] === null || r2 > extremePoints[sectorIdx].r2) {
+            extremePoints[sectorIdx] = { x: p.x, y: p.y, r2: r2 };
           }
-          const upper = [];
-          for (let i = sortedPts.length - 1; i >= 0; i--) {
-            while (upper.length >= 2 && crossProduct(upper[upper.length - 2], upper[upper.length - 1], sortedPts[i]) <= 1e-12) {
-              upper.pop();
-            }
-            upper.push(sortedPts[i]);
-          }
-          lower.pop();
-          upper.pop();
-          return lower.concat(upper);
         }
 
-        function crossProduct(o, a, b) {
-          return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+        const perimeterPoints = [];
+        for (let i = 0; i < numSectors; i++) {
+          if (extremePoints[i] !== null) {
+            perimeterPoints.push(extremePoints[i]);
+          }
         }
-
-        const hull = get2DConvexHull(alignedPoints);
-        const hullLength = hull.length;
+        const hullLength = perimeterPoints.length;
 
         let found = false;
         let bestAngle = 0;
@@ -836,7 +839,7 @@ main.wrap{min-height:calc(100vh - 95px)}
           let maxY = -Infinity;
 
           for (let j = 0; j < hullLength; j++) {
-            const p = hull[j];
+            const p = perimeterPoints[j];
             const rx = p.x * cos - p.y * sin;
             const ry = p.x * sin + p.y * cos;
             if (rx < minX) minX = rx;
@@ -855,9 +858,10 @@ main.wrap{min-height:calc(100vh - 95px)}
           const posYMin = minY + ty;
           const posYMax = maxY + ty;
 
-          // VERIFICACIÓN ESTRICTA DEL PERÍMETRO COMPLETO CONTRA EL ESPACIO DE IMPRESIÓN
-          const fitsX = (posXMin >= bedMinX - 1e-5 && posXMax <= bedMaxX + 1e-5);
-          const fitsY = (posYMin >= bedMinY - 1e-5 && posYMax <= bedMaxY + 1e-5);
+          // TOLERANCIA DE HOLGURA DE 0.1 MM PARA EVITAR RECHAZOS POR MARGENES DE REDONDEO DECIMAL
+          const tolerance = 0.1;
+          const fitsX = (posXMin >= bedMinX - tolerance && posXMax <= bedMaxX + tolerance);
+          const fitsY = (posYMin >= bedMinY - tolerance && posYMax <= bedMaxY + tolerance);
 
           const width = maxX - minX;
           const height = maxY - minY;
@@ -917,12 +921,12 @@ main.wrap{min-height:calc(100vh - 95px)}
 
         // Comprobación si cabe exactamente en el volumen
         const fitsInCube =
-          finalBox.min.x >= bedMinX - 1e-5 &&
-          finalBox.max.x <= bedMaxX + 1e-5 &&
-          finalBox.min.y >= bedMinY - 1e-5 &&
-          finalBox.max.y <= bedMaxY + 1e-5 &&
-          finalBox.min.z >= -1e-5 &&
-          finalBox.max.z <= limits.z + 1e-5;
+          finalBox.min.x >= bedMinX - 0.1 &&
+          finalBox.max.x <= bedMaxX + 0.1 &&
+          finalBox.min.y >= bedMinY - 0.1 &&
+          finalBox.max.y <= bedMaxY + 0.1 &&
+          finalBox.min.z >= -0.1 &&
+          finalBox.max.z <= limits.z + 0.1;
 
         const warningBanner = document.getElementById("limitWarningBanner");
         const oldSuccess = document.getElementById("scaleSuccessBanner");
