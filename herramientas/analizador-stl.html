@@ -427,6 +427,11 @@ main.wrap{min-height:calc(100vh - 95px)}
     ];
     let currentStepIdx = 0;
 
+    // Variables de persistencia para el ciclado interactivo de candidatos
+    let activeCandidates = [];
+    let currentCandidateIdx = -1;
+    let lastSelectedFace = null;
+
     const printerLimits = {
       "Bambu Lab X1 Carbon": { x: 256, y: 256, z: 256 },
       "Bambu Lab P1S": { x: 256, y: 256, z: 256 },
@@ -662,6 +667,11 @@ main.wrap{min-height:calc(100vh - 95px)}
           });
           answers.supportFaceVertices = supportVerts;
 
+          // RESETEAR CANDIDATOS DE CICLADO AL CAMBIAR DE CARA DE APOYO
+          activeCandidates = [];
+          currentCandidateIdx = -1;
+          lastSelectedFace = hit.faceIndex;
+
           // Ahora sí podemos resetear la transformación visual para que
           // todas las operaciones posteriores partan de coordenadas locales.
           sMesh.scale.set(1, 1, 1);
@@ -739,159 +749,210 @@ main.wrap{min-height:calc(100vh - 95px)}
 
         const pos = sMesh.geometry.attributes.position;
         const count = pos.count;
-        const alignedPoints = [];
-        const tempV = new THREE.Vector3();
 
-        // Vértices de la cara que debe permanecer apoyada.
-        const faceA = new THREE.Vector3(
-          answers.supportFaceVertices[0][0],
-          answers.supportFaceVertices[0][1],
-          answers.supportFaceVertices[0][2]
-        );
-        const faceB = new THREE.Vector3(
-          answers.supportFaceVertices[1][0],
-          answers.supportFaceVertices[1][1],
-          answers.supportFaceVertices[1][2]
-        );
-        const faceC = new THREE.Vector3(
-          answers.supportFaceVertices[2][0],
-          answers.supportFaceVertices[2][1],
-          answers.supportFaceVertices[2][2]
-        );
+        // SI ES UNA NUEVA BÚSQUEDA (por cambio de base o primer clic), CALCULAMOS TODOS LOS CANDIDATOS VÁLIDOS
+        if (activeCandidates.length === 0 || lastSelectedFace !== answers.selectedSupportFace) {
+          lastSelectedFace = answers.selectedSupportFace;
+          activeCandidates = [];
+          currentCandidateIdx = -1;
 
-        // Alturas de la cara seleccionada después de la rotación inicial.
-        const faZ = faceA.clone().applyQuaternion(baseQuat).z;
-        const fbZ = faceB.clone().applyQuaternion(baseQuat).z;
-        const fcZ = faceC.clone().applyQuaternion(baseQuat).z;
-        const supportZ = (faZ + fbZ + fcZ) / 3;
+          const alignedPoints = [];
+          const tempV = new THREE.Vector3();
 
-        let minZ = Infinity;
-        let maxZ = -Infinity;
+          // Vértices de la cara que debe permanecer apoyada.
+          const faceA = new THREE.Vector3(
+            answers.supportFaceVertices[0][0],
+            answers.supportFaceVertices[0][1],
+            answers.supportFaceVertices[0][2]
+          );
+          const faceB = new THREE.Vector3(
+            answers.supportFaceVertices[1][0],
+            answers.supportFaceVertices[1][1],
+            answers.supportFaceVertices[1][2]
+          );
+          const faceC = new THREE.Vector3(
+            answers.supportFaceVertices[2][0],
+            answers.supportFaceVertices[2][1],
+            answers.supportFaceVertices[2][2]
+          );
 
-        // EXTRAER EL 100% DE LOS VÉRTICES REALES SIN REDUNDANCIAS NI PÉRDIDA DE PRECISIÓN
-        for (let i = 0; i < count; i++) {
-          tempV.fromBufferAttribute(pos, i).applyQuaternion(baseQuat);
-          alignedPoints.push({ x: tempV.x, y: tempV.y });
-          if (tempV.z < minZ) minZ = tempV.z;
-          if (tempV.z > maxZ) maxZ = tempV.z;
-        }
+          // Alturas de la cara seleccionada después de la rotación inicial.
+          const faZ = faceA.clone().applyQuaternion(baseQuat).z;
+          const fbZ = faceB.clone().applyQuaternion(baseQuat).z;
+          const fcZ = faceC.clone().applyQuaternion(baseQuat).z;
+          const supportZ = (faZ + fbZ + fcZ) / 3;
 
-        const zMinRel = minZ - supportZ;
-        const zMaxRel = maxZ - supportZ;
-        const pieceHeight = zMaxRel - zMinRel;
+          let minZ = Infinity;
+          let maxZ = -Infinity;
 
-        // ¿La altura total cabe físicamente en el volumen de impresión?
-        const fitsZ = (pieceHeight <= limits.z + 1e-3);
-
-        // MAPEO EN SECTORES RADIALES (720 sectores) PARA EVITAR ENVOLVENTES CONVEXAS DEGENERADAS
-        const numSectors = 720;
-        let cx = 0, cy = 0;
-        for (let i = 0; i < count; i++) {
-          cx += alignedPoints[i].x;
-          cy += alignedPoints[i].y;
-        }
-        cx /= count;
-        cy /= count;
-
-        const extremePoints = new Array(numSectors).fill(null);
-        for (let i = 0; i < count; i++) {
-          const p = alignedPoints[i];
-          const dx = p.x - cx;
-          const dy = p.y - cy;
-          const r2 = dx*dx + dy*dy;
-          
-          let angle = Math.atan2(dy, dx);
-          if (angle < 0) angle += Math.PI * 2;
-          const sectorIdx = Math.floor((angle / (Math.PI * 2)) * numSectors) % numSectors;
-
-          if (extremePoints[sectorIdx] === null || r2 > extremePoints[sectorIdx].r2) {
-            extremePoints[sectorIdx] = { x: p.x, y: p.y, r2: r2 };
-          }
-        }
-
-        const perimeterPoints = [];
-        for (let i = 0; i < numSectors; i++) {
-          if (extremePoints[i] !== null) {
-            perimeterPoints.push(extremePoints[i]);
-          }
-        }
-        const hullLength = perimeterPoints.length;
-
-        let found = false;
-        let bestAngle = 0;
-        let bestMargin = -Infinity;
-
-        let bestExcess = Infinity;
-        let fallbackAngle = 0;
-
-        let checks = 0;
-
-        // BÚSQUEDA EXHAUSTIVA DE 36,000 COMBINACIONES (pasos de 0.01° para máxima exactitud)
-        for (let ai = 0; ai < 36000; ai++) {
-          const angle = ai * 0.01 * Math.PI / 180.0;
-          const cos = Math.cos(angle);
-          const sin = Math.sin(angle);
-          checks++;
-
-          let minX = Infinity;
-          let maxX = -Infinity;
-          let minY = Infinity;
-          let maxY = -Infinity;
-
-          for (let j = 0; j < hullLength; j++) {
-            const p = perimeterPoints[j];
-            const rx = p.x * cos - p.y * sin;
-            const ry = p.x * sin + p.y * cos;
-            if (rx < minX) minX = rx;
-            if (rx > maxX) maxX = rx;
-            if (ry < minY) minY = ry;
-            if (ry > maxY) maxY = ry;
+          // EXTRAER EL 100% DE LOS VÉRTICES REALES SIN REDUNDANCIAS NI PÉRDIDA DE PRECISIÓN
+          for (let i = 0; i < count; i++) {
+            tempV.fromBufferAttribute(pos, i).applyQuaternion(baseQuat);
+            alignedPoints.push({ x: tempV.x, y: tempV.y });
+            if (tempV.z < minZ) minZ = tempV.z;
+            if (tempV.z > maxZ) maxZ = tempV.z;
           }
 
-          // CALCULAMOS EXPLÍCITAMENTE LA TRASLACIÓN DE CENTRADO (Tx, Ty) EN CADA ITERACIÓN
-          const tx = - (minX + maxX) / 2;
-          const ty = - (minY + maxY) / 2;
+          const zMinRel = minZ - supportZ;
+          const zMaxRel = maxZ - supportZ;
+          const pieceHeight = zMaxRel - zMinRel;
 
-          // EVALUACIÓN DE LAS COORDENADAS PROYECTADAS ABSOLUTAS EN LA CAMA
-          const posXMin = minX + tx;
-          const posXMax = maxX + tx;
-          const posYMin = minY + ty;
-          const posYMax = maxY + ty;
+          // ¿La altura total cabe físicamente en el volumen de impresión?
+          const fitsZ = (pieceHeight <= limits.z + 1e-3);
 
-          // TOLERANCIA DE HOLGURA DE 0.1 MM PARA EVITAR RECHAZOS POR MARGENES DE REDONDEO DECIMAL
-          const tolerance = 0.1;
-          const fitsX = (posXMin >= bedMinX - tolerance && posXMax <= bedMaxX + tolerance);
-          const fitsY = (posYMin >= bedMinY - tolerance && posYMax <= bedMaxY + tolerance);
-
-          const width = maxX - minX;
-          const height = maxY - minY;
-
-          const excessX = Math.max(0, width - limits.x);
-          const excessY = Math.max(0, height - limits.y);
-          const excessZ = Math.max(0, pieceHeight - limits.z);
-          const totalExcess = excessX + excessY + excessZ;
-
-          if (totalExcess < bestExcess) {
-            bestExcess = totalExcess;
-            fallbackAngle = angle;
+          // MAPEO EN SECTORES RADIALES (720 sectores) PARA EVITAR ENVOLVENTES CONVEXAS DEGENERADAS
+          const numSectors = 720;
+          let cx = 0, cy = 0;
+          for (let i = 0; i < count; i++) {
+            cx += alignedPoints[i].x;
+            cy += alignedPoints[i].y;
           }
+          cx /= count;
+          cy /= count;
 
-          if (fitsX && fitsY && fitsZ) {
-            const marginX = (limits.x - width) / 2;
-            const marginY = (limits.y - height) / 2;
-            const margin = Math.min(marginX, marginY);
+          const extremePoints = new Array(numSectors).fill(null);
+          for (let i = 0; i < count; i++) {
+            const p = alignedPoints[i];
+            const dx = p.x - cx;
+            const dy = p.y - cy;
+            const r2 = dx*dx + dy*dy;
+            
+            let angle = Math.atan2(dy, dx);
+            if (angle < 0) angle += Math.PI * 2;
+            const sectorIdx = Math.floor((angle / (Math.PI * 2)) * numSectors) % numSectors;
 
-            if (!found || margin > bestMargin) {
-              found = true;
-              bestMargin = margin;
-              bestAngle = angle;
+            if (extremePoints[sectorIdx] === null || r2 > extremePoints[sectorIdx].r2) {
+              extremePoints[sectorIdx] = { x: p.x, y: p.y, r2: r2 };
             }
           }
+
+          const perimeterPoints = [];
+          for (let i = 0; i < numSectors; i++) {
+            if (extremePoints[i] !== null) {
+              perimeterPoints.push(extremePoints[i]);
+            }
+          }
+          const hullLength = perimeterPoints.length;
+
+          const validSteps = [];
+          let bestExcess = Infinity;
+          let fallbackAngle = 0;
+
+          // BÚSQUEDA EXHAUSTIVA DE 36,000 COMBINACIONES (pasos de 0.01° para máxima exactitud)
+          for (let ai = 0; ai < 36000; ai++) {
+            const angle = ai * 0.01 * Math.PI / 180.0;
+            const cos = Math.cos(angle);
+            const sin = Math.sin(angle);
+
+            let minX = Infinity;
+            let maxX = -Infinity;
+            let minY = Infinity;
+            let maxY = -Infinity;
+
+            for (let j = 0; j < hullLength; j++) {
+              const p = perimeterPoints[j];
+              const rx = p.x * cos - p.y * sin;
+              const ry = p.x * sin + p.y * cos;
+              if (rx < minX) minX = rx;
+              if (rx > maxX) maxX = rx;
+              if (ry < minY) minY = ry;
+              if (ry > maxY) maxY = ry;
+            }
+
+            // CALCULAMOS EXPLÍCITAMENTE LA TRASLACIÓN DE CENTRADO (Tx, Ty) EN CADA ITERACIÓN
+            const tx = - (minX + maxX) / 2;
+            const ty = - (minY + maxY) / 2;
+
+            // EVALUACIÓN DE LAS COORDENADAS PROYECTADAS ABSOLUTAS EN LA CAMA
+            const posXMin = minX + tx;
+            const posXMax = maxX + tx;
+            const posYMin = minY + ty;
+            const posYMax = maxY + ty;
+
+            // TOLERANCIA DE HOLGURA DE 0.1 MM PARA EVITAR RECHAZOS POR MARGENES DE REDONDEO DECIMAL
+            const tolerance = 0.1;
+            const fitsX = (posXMin >= bedMinX - tolerance && posXMax <= bedMaxX + tolerance);
+            const fitsY = (posYMin >= bedMinY - tolerance && posYMax <= bedMaxY + tolerance);
+
+            const width = maxX - minX;
+            const height = maxY - minY;
+
+            const excessX = Math.max(0, width - limits.x);
+            const excessY = Math.max(0, height - limits.y);
+            const excessZ = Math.max(0, pieceHeight - limits.z);
+            const totalExcess = excessX + excessY + excessZ;
+
+            if (totalExcess < bestExcess) {
+              bestExcess = totalExcess;
+              fallbackAngle = angle;
+            }
+
+            if (fitsX && fitsY && fitsZ) {
+              const marginX = (limits.x - width) / 2;
+              const marginY = (limits.y - height) / 2;
+              const margin = Math.min(marginX, marginY);
+              validSteps.push({ ai: ai, angle: angle, margin: margin, fits: true });
+            }
+          }
+
+          // AGRUPAR ÁNGULOS CONSECUTIVOS EN ORIENTACIONES DISCRETAS DISTINTAS
+          if (validSteps.length > 0) {
+            const segments = [];
+            let currentSegment = [validSteps[0]];
+            for (let i = 1; i < validSteps.length; i++) {
+              const prev = validSteps[i - 1];
+              const curr = validSteps[i];
+              if (curr.ai - prev.ai <= 200) { // Margen de agrupación de 2° (200 pasos)
+                currentSegment.push(curr);
+              } else {
+                segments.push(currentSegment);
+                currentSegment = [curr];
+              }
+            }
+            segments.push(currentSegment);
+
+            // Controlar el salto cíclico en los extremos de 360 grados
+            if (segments.length > 1) {
+              const firstSeg = segments[0];
+              const lastSeg = segments[segments.length - 1];
+              const lastStep = lastSeg[lastSeg.length - 1].ai;
+              const firstStep = firstSeg[0].ai;
+              if ((36000 - lastStep) + firstStep <= 200) {
+                segments[0] = lastSeg.concat(firstSeg);
+                segments.pop();
+              }
+            }
+
+            // Extraer de cada grupo de rotación la que ofrece mayor holgura (mejor margen de seguridad)
+            for (let s = 0; s < segments.length; s++) {
+              const seg = segments[s];
+              let bestInSeg = seg[0];
+              for (let k = 1; k < seg.length; k++) {
+                if (seg[k].margin > bestInSeg.margin) {
+                  bestInSeg = seg[k];
+                }
+              }
+              activeCandidates.push({ angle: bestInSeg.angle, fits: true, margin: bestInSeg.margin });
+            }
+
+            // Ordenar de mayor a menor margen de seguridad
+            activeCandidates.sort((a, b) => b.margin - a.margin);
+
+          } else {
+            // Si la pieza no cabe a escala 100%, guardamos la mejor aproximación y añadimos alternativas rotadas de forma ortogonal (90°, 180°, 270°)
+            activeCandidates.push({ angle: fallbackAngle, fits: false });
+            activeCandidates.push({ angle: (fallbackAngle + Math.PI / 2) % (Math.PI * 2), fits: false });
+            activeCandidates.push({ angle: (fallbackAngle + Math.PI) % (Math.PI * 2), fits: false });
+            activeCandidates.push({ angle: (fallbackAngle + 3 * Math.PI / 2) % (Math.PI * 2), fits: false });
+          }
         }
 
-        // APLICACIÓN DE LA ORIENTACIÓN SELECCIONADA EN LA MALLA (100% ESCALA ORIGINAL)
-        const chosenAngle = found ? bestAngle : fallbackAngle;
+        // AVANZAR AL SIGUIENTE CANDIDATO DE LA LISTA EN CADA CLIC
+        currentCandidateIdx = (currentCandidateIdx + 1) % activeCandidates.length;
+        const currentCandidate = activeCandidates[currentCandidateIdx];
+        const chosenAngle = currentCandidate.angle;
 
+        // APLICACIÓN DE LA ORIENTACIÓN SELECCIONADA EN LA MALLA (100% ESCALA ORIGINAL)
         const finalYaw = new THREE.Quaternion().setFromAxisAngle(
           new THREE.Vector3(0, 0, 1),
           chosenAngle
@@ -932,6 +993,8 @@ main.wrap{min-height:calc(100vh - 95px)}
         const oldSuccess = document.getElementById("scaleSuccessBanner");
         if (oldSuccess) oldSuccess.remove();
 
+        const angleDeg = THREE.MathUtils.radToDeg(chosenAngle);
+
         if (fitsInCube) {
           sMesh.material.color.setHex(0x90caf9); // Color azul estándar de pieza válida
           sMesh.material.needsUpdate = true;
@@ -944,12 +1007,10 @@ main.wrap{min-height:calc(100vh - 95px)}
           successBanner.style =
             "background:#eef2ee;border:1.5px solid #2e7d32;color:#2e7d32;padding:12px;border-radius:10px;font-size:13.5px;font-weight:700;margin-bottom:12px;line-height:1.4;text-align:center;";
 
-          const angleDeg = THREE.MathUtils.radToDeg(chosenAngle);
           successBanner.innerHTML =
-            `✓ <strong>POSICIÓN VÁLIDA ENCONTRADA A TAMAÑO REAL (100%).</strong><br>` +
-            `Rastreadas las ${checks.toLocaleString("es-ES")} combinaciones posibles (precisión de 0.01°).<br>` +
-            `Ángulo óptimo: <strong>${angleDeg.toFixed(3)}°</strong>.<br>` +
-            `La pieza se ha centrado geométricamente de forma correcta en la cama.<br>` +
+            `✓ <strong>POSICIÓN VÁLIDA ENCONTRADA (Opción ${currentCandidateIdx + 1} de ${activeCandidates.length}).</strong><br>` +
+            `Sigue pulsando el botón para rotar y alternar entre otras posiciones válidas encontradas.<br>` +
+            `Ángulo óptimo actual: <strong>${angleDeg.toFixed(3)}°</strong>.<br>` +
             `Tamaño: <strong>${finalSize.x.toFixed(2)} × ${finalSize.y.toFixed(2)} × ${finalSize.z.toFixed(2)} mm</strong>.`;
 
           warningBanner.parentNode.insertBefore(successBanner, warningBanner);
@@ -960,11 +1021,11 @@ main.wrap{min-height:calc(100vh - 95px)}
           warningBanner.style.display = "block";
           warningBanner.innerHTML =
             `<div style="margin-bottom:10px;">` +
-            `⚠️ <strong>La pieza no cabe a su tamaño original (100%)</strong> ` +
-            `dentro de la impresora seleccionada (${answers.printer}).<br>` +
+            `⚠️ <strong>La pieza no cabe a su tamaño original (100%) en esta rotación (Opción ${currentCandidateIdx + 1} de ${activeCandidates.length}).</strong><br>` +
+            `Sigue pulsando el botón para rotar la pieza ortogonalmente e intentar buscar otra alternativa.<br>` +
+            `Ángulo actual probado: <strong>${angleDeg.toFixed(3)}°</strong>.<br>` +
             `Tamaño de la pieza: <strong>${finalSize.x.toFixed(2)} × ${finalSize.y.toFixed(2)} × ${finalSize.z.toFixed(2)} mm</strong>.<br>` +
-            `Límites de la cama: <strong>${limits.x} × ${limits.y} × ${limits.z} mm</strong>.<br>` +
-            `Rastreadas las ${checks.toLocaleString("es-ES")} orientaciones posibles.` +
+            `Límites de la cama: <strong>${limits.x} × ${limits.y} × ${limits.z} mm</strong>.` +
             `</div>`;
         }
 
