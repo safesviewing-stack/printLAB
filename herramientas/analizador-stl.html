@@ -323,7 +323,7 @@ main.wrap{min-height:calc(100vh - 95px)}
           <div class="option-card" data-val="functional" onclick="selectCard(this, 'purpose')">
             <span class="emoji">⚙️</span>
             <span class="option-card-title">Funcional / Mecánica</span>
-            <span class="option-card-desc">Prioriza la rigidez del plano XY y la cohesión de capas. Más perímetros robustos, mayor densidad de relleno tridimensional y temperaturas altas.</span>
+            <span class="option-card-desc">Prioriza la rígidez del plano XY y la cohesión de capas. Más perímetros robustos, mayor densidad de relleno tridimensional y temperaturas altas.</span>
           </div>
           <div class="option-card" data-val="speed" onclick="selectCard(this, 'purpose')">
             <span class="emoji">⚡</span>
@@ -857,6 +857,20 @@ main.wrap{min-height:calc(100vh - 95px)}
             if (ry > maxY) maxY = ry;
           }
 
+          // CALCULAMOS EXPLÍCITAMENTE LA TRASLACIÓN DE CENTRADO (Tx, Ty) EN CADA ITERACIÓN
+          const tx = - (minX + maxX) / 2;
+          const ty = - (minY + maxY) / 2;
+
+          // EVALUACIÓN EXPLÍCITA DE TODOS LOS EXTREMOS DE LA PIEZA TRAS SER TRASLADADA EN X, Y
+          const posXMin = minX + tx;
+          const posXMax = maxX + tx;
+          const posYMin = minY + ty;
+          const posYMax = maxY + ty;
+
+          // COMPROBAMOS QUE LOS EXTREMOS EN AMBOS EJES QUEDEN ESTRICTAMENTE DENTRO DEL PERÍMETRO DE LA CAMA
+          const fitsX = (posXMin >= bedMinX - 1e-9 && posXMax <= bedMaxX + 1e-9);
+          const fitsY = (posYMin >= bedMinY - 1e-9 && posYMax <= bedMaxY + 1e-9);
+
           const width = maxX - minX;
           const height = maxY - minY;
 
@@ -870,8 +884,8 @@ main.wrap{min-height:calc(100vh - 95px)}
             fallbackAngle = angle;
           }
 
-          // Verificación de ajuste exacto (sin márgenes artificiales redundantes)
-          if (width <= limits.x + 1e-9 && height <= limits.y + 1e-9 && fitsZ) {
+          // Si el modelado rotado y centrado (X, Y) cabe exactamente dentro del perímetro del cubo
+          if (fitsX && fitsY && fitsZ) {
             const marginX = (limits.x - width) / 2;
             const marginY = (limits.y - height) / 2;
             const margin = Math.min(marginX, marginY);
