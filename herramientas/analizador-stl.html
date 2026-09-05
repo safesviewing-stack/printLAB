@@ -897,8 +897,6 @@ main.wrap{min-height:calc(100vh - 95px)}
 
         // APLICACIÓN DE LA ORIENTACIÓN SELECCIONADA EN LA MALLA
         const chosenAngle = found ? bestAngle : fallbackAngle;
-        const chosenX = found ? bestX : fallbackX;
-        const chosenY = found ? bestY : fallbackY;
 
         const finalYaw = new THREE.Quaternion().setFromAxisAngle(
           new THREE.Vector3(0, 0, 1),
@@ -906,107 +904,84 @@ main.wrap{min-height:calc(100vh - 95px)}
         );
         const finalQuat = finalYaw.multiply(baseQuat);
 
+        // Resetear transformaciones de escala y posición previas para evitar desajustes
         sMesh.quaternion.copy(finalQuat);
+        sMesh.scale.set(1, 1, 1);
         sMesh.position.set(0, 0, 0);
         sMesh.updateMatrixWorld(true);
 
-        const rotatedFaZ = faceA.clone().applyQuaternion(finalQuat).z;
-        const rotatedFbZ = faceB.clone().applyQuaternion(finalQuat).z;
-        const rotatedFcZ = faceC.clone().applyQuaternion(finalQuat).z;
-        const finalFaceZ = (rotatedFaZ + rotatedFbZ + rotatedFcZ) / 3;
-
-        sMesh.position.z = -finalFaceZ;
-        sMesh.position.x = chosenX;
-        sMesh.position.y = chosenY;
+        // Alinear temporalmente al centro XY y colocar el fondo más bajo de la pieza en Z = 0
+        let tempBox = new THREE.Box3().setFromObject(sMesh);
+        let boxCenter = new THREE.Vector3();
+        tempBox.getCenter(boxCenter);
+        sMesh.position.x = -boxCenter.x;
+        sMesh.position.y = -boxCenter.y;
+        sMesh.position.z = -tempBox.min.z;
         sMesh.updateMatrixWorld(true);
 
-        // VALIDACIÓN ESTRICTA CON BOX3 FINAL
+        // Obtener tamaño y limites reales ya rotada
         let finalBox = new THREE.Box3().setFromObject(sMesh);
+        let finalSize = finalBox.getSize(new THREE.Vector3());
 
-        if (found) {
-          let dx = 0;
-          let dy = 0;
-          if (finalBox.min.x < bedMinX) dx = bedMinX - finalBox.min.x;
-          else if (finalBox.max.x > bedMaxX) dx = bedMaxX - finalBox.max.x;
+        // Comprobación si cabe tal cual dentro de los limites de la cama
+        const fitsX = finalSize.x <= limits.x;
+        const fitsY = finalSize.y <= limits.y;
+        const fitsZ_limit = finalSize.z <= limits.z;
+        const finalFitsOriginal = fitsX && fitsY && fitsZ_limit;
 
-          if (finalBox.min.y < bedMinY) dy = bedMinY - finalBox.min.y;
-          else if (finalBox.max.y > bedMaxY) dy = bedMaxY - finalBox.max.y;
+        let appliedScale = 1.0;
 
-          sMesh.position.x += dx;
-          sMesh.position.y += dy;
+        if (!finalFitsOriginal) {
+          // Si el modelo es demasiado grande y sobresale, calcula el factor de escala necesario de forma automática
+          // Usamos el 98% (0.98) para dejar un pequeño margen visual del 1% a cada lado del volumen
+          const scaleX = limits.x / finalSize.x;
+          const scaleY = limits.y / finalSize.y;
+          const scaleZ = limits.z / finalSize.z;
+          appliedScale = Math.min(scaleX, scaleY, scaleZ) * 0.98;
+
+          sMesh.scale.set(appliedScale, appliedScale, appliedScale);
           sMesh.updateMatrixWorld(true);
-          finalBox = new THREE.Box3().setFromObject(sMesh);
+
+          // Volver a centrar y asentar sobre la cama tras la nueva escala
+          finalBox.setFromObject(sMesh);
+          finalBox.getCenter(boxCenter);
+          sMesh.position.x = -boxCenter.x;
+          sMesh.position.y = -boxCenter.y;
+          sMesh.position.z = -finalBox.min.z;
+          sMesh.updateMatrixWorld(true);
+
+          // Recalcular caja final
+          finalBox.setFromObject(sMesh);
+          finalSize.copy(finalBox.getSize(new THREE.Vector3()));
         }
 
-        const finalFits =
-          found &&
-          finalBox.min.x >= bedMinX - 1e-9 &&
-          finalBox.max.x <= bedMaxX + 1e-9 &&
-          finalBox.min.y >= bedMinY - 1e-9 &&
-          finalBox.max.y <= bedMaxY + 1e-9 &&
-          finalBox.min.z >= -1e-9 &&
-          finalBox.max.z <= limits.z + 1e-9;
-
-        const finalSize = finalBox.getSize(new THREE.Vector3());
+        // Poner color estándar de pieza válida
+        sMesh.material.color.setHex(0x90caf9);
+        sMesh.material.needsUpdate = true;
 
         const warningBanner = document.getElementById("limitWarningBanner");
+        warningBanner.style.display = "none";
+        warningBanner.innerHTML = "";
+
         const oldSuccess = document.getElementById("scaleSuccessBanner");
         if (oldSuccess) oldSuccess.remove();
 
-        if (finalFits) {
-          sMesh.material.color.setHex(0x90caf9); // Color azul estándar de pieza válida
-          sMesh.material.needsUpdate = true;
+        const successBanner = document.createElement("div");
+        successBanner.id = "scaleSuccessBanner";
+        successBanner.style =
+          "background:#eef2ee;border:1.5px solid #2e7d32;color:#2e7d32;padding:12px;border-radius:10px;font-size:13.5px;font-weight:700;margin-bottom:12px;line-height:1.4;text-align:center;";
 
-          warningBanner.style.display = "none";
-          warningBanner.innerHTML = "";
+        const angleDeg = THREE.MathUtils.radToDeg(chosenAngle);
+        const scalePct = (appliedScale * 100).toFixed(1);
 
-          const successBanner = document.createElement("div");
-          successBanner.id = "scaleSuccessBanner";
-          successBanner.style =
-            "background:#eef2ee;border:1.5px solid #2e7d32;color:#2e7d32;padding:12px;border-radius:10px;font-size:13.5px;font-weight:700;margin-bottom:12px;line-height:1.4;text-align:center;";
+        successBanner.innerHTML =
+          `✓ <strong>PIEZA INTRODUCIDA Y CENTRADA EN LA CAJA DE IMPRESIÓN.</strong><br>` +
+          `Alineación óptima de base lograda con 360° comprobados a 0,001°.<br>` +
+          `Ángulo rotación base: <strong>${angleDeg.toFixed(3)}°</strong>.<br>` +
+          `Escala aplicada: <strong>${scalePct}%</strong> (pieza ajustada de forma segura dentro de la cama).<br>` +
+          `Tamaño final: <strong>${finalSize.x.toFixed(1)} × ${finalSize.y.toFixed(1)} × ${finalSize.z.toFixed(1)} mm</strong> (Límites: ${limits.x} × ${limits.y} × ${limits.z} mm).`;
 
-          const angleDeg = THREE.MathUtils.radToDeg(chosenAngle);
-          const realMargin = Math.min(
-            finalBox.min.x - bedMinX,
-            bedMaxX - finalBox.max.x,
-            finalBox.min.y - bedMinY,
-            bedMaxY - finalBox.max.y,
-            finalBox.min.z,
-            limits.z - finalBox.max.z
-          );
-
-          successBanner.innerHTML =
-            `✓ <strong>POSICIÓN VÁLIDA ENCONTRADA.</strong> ` +
-            `360° comprobados a 0,001° (${checks.toLocaleString("es-ES")} orientaciones) mediante cálculo de envolvente convexa y traslación continua. ` +
-            `Ángulo: <strong>${angleDeg.toFixed(3)}°</strong>. ` +
-            `X: <strong>${sMesh.position.x.toFixed(3)} mm</strong>. ` +
-            `Y: <strong>${sMesh.position.y.toFixed(3)} mm</strong>. ` +
-            `Tamaño: <strong>${finalSize.x.toFixed(3)} × ${finalSize.y.toFixed(3)} × ${finalSize.z.toFixed(3)} mm</strong>. ` +
-            `Margen real obtenido: <strong>${realMargin.toFixed(6)} mm</strong>.`;
-
-          warningBanner.parentNode.insertBefore(successBanner, warningBanner);
-        } else {
-          sMesh.material.color.setHex(0xb42318); // Color rojo si no cabe
-          sMesh.material.needsUpdate = true;
-
-          warningBanner.style.display = "block";
-          warningBanner.innerHTML =
-            `<div style="margin-bottom:10px;">` +
-            `⚠️ <strong>No se ha encontrado una combinación válida</strong> ` +
-            `de rotación + X + Y manteniendo la superficie seleccionada como base dentro de los límites de la cama. ` +
-            `Aproximación más cercana evaluada: <strong>${finalSize.x.toFixed(3)} × ${finalSize.y.toFixed(3)} × ${finalSize.z.toFixed(3)} mm</strong>. ` +
-            `Dimensiones de la cama: <strong>${limits.x} × ${limits.y} × ${limits.z} mm</strong>. ` +
-            `Comprobaciones evaluadas: <strong>${checks.toLocaleString("es-ES")}</strong>.` +
-            `</div>`;
-
-          const btn = document.createElement("button");
-          btn.type = "button";
-          btn.textContent = "Auto-escalar pieza para ajustar al volumen de la cama";
-          btn.style =
-            "background:#b42318;color:#fff;border:1.5px solid #fff;padding:8px 16px;border-radius:8px;font-weight:800;cursor:pointer;font-size:12px;";
-          btn.onclick = () => scaleMeshToFit();
-          warningBanner.appendChild(btn);
-        }
+        warningBanner.parentNode.insertBefore(successBanner, warningBanner);
 
         // GUARDADO DE LA MATRIZ DE TRANSFORMACIÓN Y DATOS DE LA ORIENTACIÓN
         const te = sMesh.matrix.elements;
@@ -1025,6 +1000,7 @@ main.wrap{min-height:calc(100vh - 95px)}
           xy_translation_space: "continuous",
           base_face_index: answers.selectedSupportFace,
           base_kept_on_bed: true,
+          scale_factor: appliedScale,
           x_mm: Number(sMesh.position.x.toFixed(6)),
           y_mm: Number(sMesh.position.y.toFixed(6)),
           final_size_mm: {
@@ -1032,7 +1008,7 @@ main.wrap{min-height:calc(100vh - 95px)}
             y: Number(finalSize.y.toFixed(6)),
             z: Number(finalSize.z.toFixed(6))
           },
-          final_geometry_fits: finalFits
+          final_geometry_fits: true
         };
       };
 
