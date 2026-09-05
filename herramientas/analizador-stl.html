@@ -241,7 +241,7 @@ main.wrap{min-height:calc(100vh - 95px)}
           <div class="option-card" data-val="PLA" onclick="selectCard(this, 'material')">
             <span class="emoji">🌱</span>
             <span class="option-card-title">PLA</span>
-            <span class="option-card-desc">Fácil de imprimir, alta rigidez y baja contracción térmica.</span>
+            <span class="option-card-desc">Fácil de imprimir, alta rígidez y baja contracción térmica.</span>
           </div>
           <div class="option-card" data-val="PETG" onclick="selectCard(this, 'material')">
             <span class="emoji">🧪</span>
@@ -323,7 +323,7 @@ main.wrap{min-height:calc(100vh - 95px)}
           <div class="option-card" data-val="functional" onclick="selectCard(this, 'purpose')">
             <span class="emoji">⚙️</span>
             <span class="option-card-title">Funcional / Mecánica</span>
-            <span class="option-card-desc">Prioriza la rígidez del plano XY y la cohesión de capas. Más perímetros robustos, mayor densidad de relleno tridimensional y temperaturas altas.</span>
+            <span class="option-card-desc">Prioriza la rigidez del plano XY y la cohesión de capas. Más perímetros robustos, mayor densidad de relleno tridimensional y temperaturas altas.</span>
           </div>
           <div class="option-card" data-val="speed" onclick="selectCard(this, 'purpose')">
             <span class="emoji">⚡</span>
@@ -768,6 +768,7 @@ main.wrap{min-height:calc(100vh - 95px)}
         let minZ = Infinity;
         let maxZ = -Infinity;
 
+        // EXTRAER EL 100% DE LOS VÉRTICES REALES SIN REDUNDANCIAS NI PÉRDIDA DE PRECISIÓN
         for (let i = 0; i < count; i++) {
           tempV.fromBufferAttribute(pos, i).applyQuaternion(baseQuat);
           alignedPoints.push({ x: tempV.x, y: tempV.y });
@@ -777,42 +778,29 @@ main.wrap{min-height:calc(100vh - 95px)}
 
         const zMinRel = minZ - supportZ;
         const zMaxRel = maxZ - supportZ;
+        const pieceHeight = zMaxRel - zMinRel;
 
-        // Comprobación de la restricción Z antes de la búsqueda rotacional.
-        const fitsZ = (zMinRel >= -1e-6 && zMaxRel <= limits.z + 1e-6);
+        // ¿La altura total cabe físicamente en el volumen de impresión?
+        const fitsZ = (pieceHeight <= limits.z + 1e-3);
 
-        // Decimación mediante rejilla 2D para optimizar la velocidad del Convex Hull en modelos grandes sin perder definición de bordes.
-        const decimatedPoints = [];
-        const grid = {};
-        const gridSize = 0.5; // Resolución de 0.5 mm
-        for (let i = 0; i < count; i++) {
-          const p = alignedPoints[i];
-          const gx = Math.round(p.x / gridSize);
-          const gy = Math.round(p.y / gridSize);
-          const key = gx + "_" + gy;
-          if (!grid[key]) {
-            grid[key] = p;
-            decimatedPoints.push(p);
-          }
-        }
-
-        // Función del algoritmo de Andrew (Monotone Chain) para hallar la envolvente convexa.
+        // Algoritmo de Andrew (Monotone Chain) para hallar la Envolvente Convexa 2D sobre el 100% de puntos reales.
+        // Esto garantiza que ningún contorno exterior se pierda.
         function get2DConvexHull(pts) {
           if (pts.length <= 3) return pts.slice();
-          pts.sort((a, b) => a.x === b.x ? a.y - b.y : a.x - b.x);
+          const sortedPts = pts.slice().sort((a, b) => a.x === b.x ? a.y - b.y : a.x - b.x);
           const lower = [];
-          for (let i = 0; i < pts.length; i++) {
-            while (lower.length >= 2 && crossProduct(lower[lower.length - 2], lower[lower.length - 1], pts[i]) <= 1e-12) {
+          for (let i = 0; i < sortedPts.length; i++) {
+            while (lower.length >= 2 && crossProduct(lower[lower.length - 2], lower[lower.length - 1], sortedPts[i]) <= 1e-12) {
               lower.pop();
             }
-            lower.push(pts[i]);
+            lower.push(sortedPts[i]);
           }
           const upper = [];
-          for (let i = pts.length - 1; i >= 0; i--) {
-            while (upper.length >= 2 && crossProduct(upper[upper.length - 2], upper[upper.length - 1], pts[i]) <= 1e-12) {
+          for (let i = sortedPts.length - 1; i >= 0; i--) {
+            while (upper.length >= 2 && crossProduct(upper[upper.length - 2], upper[upper.length - 1], sortedPts[i]) <= 1e-12) {
               upper.pop();
             }
-            upper.push(pts[i]);
+            upper.push(sortedPts[i]);
           }
           lower.pop();
           upper.pop();
@@ -823,7 +811,7 @@ main.wrap{min-height:calc(100vh - 95px)}
           return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
         }
 
-        const hull = get2DConvexHull(decimatedPoints);
+        const hull = get2DConvexHull(alignedPoints);
         const hullLength = hull.length;
 
         let found = false;
@@ -835,7 +823,7 @@ main.wrap{min-height:calc(100vh - 95px)}
 
         let checks = 0;
 
-        // BÚSQUEDA EXHAUSTIVA DE 36,000 COMBINACIONES (pasos de 0.01° para alta precisión)
+        // BÚSQUEDA EXHAUSTIVA DE 36,000 COMBINACIONES (pasos de 0.01° para máxima exactitud)
         for (let ai = 0; ai < 36000; ai++) {
           const angle = ai * 0.01 * Math.PI / 180.0;
           const cos = Math.cos(angle);
@@ -861,22 +849,22 @@ main.wrap{min-height:calc(100vh - 95px)}
           const tx = - (minX + maxX) / 2;
           const ty = - (minY + maxY) / 2;
 
-          // EVALUACIÓN EXPLÍCITA DE TODOS LOS EXTREMOS DE LA PIEZA TRAS SER TRASLADADA EN X, Y
+          // EVALUACIÓN DE LAS COORDENADAS PROYECTADAS ABSOLUTAS EN LA CAMA
           const posXMin = minX + tx;
           const posXMax = maxX + tx;
           const posYMin = minY + ty;
           const posYMax = maxY + ty;
 
-          // COMPROBAMOS QUE LOS EXTREMOS EN AMBOS EJES QUEDEN ESTRICTAMENTE DENTRO DEL PERÍMETRO DE LA CAMA
-          const fitsX = (posXMin >= bedMinX - 1e-9 && posXMax <= bedMaxX + 1e-9);
-          const fitsY = (posYMin >= bedMinY - 1e-9 && posYMax <= bedMaxY + 1e-9);
+          // VERIFICACIÓN ESTRICTA DEL PERÍMETRO COMPLETO CONTRA EL ESPACIO DE IMPRESIÓN
+          const fitsX = (posXMin >= bedMinX - 1e-5 && posXMax <= bedMaxX + 1e-5);
+          const fitsY = (posYMin >= bedMinY - 1e-5 && posYMax <= bedMaxY + 1e-5);
 
           const width = maxX - minX;
           const height = maxY - minY;
 
           const excessX = Math.max(0, width - limits.x);
           const excessY = Math.max(0, height - limits.y);
-          const excessZ = Math.max(0, -zMinRel, zMaxRel - limits.z);
+          const excessZ = Math.max(0, pieceHeight - limits.z);
           const totalExcess = excessX + excessY + excessZ;
 
           if (totalExcess < bestExcess) {
@@ -884,7 +872,6 @@ main.wrap{min-height:calc(100vh - 95px)}
             fallbackAngle = angle;
           }
 
-          // Si el modelado rotado y centrado (X, Y) cabe exactamente dentro del perímetro del cubo
           if (fitsX && fitsY && fitsZ) {
             const marginX = (limits.x - width) / 2;
             const marginY = (limits.y - height) / 2;
@@ -924,7 +911,7 @@ main.wrap{min-height:calc(100vh - 95px)}
         sMesh.position.z = -finalBox.min.z;
         sMesh.updateMatrixWorld(true);
 
-        // Recalculamos dimensiones finales sobre la cama de impresión
+        // Recalculamos dimensiones finales sobre la cama de impresión para confirmación
         finalBox.setFromObject(sMesh);
         const finalSize = finalBox.getSize(new THREE.Vector3());
 
