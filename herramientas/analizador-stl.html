@@ -633,24 +633,6 @@ main.wrap{min-height:calc(100vh - 95px)}
         const intersects = raycaster.intersectObject(sMesh);
 
         if (intersects.length > 0) {
-          const hit = intersects[0];
-
-          // IMPORTANTE: hit.point está en coordenadas WORLD con la pieza
-          // tal como estaba cuando se hizo el clic. Convertimos el punto
-          // a LOCAL ANTES de modificar posición/rotación/escala.
-          const supportPointLocal = sMesh.worldToLocal(hit.point.clone());
-          const localNormal = hit.face.normal.clone();
-
-          answers.selectedSupportFace = hit.faceIndex;
-          answers.supportFaceNormal = [localNormal.x, localNormal.y, localNormal.z];
-          answers.supportFacePoint = [
-            supportPointLocal.x,
-            supportPointLocal.y,
-            supportPointLocal.z
-          ];
-
-          // Ahora sí podemos resetear la transformación visual para que
-          // todas las operaciones posteriores partan de coordenadas locales.
           sMesh.scale.set(1, 1, 1);
           sMesh.quaternion.set(0, 0, 0, 1);
           sMesh.position.set(0, 0, 0);
@@ -658,6 +640,22 @@ main.wrap{min-height:calc(100vh - 95px)}
 
           const oldSuccess = document.getElementById("scaleSuccessBanner");
           if (oldSuccess) oldSuccess.remove();
+
+          const hit = intersects[0];
+          const localNormal = hit.face.normal.clone();
+
+          answers.selectedSupportFace = hit.faceIndex;
+          answers.supportFaceNormal = [localNormal.x, localNormal.y, localNormal.z];
+
+          // Guardamos un punto real de la superficie seleccionada en
+          // coordenadas locales. La orientación automática usará este punto
+          // para mantener ESTA superficie exactamente sobre Z=0.
+          const supportPointLocal = sMesh.worldToLocal(hit.point.clone());
+          answers.supportFacePoint = [
+            supportPointLocal.x,
+            supportPointLocal.y,
+            supportPointLocal.z
+          ];
 
           const target = new THREE.Vector3(0, 0, -1);
           const q = new THREE.Quaternion().setFromUnitVectors(localNormal, target);
@@ -809,15 +807,9 @@ main.wrap{min-height:calc(100vh - 95px)}
           if (v.z > maxZ) maxZ = v.z;
         }
 
-        const supportZ = getSupportPointLocal().applyQuaternion(baseQuat).z;
-        const minZRelative = minZ - supportZ;
-        const maxZRelative = maxZ - supportZ;
-
         return {
           hull: buildProjectedHull(points),
-          minZRelative,
-          maxZRelative,
-          height: maxZRelative - minZRelative
+          height: maxZ - minZ
         };
       }
 
@@ -871,12 +863,7 @@ main.wrap{min-height:calc(100vh - 95px)}
           xMin <= xMax + tolerance &&
           yMin <= yMax + tolerance;
 
-        // La cara elegida debe ser realmente la cara de apoyo:
-        // ningún punto de la pieza puede quedar por debajo de Z=0.
-        // Y ningún punto puede superar la altura máxima de la máquina.
-        const fitsZ =
-          search.minZRelative >= -tolerance &&
-          search.maxZRelative <= limits.z + tolerance;
+        const fitsZ = search.height <= limits.z + tolerance;
 
         // Elegimos la posición con máximo margen a los cuatro bordes.
         // No es "centrar por obligación": es el mejor punto dentro del
@@ -898,12 +885,12 @@ main.wrap{min-height:calc(100vh - 95px)}
           xMin, xMax, yMin, yMax,
           tx, ty,
           fits: fitsXY && fitsZ,
-          margin: Math.min(marginX, marginY, Math.min(-search.minZRelative, limits.z - search.maxZRelative)),
+          margin: Math.min(marginX, marginY, limits.z - search.height),
           excess: Math.max(
             0,
             m.width - limits.x,
             m.depth - limits.y,
-            Math.max(-search.minZRelative, search.maxZRelative - limits.z)
+            search.height - limits.z
           )
         };
       }
@@ -927,20 +914,14 @@ main.wrap{min-height:calc(100vh - 95px)}
         sMesh.quaternion.copy(yaw.multiply(baseQuat.clone()));
         sMesh.updateMatrixWorld(true);
 
-        // La búsqueda de X/Y se ha calculado sobre la geometría completa
-        // después de aplicar baseQuat + yaw, es decir, con el origen local
-        // de la malla como referencia. Por eso NO debemos volver a restar
-        // supportPoint.x/y aquí: hacerlo aplicaría la traslación dos veces
-        // y sacaría la pieza del cubo.
-        //
-        // Z sí se corrige usando el punto de la cara seleccionada para que
-        // esa superficie quede exactamente sobre Z=0.
+        // Primero apoyamos exactamente la superficie seleccionada.
         const supportPoint = getSupportPointLocal().applyQuaternion(sMesh.quaternion);
-        sMesh.position.set(
-          bestEval.tx,
-          bestEval.ty,
-          -supportPoint.z
-        );
+        sMesh.position.set(0, 0, -supportPoint.z);
+        sMesh.updateMatrixWorld(true);
+
+        // Aplicamos las dos traslaciones óptimas calculadas para ESTE ángulo.
+        sMesh.position.x += bestEval.tx;
+        sMesh.position.y += bestEval.ty;
         sMesh.updateMatrixWorld(true);
 
         const finalBox = new THREE.Box3().setFromObject(sMesh);
@@ -952,32 +933,21 @@ main.wrap{min-height:calc(100vh - 95px)}
         const bedMaxY =  limits.y / 2;
         const eps = 0.001;
 
-        // Comprobación final robusta: la búsqueda ya ha demostrado que
-        // este ángulo y estos X/Y son admisibles. Box3 puede introducir
-        // pequeños errores de coma flotante al transformar la malla, así que
-        // usamos una tolerancia geométrica razonable para la validación final.
         const finalFits =
-          !!bestEval &&
-          bestEval.fits &&
-          finalBox.min.x >= bedMinX - 0.05 &&
-          finalBox.max.x <= bedMaxX + 0.05 &&
-          finalBox.min.y >= bedMinY - 0.05 &&
-          finalBox.max.y <= bedMaxY + 0.05 &&
-          finalBox.min.z >= -0.05 &&
-          finalBox.max.z <= limits.z + 0.05;
+          finalBox.min.x >= bedMinX - eps &&
+          finalBox.max.x <= bedMaxX + eps &&
+          finalBox.min.y >= bedMinY - eps &&
+          finalBox.max.y <= bedMaxY + eps &&
+          finalBox.min.z >= -eps &&
+          finalBox.max.z <= limits.z + eps;
 
         const warningBanner = document.getElementById("limitWarningBanner");
         const oldSuccess = document.getElementById("scaleSuccessBanner");
         if (oldSuccess) oldSuccess.remove();
-        warningBanner.style.display = "none";
-        warningBanner.innerHTML = "";
 
         if (finalFits && foundFit) {
-          // POSICIÓN VÁLIDA: eliminar cualquier estado rojo anterior.
           sMesh.material.color.setHex(0x90caf9);
-          sMesh.material.needsUpdate = true;
           warningBanner.style.display = "none";
-          warningBanner.innerHTML = "";
 
           const successBanner = document.createElement("div");
           successBanner.id = "scaleSuccessBanner";
@@ -1044,8 +1014,8 @@ main.wrap{min-height:calc(100vh - 95px)}
           positions_checked: 180000,
           base_face_index: answers.selectedSupportFace,
           base_kept_on_bed: true,
-          x_mm: Number(bestEval.tx.toFixed(3)),
-          y_mm: Number(bestEval.ty.toFixed(3)),
+          x_mm: Number(sMesh.position.x.toFixed(3)),
+          y_mm: Number(sMesh.position.y.toFixed(3)),
           allowed_x_range_mm: [
             Number(bestEval.xMin.toFixed(3)),
             Number(bestEval.xMax.toFixed(3))
