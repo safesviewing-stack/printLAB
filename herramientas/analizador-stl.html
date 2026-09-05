@@ -258,8 +258,9 @@ main.wrap{min-height:calc(100vh - 95px)}
 </style>
 
 
-<style id="logout-exact-report">
-#authHeaderContainer .btn-auth{
+<style id="cerrar-sesion-copiado-del-index">
+/* ===== COPIA EXACTA DEL BOTÓN DEL INDEX ===== */
+#authHeaderContainer #btn-logout.btn-auth{
   display:inline-flex;
   align-items:center;
   justify-content:center;
@@ -271,15 +272,20 @@ main.wrap{min-height:calc(100vh - 95px)}
   transition:.2s ease;
   text-decoration:none;
   border:2px solid var(--ink);
-}
-#authHeaderContainer .btn-auth.light{
+  box-sizing:border-box;
   background:#fff;
   color:var(--ink);
   box-shadow:0 3px 0px var(--ink);
 }
-#authHeaderContainer .btn-auth.light:hover{
+
+#authHeaderContainer #btn-logout.btn-auth:hover{
   transform:translateY(-1px);
   box-shadow:0 4px 0px var(--ink);
+}
+
+#authHeaderContainer #btn-logout.btn-auth:active{
+  transform:translateY(2px);
+  box-shadow:0 1px 0px var(--ink);
 }
 </style>
 
