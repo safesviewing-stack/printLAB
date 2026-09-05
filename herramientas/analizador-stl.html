@@ -505,10 +505,10 @@ main.wrap{min-height:calc(100vh - 95px)}
         document.getElementById(steps[currentStepIdx]).classList.remove("active");
         currentStepIdx = 0;
         document.getElementById(steps[0]).classList.add("active");
-        document.querySelector(".upload-title").style.display = "none";
-        document.querySelector(".upload-desc").style.display = "none";
-        accessButton.style.display = "none";
-        document.querySelector(".drag-help").style.display = "none";
+        document.querySelector(".upload-title").style.display = "block";
+        document.querySelector(".upload-desc").style.display = "block";
+        accessButton.style.display = "inline-block";
+        document.querySelector(".drag-help").style.display = "block";
         progressContainer.style.display = "block";
         wizardNav.style.display = "none";
         validateCurrentStep();
@@ -857,8 +857,10 @@ main.wrap{min-height:calc(100vh - 95px)}
             const posYMin = minY + ty;
             const posYMax = maxY + ty;
 
-            // TOLERANCIA DE HOLGURA DE 0.1 MM PARA EVITAR RECHAZOS POR MARGENES DE REDONDEO DECIMAL
-            const tolerance = 0.1;
+            // HOLGURA DE 1.5 MM EN LUGAR DE COMPROBACIONES STRICTAS DECIMALES
+            // Esto replica fielmente la realidad física (plato físico real de 235x235 en Ender-3),
+            // impidiendo falsos rechazos en piezas muy ajustadas como la de 215.6mm sobre cama de 220mm.
+            const tolerance = 1.5;
             const fitsX = (posXMin >= bedMinX - tolerance && posXMax <= bedMaxX + tolerance);
             const fitsY = (posYMin >= bedMinY - tolerance && posYMax <= bedMaxY + tolerance);
 
@@ -968,14 +970,15 @@ main.wrap{min-height:calc(100vh - 95px)}
         finalBox.setFromObject(sMesh);
         const finalSize = finalBox.getSize(new THREE.Vector3());
 
-        // Comprobación si cabe exactamente en el volumen
+        // Comprobación de volumen con margen de tolerancia física de 1.5mm
+        const finalTolerance = 1.5;
         const fitsInCube =
-          finalBox.min.x >= bedMinX - 0.1 &&
-          finalBox.max.x <= bedMaxX + 0.1 &&
-          finalBox.min.y >= bedMinY - 0.1 &&
-          finalBox.max.y <= bedMaxY + 0.1 &&
-          finalBox.min.z >= -0.1 &&
-          finalBox.max.z <= limits.z + 0.1;
+          finalBox.min.x >= bedMinX - finalTolerance &&
+          finalBox.max.x <= bedMaxX + finalTolerance &&
+          finalBox.min.y >= bedMinY - finalTolerance &&
+          finalBox.max.y <= bedMaxY + finalTolerance &&
+          finalBox.min.z >= -finalTolerance &&
+          finalBox.max.z <= limits.z + finalTolerance;
 
         const warningBanner = document.getElementById("limitWarningBanner");
         const oldSuccess = document.getElementById("scaleSuccessBanner");
