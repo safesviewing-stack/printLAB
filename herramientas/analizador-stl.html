@@ -33,10 +33,13 @@ nav{min-height:95px;display:flex;align-items:center;justify-content:space-betwee
 .dropdown-content a.active{color:var(--ink);background:#f0f4f0;border-left:4px solid var(--accent);padding-left:20px}
 
 .auth-buttons{display:flex;gap:12px;align-items:center}
-.btn-auth{display:inline-flex;align-items:center;justify-content:center;padding:12px 24px;border-radius:9999px;font-weight:800;font-size:14px;border:2px solid var(--ink);cursor:pointer;text-decoration:none;transition:.2s ease}
-.btn-auth.light{background:#fff;color:var(--ink);box-shadow:0 3px 0 var(--ink)}
-.btn-auth.light:hover{transform:translateY(-1px);box-shadow:0 4px 0 var(--ink)}
-.btn-auth.green{background:var(--accent);color:var(--ink);box-shadow:0 3px 0 var(--ink)}
+.btn-auth{display:inline-flex;align-items:center;justify-content:center;padding:12px 24px;border-radius:9999px;font-weight:800;font-size:14px;cursor:pointer;transition:.2s ease;text-decoration:none;border:2px solid var(--ink)}
+.btn-auth.light{background:#fff;color:var(--ink);box-shadow:0 3px 0px var(--ink)}
+.btn-auth.light:hover{transform:translateY(-1px);box-shadow:0 4px 0px var(--ink)}
+.btn-auth.light:active{transform:translateY(2px);box-shadow:0 1px 0px var(--ink)}
+.btn-auth.green{background:var(--accent);color:var(--ink);box-shadow:0 3px 0px var(--ink)}
+.btn-auth.green:hover{transform:translateY(-1px);box-shadow:0 4px 0px var(--ink)}
+.btn-auth.green:active{transform:translateY(2px);box-shadow:0 1px 0px var(--ink)}
 
 main.wrap{min-height:calc(100vh - 95px)}
 .upload-container{max-width:740px;margin:60px auto;background:var(--card);border:2px dashed var(--line);border-radius:24px;padding:40px 32px;text-align:center;box-shadow:0 20px 40px rgba(13,17,16,.025);transition:border-color .25s ease,background-color .25s ease,transform .25s ease}
@@ -61,6 +64,8 @@ main.wrap{min-height:calc(100vh - 95px)}
 .step-subtitle{font-size:14px;color:var(--muted);margin-bottom:20px}
 .option-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
     .option-grid.option-grid-4{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.viewer-section{margin-top:8px}
+.viewer-wrap{position:relative;width:100%;margin-top:10px}
 .viewer-section{margin-top:8px}
 .viewer-wrap{position:relative;width:100%;margin-top:10px}
 .viewer-toolbar{display:flex;justify-content:flex-start;margin:0 0 10px}
@@ -107,11 +112,11 @@ main.wrap{min-height:calc(100vh - 95px)}
 
 @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:992px){.footergrid{grid-template-columns:1.2fr 1fr;gap:40px}.option-grid{grid-template-columns:repeat(2,1fr)}.option-grid.option-grid-4{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:768px){.wrap{padding:0 20px}.top nav{min-height:82px}.brand{font-size:23px}.header-left{gap:14px}.footergrid{grid-template-columns:1fr;gap:36px}.upload-container{margin:35px auto;padding:30px 20px}.step-title{font-size:18px}.wizard-nav-buttons{flex-direction:row}.auth-buttons{gap:8px}}
+@media(max-width:768px){.wrap{padding:0 20px}.top nav{min-height:82px}.brand{font-size:23px}.header-left{gap:14px}.footergrid{grid-template-columns:1fr;gap:36px}.upload-container{margin:35px auto;padding:30px 20px}.step-title{font-size:18px}.wizard-nav-buttons{flex-direction:row}.auth-buttons{gap:8px}.btn-auth{padding:10px 16px;font-size:13px}}
 @media(max-width:480px){.option-grid,.option-grid.option-grid-4{grid-template-columns:1fr}.wizard-nav-buttons{gap:10px}.btn-secondary,.btn-green{padding:12px 20px;font-size:13px}.step-title{align-items:flex-start}.step-title span:last-child{white-space:nowrap;font-size:12px!important}}
 </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../assets/js/auth-helper.js?v=12"></script>
+  <script src="../assets/js/auth-helper.js?v=11"></script>
 
   <style>
     /* El analizador requiere una sesión iniciada. Evita mostrar el contenido antes de comprobarla. */
@@ -256,36 +261,7 @@ main.wrap{min-height:calc(100vh - 95px)}
 </style>
 
 
-<style id="cerrar-sesion-copiado-del-index">
-/* ===== COPIA EXACTA DEL BOTÓN DEL INDEX ===== */
-#authHeaderContainer #btn-logout.btn-auth{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  padding:12px 24px;
-  border-radius:9999px;
-  font-weight:800;
-  font-size:14px;
-  cursor:pointer;
-  transition:.2s ease;
-  text-decoration:none;
-  border:2px solid var(--ink);
-  box-sizing:border-box;
-  background:#fff;
-  color:var(--ink);
-  box-shadow:0 3px 0px var(--ink);
-}
 
-#authHeaderContainer #btn-logout.btn-auth:hover{
-  transform:translateY(-1px);
-  box-shadow:0 4px 0px var(--ink);
-}
-
-#authHeaderContainer #btn-logout.btn-auth:active{
-  transform:translateY(2px);
-  box-shadow:0 1px 0px var(--ink);
-}
-</style>
 
 </head>
 <body>
@@ -308,12 +284,7 @@ main.wrap{min-height:calc(100vh - 95px)}
           </div>
           <a class="brand" href="../index.html#portada">PRINT<span>LAB</span></a>
         </div>
-        
-        <!-- Se añade ocultación inicial por estilos inline para prevenir destellos y se copian los botones del Index con rutas de herramientas/ locales -->
-        <div class="auth-buttons" id="authHeaderContainer" style="opacity: 0; visibility: hidden; transition: opacity 0.15s ease, visibility 0.15s ease;">
-          <a href="login.html" class="btn-auth light" onclick="sessionStorage.removeItem('printlab_recovery_mode'); localStorage.removeItem('sb-jmwprzgfdkphbxryjbnr-auth-token');">Iniciar Sesión</a>
-          <a href="registro.html" class="btn-auth green" onclick="sessionStorage.removeItem('printlab_recovery_mode'); localStorage.removeItem('sb-jmwprzgfdkphbxryjbnr-auth-token');">Registrarse</a>
-        </div>
+        <div class="auth-buttons" id="authHeaderContainer" style="opacity: 0; visibility: hidden;"></div>
       </nav>
     </div>
   </header>
@@ -372,7 +343,7 @@ main.wrap{min-height:calc(100vh - 95px)}
           <div class="option-card" data-val="0.8" onclick="selectCard(this, 'nozzleSize')">
             <span class="emoji">🏗️</span>
             <span class="option-card-title">0,8 mm</span>
-            <span class="option-card-desc">Para producción industrial rápida de paredes gruesas.</span>
+            <span class="option-card-desc">Producción industrial rápida de paredes gruesas.</span>
           </div>
         </div>
       </div>
@@ -643,7 +614,7 @@ main.wrap{min-height:calc(100vh - 95px)}
       if (targetStepIdx === 0) {
         document.getElementById(steps[currentStepIdx]).classList.remove("active");
         currentStepIdx = 0;
-        document.getElementById(steps[0]).add("active");
+        document.getElementById(steps[0]).classList.add("active");
         document.querySelector(".upload-title").style.display = "block";
         document.querySelector(".upload-desc").style.display = "block";
         accessButton.style.display = "inline-block";
