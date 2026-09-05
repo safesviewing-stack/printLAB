@@ -151,206 +151,137 @@ main.wrap{min-height:calc(100vh - 95px)}
   <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/STLLoader.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/controls/OrbitControls.js"></script>
 
-<style id="header-identical-al-informe">
-/* =========================================================
-   CABECERA DEL ANALIZADOR = MISMA PRESENCIA VISUAL QUE INFORME
-   ========================================================= */
-
-/* Barra superior */
-header.top{
-  min-height:95px !important;
+<style id="header-identico-informe-final">
+/* Mismos valores que la cabecera del INFORME */
+.top{
+  position:sticky;
+  top:0;
+  z-index:100;
+  background:rgba(246,247,244,.92);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--line);
 }
-header.top nav{
-  min-height:95px !important;
-  height:95px !important;
-  display:flex !important;
-  align-items:center !important;
-  justify-content:space-between !important;
+.top nav{
+  min-height:95px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
 }
-
-/* Zona izquierda */
-header.top .header-left{
-  display:flex !important;
-  align-items:center !important;
-  gap:24px !important;
+.header-left{
+  display:flex;
+  align-items:center;
+  gap:24px;
 }
-
-/* Logo PRINT LAB */
-header.top .brand{
-  display:inline-flex !important;
-  align-items:center !important;
-  font-size:26px !important;
-  line-height:1 !important;
-  font-weight:800 !important;
-  letter-spacing:-1px !important;
-  white-space:nowrap !important;
+.brand{
+  font-size:26px;
+  font-weight:800;
+  letter-spacing:-1px;
 }
-
-header.top .brand span{
-  background:var(--accent) !important;
-  padding:5px 12px !important;
-  border-radius:10px !important;
-  margin-left:6px !important;
-  color:var(--ink) !important;
-  font-size:26px !important;
-  /* Igual que en informe: conserva el line-height natural */
-  line-height:inherit !important;
-  min-height:0 !important;
-  display:inline !important;
+.brand span{
+  background:var(--accent);
+  padding:5px 12px;
+  border-radius:10px;
+  margin-left:6px;
+  color:var(--ink);
 }
-
-/* Menú */
-header.top .hamburger{
-  padding:10px !important;
-  width:auto !important;
-  height:auto !important;
+.auth-buttons{
+  display:flex;
+  gap:12px;
+  align-items:center;
 }
-
-header.top .hamburger span{
-  width:26px !important;
-  height:3px !important;
+.btn-auth{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:12px 24px;
+  border-radius:9999px;
+  font-weight:800;
+  font-size:14px;
+  cursor:pointer;
+  transition:.2s ease;
+  text-decoration:none;
+  border:2px solid var(--ink);
 }
-
-/* Zona derecha */
-header.top .auth-buttons,
-header.top #authHeaderContainer{
-  display:flex !important;
-  align-items:center !important;
-  justify-content:flex-end !important;
-  gap:12px !important;
-  min-height:0 !important;
-  height:auto !important;
+.btn-auth.light{
+  background:#fff;
+  color:var(--ink);
+  box-shadow:0 3px 0 var(--ink);
+}
+.btn-auth.light:hover{
+  transform:translateY(-1px);
+  box-shadow:0 4px 0 var(--ink);
+}
+.btn-auth.green{
+  background:var(--accent);
+  color:var(--ink);
+  box-shadow:0 3px 0 var(--ink);
 }
 
-/* Botones de autenticación */
-header.top .auth-buttons .btn-auth,
-header.top #authHeaderContainer .btn-auth{
-  display:inline-flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  padding:12px 24px !important;
-  border-radius:9999px !important;
-  font-weight:800 !important;
-  font-size:14px !important;
-  /* Igual que .btn-auth del informe */
-  line-height:inherit !important;
-  cursor:pointer !important;
-  transition:.2s ease !important;
-  text-decoration:none !important;
-  border:2px solid var(--ink) !important;
+/* Mismos ajustes que el INFORME para usuario y créditos */
+#authHeaderContainer span[style*="background" i],
+#authHeaderContainer span[style*="accent" i],
+#authHeaderContainer span:nth-child(2),
+#authHeaderContainer div span:nth-child(2){
+  background:var(--accent)!important;
+  background-color:var(--accent)!important;
+  color:var(--ink)!important;
+  padding:8px 18px!important;
+  border-radius:9999px!important;
+  font-weight:800!important;
+  font-size:15px!important;
+  border:none!important;
+  border-width:0!important;
+  box-shadow:none!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  align-self:center!important;
+  line-height:1!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:38px!important;
+  margin:auto 0!important;
+  white-space:nowrap!important;
+}
+#authHeaderContainer .user-greeting,
+#authHeaderContainer span:nth-child(1),
+#authHeaderContainer div span:nth-child(1),
+#authHeaderContainer span:first-child,
+#authHeaderContainer div span:first-child{
+  font-weight:700!important;
+  font-size:15px!important;
+  color:var(--ink)!important;
+  display:inline-block!important;
+  margin:auto 0!important;
+  white-space:nowrap!important;
 }
 
-/* Nombre del usuario */
-header.top #authHeaderContainer .user-greeting,
-header.top #authHeaderContainer span:first-child,
-header.top #authHeaderContainer div span:first-child{
-  display:inline-block !important;
-  align-self:center !important;
-  margin:auto 0 !important;
-  font-weight:700 !important;
-  font-size:15px !important;
-  line-height:1.2 !important;
-  color:var(--ink) !important;
-  white-space:nowrap !important;
+/* Cerrar sesión: exactamente el mismo modelo .btn-auth.light del Informe */
+#authHeaderContainer #btn-logout{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:12px 24px!important;
+  border-radius:9999px!important;
+  font-weight:800!important;
+  font-size:14px!important;
+  cursor:pointer!important;
+  transition:.2s ease!important;
+  text-decoration:none!important;
+  border:2px solid var(--ink)!important;
+  background:#fff!important;
+  color:var(--ink)!important;
+  box-shadow:0 3px 0 var(--ink)!important;
+  box-sizing:border-box!important;
+  height:auto!important;
+  min-height:0!important;
+  line-height:normal!important;
 }
-
-/* Créditos */
-header.top #authHeaderContainer span:nth-child(2),
-header.top #authHeaderContainer div span:nth-child(2){
-  display:inline-flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  align-self:center !important;
-  box-sizing:border-box !important;
-  margin:auto 0 !important;
-  padding:8px 18px !important;
-  min-height:0 !important;
-  height:auto !important;
-  max-height:38px !important;
-  border:none !important;
-  border-radius:9999px !important;
-  background:var(--accent) !important;
-  color:var(--ink) !important;
-  font-weight:800 !important;
-  font-size:15px !important;
-  line-height:1 !important;
-  white-space:nowrap !important;
-  box-shadow:none !important;
-}
-
-/* No reducir la cabecera por los media queries del analizador */
-@media(max-width:768px){
-  header.top nav{
-    min-height:95px !important;
-    height:95px !important;
-  }
-  header.top .header-left{
-    gap:24px !important;
-  }
-  header.top .brand{
-    font-size:26px !important;
-  }
-  header.top .brand span{
-    font-size:26px !important;
-    padding:5px 12px !important;
-  }
-  header.top .auth-buttons,
-  header.top #authHeaderContainer{
-    gap:12px !important;
-  }
-  header.top .auth-buttons .btn-auth,
-  header.top #authHeaderContainer .btn-auth{
-    padding:12px 24px !important;
-    font-size:14px !important;
-  }
+#authHeaderContainer #btn-logout:hover{
+  transform:translateY(-1px)!important;
+  box-shadow:0 4px 0 var(--ink)!important;
 }
 </style>
-
-
-/* ===== AJUSTE FINAL: mismos tamaños exactos del Informe ===== */
-#authHeaderContainer #btn-logout,
-#authHeaderContainer button.btn-auth.light,
-#authHeaderContainer .btn-auth.light{
-  display:inline-flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  box-sizing:border-box !important;
-  padding:12px 24px !important;
-  border-radius:9999px !important;
-  font-weight:800 !important;
-  font-size:14px !important;
-  line-height:inherit !important;
-  cursor:pointer !important;
-  text-decoration:none !important;
-  border:2px solid var(--ink) !important;
-  background:#fff !important;
-  color:var(--ink) !important;
-  box-shadow:0 3px 0 var(--ink) !important;
-  min-height:0 !important;
-  height:auto !important;
-}
-#authHeaderContainer #btn-logout:hover,
-#authHeaderContainer button.btn-auth.light:hover,
-#authHeaderContainer .btn-auth.light:hover{
-  transform:translateY(-1px) !important;
-  box-shadow:0 4px 0 var(--ink) !important;
-}
-header.top .brand{
-  font-size:26px !important;
-  font-weight:800 !important;
-  letter-spacing:-1px !important;
-  line-height:inherit !important;
-}
-header.top .brand span{
-  background:var(--accent) !important;
-  padding:5px 12px !important;
-  border-radius:10px !important;
-  margin-left:6px !important;
-  color:var(--ink) !important;
-  font-size:26px !important;
-  line-height:inherit !important;
-  display:inline !important;
-}
 
 </head>
 <body>
