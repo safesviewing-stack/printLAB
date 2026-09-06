@@ -197,8 +197,8 @@
   </script>
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/STLLoader.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/STLLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/TransformControls.js"></script>
 </head>
 <body>
@@ -405,13 +405,13 @@
           <div id="limitWarningBanner" style="display:none; background:#fcebe8; border:1.5px solid var(--error); color:#9e3223; padding:16px; border-radius:12px; font-size:13.5px; font-weight:700; margin-bottom:12px; line-height:1.4; text-align:center;"></div>
           <div class="viewer-wrap">
             <div class="viewer-toolbar" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:12px;">
-              <button type="button" class="auto-orient-btn" onclick="window.autoOrientZToFit()" title="Buscar una rotación que haga que la pieza quepa">
+              <button type="button" class="auto-orient-btn" onclick="event.stopPropagation(); window.autoOrientZToFit()" title="Buscar una rotación que haga que la pieza quepa">
                 🤖 Orientación automática
               </button>
-              <button type="button" class="auto-orient-btn" id="translateModeBtn" onclick="window.setTransformMode('translate')" style="background:var(--accent); border-color:var(--ink);">
+              <button type="button" class="auto-orient-btn" id="translateModeBtn" onclick="event.stopPropagation(); window.setTransformMode('translate')" style="background:var(--accent); border-color:var(--ink);">
                 ➡️ Mover (Cama XY)
               </button>
-              <button type="button" class="auto-orient-btn" id="rotateModeBtn" onclick="window.setTransformMode('rotate')">
+              <button type="button" class="auto-orient-btn" id="rotateModeBtn" onclick="event.stopPropagation(); window.setTransformMode('rotate')">
                 🔄 Rotar (Eje Z)
               </button>
             </div>
@@ -592,6 +592,7 @@
 
     // VARIABLES GLOBALES DEL VISOR 3D Y MANIPULACIÓN
     let sScene, sCamera, sRenderer, sControls, sMesh, highlightRing, gridHelper, printVolumeBox, transformControls;
+    let isDraggingTransform = false;
 
     function disposeRendererAndScene() {
       if (transformControls) {
@@ -823,20 +824,20 @@
         transformControls.showY = true;
         transformControls.showZ = false; // Bloquea traslación vertical
         
-        transBtn.style.background = "var(--accent)";
-        transBtn.style.borderColor = "var(--ink)";
-        rotBtn.style.background = "#fff";
-        rotBtn.style.borderColor = "var(--line)";
+        if (transBtn) transBtn.style.background = "var(--accent)";
+        if (transBtn) transBtn.style.borderColor = "var(--ink)";
+        if (rotBtn) rotBtn.style.background = "#fff";
+        if (rotBtn) rotBtn.style.borderColor = "var(--line)";
       } else if (mode === 'rotate') {
         transformControls.setMode('rotate');
         transformControls.showX = false;
         transformControls.showY = false;
         transformControls.showZ = true; // Solo rotación sobre el plano Z (Yaw)
         
-        rotBtn.style.background = "var(--accent)";
-        rotBtn.style.borderColor = "var(--ink)";
-        transBtn.style.background = "#fff";
-        transBtn.style.borderColor = "var(--line)";
+        if (rotBtn) rotBtn.style.background = "var(--accent)";
+        if (rotBtn) rotBtn.style.borderColor = "var(--ink)";
+        if (transBtn) transBtn.style.background = "#fff";
+        if (transBtn) transBtn.style.borderColor = "var(--line)";
       }
     };
 
@@ -1072,6 +1073,7 @@
       // Deshabilita OrbitControls temporalmente para evitar conflictos al arrastrar la pieza
       transformControls.addEventListener('dragging-changed', function (event) {
         sControls.enabled = !event.value;
+        isDraggingTransform = event.value;
       });
 
       // Mantiene la pieza imantada a la cama caliente (Z=0) al arrastrarla o girarla
@@ -1110,6 +1112,8 @@
         sMesh.position.z = -bbox.min.z; 
         sMesh.updateMatrixWorld(true);
 
+        sScene.add(sMesh); // Agregado a la escena de forma efectiva
+
         // Adjunta la pieza al motor de manipulación manual
         transformControls.attach(sMesh);
 
@@ -1126,7 +1130,7 @@
       sRenderer.domElement.addEventListener("click", onMeshClick);
 
       function onMeshClick(event) {
-        if (!sMesh || transformControls.dragging) return;
+        if (!sMesh || isDraggingTransform) return;
         
         const rect = sRenderer.domElement.getBoundingClientRect();
         const mouse = new THREE.Vector2();
@@ -1163,6 +1167,7 @@
           
           let bestYaw = 0;
           let foundFit = false;
+          let bestW = 0, bestD = 0;
           let bestDiff = -Infinity;
           
           for (let deg = 0; deg < 180; deg += 1) {
@@ -1188,6 +1193,8 @@
                 bestDiff = diff;
                 bestYaw = rad;
                 foundFit = true;
+                bestW = W;
+                bestD = D;
               }
             }
           }
