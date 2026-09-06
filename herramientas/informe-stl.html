@@ -793,6 +793,10 @@
 
       const loader = new THREE.STLLoader();
       const geometry = loader.parse(bytes.buffer);
+      
+      // ALINEACIÓN Y CENTRADO DE ORIGEN IDÉNTICO AL ANALIZADOR (Evita el rastro de desfase del STL original)
+      geometry.center();
+      geometry.computeBoundingBox();
 
       const material = new THREE.MeshPhongMaterial({ 
         color: 0x388e3c, // Verde estándar idéntico al del analizador
