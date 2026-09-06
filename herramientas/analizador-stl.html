@@ -102,7 +102,8 @@ main.wrap{min-height:calc(100vh - 95px)}
 @media(max-width:480px){.option-grid,.option-grid.option-grid-4{grid-template-columns:1fr}.wizard-nav-buttons{gap:10px}.btn-secondary,.btn-green{padding:12px 20px;font-size:13px}.step-title{align-items:flex-start}.step-title span:last-child{white-space:nowrap;font-size:12px!important}}
 </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../assets/js/auth-helper.js?v=12"></script>
+  <!-- Cache busting v=15 forzado para recarga asíncrona del auth-helper -->
+  <script src="../assets/js/auth-helper.js?v=15"></script>
 
   <style>
     /* El analizador requiere una sesión iniciada. Evita mostrar el contenido antes de comprobarla. */
@@ -211,7 +212,7 @@ main.wrap{min-height:calc(100vh - 95px)}
   box-shadow:0 3px 0 var(--ink);
 }
 
-/* Reglas unificadas para el indicador de créditos y saludo tal como se muestra en la captura */
+/* Forzar estilos del indicador de créditos y saludo tal como se muestra en la captura */
 #authHeaderContainer span[style*="background" i],
 #authHeaderContainer span[style*="accent" i],
 #authHeaderContainer span:nth-child(2),
