@@ -144,6 +144,144 @@ main.wrap{min-height:calc(100vh - 95px)}
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/STLLoader.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/controls/OrbitControls.js"></script>
+
+<style id="header-identico-informe-final">
+/* Mismos valores que la cabecera del INFORME */
+.top{
+  position:sticky;
+  top:0;
+  z-index:100;
+  background:rgba(246,247,244,.92);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--line);
+}
+.top nav{
+  min-height:95px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.header-left{
+  display:flex;
+  align-items:center;
+  gap:24px;
+}
+.brand{
+  font-size:26px;
+  font-weight:800;
+  letter-spacing:-1px;
+}
+.brand span{
+  background:var(--accent);
+  padding:5px 12px;
+  border-radius:10px;
+  margin-left:6px;
+  color:var(--ink);
+}
+.auth-buttons{
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
+.btn-auth{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:12px 24px;
+  border-radius:9999px;
+  font-weight:800;
+  font-size:14px;
+  cursor:pointer;
+  transition:.2s ease;
+  text-decoration:none;
+  border:2px solid var(--ink);
+}
+.btn-auth.light{
+  background:#fff;
+  color:var(--ink);
+  box-shadow:0 3px 0 var(--ink);
+}
+.btn-auth.light:hover{
+  transform:translateY(-1px);
+  box-shadow:0 4px 0 var(--ink);
+}
+.btn-auth.green{
+  background:var(--accent);
+  color:var(--ink);
+  box-shadow:0 3px 0 var(--ink);
+}
+
+/* Reglas unificadas para el indicador de créditos y saludo tal como se muestra en la captura */
+#authHeaderContainer span[style*="background" i],
+#authHeaderContainer span[style*="accent" i],
+#authHeaderContainer span:nth-child(2),
+#authHeaderContainer div span:nth-child(2) {
+  background: var(--accent) !important;
+  background-color: var(--accent) !important;
+  color: var(--ink) !important;
+  padding: 8px 18px !important;
+  border-radius: 9999px !important;
+  font-weight: 800 !important;
+  font-size: 15px !important;
+  border: none !important;
+  border-width: 0px !important;
+  box-shadow: none !important;
+  display: inline-flex !important;
+  align-items: center !important;  
+  justify-content: center !important; 
+  align-self: center !important;
+  line-height: 1 !important; 
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: 38px !important;
+  margin: auto 0 !important;
+  white-space: nowrap !important;
+}
+
+#authHeaderContainer .user-greeting,
+#authHeaderContainer span:nth-child(1),
+#authHeaderContainer div span:nth-child(1),
+#authHeaderContainer span:first-child,
+#authHeaderContainer div span:first-child {
+  font-weight: 700 !important;
+  font-size: 15px !important;
+  color: var(--ink) !important;
+  display: inline-block !important;
+  margin: auto 0 !important;
+  white-space: nowrap !important;
+}
+</style>
+
+<style id="cerrar-sesion-copiado-del-index">
+/* ===== COPIA EXACTA DEL BOTÓN DEL INDEX ===== */
+#authHeaderContainer #btn-logout.btn-auth{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:12px 24px;
+  border-radius:9999px;
+  font-weight:800;
+  font-size:14px;
+  cursor:pointer;
+  transition:.2s ease;
+  text-decoration:none;
+  border:2px solid var(--ink);
+  box-sizing:border-box;
+  background:#fff;
+  color:var(--ink);
+  box-shadow:0 3px 0px var(--ink);
+}
+
+#authHeaderContainer #btn-logout.btn-auth:hover{
+  transform:translateY(-1px);
+  box-shadow:0 4px 0px var(--ink);
+}
+
+#authHeaderContainer #btn-logout.btn-auth:active{
+  transform:translateY(2px);
+  box-shadow:0 1px 0px var(--ink);
+}
+</style>
 </head>
 <body>
 
@@ -166,7 +304,7 @@ main.wrap{min-height:calc(100vh - 95px)}
           <a class="brand" href="../index.html#portada">PRINT<span>LAB</span></a>
         </div>
         
-        <!-- Contenedor unificado de sesión idéntico al index para renderizado dinámico transparente de auth-helper -->
+        <!-- Contenedor unificado de sesión con transiciones idénticas a las del index -->
         <div class="auth-buttons" id="authHeaderContainer" style="opacity: 0; visibility: hidden; transition: opacity 0.15s ease, visibility 0.15s ease;">
           <a href="login.html" class="btn-auth light" onclick="sessionStorage.removeItem('printlab_recovery_mode'); localStorage.removeItem('sb-jmwprzgfdkphbxryjbnr-auth-token');">Iniciar Sesión</a>
           <a href="registro.html" class="btn-auth green" onclick="sessionStorage.removeItem('printlab_recovery_mode'); localStorage.removeItem('sb-jmwprzgfdkphbxryjbnr-auth-token');">Registrarse</a>
@@ -334,7 +472,7 @@ main.wrap{min-height:calc(100vh - 95px)}
           <div class="option-card" data-val="cost" onclick="selectCard(this, 'purpose')">
             <span class="emoji">🪙</span>
             <span class="option-card-title">Coste / Ahorro</span>
-            <span class="option-card-desc">Prioriza el ahorro de material y la fiabilidad. Malla de relleno mínima y velocidades seguras para evitar fallos catastróficos que desperdicien plástico.</span>
+            <span class="option-card-desc">Prioriza el ahorro de material y la fiabilidad. Malla de relleno mínima y velocidades seguras para evitar fallos catastróficos que desperdecien plástico.</span>
           </div>
         </div>
       </div>
@@ -1084,339 +1222,6 @@ main.wrap{min-height:calc(100vh - 95px)}
           const btn = document.createElement("button");
           btn.type = "button";
           btn.textContent = "Auto-escalar pieza para ajustar al volumen de la cama";
-          btn.style =
-            "background:#b42318;color:#fff;border:1.5px solid #fff;padding:8px 16px;border-radius:8px;font-weight:800;cursor:pointer;font-size:12px;";
-          btn.onclick = () => scaleMeshToFit();
-          warningBanner.appendChild(btn);
-        }
-
-        const te = sMesh.matrix.elements;
-        answers.transformationMatrix = [
-          [te[0], te[4], te[8], te[12]],
-          [te[1], te[5], te[9], te[13]],
-          [te[2], te[6], te[10], te[14]],
-          [te[3], te[7], te[11], te[15]]
-        ];
-
-        answers.orientationSearch = {
-          angle_deg: Number(THREE.MathUtils.radToDeg(chosenAngle).toFixed(3)),
-          precision_deg: 0.001,
-          angle_range_deg: 360,
-          angle_positions_checked: 360000,
-          xy_combinations_checked: checks,
-          base_face_index: answers.selectedSupportFace,
-          base_kept_on_bed: true,
-          x_mm: Number(sMesh.position.x.toFixed(3)),
-          y_mm: Number(sMesh.position.y.toFixed(3)),
-          final_size_mm: {
-            x: Number(finalSize.x.toFixed(3)),
-            y: Number(finalSize.y.toFixed(3)),
-            z: Number(finalSize.z.toFixed(3))
-          },
-          final_geometry_fits: finalFits
-        };
-      };
-
-      window.autoOrientZToFit = function() {
-        if (!sMesh || !answers.printer) {
-          alert("Por favor, selecciona primero tu impresora 3D.");
-          return;
-        }
-
-        if (
-          answers.selectedSupportFace === null ||
-          !answers.supportFaceNormal ||
-          !answers.supportFaceVertices ||
-          answers.supportFaceVertices.length !== 3
-        ) {
-          alert(
-            "Primero selecciona la superficie que quieres utilizar como apoyo. " +
-            "Después pulsa \"Orientación automática\"."
-          );
-          return;
-        }
-
-        const limits = printerLimits[answers.printer];
-        if (!limits) return;
-
-        const bedMinX = -limits.x / 2;
-        const bedMaxX =  limits.x / 2;
-        const bedMinY = -limits.y / 2;
-        const bedMaxY =  limits.y / 2;
-
-        const localNormal = new THREE.Vector3(
-          answers.supportFaceNormal[0],
-          answers.supportFaceNormal[1],
-          answers.supportFaceNormal[2]
-        ).normalize();
-
-        const baseQuat = new THREE.Quaternion().setFromUnitVectors(
-          localNormal,
-          new THREE.Vector3(0, 0, -1)
-        );
-
-        const pos = sMesh.geometry.attributes.position;
-        const v = new THREE.Vector3();
-        const q = new THREE.Quaternion();
-        const yawAxis = new THREE.Vector3(0, 0, 1);
-
-        const faceA = new THREE.Vector3(
-          answers.supportFaceVertices[0][0],
-          answers.supportFaceVertices[0][1],
-          answers.supportFaceVertices[0][2]
-        );
-        const faceB = new THREE.Vector3(
-          answers.supportFaceVertices[1][0],
-          answers.supportFaceVertices[1][1],
-          answers.supportFaceVertices[1][2]
-        );
-        const faceC = new THREE.Vector3(
-          answers.supportFaceVertices[2][0],
-          answers.supportFaceVertices[2][1],
-          answers.supportFaceVertices[2][2]
-        );
-
-        let found = false;
-        let bestAngle = 0;
-        let bestX = 0;
-        let bestY = 0;
-        let bestMargin = -Infinity;
-        let bestBox = null;
-        let angleChecks = 0;
-        let vertexChecks = 0;
-
-        for (let ai = 0; ai < 360000; ai++) {
-          const angle = THREE.MathUtils.degToRad(ai * 0.001);
-          angleChecks++;
-
-          q.setFromAxisAngle(yawAxis, angle).multiply(baseQuat);
-
-          const faZ = faceA.clone().applyQuaternion(q).z;
-          const fbZ = faceB.clone().applyQuaternion(q).z;
-          const fcZ = faceC.clone().applyQuaternion(q).z;
-
-          const supportZ = (faZ + fbZ + fcZ) / 3;
-
-          let minX = Infinity;
-          let maxX = -Infinity;
-          let minY = Infinity;
-          let maxY = -Infinity;
-          let minZ = Infinity;
-          let maxZ = -Infinity;
-
-          for (let j = 0; j < pos.count; j++) {
-            v.fromBufferAttribute(pos, j).applyQuaternion(q);
-            vertexChecks++;
-
-            if (v.x < minX) minX = v.x;
-            if (v.x > maxX) maxX = v.x;
-            if (v.y < minY) minY = v.y;
-            if (v.y > maxY) maxY = v.y;
-            if (v.z < minZ) minZ = v.z;
-            if (v.z > maxZ) maxZ = v.z;
-          }
-
-          const zMin = minZ - supportZ;
-          const zMax = maxZ - supportZ;
-
-          if (zMin < -1e-7 || zMax > limits.z + 1e-7) {
-            continue;
-          }
-
-          const xLow = bedMinX - minX;
-          const xHigh = bedMaxX - maxX;
-          const yLow = bedMinY - minY;
-          const yHigh = bedMaxY - maxY;
-
-          if (xLow > xHigh + 1e-10 || yLow > yHigh + 1e-10) {
-            continue;
-          }
-
-          const x = (xLow + xHigh) / 2;
-          const y = (yLow + yHigh) / 2;
-
-          sMesh.quaternion.copy(q);
-          sMesh.position.set(x, y, -supportZ);
-          sMesh.updateMatrixWorld(true);
-
-          let box = new THREE.Box3().setFromObject(sMesh);
-
-          let fits =
-            box.min.x >= bedMinX &&
-            box.max.x <= bedMaxX &&
-            box.min.y >= bedMinY &&
-            box.max.y <= bedMaxY &&
-            box.min.z >= 0 &&
-            box.max.z <= limits.z;
-
-          if (!fits) {
-            let dx = 0;
-            let dy = 0;
-
-            if (box.min.x < bedMinX) dx = bedMinX - box.min.x;
-            else if (box.max.x > bedMaxX) dx = bedMaxX - box.max.x;
-
-            if (box.min.y < bedMinY) dy = bedMinY - box.min.y;
-            else if (box.max.y > bedMaxY) dy = bedMaxY - box.max.y;
-
-            sMesh.position.x += dx;
-            sMesh.position.y += dy;
-            sMesh.updateMatrixWorld(true);
-
-            box = new THREE.Box3().setFromObject(sMesh);
-
-            fits =
-              box.min.x >= bedMinX &&
-              box.max.x <= bedMaxX &&
-              box.min.y >= bedMinY &&
-              box.max.y <= bedMaxY &&
-              box.min.z >= 0 &&
-              box.max.z <= limits.z;
-          }
-
-          if (!fits) continue;
-
-          const margin = Math.min(
-            box.min.x - bedMinX,
-            bedMaxX - box.max.x,
-            box.min.y - bedMinY,
-            bedMaxY - box.max.y,
-            box.min.z,
-            limits.z - box.max.z
-          );
-
-          if (!found || margin > bestMargin) {
-            found = true;
-            bestMargin = margin;
-            bestAngle = angle;
-            bestX = sMesh.position.x;
-            bestY = sMesh.position.y;
-            bestBox = box.clone();
-          }
-        }
-
-        const finalYaw = new THREE.Quaternion().setFromAxisAngle(
-          yawAxis,
-          bestAngle
-        );
-        const finalQuat = finalYaw.multiply(baseQuat.clone());
-
-        sMesh.quaternion.copy(finalQuat);
-        sMesh.position.set(0, 0, 0);
-        sMesh.updateMatrixWorld(true);
-
-        const finalFaceZ =
-          (
-            faceA.clone().applyQuaternion(finalQuat).z +
-            faceB.clone().applyQuaternion(finalQuat).z +
-            faceC.clone().applyQuaternion(finalQuat).z
-          ) / 3;
-
-        sMesh.position.z = -finalFaceZ;
-
-        if (found) {
-          sMesh.position.x = bestX;
-          sMesh.position.y = bestY;
-        } else {
-          const b = new THREE.Box3().setFromObject(sMesh);
-          sMesh.position.x = -((b.min.x + b.max.x) / 2);
-          sMesh.position.y = -((b.min.y + b.max.y) / 2);
-        }
-
-        sMesh.updateMatrixWorld(true);
-
-        let finalBox = new THREE.Box3().setFromObject(sMesh);
-
-        if (found) {
-          if (finalBox.min.x < bedMinX)
-            sMesh.position.x += bedMinX - finalBox.min.x;
-          if (finalBox.max.x > bedMaxX)
-            sMesh.position.x += bedMaxX - finalBox.max.x;
-
-          sMesh.updateMatrixWorld(true);
-          finalBox = new THREE.Box3().setFromObject(sMesh);
-
-          if (finalBox.min.y < bedMinY)
-            sMesh.position.y += bedMinY - finalBox.min.y;
-          if (finalBox.max.y > bedMaxY)
-            sMesh.position.y += bedMaxY - finalBox.max.y;
-
-          sMesh.updateMatrixWorld(true);
-          finalBox = new THREE.Box3().setFromObject(sMesh);
-        }
-
-        const finalFits =
-          found &&
-          finalBox.min.x >= bedMinX &&
-          finalBox.max.x <= bedMaxX &&
-          finalBox.min.y >= bedMinY &&
-          finalBox.max.y <= bedMaxY &&
-          finalBox.min.z >= -1e-9 &&
-          finalBox.max.z <= limits.z + 1e-9;
-
-        const finalSize = finalBox.getSize(new THREE.Vector3());
-
-        const warningBanner =
-          document.getElementById("limitWarningBanner");
-        const oldSuccess =
-          document.getElementById("scaleSuccessBanner");
-        if (oldSuccess) oldSuccess.remove();
-
-        if (finalFits) {
-          sMesh.material.color.setHex(0x90caf9);
-          sMesh.material.needsUpdate = true;
-
-          warningBanner.style.display = "none";
-          warningBanner.innerHTML = "";
-
-          const successBanner = document.createElement("div");
-          successBanner.id = "scaleSuccessBanner";
-          successBanner.style =
-            "background:#eef2ee;border:1.5px solid #2e7d32;color:#2e7d32;padding:12px;border-radius:10px;font-size:13.5px;font-weight:700;margin-bottom:12px;line-height:1.4;text-align:center;";
-
-          const angleDeg =
-            THREE.MathUtils.radToDeg(bestAngle);
-
-          const realMargin = Math.min(
-            finalBox.min.x - bedMinX,
-            bedMaxX - finalBox.max.x,
-            finalBox.min.y - bedMinY,
-            bedMaxY - finalBox.max.y,
-            finalBox.min.z,
-            limits.z - finalBox.max.z
-          );
-
-          successBanner.innerHTML =
-            `✓ <strong>POSICIÓN VÁLIDA.</strong> ` +
-            `360° comprobados a 0,001° (${angleChecks.toLocaleString("es-ES")} orientaciones). ` +
-            `Se han transformado ${vertexChecks.toLocaleString("es-ES")} vértices y se ha calculado el intervalo continuo completo de X/Y. ` +
-            `Ángulo: <strong>${angleDeg.toFixed(3)}°</strong>. ` +
-            `X: <strong>${sMesh.position.x.toFixed(3)} mm</strong>. ` +
-            `Y: <strong>${sMesh.position.y.toFixed(3)} mm</strong>. ` +
-            `Tamaño: <strong>${finalSize.x.toFixed(3)} × ${finalSize.y.toFixed(3)} × ${finalSize.z.toFixed(3)} mm</strong>. ` +
-            `Margen real: <strong>${realMargin.toFixed(6)} mm</strong>.`;
-
-          warningBanner.parentNode.insertBefore(
-            successBanner,
-            warningBanner
-          );
-        } else {
-          sMesh.material.color.setHex(0xb42318);
-          sMesh.material.needsUpdate = true;
-
-          warningBanner.style.display = "block";
-          warningBanner.innerHTML =
-            `<div style="margin-bottom:10px;">` +
-            `⚠️ <strong>No se ha encontrado una combinación válida.</strong> ` +
-            `Se comprobaron 360° completos y las coordenadas X/Y posibles para cada orientación. ` +
-            `Resultado: <strong>${finalSize.x.toFixed(3)} × ${finalSize.y.toFixed(3)} × ${finalSize.z.toFixed(3)} mm</strong>. ` +
-            `Cama: <strong>${limits.x} × ${limits.y} × ${limits.z} mm</strong>.` +
-            `</div>`;
-
-          const btn = document.createElement("button");
-          btn.type = "button";
-          btn.textContent =
-            "Auto-escalar pieza para ajustar al volumen de la cama";
           btn.style =
             "background:#b42318;color:#fff;border:1.5px solid #fff;padding:8px 16px;border-radius:8px;font-weight:800;cursor:pointer;font-size:12px;";
           btn.onclick = () => scaleMeshToFit();
