@@ -274,7 +274,11 @@
         { key: "bridge_flow_ratio", label: "Relación de flujo en puentes", slicers: "Orca/Bambu: bridge_flow_ratio | Prusa: bridge_flow_ratio", unit: "%" },
         { key: "infill_overlap_compensation", label: "Solapamiento entre relleno y perímetros", slicers: "Orca/Bambu: infill_overlap_compensation | Prusa: perimeter_infill_overlap", unit: "%" },
         { key: "xy_size_compensation", label: "Compensación dimensional del plano horizontal (XY)", slicers: "Orca/Bambu: xy_size_compensation | Prusa: xy_size_compensation", unit: "mm" },
-        { key: "elefant_foot_compensation", label: "Compensación de pie de elefante", slicers: "Orca/Bambu: elefant_foot_compensation | Prusa: raft_first_layer_expansion", unit: "mm" }
+        { key: "elefant_foot_compensation", label: "Compensación de pie de elefante", slicers: "Orca/Bambu: elefant_foot_compensation | Prusa: raft_first_layer_expansion", unit: "mm" },
+        { key: "precise_wall", label: "Paredes precisas (Precise wall)", slicers: "Orca/Bambu: precise_wall | Cura: outer_inset_first" },
+        { key: "inner_outer_inner_wall", label: "Orden de paredes concéntricas", slicers: "Orca/Bambu: inner_outer_inner_wall" },
+        { key: "seam_gap", label: "Espacio de costura (Seam gap)", slicers: "Orca/Bambu: seam_gap | Prusa: seam_gap", unit: "%" },
+        { key: "small_perimeter_threshold", label: "Umbral de perímetros pequeños", slicers: "Orca/Bambu: small_perimeter_threshold", unit: "mm" }
       ],
       "Fuerza y Estructura": [
         { key: "wall_loops", label: "Bucles de pared (Perímetros)", slicers: "Orca/Bambu: wall_loops | Prusa: perimeters | Cura: wall_line_count", unit: "bucles" },
@@ -291,7 +295,9 @@
         { key: "infill_combination", label: "Combinación de relleno", slicers: "Orca/Bambu: infill_combination | Prusa: infill_every_layers" },
         { key: "infill_solid_every", label: "Relleno sólido cada N capas", slicers: "Orca/Bambu: infill_solid_every | Prusa: solid_infill_every_layers", unit: "capas" },
         { key: "infill_anchor", label: "Anclaje del relleno", slicers: "Orca/Bambu: infill_anchor | Prusa: infill_anchor", unit: "mm" },
-        { key: "infill_anchor_max", label: "Anclaje máximo del relleno", slicers: "Orca/Bambu: infill_anchor_max | Prusa: infill_anchor_max", unit: "mm" }
+        { key: "infill_anchor_max", label: "Anclaje máximo del relleno", slicers: "Orca/Bambu: infill_anchor_max | Prusa: infill_anchor_max", unit: "mm" },
+        { key: "minimum_sparse_infill_area", label: "Área de relleno mínima", slicers: "Orca/Bambu: minimum_sparse_infill_area", unit: "mm²" },
+        { key: "top_one_wall_loops", label: "Un solo perímetro en superficie superior", slicers: "Orca/Bambu: top_one_wall_loops" }
       ],
       "Velocidades de Impresión": [
         { key: "outer_wall_speed", label: "Velocidad de pared exterior", slicers: "Orca/Bambu: outer_wall_speed | Prusa: external_perimeter_speed | Cura: speed_wall_x", unit: "mm/s" },
@@ -309,7 +315,8 @@
         { key: "overhang_1_4_speed", label: "Velocidad voladizo (1/4)", slicers: "Orca/Bambu: overhang_1_4_speed | Prusa: overhangs_speed_1", unit: "mm/s" },
         { key: "overhang_2_4_speed", label: "Velocidad voladizo (2/4)", slicers: "Orca/Bambu: overhang_2_4_speed | Prusa: overhangs_speed_2", unit: "mm/s" },
         { key: "overhang_3_4_speed", label: "Velocidad voladizo (3/4)", slicers: "Orca/Bambu: overhang_3_4_speed | Prusa: overhangs_speed_3", unit: "mm/s" },
-        { key: "overhang_4_4_speed", label: "Velocidad voladizo (4/4)", slicers: "Orca/Bambu: overhang_4_4_speed | Prusa: overhangs_speed_4", unit: "mm/s" }
+        { key: "overhang_4_4_speed", label: "Velocidad voladizo (4/4)", slicers: "Orca/Bambu: overhang_4_4_speed | Prusa: overhangs_speed_4", unit: "mm/s" },
+        { key: "small_perimeter_speed", label: "Velocidad de perímetros pequeños", slicers: "Orca/Bambu: small_perimeter_speed", unit: "mm/s" }
       ],
       "Dinámicas y Aceleraciones": [
         { key: "default_acceleration", label: "Aceleración por defecto", slicers: "Orca/Bambu: default_acceleration | Prusa: default_acceleration | Cura: acceleration_print", unit: "mm/s²" },
@@ -324,7 +331,8 @@
         { key: "jerk_xy_item", label: "Jerk XY", slicers: "Orca/Bambu: jerk_xy_item | Prusa: jerk_xy | Cura: jerk_print", unit: "mm/s" },
         { key: "jerk_z_item", label: "Jerk Z", slicers: "Orca/Bambu: jerk_z_item | Prusa: jerk_z | Cura: jerk_travel", unit: "mm/s" },
         { key: "jerk_e_item", label: "Jerk Extrusor", slicers: "Orca/Bambu: jerk_e_item | Prusa: jerk_e | Cura: jerk_travel", unit: "mm/s" },
-        { key: "pressure_advance", label: "Avance de presión", slicers: "Orca/Bambu: pressure_advance | Prusa: pressure_advance | Cura: linear_advance" }
+        { key: "pressure_advance", label: "Avance de presión", slicers: "Orca/Bambu: pressure_advance | Prusa: pressure_advance | Cura: linear_advance" },
+        { key: "smooth_pressure_advance", label: "Suavizado de avance de presión", slicers: "Orca/Bambu: smooth_pressure_advance", unit: "s" }
       ],
       "Filamento y Temperatura": [
         { key: "nozzle_temperature", label: "Temperatura de boquilla", slicers: "Orca/Bambu: nozzle_temperature | Prusa: temperature | Cura: material_print_temperature", unit: "ºC" },
@@ -350,10 +358,11 @@
         { key: "fan_speed_min", label: "Velocidad mínima del ventilador", slicers: "Orca/Bambu: fan_speed_min | Prusa: min_fan_speed | Cura: cool_fan_speed_min", unit: "%" },
         { key: "fan_speed_max", label: "Velocidad máxima del ventilador", slicers: "Orca/Bambu: fan_speed_max | Prusa: max_fan_speed | Cura: cool_fan_speed_max", unit: "%" },
         { key: "cool_plate_fan_speed", label: "Ventilador para cama fría", slicers: "Orca/Bambu: cool_plate_fan_speed | Prusa: cool_plate_fan_speed", unit: "%" },
-        { key: "additional_cooling_fan_speed", label: "Ventilador adicional", slicers: "Orca/Bambu: additional_cooling_fan_speed", unit: "%" },
-        { key: "exhaust_fan_speed", label: "Ventilador extractor", slicers: "Orca/Bambu: exhaust_fan_speed", unit: "%" },
+        { key: "additional_cooling_fan_speed", label: "Ventilador adicional (Aux fan)", slicers: "Orca/Bambu: additional_cooling_fan_speed", unit: "%" },
+        { key: "exhaust_fan_speed", label: "Ventilador extractor de cámara", slicers: "Orca/Bambu: exhaust_fan_speed", unit: "%" },
         { key: "cooling_threshold_time", label: "Tiempo umbral de enfriamiento", slicers: "Orca/Bambu: cooling_threshold_time | Prusa: slow_down_below", unit: "s" },
-        { key: "fan_speed_overhangs", label: "Ventilador para voladizos", slicers: "Orca/Bambu: fan_speed_overhangs" }
+        { key: "fan_speed_overhangs", label: "Ventilador para voladizos", slicers: "Orca/Bambu: fan_speed_overhangs" },
+        { key: "chamber_temperature", label: "Temperatura de cámara activa", slicers: "Orca/Bambu: chamber_temperature", unit: "ºC" }
       ],
       "Soportes y Adhesión": [
         { key: "enable_support", label: "Soportes activados", slicers: "Orca/Bambu: enable_support | Prusa: support_material | Cura: support_enable" },
@@ -372,7 +381,11 @@
         { key: "brim_object_gap", label: "Espacio entre visera y objeto", slicers: "Orca/Bambu: brim_object_gap | Prusa: brim_object_gap | Cura: brim_gap", unit: "mm" },
         { key: "skirt_loops", label: "Bucles de falda", slicers: "Orca/Bambu: skirt_loops | Prusa: skirt_line | Cura: skirt_line_count", unit: "bucles" },
         { key: "skirt_distance", label: "Distancia de falda", slicers: "Orca/Bambu: skirt_distance | Prusa: skirt_distance | Cura: skirt_distance", unit: "mm" },
-        { key: "skirt_height", label: "Altura de falda", slicers: "Orca/Bambu: skirt_height | Prusa: skirt_height", unit: "capas" }
+        { key: "skirt_height", label: "Altura de falda", slicers: "Orca/Bambu: skirt_height | Prusa: skirt_height", unit: "capas" },
+        { key: "tree_support_branch_angle", label: "Ángulo de ramas (Soporte árbol)", slicers: "Orca/Bambu: tree_support_branch_angle", unit: "º" },
+        { key: "tree_support_branch_diameter", label: "Diámetro de rama (Soporte árbol)", slicers: "Orca/Bambu: tree_support_branch_diameter", unit: "mm" },
+        { key: "tree_support_collision_resolution", label: "Resolución de colisión árbol", slicers: "Orca/Bambu: tree_support_collision_resolution", unit: "mm" },
+        { key: "independent_support_boundary", label: "Límite de soporte independiente", slicers: "Orca: independent_support_boundary" }
       ],
       "G-code y Sistema": [
         { key: "nozzle_diameter", label: "Diámetro de boquilla físico", slicers: "Orca/Bambu: nozzle_diameter | Prusa: nozzle_diameter | Cura: machine_nozzle_size", unit: "mm" },
@@ -395,6 +408,9 @@
         { key: "machine_max_acceleration_z", label: "Aceleración de motor máxima - Eje Z", slicers: "Orca/Bambu: machine_max_acceleration_z | Prusa: max_acceleration_z", unit: "mm/s²" }
       ]
     };
+
+    // Copiar la base de datos de parámetros limpia de extrusores múltiples
+    const parameterGroups = JSON.parse(JSON.stringify(baseParameterGroups));
 
     document.addEventListener("DOMContentLoaded", () => {
       const stored = sessionStorage.getItem("printlab_analysis");
