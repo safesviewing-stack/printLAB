@@ -502,6 +502,16 @@
             <div class="param-row"><span>Área física de voladizo crítico:</span> <strong id="reportOverhang">Calculando...</strong></div>
           </div>
 
+          <!-- Tarjeta de Soportes Calculados (Tono ámbar/naranja suave) -->
+          <div style="background: #fffcf0; border: 2px solid #ecdca5; border-radius: 20px; padding: 24px; margin-top: 24px;">
+            <h4 style="color: #4a3e1a; margin: 0 0 16px; font-weight: 800; font-size:16px;">Soportes de Fabricación Recomendados</h4>
+            <div class="param-row"><span>Soportes Necesarios:</span> <strong id="reportSupportNeeded">Calculando...</strong></div>
+            <div class="param-row"><span>Estilo de Estructura:</span> <strong id="reportSupportStyle">Calculando...</strong></div>
+            <div class="param-row"><span>Tipo de Soporte:</span> <strong id="reportSupportType">Calculando...</strong></div>
+            <div class="param-row"><span>Área en Voladizo (Overhang):</span> <strong id="reportSupportArea">Calculando...</strong></div>
+            <div class="param-row"><span>Distancia de Contacto Superior (Z):</span> <strong id="reportSupportZDistance">Calculando...</strong></div>
+          </div>
+
           <!-- Tarjeta de Conclusiones de Propósito (Blanco hueso suave) -->
           <div style="margin-top:24px; padding:24px; background:#fbfbf9; border:1.5px solid #d3d3cf; border-radius:20px;">
             <h4 style="margin:0 0 12px; font-weight:800; color: #32322c;">Propósito del Laminado</h4>
@@ -721,6 +731,62 @@
       ]
     };
 
+    function getUniqueVerticesForBounds(mesh) {
+      const geometry = mesh.geometry;
+      const scale = mesh.scale;
+      const pos = geometry.attributes.position;
+      const unique = [];
+      const seen = new Set();
+      const step = Math.max(1, Math.floor(pos.count / 3000)); 
+      for (let i = 0; i < pos.count; i += step) {
+        const x = pos.getX(i) * scale.x;
+        const y = pos.getY(i) * scale.y;
+        const z = pos.getZ(i) * scale.z;
+        const rx = Math.round(x * 100) / 100;
+        const ry = Math.round(y * 100) / 100;
+        const rz = Math.round(z * 100) / 100;
+        const key = `${rx}_${ry}_${rz}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          unique.push(new THREE.Vector3(x, y, z));
+        }
+      }
+      return unique;
+    }
+
+    function checkMeshBounds(mesh, limits) {
+      if (!mesh || !limits) return false;
+      mesh.updateMatrixWorld(true);
+
+      const bbox = new THREE.Box3().setFromObject(mesh);
+      const minY = -0.05;
+      const maxY = limits.z + 0.05;
+
+      if (bbox.min.y < minY || bbox.max.y > maxY) {
+        return false;
+      }
+
+      const uniqueVerts = getUniqueVerticesForBounds(mesh);
+      const minX = -limits.x / 2 - 0.05;
+      const maxX =  limits.x / 2 + 0.05;
+      const minZ = -limits.y / 2 - 0.05;
+      const maxZ =  limits.y / 2 + 0.05;
+
+      const tempMatrix = new THREE.Matrix4().compose(
+        mesh.position,
+        mesh.quaternion,
+        new THREE.Vector3(1, 1, 1)
+      );
+
+      for (const v of uniqueVerts) {
+        const worldV = v.clone().applyMatrix4(tempMatrix);
+        if (worldV.x < minX || worldV.x > maxX || worldV.z < minZ || worldV.z > maxZ) {
+          return false;
+        }
+      }
+      return true;
+    }
+
     function init3DViewer(containerId, base64Data, criticalPoints, questionnaire) {
       const container = document.getElementById(containerId);
       if (!container) return;
@@ -769,7 +835,7 @@
       geometry.computeBoundingBox();
 
       const material = new THREE.MeshPhongMaterial({ 
-        color: 0x388e3c, // Verde estándar idéntico al del analizador
+        color: 0x388e3c, // Verde estándar inicial idéntico al del analizador
         specular: 0x222222, 
         shininess: 40,
         side: THREE.DoubleSide
@@ -795,6 +861,34 @@
         }
         activeMesh.matrixAutoUpdate = false; // Desactiva los recálculos para mantener la rotación y posición intactas
         activeMesh.updateMatrixWorld(true);
+      }
+
+      // Aplicar color en base a la validez física exacta del recinto idéntico al analizador
+      const inBounds = checkMeshBounds(activeMesh, limits);
+      if (inBounds) {
+        activeMesh.material.color.setHex(0x388e3c); // Verde estándar (posición válida)
+      } else {
+        activeMesh.material.color.setHex(0xb42318); // Rojo de colisión
+      }
+      activeMesh.material.needsUpdate = true;
+
+      // Dibujar anillo de neón si se ha guardado el punto de apoyo por cara en el analizador
+      if (questionnaire && questionnaire.supportFacePoint && questionnaire.supportFaceNormal) {
+        const localPt = new THREE.Vector3().fromArray(questionnaire.supportFacePoint);
+        const localNorm = new THREE.Vector3().fromArray(questionnaire.supportFaceNormal);
+        
+        // Convertir punto local y normal local a coordenadas de mundo
+        const worldPt = localPt.clone().applyMatrix4(activeMesh.matrixWorld);
+        
+        const ringGeo = new THREE.RingGeometry(2.5, 3.2, 32);
+        const ringMat = new THREE.MeshBasicMaterial({ color: 0xb8ff3d, side: THREE.DoubleSide });
+        highlightRing = new THREE.Mesh(ringGeo, ringMat);
+        highlightRing.position.copy(worldPt);
+        
+        const ringNormal = localNorm.clone().applyQuaternion(activeMesh.quaternion);
+        highlightRing.quaternion.copy(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), ringNormal));
+        highlightRing.position.addScaledVector(ringNormal, 0.4);
+        scene.add(highlightRing);
       }
 
       const worldBox = new THREE.Box3().setFromObject(activeMesh);
@@ -836,6 +930,26 @@
       document.getElementById("reportManifold").textContent = analysis.watertight ? "SÍ (Estanco)" : "NO (Malla abierta con agujeros)";
       document.getElementById("reportThickness").textContent = s.min_thickness_mm ? `${s.min_thickness_mm} mm` : "[NO CALCULADO]";
       document.getElementById("reportOverhang").textContent = s.overhang_area_cm2 !== undefined ? `${s.overhang_area_cm2} cm²` : "0.0 cm²";
+
+      // --- CONFIGURACIÓN DE SOPORTES RECOMENDADA DINÁMICA ---
+      const enableSupportVal = s.enable_support;
+      const supportNeededText = (enableSupportVal === 1 || s.overhang_area_cm2 > 0.5) ? "SÍ (Voladizos detectados)" : "NO (Estructura autoportante)";
+      document.getElementById("reportSupportNeeded").textContent = supportNeededText;
+
+      let styleText = "No requerido";
+      if (enableSupportVal === 1 || s.overhang_area_cm2 > 0.5) {
+        styleText = s.support_style === "tree" ? "Árbol (Tree)" : "Normal (Rejilla)";
+      }
+      document.getElementById("reportSupportStyle").textContent = styleText;
+
+      let typeText = "Ninguno";
+      if (enableSupportVal === 1 || s.overhang_area_cm2 > 0.5) {
+        typeText = s.support_type === "normal" ? "Normal (Base)" : "Snug / Ajustado";
+      }
+      document.getElementById("reportSupportType").textContent = typeText;
+
+      document.getElementById("reportSupportArea").textContent = s.overhang_area_cm2 !== undefined ? `${s.overhang_area_cm2} cm²` : "0.0 cm²";
+      document.getElementById("reportSupportZDistance").textContent = s.support_top_z_distance ? `${s.support_top_z_distance} mm` : "0.20 mm";
 
       // --- CONCLUSIÓN DINÁMICA DE PROPÓSITO ---
       const purpose = q.purpose || "aesthetic";
