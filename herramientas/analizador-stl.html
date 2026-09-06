@@ -381,7 +381,7 @@
           <div class="option-card" data-val="functional" onclick="selectCard(this, 'purpose')">
             <span class="emoji">⚙️</span>
             <span class="option-card-title">Funcional / Mecánica</span>
-            <span class="option-card-desc">Prioriza la rigidez del plano XY y la cohesión de capas. Más perímetros robustos, mayor densidad de relleno tridimensional y temperaturas altas.</span>
+            <span class="option-card-desc">Prioriza la rígidez del plano XY y la cohesión de capas. Más perímetros robustos, mayor densidad de relleno tridimensional y temperaturas altas.</span>
           </div>
           <div class="option-card" data-val="speed" onclick="selectCard(this, 'purpose')">
             <span class="emoji">⚡</span>
@@ -590,6 +590,7 @@
     // VARIABLES GLOBALES DEL VISOR 3D Y MANIPULACIÓN
     let sScene, sCamera, sRenderer, sControls, sMesh, highlightRing, gridHelper, printVolumeBox, transformControls;
     let isDraggingTransform = false;
+    let wasDragging = false;
 
     function disposeRendererAndScene() {
       if (transformControls) {
@@ -949,6 +950,15 @@
       transformControls.addEventListener('dragging-changed', function (event) {
         sControls.enabled = !event.value;
         isDraggingTransform = event.value;
+        
+        if (event.value) {
+          wasDragging = true;
+        } else {
+          // Temporizador de desconexión de 100ms para evitar falsos clics de alineación tras soltar la pieza [2]
+          setTimeout(() => {
+            wasDragging = false;
+          }, 100);
+        }
       });
 
       // Llama a checkLimits() solo cuando el objeto cambie físicamente por el usuario
@@ -956,30 +966,8 @@
         checkLimits();
       });
 
-      // DETECTOR DE PULSACIÓN SIMPLE VS ARRASTRE PARA EVITAR REORIENTACIONES ACCIDENTALES
-      let pointerStartX = 0;
-      let pointerStartY = 0;
-      let pointerStartTime = 0;
-      let wasDraggingGizmo = false;
-
-      sRenderer.domElement.addEventListener('pointerdown', (e) => {
-        pointerStartX = e.clientX;
-        pointerStartY = e.clientY;
-        pointerStartTime = Date.now();
-        wasDraggingGizmo = isDraggingTransform; // Almacena si pulsó directamente sobre las flechas de control
-      });
-
-      sRenderer.domElement.addEventListener('pointerup', (e) => {
-        const dx = e.clientX - pointerStartX;
-        const dy = e.clientY - pointerStartY;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        const elapsed = Date.now() - pointerStartTime;
-
-        // Si es una pulsación simple y limpia en la pieza (sin arrastre del ratón ni del guizmo) [2]
-        if (dist < 4 && elapsed < 350 && !wasDraggingGizmo && !isDraggingTransform) {
-          onMeshClick(e);
-        }
-      });
+      // Evento de clic en el canvas para seleccionar cara de apoyo (filtrado por temporizador de arrastre) [2]
+      sRenderer.domElement.addEventListener("click", onMeshClick);
 
       const reader = new FileReader();
       reader.onload = function(e) {
@@ -1025,7 +1013,7 @@
 
       // FUNCIÓN DE ALINEACIÓN POR PULSACIÓN EN LA PIEZA (RESTABLECIDA DE FORMA SEGURA) [2]
       function onMeshClick(event) {
-        if (!sMesh || isDraggingTransform) return;
+        if (!sMesh || wasDragging || isDraggingTransform) return;
         
         const rect = sRenderer.domElement.getBoundingClientRect();
         const mouse = new THREE.Vector2();
