@@ -751,7 +751,7 @@
       ]
     };
 
-    function init3DViewer(containerId, base64Data, criticalPoints) {
+    function init3DViewer(containerId, base64Data, criticalPoints, questionnaire) {
       const container = document.getElementById(containerId);
       if (!container) return;
 
@@ -759,24 +759,33 @@
       scene.background = new THREE.Color(0x111715);
 
       camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 1, 1000);
-      camera.position.set(0, 0, 120);
-      camera.up.set(0, 0, 1);
+      camera.position.set(130, 130, 150);
+      camera.up.set(0, 1, 0); // Y-UP estándar idéntico al analizador
 
       renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setSize(container.clientWidth, container.clientHeight);
       container.appendChild(renderer.domElement);
 
       const light1 = new THREE.DirectionalLight(0xffffff, 1.4);
-      light1.position.set(1, 1, 3).normalize();
+      light1.position.set(1, 3, 1).normalize();
       scene.add(light1);
       scene.add(new THREE.AmbientLight(0x404040));
 
       controls = new THREE.OrbitControls(camera, renderer.domElement);
       controls.enableDamping = true;
 
-      const gridHelper = new THREE.GridHelper(300, 30, 0x5e6661, 0x2e3a35);
-      gridHelper.rotation.x = Math.PI / 2;
+      // Generar volumen y cama dinámicos idénticos a los del analizador para mantener coherencia visual
+      const limits = printerLimits[questionnaire.printer] || { x: 220, y: 220, z: 250 };
+      const gridSize = Math.max(limits.x, limits.y);
+      const gridHelper = new THREE.GridHelper(gridSize, 30, 0x5e6661, 0x2e3a35);
       scene.add(gridHelper);
+
+      const boxGeo = new THREE.BoxGeometry(limits.x, limits.z, limits.y); // Alto en Y (eje verde)
+      const edges = new THREE.EdgesGeometry(boxGeo);
+      const lineMaterial = new THREE.LineBasicMaterial({ color: 0x5e6661, transparent: true, opacity: 0.15 });
+      const printVolumeBox = new THREE.LineSegments(edges, lineMaterial);
+      printVolumeBox.position.set(0, limits.z / 2, 0);
+      scene.add(printVolumeBox);
 
       const binaryStr = atob(base64Data);
       const bytes = new Uint8Array(binaryStr.length);
@@ -786,14 +795,28 @@
       const geometry = loader.parse(bytes.buffer);
 
       const material = new THREE.MeshPhongMaterial({ 
-        color: 0x2e7d32, 
-        specular: 0x111111, 
+        color: 0x388e3c, // Verde estándar idéntico al del analizador
+        specular: 0x222222, 
         shininess: 40,
         side: THREE.DoubleSide
       });
 
       activeMesh = new THREE.Mesh(geometry, material);
       scene.add(activeMesh);
+
+      // Reconstrucción y aplicación exacta de la matriz de rotación/colocación aplicada por el usuario
+      if (questionnaire && questionnaire.transformationMatrix) {
+        const m = questionnaire.transformationMatrix;
+        const matrix = new THREE.Matrix4().set(
+          m[0][0], m[0][1], m[0][2], m[0][3],
+          m[1][0], m[1][1], m[1][2], m[1][3],
+          m[2][0], m[2][1], m[2][2], m[2][3],
+          m[3][0], m[3][1], m[3][2], m[3][3]
+        );
+        activeMesh.matrix.copy(matrix);
+        activeMesh.matrix.decompose(activeMesh.position, activeMesh.quaternion, activeMesh.scale);
+        activeMesh.updateMatrixWorld(true);
+      }
 
       if (criticalPoints && criticalPoints.length > 0) {
         criticalPoints.forEach(pt => {
@@ -805,12 +828,12 @@
         });
       }
 
-      geometry.computeBoundingBox();
+      const worldBox = new THREE.Box3().setFromObject(activeMesh);
       const center = new THREE.Vector3();
-      geometry.boundingBox.getCenter(center);
+      worldBox.getCenter(center);
       controls.target.copy(center);
 
-      const size = geometry.boundingBox.getSize(new THREE.Vector3()).length();
+      const size = worldBox.getSize(new THREE.Vector3()).length();
       camera.position.set(center.x + size * 0.9, center.y + size * 0.9, center.z + size * 0.9);
       controls.update();
 
@@ -956,16 +979,9 @@
       });
 
       // --- TRADUCTOR DE VALORES PARA ORCASLICER ---
-      // Evita el error "translateToOrcaValue is not defined".
-      // Los parámetros ya vienen normalizados desde el analizador; aquí
-      // conservamos el valor y convertimos representaciones simples a
-      // tipos JSON válidos para el archivo .3MF.
       function translateToOrcaValue(key, value) {
         if (value === undefined || value === null) return value;
 
-        // OrcaSlicer/BambuStudio project_settings.config usa strings
-        // para los valores del perfil. Mantener exactamente el valor
-        // recibido evita que el laminador descarte o normalice overrides.
         if (Array.isArray(value)) {
           return value.map(item => translateToOrcaValue(key, item));
         }
@@ -978,13 +994,11 @@
           return value ? "1" : "0";
         }
 
-        // Conservamos la representación textual original.
-        // Ej.: 0.12 -> "0.12", 15% -> "15%", gyroid -> "gyroid".
         return String(value).trim();
       }
 
       if (analysis.optimized_base64) {
-        init3DViewer("canvas3dContainer", analysis.optimized_base64, analysis.critical_points);
+        init3DViewer("canvas3dContainer", analysis.optimized_base64, analysis.critical_points, q);
 
         // --- CONSTRUCTOR DE PROYECTO .3MF COMPATIBLE ---
         document.getElementById("download3mfBtn").addEventListener("click", async () => {
@@ -1015,25 +1029,32 @@
             const geom = activeMesh.geometry;
             const position = geom.attributes.position;
             
-            // --- ALGORITMO DE CENTRADO ABSOLUTO EN LA CAMA DE LA IMPRESORA ---
-            geom.computeBoundingBox();
-            const bbox = geom.boundingBox;
+            // --- ALGORITMO DE CENTRADO ABSOLUTO EN LA CAMA DE LA IMPRESORA (Y-UP) ---
+            const worldBox = new THREE.Box3().setFromObject(activeMesh);
             const currentCenter = new THREE.Vector3();
-            bbox.getCenter(currentCenter);
-            const currentMinZ = bbox.min.z;
+            worldBox.getCenter(currentCenter);
+            const currentMinY = worldBox.min.y; // El punto más bajo real en el eje de altura vertical
 
             // Determinar dimensiones reales de la cama para centrar la pieza
             const limits = printerLimits[q.printer] || { x: 220, y: 220, z: 250 };
+            
+            // Calculamos offsets de translación para centrar sobre el plano horizontal de la cama (X/Z) y apoyar a Y=0
             const offsetX = (limits.x / 2) - currentCenter.x;
-            const offsetY = (limits.y / 2) - currentCenter.y;
-            const offsetZ = -currentMinZ; // Apoyar exactamente a Z = 0
+            const offsetZ = (limits.y / 2) - currentCenter.z;
+            const offsetY = -currentMinY;
 
             let verticesXml = "";
+            const vertex = new THREE.Vector3();
             for (let i = 0; i < position.count; i++) {
-              const vx = (position.getX(i) + offsetX).toFixed(4);
-              const vy = (position.getY(i) + offsetY).toFixed(4);
-              const vz = (position.getZ(i) + offsetZ).toFixed(4);
-              verticesXml += `          <vertex x="${vx}" y="${vy}" z="${vz}"/>\n`;
+              vertex.fromBufferAttribute(position, i);
+              vertex.applyMatrix4(activeMesh.matrixWorld); // Aplicar rotación y colocación exactas definidas por el usuario
+              
+              const finalX = (vertex.x + offsetX).toFixed(4);
+              const finalZ = (vertex.z + offsetZ).toFixed(4);
+              const finalY = (vertex.y + offsetY).toFixed(4);
+
+              // En la especificación 3MF, 'z' representa la altura vertical, mientras que en nuestro entorno Y-UP es 'y'
+              verticesXml += `          <vertex x="${finalX}" y="${finalZ}" z="${finalY}"/>\n`;
             }
 
             let trianglesXml = "";
@@ -1077,15 +1098,6 @@
               ? String(q.printer)
               : "Creality Ender-3 V3 SE";
 
-            // Presets padre: permiten que OrcaSlicer sepa de qué perfil
-            // parte y, sobre todo, qué valores del proyecto son overrides.
-            // ============================================================
-            // IDENTIDAD REAL DE LA MÁQUINA
-            // No basta con indicar el nombre: OrcaSlicer usa también
-            // printable_area / printable_height para decidir si un objeto
-            // cabe en la cama. Antes solo se estaba "simulando" el perfil
-            // y Orca podía terminar usando las dimensiones de otra máquina.
-            // ============================================================
             const machineInfo = {
               "Bambu Lab X1 Carbon": {
                 model: "Bambu Lab X1 Carbon",
@@ -1229,8 +1241,6 @@
               "printer_settings_id": printerProfile,
               "print_compatible_printers": [printerProfile],
 
-              // Estas dos propiedades son las que realmente describen
-              // el volumen útil de la máquina dentro del proyecto.
               "printable_area": printableArea,
               "printable_height": String(machine.z),
 
@@ -1254,8 +1264,6 @@
               "printer_extruder_variant": [nozzleStr]
             };
 
-            // Estos son parámetros que OrcaSlicer trata como valores de
-            // filamento. Se guardan en el segundo grupo de overrides.
             const filamentKeys = new Set([
               "nozzle_temperature",
               "nozzle_temperature_initial_layer",
@@ -1285,7 +1293,6 @@
               "fan_speed_overhangs"
             ]);
 
-            // Parámetros de máquina.
             const printerKeys = new Set([
               "nozzle_diameter",
               "printer_model",
@@ -1297,9 +1304,6 @@
             const filamentOverrideKeys = [];
             const printerOverrideKeys = [];
 
-            // Importante: copiamos EXACTAMENTE el valor que está en el
-            // informe. No hacemos redondeos, conversiones de unidades ni
-            // aplicamos valores predeterminados.
             for (const groupName in parameterGroups) {
               parameterGroups[groupName].forEach(v => {
                 const rawValue = s[v.key];
@@ -1307,7 +1311,6 @@
 
                 const finalValue = translateToOrcaValue(v.key, rawValue);
 
-                // Arrays por filamento: un solo filamento = un elemento.
                 if (filamentKeys.has(v.key)) {
                   orcaSettingsJson[v.key] = Array.isArray(finalValue)
                     ? finalValue
@@ -1323,8 +1326,6 @@
               });
             }
 
-            // Cualquier ajuste adicional generado por la IA también viaja
-            // al proyecto para no perder parámetros que no estén en la UI.
             Object.keys(s).forEach(key => {
               if (
                 !key ||
@@ -1346,24 +1347,17 @@
               }
             });
 
-            // OrcaSlicer usa 3 posiciones: proceso, filamento y máquina.
-            // Los overrides deben estar registrados aquí o el GUI puede
-            // reconstruir el preset padre y perder el valor del archivo.
             orcaSettingsJson["different_settings_to_system"] = [
               processOverrideKeys.join(";"),
               filamentOverrideKeys.join(";"),
               printerOverrideKeys.join(";")
             ];
 
-            // Archivo que OrcaSlicer utiliza para reconstruir el perfil
-            // del proyecto al abrir el .3MF.
             zip.file(
               "Metadata/project_settings.config",
               JSON.stringify(orcaSettingsJson, null, 2)
             );
 
-            // Metadatos del objeto/placa. Esto ayuda a que el proyecto sea
-            // reconocido como proyecto de laminación y no como un 3MF plano.
             const modelSettingsXml = `<?xml version="1.0" encoding="UTF-8"?>
 <config>
   <object id="1">
@@ -1380,8 +1374,6 @@
 </config>`;
             zip.file("Metadata/model_settings.config", modelSettingsXml);
 
-            // Copia de trazabilidad de PrintLab para poder auditar que el
-            // .3MF contiene exactamente los mismos valores del informe.
             zip.file(
               "Metadata/printlab_report_settings.json",
               JSON.stringify({
@@ -1401,7 +1393,6 @@
             const content = await zip.generateAsync({ type: "blob" });
             const url = URL.createObjectURL(content);
 
-            // --- GENERACIÓN DE NOMBRE DE PROYECTO COMERCIAL Y LIMPIO ---
             const rawName = analysis.file_name || "Modelo";
             let cleanName = rawName.replace(/\.[^/.]+$/, "");
             cleanName = cleanName.replace(/\s*\(\d+\)/g, "").replace(/_\d+$/g, "");
@@ -1422,7 +1413,6 @@
             alert("Error al construir el archivo de proyecto 3MF: " + err.message);
           } finally {
             downloadBtn.disabled = false;
-            // Restauración exacta de la interfaz genérica solicitada sin el nombre de OrcaSlicer
             downloadBtn.innerHTML = `
               <span style="font-size: 16px; font-weight: 800;">Abrir proyecto en laminador (.3MF)</span>
               <span style="font-size: 11px; font-weight: 500; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.5px;">Abrir dentro del laminador</span>
