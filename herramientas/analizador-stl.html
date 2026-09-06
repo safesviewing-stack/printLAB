@@ -497,6 +497,8 @@
     ];
     let currentStepIdx = 0;
 
+    const BED_TOLERANCE_MM = 0.5; // Tolerancia de comprobación del volumen útil
+
     const printerLimits = {
       "Bambu Lab X1 Carbon": { x: 256, y: 256, z: 256 },
       "Bambu Lab P1S": { x: 256, y: 256, z: 256 },
@@ -761,7 +763,7 @@
       }
     }
 
-    // COMPROBACIÓN DINÁMICA DE LÍMITES FÍSICOS DE LA CAMA (TOLERANCIA ESTRICTA DE CENTÉSIMAS)
+    // COMPROBACIÓN DINÁMICA DE LÍMITES FÍSICOS DE LA CAMA (tolerancia tipo slicer)
     function checkLimits() {
       if (!sMesh || !answers.printer) return;
       const limits = printerLimits[answers.printer];
@@ -775,10 +777,12 @@
       const maxZ =  limits.y / 2;
       const maxY =  limits.z; // altura en Y (eje verde)
 
-      // Tolerancia estricta de 0.01 mm (centésimas de milímetro) para validez instantánea
-      const outOfX = bbox.min.x < minX - 0.01 || bbox.max.x > maxX + 0.01;
-      const outOfZ = bbox.min.z < minZ - 0.01 || bbox.max.z > maxZ + 0.01;
-      const outOfY = bbox.max.y > maxY + 0.01 || bbox.min.y < -0.01;
+      // Se permite una pequeña tolerancia para evitar falsos rojos por redondeos
+      // numéricos y para que el límite del visor se comporte de forma más parecida a un slicer.
+      const tolerance = BED_TOLERANCE_MM;
+      const outOfX = bbox.min.x < minX - tolerance || bbox.max.x > maxX + tolerance;
+      const outOfZ = bbox.min.z < minZ - tolerance || bbox.max.z > maxZ + tolerance;
+      const outOfY = bbox.max.y > maxY + tolerance || bbox.min.y < -tolerance;
 
       if (outOfX || outOfZ || outOfY) {
         sMesh.material.color.setHex(0xb42318); // Rojo de colisión
@@ -839,7 +843,7 @@
       }
     };
 
-    // FUNCIÓN DE ESCALADO DE EMERGENCIA EXACTO AL 100% CON RE-CENTRADO PRECOZ
+    // AUTO-ESCALADO AL 100% DEL VOLUMEN DISPONIBLE CON RE-CENTRADO
     window.scaleMeshToFit = function() {
       if (!sMesh || !answers.printer) return;
       const limits = printerLimits[answers.printer];
@@ -855,7 +859,7 @@
       const scaleZ = limits.y / modelSize.z; // profundidad útil
       const minScale = Math.min(scaleX, scaleY, scaleZ);
 
-      sMesh.scale.multiplyScalar(minScale * 0.95); // Factor de seguridad menor para evitar roces de margen
+      sMesh.scale.multiplyScalar(minScale); // Aprovecha el 100% del volumen disponible
       sMesh.updateMatrixWorld(true);
 
       const finalBbox = new THREE.Box3().setFromObject(sMesh);
