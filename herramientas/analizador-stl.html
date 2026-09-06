@@ -408,18 +408,36 @@
         
         <div class="viewer-section">
           <!-- Herramientas de Control de Transformación -->
-          <div style="display:flex; gap:10px; margin-bottom:12px; align-items:center; width:100%;">
+          <div id="viewerToolbar" style="display:flex; gap:10px; margin-bottom:12px; align-items:center; width:100%; flex-wrap:wrap;">
             <button type="button" id="btnModeTranslate" onclick="setTransformMode('translate')" class="btn-auth green" style="padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: none; display: inline-flex; align-items: center; gap: 6px;">
               <span>🤚</span> Mover
             </button>
             <button type="button" id="btnModeRotate" onclick="setTransformMode('rotate')" class="btn-auth light" style="padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: none; display: inline-flex; align-items: center; gap: 6px;">
               <span>🔄</span> Rotar
             </button>
+            <button id="btnFindOrientation" type="button" onclick="findBestPrintOrientation()" class="btn-auth light" style="padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: none; display: inline-flex; align-items: center; gap: 6px;">
+              <span>🔍</span> Buscar orientación
+            </button>
             <button type="button" onclick="scaleMeshToFit()" class="btn-auth light" style="padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: none; margin-left: auto; display: inline-flex; align-items: center; gap: 6px;">
               <span>📐</span> Auto-Escalar
             </button>
           </div>
 
+
+          <style>
+            #btnFindOrientation {
+              display: inline-flex !important;
+              visibility: visible !important;
+              opacity: 1 !important;
+              flex: 0 0 auto !important;
+              position: relative !important;
+              z-index: 10 !important;
+            }
+            @media (max-width: 700px) {
+              #viewerToolbar { gap: 8px !important; }
+              #viewerToolbar button { margin-left: 0 !important; }
+            }
+          </style>
           <div class="viewer-wrap">
             <div id="selector3dContainer" style="width:100%; background:#161d1a; border-radius:16px; position:relative; overflow:hidden; border:2px solid var(--line); margin-bottom:12px;"></div>
           </div>
