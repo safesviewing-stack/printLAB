@@ -83,7 +83,6 @@
       display: inline-block !important;
       margin: auto 0 !important;
       white-space: nowrap !important;
-      
     }
 
     /* ESTILOS DEL CONTENEDOR DE CONTENIDO PRINCIPAL */
@@ -957,6 +956,31 @@
         checkLimits();
       });
 
+      // DETECTOR DE PULSACIÓN SIMPLE VS ARRASTRE PARA EVITAR REORIENTACIONES ACCIDENTALES
+      let pointerStartX = 0;
+      let pointerStartY = 0;
+      let pointerStartTime = 0;
+      let wasDraggingGizmo = false;
+
+      sRenderer.domElement.addEventListener('pointerdown', (e) => {
+        pointerStartX = e.clientX;
+        pointerStartY = e.clientY;
+        pointerStartTime = Date.now();
+        wasDraggingGizmo = isDraggingTransform; // Almacena si pulsó directamente sobre las flechas de control
+      });
+
+      sRenderer.domElement.addEventListener('pointerup', (e) => {
+        const dx = e.clientX - pointerStartX;
+        const dy = e.clientY - pointerStartY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const elapsed = Date.now() - pointerStartTime;
+
+        // Si es una pulsación simple y limpia en la pieza (sin arrastre del ratón ni del guizmo) [2]
+        if (dist < 4 && elapsed < 350 && !wasDraggingGizmo && !isDraggingTransform) {
+          onMeshClick(e);
+        }
+      });
+
       const reader = new FileReader();
       reader.onload = function(e) {
         const loader = new THREE.STLLoader();
@@ -998,6 +1022,163 @@
         validateCurrentStep();
       };
       reader.readAsArrayBuffer(window.selectedSTLFile);
+
+      // FUNCIÓN DE ALINEACIÓN POR PULSACIÓN EN LA PIEZA (RESTABLECIDA DE FORMA SEGURA) [2]
+      function onMeshClick(event) {
+        if (!sMesh || isDraggingTransform) return;
+        
+        const rect = sRenderer.domElement.getBoundingClientRect();
+        const mouse = new THREE.Vector2();
+        mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+        const raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(mouse, sCamera);
+        const intersects = raycaster.intersectObject(sMesh);
+
+        if (intersects.length > 0) {
+          const hit = intersects[0];
+          const supportPointLocal = sMesh.worldToLocal(hit.point.clone());
+          const localNormal = hit.face.normal.clone();
+
+          answers.selectedSupportFace = hit.faceIndex;
+          answers.supportFaceNormal = [localNormal.x, localNormal.y, localNormal.z];
+          answers.supportFacePoint = [supportPointLocal.x, supportPointLocal.y, supportPointLocal.z];
+
+          const q = new THREE.Quaternion().setFromUnitVectors(localNormal, new THREE.Vector3(0, 0, -1));
+          const uniqueVerts = getUniqueVertices(sMesh);
+          const limits = printerLimits[answers.printer] || { x: 220, y: 220, z: 250 };
+          
+          const projectedPoints = uniqueVerts.map(v => v.clone().applyQuaternion(q));
+          let minZ = Infinity, maxZ = -Infinity;
+          const pts2D = [];
+          for (const v of projectedPoints) {
+            if (v.z < minZ) minZ = v.z;
+            if (v.z > maxZ) maxZ = v.z;
+            pts2D.push({ x: v.x, y: v.y });
+          }
+          const H = maxZ - minZ;
+          const hull = get2DConvexHull(pts2D);
+          
+          let bestYaw = 0;
+          let foundFit = false;
+          let bestW = 0, bestD = 0;
+          let bestDiff = -Infinity;
+          
+          for (let deg = 0; deg < 180; deg += 1) {
+            const rad = THREE.MathUtils.degToRad(deg);
+            const cos = Math.cos(rad);
+            const sin = Math.sin(rad);
+            let minX = Infinity, maxX = -Infinity;
+            let minY = Infinity, maxY = -Infinity;
+            for (const p of hull) {
+              const rx = p.x * cos - p.y * sin;
+              const ry = p.x * sin + p.y * cos;
+              if (rx < minX) minX = rx;
+              if (rx > maxX) maxX = rx;
+              if (ry < minY) minY = ry;
+              if (ry > maxY) maxY = ry;
+            }
+            const W = maxX - minX;
+            const D = maxY - minY;
+            
+            if (W <= limits.x && D <= limits.y && H <= limits.z) {
+              const diff = -Math.max(W - limits.x, D - limits.y, H - limits.z);
+              if (diff > bestDiff) {
+                bestDiff = diff;
+                bestYaw = rad;
+                foundFit = true;
+                bestW = W;
+                bestD = D;
+              }
+            }
+          }
+          
+          const warningBanner = document.getElementById("limitWarningBanner");
+          const oldSuccess = document.getElementById("scaleSuccessBanner");
+          if (oldSuccess) oldSuccess.remove();
+          
+          if (foundFit) {
+            const yawQuat = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), bestYaw);
+            sMesh.quaternion.copy(yawQuat.multiply(q));
+            sMesh.scale.set(1, 1, 1);
+            sMesh.position.set(0, 0, 0); 
+            sMesh.updateMatrixWorld(true);
+            
+            const bbox = new THREE.Box3().setFromObject(sMesh);
+            const currentCenter = new THREE.Vector3();
+            bbox.getCenter(currentCenter);
+            sMesh.position.x = -currentCenter.x;
+            sMesh.position.y = -currentCenter.y;
+            sMesh.position.z = -bbox.min.z;
+            sMesh.updateMatrixWorld(true);
+            
+            sMesh.material.color.setHex(0x90caf9);
+            sMesh.material.needsUpdate = true;
+            warningBanner.style.display = "none";
+            
+            const successBanner = document.createElement("div");
+            successBanner.id = "scaleSuccessBanner";
+            successBanner.style = "background:#eef2ee;border:1.5px solid #2e7d32;color:#2e7d32;padding:12px;border-radius:10px;font-size:13.5px;font-weight:700;margin-bottom:12px;line-height:1.4;text-align:center;";
+            successBanner.innerHTML = `✓ <strong>Superficie apoyada correctamente.</strong> Modelo alineado. Medidas: ${bestW.toFixed(1)} × ${bestD.toFixed(1)} × ${H.toFixed(1)} mm.`;
+            warningBanner.parentNode.insertBefore(successBanner, warningBanner);
+            
+            if (highlightRing) sScene.remove(highlightRing);
+            const ringGeo = new THREE.RingGeometry(2.5, 3.2, 32);
+            const ringMat = new THREE.MeshBasicMaterial({ color: 0xb8ff3d, side: THREE.DoubleSide });
+            highlightRing = new THREE.Mesh(ringGeo, ringMat);
+            highlightRing.position.copy(hit.point);
+            
+            const ringNormal = localNormal.clone().applyQuaternion(sMesh.quaternion);
+            highlightRing.quaternion.copy(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), ringNormal));
+            highlightRing.position.addScaledVector(ringNormal, 0.4);
+            sScene.add(highlightRing);
+
+            checkLimits();
+          } else {
+            sMesh.quaternion.copy(q);
+            sMesh.scale.set(1, 1, 1);
+            sMesh.position.set(0, 0, 0);
+            sMesh.updateMatrixWorld(true);
+            
+            const bbox = new THREE.Box3().setFromObject(sMesh);
+            const currentCenter = new THREE.Vector3();
+            bbox.getCenter(currentCenter);
+            sMesh.position.x = -currentCenter.x;
+            sMesh.position.y = -currentCenter.y;
+            sMesh.position.z = -bbox.min.z;
+            sMesh.updateMatrixWorld(true);
+            
+            sMesh.material.color.setHex(0xb42318);
+            sMesh.material.needsUpdate = true;
+            
+            warningBanner.style.display = "block";
+            warningBanner.innerHTML = `
+              <div style="margin-bottom:10px;">
+                ⚠️ <strong>La pieza no cabe apoyada sobre esta cara.</strong><br>
+                Dimensiones en esta orientación: ${bbox.getSize(new THREE.Vector3()).x.toFixed(1)} × ${bbox.getSize(new THREE.Vector3()).y.toFixed(1)} × ${bbox.getSize(new THREE.Vector3()).z.toFixed(1)} mm.<br>
+                Volumen útil de la impresora: ${limits.x} × ${limits.y} × ${limits.z} mm.
+              </div>
+            `;
+            
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.textContent = "Auto-escalar pieza para ajustar al volumen de la cama";
+            btn.style = "background:#b42318;color:#fff;border:1.5px solid #fff;padding:8px 16px;border-radius:8px;font-weight:800;cursor:pointer;font-size:12px;margin-right:8px;";
+            btn.onclick = () => window.scaleMeshToFit();
+            warningBanner.appendChild(btn);
+          }
+
+          const te = sMesh.matrix.elements;
+          answers.transformationMatrix = [
+            [te[0], te[4], te[8], te[12]],
+            [te[1], te[5], te[9], te[13]],
+            [te[2], te[6], te[10], te[14]],
+            [te[3], te[7], te[11], te[15]]
+          ];
+          validateCurrentStep();
+        }
+      }
 
       function animate() {
         requestAnimationFrame(animate);
