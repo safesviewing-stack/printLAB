@@ -30,6 +30,7 @@
     .hamburger:hover span { background: var(--muted); }
     
     .dropdown-content { display: none; position: absolute; top: 110%; left: 0; background-color: var(--card); min-width: 240px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); border: 1.5px solid var(--line); border-radius: 16px; z-index: 200; flex-direction: column; padding: 12px 0; }
+    .dropdown-content.show { display: none; position: absolute; top: 110%; left: 0; background-color: var(--card); min-width: 240px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); border: 1.5px solid var(--line); border-radius: 16px; z-index: 200; flex-direction: column; padding: 12px 0; }
     .dropdown-content.show { display: flex; animation: slideDown 0.2s ease; }
     .dropdown-content a { padding: 14px 24px; color: var(--muted); font-weight: 700; font-size:15px; transition: 0.15s; }
     .dropdown-content a:hover { color: var(--ink); background: rgba(0,0,0,0.03); }
@@ -112,6 +113,13 @@
     .viewer-section{margin-top:8px}
     .viewer-wrap{position:relative;width:100%;margin-top:10px}
     #selector3dContainer{height:460px!important;min-height:460px}
+    
+    /* Regla para asegurar el correcto comportamiento del canvas y evitar glitches visuales al hacer scroll */
+    #selector3dContainer canvas {
+      display: block !important;
+      width: 100% !important;
+      height: 100% !important;
+    }
     
     .option-card{background:var(--bg);border:1.5px solid var(--line);border-radius:18px;padding:14px 16px;font-size:13.5px;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease,background .18s ease;display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:4px;min-height:100%;box-shadow:0 1px 0 rgba(13,17,16,.03)}
     .option-card:hover{border-color:var(--ink);background:#fff;transform:translateY(-2px);box-shadow:0 5px 14px rgba(13,17,16,.08)}
@@ -399,6 +407,19 @@
         <div class="step-subtitle" style="color:var(--ink); font-weight:700; margin-bottom:12px;">Haz clic sobre la superficie que quieres apoyar en la cama.</div>
         
         <div class="viewer-section">
+          <!-- Herramientas de Control de Transformación -->
+          <div style="display:flex; gap:10px; margin-bottom:12px; align-items:center; width:100%;">
+            <button type="button" id="btnModeTranslate" onclick="setTransformMode('translate')" class="btn-auth green" style="padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: none; display: inline-flex; align-items: center; gap: 6px;">
+              <span>🤚</span> Mover
+            </button>
+            <button type="button" id="btnModeRotate" onclick="setTransformMode('rotate')" class="btn-auth light" style="padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: none; display: inline-flex; align-items: center; gap: 6px;">
+              <span>🔄</span> Rotar
+            </button>
+            <button type="button" onclick="scaleMeshToFit()" class="btn-auth light" style="padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: none; margin-left: auto; display: inline-flex; align-items: center; gap: 6px;">
+              <span>📐</span> Auto-Escalar
+            </button>
+          </div>
+
           <div class="viewer-wrap">
             <div id="selector3dContainer" style="width:100%; background:#161d1a; border-radius:16px; position:relative; overflow:hidden; border:2px solid var(--line); margin-bottom:12px;"></div>
           </div>
@@ -728,6 +749,18 @@
       return result;
     }
 
+    // FUNCIÓN DE PEGADO AUTOMÁTICO A LA CAMA (Cero físico en Y)
+    function snapToBed() {
+      if (!sMesh) return;
+      sMesh.updateMatrixWorld(true);
+      const bbox = new THREE.Box3().setFromObject(sMesh);
+      const adjustmentY = -bbox.min.y;
+      if (Math.abs(adjustmentY) > 0.0001) {
+        sMesh.position.y += adjustmentY;
+        sMesh.updateMatrixWorld(true);
+      }
+    }
+
     // COMPROBACIÓN DINÁMICA DE LÍMITES FÍSICOS DE LA CAMA (TOLERANCIA ESTRICTA DE CENTÉSIMAS)
     function checkLimits() {
       if (!sMesh || !answers.printer) return;
@@ -740,19 +773,19 @@
       const maxX =  limits.x / 2;
       const minZ = -limits.y / 2;
       const maxZ =  limits.y / 2;
-      const maxY =  limits.z; // altura en Y (eje verde) [1]
+      const maxY =  limits.z; // altura en Y (eje verde)
 
-      // Tolerancia estricta de 0.01 mm (centésimas de milímetro) para validez instantánea [2]
+      // Tolerancia estricta de 0.01 mm (centésimas de milímetro) para validez instantánea
       const outOfX = bbox.min.x < minX - 0.01 || bbox.max.x > maxX + 0.01;
       const outOfZ = bbox.min.z < minZ - 0.01 || bbox.max.z > maxZ + 0.01;
       const outOfY = bbox.max.y > maxY + 0.01 || bbox.min.y < -0.01;
 
       if (outOfX || outOfZ || outOfY) {
-        sMesh.material.color.setHex(0xb42318); // Rojo de colisión [2]
+        sMesh.material.color.setHex(0xb42318); // Rojo de colisión
         sMesh.material.needsUpdate = true;
         answers.selectedSupportFace = null; 
       } else {
-        sMesh.material.color.setHex(0x388e3c); // Verde estándar (posición válida) [2]
+        sMesh.material.color.setHex(0x388e3c); // Verde estándar (posición válida)
         sMesh.material.needsUpdate = true;
         answers.selectedSupportFace = 1; 
       }
@@ -772,16 +805,37 @@
     window.setTransformMode = function(mode) {
       if (!transformControls) return;
       
+      const btnTranslate = document.getElementById("btnModeTranslate");
+      const btnRotate = document.getElementById("btnModeRotate");
+
       if (mode === 'translate') {
         transformControls.setMode('translate');
         transformControls.showX = true;
         transformControls.showY = true;
-        transformControls.showZ = true; // Movimiento habilitado en el eje Z (desplazamiento en profundidad)
+        transformControls.showZ = true;
+
+        if (btnTranslate) {
+          btnTranslate.classList.remove("light");
+          btnTranslate.classList.add("green");
+        }
+        if (btnRotate) {
+          btnRotate.classList.remove("green");
+          btnRotate.classList.add("light");
+        }
       } else if (mode === 'rotate') {
         transformControls.setMode('rotate');
-        transformControls.showX = true; // Rotación libre en todos los ejes del espacio
+        transformControls.showX = true;
         transformControls.showY = true;
-        transformControls.showZ = true; 
+        transformControls.showZ = true;
+
+        if (btnTranslate) {
+          btnTranslate.classList.remove("green");
+          btnTranslate.classList.add("light");
+        }
+        if (btnRotate) {
+          btnRotate.classList.remove("light");
+          btnRotate.classList.add("green");
+        }
       }
     };
 
@@ -795,13 +849,13 @@
       const modelSize = new THREE.Vector3();
       currentBbox.getSize(modelSize);
 
-      // Bed es X (limits.x), Z (limits.y). Altura es Y (limits.z) [1]
+      // Bed es X (limits.x), Z (limits.y). Altura es Y (limits.z)
       const scaleX = limits.x / modelSize.x;
       const scaleY = limits.z / modelSize.y; // altura útil
       const scaleZ = limits.y / modelSize.z; // profundidad útil
       const minScale = Math.min(scaleX, scaleY, scaleZ);
 
-      sMesh.scale.multiplyScalar(minScale);
+      sMesh.scale.multiplyScalar(minScale * 0.95); // Factor de seguridad menor para evitar roces de margen
       sMesh.updateMatrixWorld(true);
 
       const finalBbox = new THREE.Box3().setFromObject(sMesh);
@@ -834,15 +888,20 @@
       const container = document.getElementById("selector3dContainer");
       if (!container) return;
 
+      // Limpieza total del contenedor para prevenir duplicaciones del canvas y glitches del framebuffer
+      container.innerHTML = "";
+
       sScene = new THREE.Scene();
       sScene.background = new THREE.Color(0x111715);
 
       sCamera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 1, 1000);
       sCamera.position.set(130, 130, 150);
-      sCamera.up.set(0, 1, 0); // Configuración del espacio con Y como vertical (eje verde) [1]
+      sCamera.up.set(0, 1, 0); // Configuración del espacio con Y como vertical (eje verde)
 
-      sRenderer = new THREE.WebGLRenderer({ antialias: true });
+      sRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+      sRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       sRenderer.setSize(container.clientWidth, container.clientHeight);
+      sRenderer.domElement.style.display = 'block';
       container.appendChild(sRenderer.domElement);
 
       const light1 = new THREE.DirectionalLight(0xffffff, 1.4);
@@ -859,7 +918,7 @@
       gridHelper = new THREE.GridHelper(gridSize, 30, 0x5e6661, 0x2e3a35); // Rejilla plana natural sobre X-Z
       sScene.add(gridHelper);
 
-      const boxGeo = new THREE.BoxGeometry(limits.x, limits.z, limits.y); // Alto en Y (eje verde) [1]
+      const boxGeo = new THREE.BoxGeometry(limits.x, limits.z, limits.y); // Alto en Y (eje verde)
       const edges = new THREE.EdgesGeometry(boxGeo);
       const lineMaterial = new THREE.LineBasicMaterial({ color: 0x5e6661, transparent: true, opacity: 0.15 });
       printVolumeBox = new THREE.LineSegments(edges, lineMaterial);
@@ -869,7 +928,7 @@
       // Instanciación del motor manual (TransformControls)
       transformControls = new THREE.TransformControls(sCamera, sRenderer.domElement);
       transformControls.size = 0.75;
-      transformControls.space = "local"; // Orientación local de las flechas activada de forma nativa [2]
+      transformControls.space = "local"; // Orientación local de las flechas activada de forma nativa
       
       // Restricciones iniciales del motor interactivo
       transformControls.setMode('translate');
@@ -885,25 +944,23 @@
         isDraggingTransform = event.value;
         if (event.value) {
           wasDragging = true;
-        }
-      });
-
-      // Llama a checkLimits() y restringe la penetración de la cama (eje verde Y) [2]
-      transformControls.addEventListener('objectChange', () => {
-        if (sMesh) {
-          sMesh.updateMatrixWorld(true);
-          const bbox = new THREE.Box3().setFromObject(sMesh);
-          const offsetY = -bbox.min.y;
-          // Si el fondo de la pieza sobrepasa el suelo (Y=0), bloquea y colisiona [2]
-          if (offsetY > 0.001) {
-            sMesh.position.y += offsetY;
-            sMesh.updateMatrixWorld(true);
-          }
+        } else {
+          // Al soltar el control del mouse, forzamos un pegado ultra-preciso en la cama
+          snapToBed();
           checkLimits();
         }
       });
 
-      // Evento de clic en el canvas para seleccionar cara de apoyo (filtrado por temporizador de arrastre) [2]
+      // Llama a checkLimits() y restringe la penetración o separación de la cama (eje verde Y)
+      transformControls.addEventListener('objectChange', () => {
+        if (sMesh) {
+          // Fuerza el pegado dinámico en tiempo real para evitar que la pieza flote o se hunda
+          snapToBed();
+          checkLimits();
+        }
+      });
+
+      // Evento de clic en el canvas para seleccionar cara de apoyo (filtrado por temporizador de arrastre)
       sRenderer.domElement.addEventListener("click", onMeshClick);
 
       const reader = new FileReader();
@@ -925,7 +982,7 @@
         sMesh.updateMatrixWorld(true);
 
         const bbox = new THREE.Box3().setFromObject(sMesh);
-        sMesh.position.y = -bbox.min.y; // Apoya a nivel Y=0 (cama de impresión) [2]
+        sMesh.position.y = -bbox.min.y; // Apoya a nivel Y=0 (cama de impresión)
         sMesh.updateMatrixWorld(true);
 
         sScene.add(sMesh); // Agregado a la escena de forma efectiva
@@ -948,10 +1005,10 @@
       };
       reader.readAsArrayBuffer(window.selectedSTLFile);
 
-      // FUNCIÓN DE ALINEACIÓN POR PULSACIÓN EN LA PIEZA (RESTABLECIDA DE FORMA SEGURA EN Y-UP) [2]
+      // FUNCIÓN DE ALINEACIÓN POR PULSACIÓN EN LA PIEZA (RESTABLECIDA DE FORMA SEGURA EN Y-UP)
       function onMeshClick(event) {
         if (!sMesh || wasDragging || isDraggingTransform) {
-          wasDragging = false; // Restablece de forma lógica para admitir clics limpios en el futuro [2]
+          wasDragging = false; // Restablece de forma lógica para admitir clics limpios en el futuro
           return;
         }
         
@@ -1037,7 +1094,7 @@
             sMesh.position.y = -bbox.min.y;
             sMesh.updateMatrixWorld(true);
             
-            sMesh.material.color.setHex(0x388e3c); // Verde de posición correcta [2]
+            sMesh.material.color.setHex(0x388e3c); // Verde de posición correcta
             sMesh.material.needsUpdate = true;
             
             if (highlightRing) sScene.remove(highlightRing);
