@@ -39,62 +39,12 @@
     .tool-header h1{font-size:clamp(32px, 4.5vw, 54px); letter-spacing:-0.03em; line-height:1.05; margin:0 0 12px; font-weight:800;}
     .tool-header p{font-size:18px; color:var(--muted); max-width:900px; margin:0; line-height:1.5;}
 
-    .report-grid{
-      display:grid;
-      grid-template-columns:repeat(2, minmax(0, 1fr));
-      gap:24px;
-      align-items:start;
-      padding:24px 0 64px;
-    }
-    .report-grid > div{
-      min-width:0;
-      width:100%;
-    }
-    .report-grid > div > *{width:100%;}
-
-    .mesh-comparison{
-      background:var(--dark);
-      border-radius:24px;
-      padding:24px;
-      color:#fff;
-      display:flex;
-      flex-direction:column;
-      gap:20px;
-      box-shadow:0 15px 35px rgba(0,0,0,0.12);
-    }
-    .mesh-canvas{
-      background:#161d1a;
-      border-radius:16px;
-      height:380px;
-      width:100%;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      border:1px dashed #2e3a35;
-      position:relative;
-      overflow:hidden;
-    }
-
     .param-box{background:var(--card); border:2px solid var(--line); border-radius:20px; padding:24px; margin-bottom:24px;}
     .param-title{font-size:14px; text-transform:uppercase; font-weight:800; color:var(--muted); margin-bottom: 12px;}
     
-    /* Tarjeta Geométrica Real (Azul suave) */
-    .geom-card {
-      background: #f0f6fa;
-      border: 2px solid #bcd1db;
-      border-radius: 20px;
-      padding: 24px;
-      margin-top: 0px;
-    }
-    .geom-card h4 {
-      color: #1a3c48;
-      margin: 0 0 16px;
-      font-weight: 800;
-    }
-    
     /* Contenedor Compacto con Scroll */
     .scrollable-params-container {
-      max-height: 320px;
+      max-height: 480px;
       overflow-y: auto;
       padding: 8px;
       border: 1.5px solid var(--line);
@@ -158,285 +108,16 @@
     .footer-links a:hover span.arrow { color: var(--accent); }
     .footer-bottom { border-top: 1px solid var(--line); padding-top: 24px; display:flex; justify-content:center; align-items:center; text-align:center; font-size: 13px; color: #7d8782;}
 
-    @media(max-width:992px) {
-      .report-grid { grid-template-columns:1fr; gap:20px; }
-      .mesh-canvas { height:360px; }
-    }
-
-    @media(max-width:600px) {
-      .wrap { padding-left:20px; padding-right:20px; }
-      .tool-header { padding-top:40px; }
-      .mesh-comparison, .geom-card, .param-box, .download-panel { padding:20px; }
-      .mesh-canvas { height:320px; }
-    }
-  </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/STLLoader.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/controls/OrbitControls.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../assets/js/auth-helper.js?v=11"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-
-
-<style id="analizador-shared-style">
-/* Identidad visual compartida exactamente con el Analizador STL */
-
-    :root{ --bg:#f6f7f4; --card:#fff; --ink:#0d1110; --muted:#5e6661; --line:#dfe4df; --accent:#b8ff3d; --dark:#111715; --max:1200px; }
-    *{box-sizing:border-box}
-    body{margin:0; background:var(--bg); color:var(--ink); font-family:"Plus Jakarta Sans",sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased;}
-    a{color:inherit;text-decoration:none}
-    .wrap{max-width:var(--max);margin:auto;padding:0 40px}
-    
-    .top{position:sticky;top:0;z-index:100;background:rgba(246,247,244,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
-    nav{min-height:95px;display:flex;align-items:center;justify-content:space-between;}
-    .header-left{display:flex;align-items:center;gap:24px;}
-    .brand{font-size:26px;font-weight:800;letter-spacing:-1px}
-    .brand span{background:var(--accent);padding:5px 12px;border-radius:10px;margin-left:6px;color:var(--ink)}
-    
-    .menu-dropdown{position:relative;display:inline-block}
-    .hamburger{background:none;border:none;cursor:pointer;padding:10px;display:flex;flex-direction:column;gap:5px;outline:none}
-    .hamburger span{display:block;width:26px;height:3px;background:var(--ink);border-radius:2px; transition: 0.3s;}
-    .hamburger:hover span { background: var(--muted); }
-    
-    .dropdown-content{display:none;position:absolute;top:110%;left:0;background-color:var(--card);min-width:240px;box-shadow:0 20px 40px rgba(0,0,0,.1);border:1.5px solid var(--line);border-radius:16px;z-index:200;flex-direction:column;padding:12px 0}
-    .dropdown-content.show{display:flex;animation:slideDown .2s ease}
-    .dropdown-content a { padding: 14px 24px; color: var(--muted); font-weight: 700; font-size:15px; transition: 0.15s; }
-    .dropdown-content a:hover { color: var(--ink); background: rgba(0,0,0,0.03); }
-    .dropdown-content a.active { color: var(--ink); background: #f0f4f0; border-left: 4px solid var(--accent); padding-left: 20px; }
-
-    .auth-buttons{display:flex;gap:12px;align-items:center}
-    .btn-auth{display:inline-flex; align-items:center; justify-content:center; padding:12px 24px; border-radius:9999px; font-weight:800; font-size:14px; border:2px solid var(--ink); cursor:pointer; text-decoration:none; transition: .2s ease;}
-    .btn-auth.light{background:#fff; color:var(--ink); box-shadow:0 3px 0 var(--ink)}
-    .btn-auth.light:hover{transform:translateY(-1px); box-shadow:0 4px 0 var(--ink)}
-    .btn-auth.green{background:var(--accent); color:var(--ink); box-shadow:0 3px 0 var(--ink)}
-
-    .upload-container{
-      max-width:740px; 
-      margin:60px auto;
-      background:var(--card);
-      border:2px dashed var(--line);
-      border-radius:24px;
-      padding:40px 32px; 
-      text-align:center;
-      box-shadow: 0 20px 40px rgba(13, 17, 16, 0.025);
-      transition: border-color 0.25s ease, background-color 0.25s ease, transform 0.25s ease;
-    }
-    .upload-container:hover{
-      border-color: var(--ink);
-    }
-    .upload-container.drag-over{
-      border-color:var(--accent);
-      background:#fbfcfa;
-      transform:scale(1.015);
-    }
-    
-    .upload-icon-wrapper {
-      width: 72px;
-      height: 72px;
-      background: var(--bg);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 16px;
-      font-size: 30px;
-      border: 1.5px solid var(--line);
-      box-shadow: 0 8px 16px rgba(13, 17, 16, 0.02);
-      transition: transform 0.3s ease, background-color 0.3s ease;
-    }
-    .upload-container:hover .upload-icon-wrapper {
-      transform: translateY(-4px) scale(1.05);
-      background-color: #fff;
-    }
-
-    .upload-title {
-      font-size: 24px;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-      margin-top: 12px;
-      margin-bottom: 6px;
-      color: var(--ink);
-    }
-    .upload-desc {
-      font-size: 14.5px;
-      color: var(--muted);
-      margin-bottom: 28px;
-    }
-    .drag-help {
-      font-size: 13px;
-      color: var(--muted);
-      margin-top: 16px;
-      font-weight: 500;
-    }
-    
-    .selected-file {
-      display: none;
-      margin: 20px auto 0;
-      max-width: 600px;
-      padding: 14px 20px;
-      background: #fbfcfa;
-      border: 1.5px solid rgba(184, 255, 61, 0.5);
-      border-radius: 14px;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 8px 20px rgba(184, 255, 61, 0.04);
-    }
-    .selected-file.show {
-      display: flex;
-      animation: slideDown 0.3s ease;
-    }
-    .selected-file-name {
-      font-weight: 700;
-      font-size: 14.5px;
-      color: var(--ink);
-    }
-    .selected-file-size {
-      font-size: 12.5px;
-      color: var(--muted);
-      margin-top: 2px;
-    }
-    .btn-remove-file {
-      background: none;
-      border: none;
-      color: #d9432f;
-      font-size: 18px;
-      font-weight: 800;
-      cursor: pointer;
-      outline: none;
-      padding: 6px;
-      transition: transform 0.2s ease, opacity 0.2s ease;
-      opacity: 0.8;
-    }
-    .btn-remove-file:hover {
-      transform: scale(1.15) rotate(90deg);
-      opacity: 1;
-    }
-
-    .wizard-step{display:none; text-align:left; animation:fadeIn 0.3s ease-out;}
-    .wizard-step.active{display:block;}
-    @keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
-
-    .step-title{font-size:20px; font-weight:800; margin-bottom:8px; color:var(--ink); display:flex; justify-content:space-between; align-items:center;}
-    .step-subtitle{font-size:14px; color:var(--muted); margin-bottom:20px;}
-    
-    .option-grid{
-      display:grid; 
-      grid-template-columns:repeat(3, 1fr); 
-      gap: 10px; 
-      margin-bottom:20px;
-    }
-    .option-card{
-      background:var(--bg); 
-      border:1.5px solid var(--line); 
-      border-radius:12px; 
-      padding:12px 14px; 
-      font-size:13.5px; 
-      cursor:pointer; 
-      transition:.15s; 
-      display:flex; 
-      flex-direction:column; 
-      align-items:flex-start;
-      text-align:left;
-      gap:2px;
-    }
-    .option-card:hover{border-color:var(--ink); background:#fff;}
-    .option-card.selected{background:var(--dark); color:var(--accent); border-color:var(--dark);}
-    .option-card.selected .option-card-desc{color:#b8c0bb;}
-    .option-card span.emoji{font-size:20px;}
-    
-    .option-card-title {
-      font-weight: 800;
-      font-size: 13.5px;
-      color: inherit;
-      margin-top: 2px;
-    }
-    .option-card-desc {
-      font-weight: 500;
-      font-size: 11px;
-      color: var(--muted);
-      line-height: 1.35;
-      margin-top: 1px;
-    }
-
-    .form-group{margin-bottom:16px; display:flex; flex-direction:column;}
-    .form-group label{font-size:12.5px; font-weight:800; margin-bottom:6px; color:var(--muted);}
-    .form-group input, .form-group textarea, .form-group select{padding:12px; border:1.5px solid var(--line); border-radius:12px; font-size:14.5px; font-weight:700; background:var(--bg); color:var(--ink); outline:none; font-family:inherit;}
-    .form-group input:focus, .form-group textarea:focus, .form-group select:focus{background:#fff; border-color:var(--ink);}
-
-    .wizard-nav-buttons{display:flex; justify-content:space-between; margin-top:28px; border-top:1.5px solid var(--line); padding-top:20px;}
-    .btn-green{display:inline-block; background:var(--accent); color:var(--ink); padding:14px 30px; border-radius:9999px; font-weight:800; font-size:14.5px; border:2px solid var(--ink); box-shadow:0 4px 0 var(--ink); cursor:pointer;}
-    .btn-green:hover:not(:disabled){transform:translateY(-1px); box-shadow:0 6px 0 var(--ink);}
-    .btn-green:disabled{opacity:0.5; cursor:not-allowed; box-shadow:none; transform:none;}
-    .btn-secondary{background:#fff; color:var(--ink); border:2px solid var(--ink); padding:16px 36px; border-radius:9999px; font-weight:800; font-size:14.5px; cursor:pointer;}
-
-    .progress-container{height:6px; background:var(--line); border-radius:3px; margin-bottom:28px; overflow:hidden;}
-    .progress-bar{height:100%; background:var(--ink); width:0%; transition:width 0.3s ease;}
-
-    .footer { background: var(--bg); border-top: 1px solid var(--line); padding: 80px 0 40px; color: var(--muted); font-size: 14px; line-height: 1.6; }
-    .footergrid { display: grid; grid-template-columns: 1.3fr 0.85fr 0.85fr; gap: 60px; margin-bottom: 48px; }
-    .footer-col h3 { font-size: 16px; font-weight: 800; color: var(--ink); margin: 0 0 20px; letter-spacing: -0.3px; }
-    .footer-col p { margin: 0 0 16px; color: var(--muted); }
-    .footer-secondary-text { font-size: 12.5px; line-height: 1.5; color: #7d8782; margin-top: 12px; }
-    .footer-links { display: flex; flex-direction: column; gap: 10px; }
-    .footer-links a { color: var(--muted); transition: color 0.15s ease, transform 0.15s ease; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
-    .footer-links a:hover { color: var(--ink); transform: translateX(2px); }
-    .footer-links a span.arrow { transition: color 0.15s ease; }
-    .footer-links a:hover span.arrow { color: var(--accent); }
-    .footer-bottom { border-top: 1px solid var(--line); padding-top: 24px; display:flex; justify-content:center; align-items:center; text-align:center; font-size: 13px; color: #7d8782;}
-
-    @media(max-width:992px){
-      .footergrid{grid-template-columns:1.2fr 1fr; gap:40px}
-      .option-grid{grid-template-columns:repeat(2, 1fr);}
-    }
     @media(max-width:768px){
       .wrap{padding:0 20px}
       .footergrid{grid-template-columns:1fr; gap:36px}
     }
-    @media(max-width:480px){
-      .option-grid{grid-template-columns:1fr;}
-    }
-    @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
-
-    #authHeaderContainer span[style*="background" i],
-    #authHeaderContainer span[style*="accent" i],
-    #authHeaderContainer span:nth-child(2),
-    #authHeaderContainer div span:nth-child(2) {
-      background: var(--accent) !important;
-      background-color: var(--accent) !important;
-      color: var(--ink) !important;
-      padding: 8px 18px !important;
-      border-radius: 9999px !important;
-      font-weight: 800 !important;
-      font-size: 15px !important;
-      border: none !important;
-      border-width: 0px !important;
-      box-shadow: none !important;
-      display: inline-flex !important;
-      align-items: center !important;  
-      justify-content: center !important; 
-      align-self: center !important;
-      line-height: 1 !important; 
-      height: auto !important;
-      min-height: 0 !important;
-      max-height: 38px !important;
-      margin: auto 0 !important;
-      white-space: nowrap !important;
-    }
-
-    #authHeaderContainer .user-greeting,
-    #authHeaderContainer span:nth-child(1),
-    #authHeaderContainer div span:nth-child(1),
-    #authHeaderContainer span:first-child,
-    #authHeaderContainer div span:first-child {
-      font-weight: 700 !important;
-      font-size: 15px !important;
-      color: var(--ink) !important;
-      display: inline-block !important;
-      margin: auto 0 !important;
-      white-space: nowrap !important;
-    }
-  
-</style>
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/STLLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../assets/js/auth-helper.js?v=11"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
 
@@ -475,73 +156,31 @@
       <a href="analizador-stl.html" class="btn-auth green" style="padding: 14px 30px; border-radius:12px;">Ir al Analizador STL</a>
     </div>
 
-    <div id="reportMainContent" style="display:none;">
+    <div id="reportMainContent" style="display:none; max-width:740px; margin: 0 auto; padding-bottom: 64px;">
       <div class="tool-header">
-        <h1>Informe de Análisis y Laminación</h1>
-        <p>Datos reales calculados del modelo 3D con su perfil estructurado de laminación.</p>
+        <h1>Informe de Laminación</h1>
+        <p id="reportFileNameHeader" style="margin-top: 12px; font-weight:800; color:var(--ink); font-size:16px;">📄 Cargando...</p>
       </div>
 
-      <div class="report-grid">
-        <!-- SECCIÓN 1 & 2: MODELO, ORIENTACIÓN Y ANÁLISIS GEOMÉTRICO REAL -->
-        <div>
-          <div class="mesh-comparison">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <span id="reportFileName" style="font-weight:800; font-size:15px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:240px;">Cargando...</span>
-              <span style="color:var(--accent); font-weight:800; font-size:12px;">✓ Orientación Aplicada</span>
-            </div>
-            <div class="mesh-canvas" id="canvas3dContainer"></div>
-          </div>
+      <!-- Parámetros de OrcaSlicer Completos con Buscador y Scroll -->
+      <div class="param-box" style="padding: 24px; margin-top:24px;">
+        <h4 class="param-title" style="margin-bottom: 4px;">Parámetros del Slicer (Base de datos unificada)</h4>
+        <p style="font-size: 13px; color: var(--muted); margin-bottom: 16px; margin-top:0;">Fusión de parámetros equivalentes para OrcaSlicer, BambuStudio, PrusaSlicer y Cura.</p>
+        
+        <input type="text" id="paramSearch" placeholder="🔍 Filtrar parámetro por código, descripción o laminador..." style="width:100%; padding: 12px 16px; border-radius: 12px; border: 1.5px solid var(--line); font-family: inherit; font-size:14px; outline:none; margin-bottom: 24px; background:var(--bg); color:var(--ink);">
 
-          <!-- Tarjeta de Análisis Geométrico (Azul diferenciador) -->
-          <div class="geom-card">
-            <h4>Análisis Geométrico Real</h4>
-            <div class="param-row"><span>Volumen de la pieza:</span> <strong id="reportVolume">Calculando...</strong></div>
-            <div class="param-row"><span>Dimensiones límite de caja:</span> <strong id="reportDimensions">Calculando...</strong></div>
-            <div class="param-row"><span>Aristas Manifold (Estanco):</span> <strong id="reportManifold">Calculando...</strong></div>
-            <div class="param-row"><span>Grosor de pared local mínimo:</span> <strong id="reportThickness">Calculando...</strong></div>
-            <div class="param-row"><span>Área física de voladizo crítico:</span> <strong id="reportOverhang">Calculando...</strong></div>
-          </div>
-
-          <!-- Tarjeta de Soportes Calculados (Tono ámbar/naranja suave) -->
-          <div style="background: #fffcf0; border: 2px solid #ecdca5; border-radius: 20px; padding: 24px; margin-top: 24px;">
-            <h4 style="color: #4a3e1a; margin: 0 0 16px; font-weight: 800; font-size:16px;">Soportes de Fabricación Recomendados</h4>
-            <div class="param-row"><span>Soportes Necesarios:</span> <strong id="reportSupportNeeded">Calculando...</strong></div>
-            <div class="param-row"><span>Estilo de Estructura:</span> <strong id="reportSupportStyle">Calculando...</strong></div>
-            <div class="param-row"><span>Tipo de Soporte:</span> <strong id="reportSupportType">Calculando...</strong></div>
-            <div class="param-row"><span>Área en Voladizo (Overhang):</span> <strong id="reportSupportArea">Calculando...</strong></div>
-            <div class="param-row"><span>Distancia de Contacto Superior (Z):</span> <strong id="reportSupportZDistance">Calculando...</strong></div>
-          </div>
-
-          <!-- Tarjeta de Conclusiones de Propósito (Blanco hueso suave) -->
-          <div style="margin-top:24px; padding:24px; background:#fbfbf9; border:1.5px solid #d3d3cf; border-radius:20px;">
-            <h4 style="margin:0 0 12px; font-weight:800; color: #32322c;">Propósito del Laminado</h4>
-            <div id="purposeConclusionBox" style="font-size: 14px; line-height:1.5; color: var(--muted);"></div>
-          </div>
+        <div class="scrollable-params-container" style="max-height: 440px;">
+          <div id="parametersDynamicContainer"></div>
         </div>
+      </div>
 
-        <!-- SECCIÓN 3, 4 & 5: PARÁMETROS ORCASLICER COMPLETOS Y EXPORTACIÓN -->
-        <div>
-          <!-- Parámetros de OrcaSlicer Completos con Buscador y Scroll -->
-          <div class="param-box" style="padding: 24px;">
-            <h4 class="param-title" style="margin-bottom: 4px;">Parámetros del Slicer (Base de datos unificada)</h4>
-            <p style="font-size: 13px; color: var(--muted); margin-bottom: 16px; margin-top:0;">Fusión de parámetros equivalentes para OrcaSlicer, BambuStudio, PrusaSlicer y Cura.</p>
-            
-            <input type="text" id="paramSearch" placeholder="🔍 Filtrar parámetro por código, descripción o laminador..." style="width:100%; padding: 12px 16px; border-radius: 12px; border: 1.5px solid var(--line); font-family: inherit; font-size:14px; outline:none; margin-bottom: 24px; background:var(--bg); color:var(--ink);">
-
-            <div class="scrollable-params-container">
-              <div id="parametersDynamicContainer"></div>
-            </div>
-          </div>
-
-          <div class="download-panel">
-            <h4 style="margin:0 0 16px; font-weight:800;">Exportación de Proyecto</h4>
-            
-            <button class="btn-download-stl btn green" id="download3mfBtn" style="background:var(--accent); color:var(--ink); border-color:var(--ink); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; width:100%; padding:18px 24px; border-radius:9999px; box-shadow:0 4px 0 var(--ink);">
-              <span style="font-size: 16px; font-weight: 800;">Abrir proyecto en laminador (.3MF)</span>
-              <span style="font-size: 11px; font-weight: 500; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.5px;">Abrir dentro del laminador</span>
-            </button>
-          </div>
-        </div>
+      <div class="download-panel">
+        <h4 style="margin:0 0 16px; font-weight:800;">Exportación de Proyecto</h4>
+        
+        <button class="btn-download-stl btn green" id="download3mfBtn" style="background:var(--accent); color:var(--ink); border-color:var(--ink); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; width:100%; padding:18px 24px; border-radius:9999px; box-shadow:0 4px 0 var(--ink);">
+          <span style="font-size: 16px; font-weight: 800;">Abrir proyecto en laminador (.3MF)</span>
+          <span style="font-size: 11px; font-weight: 500; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.5px;">Abrir dentro del laminador</span>
+        </button>
       </div>
     </div>
   </main>
@@ -590,7 +229,8 @@
   </script>
 
   <script>
-    let scene, camera, renderer, controls, activeMesh;
+    let activeGeometry = null;
+    let activeMatrix = new THREE.Matrix4();
 
     const printerLimits = {
       "Bambu Lab X1 Carbon": { x: 256, y: 256, z: 256 },
@@ -731,186 +371,6 @@
       ]
     };
 
-    function getUniqueVerticesForBounds(mesh) {
-      const geometry = mesh.geometry;
-      const scale = mesh.scale;
-      const pos = geometry.attributes.position;
-      const unique = [];
-      const seen = new Set();
-      const step = Math.max(1, Math.floor(pos.count / 3000)); 
-      for (let i = 0; i < pos.count; i += step) {
-        const x = pos.getX(i) * scale.x;
-        const y = pos.getY(i) * scale.y;
-        const z = pos.getZ(i) * scale.z;
-        const rx = Math.round(x * 100) / 100;
-        const ry = Math.round(y * 100) / 100;
-        const rz = Math.round(z * 100) / 100;
-        const key = `${rx}_${ry}_${rz}`;
-        if (!seen.has(key)) {
-          seen.add(key);
-          unique.push(new THREE.Vector3(x, y, z));
-        }
-      }
-      return unique;
-    }
-
-    function checkMeshBounds(mesh, limits) {
-      if (!mesh || !limits) return false;
-      mesh.updateMatrixWorld(true);
-
-      const bbox = new THREE.Box3().setFromObject(mesh);
-      const minY = -0.05;
-      const maxY = limits.z + 0.05;
-
-      if (bbox.min.y < minY || bbox.max.y > maxY) {
-        return false;
-      }
-
-      const uniqueVerts = getUniqueVerticesForBounds(mesh);
-      const minX = -limits.x / 2 - 0.05;
-      const maxX =  limits.x / 2 + 0.05;
-      const minZ = -limits.y / 2 - 0.05;
-      const maxZ =  limits.y / 2 + 0.05;
-
-      const tempMatrix = new THREE.Matrix4().compose(
-        mesh.position,
-        mesh.quaternion,
-        new THREE.Vector3(1, 1, 1)
-      );
-
-      for (const v of uniqueVerts) {
-        const worldV = v.clone().applyMatrix4(tempMatrix);
-        if (worldV.x < minX || worldV.x > maxX || worldV.z < minZ || worldV.z > maxZ) {
-          return false;
-        }
-      }
-      return true;
-    }
-
-    function init3DViewer(containerId, base64Data, criticalPoints, questionnaire) {
-      const container = document.getElementById(containerId);
-      if (!container) return;
-
-      scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x111715);
-
-      camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 1, 1000);
-      camera.position.set(130, 130, 150);
-      camera.up.set(0, 1, 0); // Y-UP estándar idéntico al analizador
-
-      renderer = new THREE.WebGLRenderer({ antialias: true });
-      renderer.setSize(container.clientWidth, container.clientHeight);
-      container.appendChild(renderer.domElement);
-
-      const light1 = new THREE.DirectionalLight(0xffffff, 1.4);
-      light1.position.set(1, 3, 1).normalize();
-      scene.add(light1);
-      scene.add(new THREE.AmbientLight(0x404040));
-
-      controls = new THREE.OrbitControls(camera, renderer.domElement);
-      controls.enableDamping = true;
-
-      // Generar volumen y cama dinámicos idénticos a los del analizador para mantener coherencia visual
-      const limits = printerLimits[questionnaire.printer] || { x: 220, y: 220, z: 250 };
-      const gridSize = Math.max(limits.x, limits.y);
-      const gridHelper = new THREE.GridHelper(gridSize, 30, 0x5e6661, 0x2e3a35);
-      scene.add(gridHelper);
-
-      const boxGeo = new THREE.BoxGeometry(limits.x, limits.z, limits.y); // Alto en Y (eje verde)
-      const edges = new THREE.EdgesGeometry(boxGeo);
-      const lineMaterial = new THREE.LineBasicMaterial({ color: 0x5e6661, transparent: true, opacity: 0.15 });
-      const printVolumeBox = new THREE.LineSegments(edges, lineMaterial);
-      printVolumeBox.position.set(0, limits.z / 2, 0);
-      scene.add(printVolumeBox);
-
-      const binaryStr = atob(base64Data);
-      const bytes = new Uint8Array(binaryStr.length);
-      for (let i = 0; i < binaryStr.length; i++) { bytes[i] = binaryStr.charCodeAt(i); }
-
-      const loader = new THREE.STLLoader();
-      const geometry = loader.parse(bytes.buffer);
-      
-      // ALINEACIÓN Y CENTRADO DE ORIGEN IDÉNTICO AL ANALIZADOR (Evita el rastro de desfase del STL original)
-      geometry.center();
-      geometry.computeBoundingBox();
-
-      const material = new THREE.MeshPhongMaterial({ 
-        color: 0x388e3c, // Verde estándar inicial idéntico al del analizador
-        specular: 0x222222, 
-        shininess: 40,
-        side: THREE.DoubleSide
-      });
-
-      activeMesh = new THREE.Mesh(geometry, material);
-      scene.add(activeMesh);
-
-      // Reconstrucción y aplicación exacta de la matriz de rotación/colocación aplicada por el usuario
-      if (questionnaire && questionnaire.transformationMatrix) {
-        const tm = questionnaire.transformationMatrix;
-        if (Array.isArray(tm[0])) {
-          // Compatibilidad hacia atrás para el formato anidado antiguo
-          activeMesh.matrix.set(
-            tm[0][0], tm[0][1], tm[0][2], tm[0][3],
-            tm[1][0], tm[1][1], tm[1][2], tm[1][3],
-            tm[2][0], tm[2][1], tm[2][2], tm[2][3],
-            tm[3][0], tm[3][1], tm[3][2], tm[3][3]
-          );
-        } else {
-          // Nuevo formato de array plano de 16 elementos (directo e idéntico)
-          activeMesh.matrix.fromArray(tm);
-        }
-        activeMesh.matrixAutoUpdate = false; // Desactiva los recálculos para mantener la rotación y posición intactas
-        activeMesh.updateMatrixWorld(true);
-      }
-
-      // Aplicar color en base a la validez física exacta del recinto idéntico al analizador
-      const inBounds = checkMeshBounds(activeMesh, limits);
-      if (inBounds) {
-        activeMesh.material.color.setHex(0x388e3c); // Verde estándar (posición válida)
-      } else {
-        activeMesh.material.color.setHex(0xb42318); // Rojo de colisión
-      }
-      activeMesh.material.needsUpdate = true;
-
-      // Dibujar anillo de neón si se ha guardado el punto de apoyo por cara en el analizador
-      if (questionnaire && questionnaire.supportFacePoint && questionnaire.supportFaceNormal) {
-        const localPt = new THREE.Vector3().fromArray(questionnaire.supportFacePoint);
-        const localNorm = new THREE.Vector3().fromArray(questionnaire.supportFaceNormal);
-        
-        // Convertir punto local y normal local a coordenadas de mundo
-        const worldPt = localPt.clone().applyMatrix4(activeMesh.matrixWorld);
-        
-        const ringGeo = new THREE.RingGeometry(2.5, 3.2, 32);
-        const ringMat = new THREE.MeshBasicMaterial({ color: 0xb8ff3d, side: THREE.DoubleSide });
-        highlightRing = new THREE.Mesh(ringGeo, ringMat);
-        highlightRing.position.copy(worldPt);
-        
-        const ringNormal = localNorm.clone().applyQuaternion(activeMesh.quaternion);
-        highlightRing.quaternion.copy(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), ringNormal));
-        highlightRing.position.addScaledVector(ringNormal, 0.4);
-        scene.add(highlightRing);
-      }
-
-      const worldBox = new THREE.Box3().setFromObject(activeMesh);
-      const center = new THREE.Vector3();
-      worldBox.getCenter(center);
-      controls.target.copy(center);
-
-      const size = worldBox.getSize(new THREE.Vector3()).length();
-      camera.position.set(center.x + size * 0.9, center.y + size * 0.9, center.z + size * 0.9);
-      controls.update();
-
-      function animate() {
-        requestAnimationFrame(animate);
-        controls.update();
-        if (renderer && scene && camera) {
-          renderer.clear();
-          renderer.render(scene, camera);
-        }
-      }
-      animate();
-    }
-
     document.addEventListener("DOMContentLoaded", () => {
       const stored = sessionStorage.getItem("printlab_analysis");
       if (!stored) {
@@ -924,45 +384,7 @@
       const s = analysis.slicer_settings || {};
       const q = analysis.user_questionnaire || {};
 
-      document.getElementById("reportFileName").textContent = "📄 " + (analysis.file_name || "Malla");
-      document.getElementById("reportVolume").textContent = analysis.volume ? `${analysis.volume} cm³` : "[NO DISPONIBLE] Malla no estanca";
-      document.getElementById("reportDimensions").textContent = analysis.dimensions || "[NO DISPONIBLE]";
-      document.getElementById("reportManifold").textContent = analysis.watertight ? "SÍ (Estanco)" : "NO (Malla abierta con agujeros)";
-      document.getElementById("reportThickness").textContent = s.min_thickness_mm ? `${s.min_thickness_mm} mm` : "[NO CALCULADO]";
-      document.getElementById("reportOverhang").textContent = s.overhang_area_cm2 !== undefined ? `${s.overhang_area_cm2} cm²` : "0.0 cm²";
-
-      // --- CONFIGURACIÓN DE SOPORTES RECOMENDADA DINÁMICA ---
-      const enableSupportVal = s.enable_support;
-      const supportNeededText = (enableSupportVal === 1 || s.overhang_area_cm2 > 0.5) ? "SÍ (Voladizos detectados)" : "NO (Estructura autoportante)";
-      document.getElementById("reportSupportNeeded").textContent = supportNeededText;
-
-      let styleText = "No requerido";
-      if (enableSupportVal === 1 || s.overhang_area_cm2 > 0.5) {
-        styleText = s.support_style === "tree" ? "Árbol (Tree)" : "Normal (Rejilla)";
-      }
-      document.getElementById("reportSupportStyle").textContent = styleText;
-
-      let typeText = "Ninguno";
-      if (enableSupportVal === 1 || s.overhang_area_cm2 > 0.5) {
-        typeText = s.support_type === "normal" ? "Normal (Base)" : "Snug / Ajustado";
-      }
-      document.getElementById("reportSupportType").textContent = typeText;
-
-      document.getElementById("reportSupportArea").textContent = s.overhang_area_cm2 !== undefined ? `${s.overhang_area_cm2} cm²` : "0.0 cm²";
-      document.getElementById("reportSupportZDistance").textContent = s.support_top_z_distance ? `${s.support_top_z_distance} mm` : "0.20 mm";
-
-      // --- CONCLUSIÓN DINÁMICA DE PROPÓSITO ---
-      const purpose = q.purpose || "aesthetic";
-      const purposeBox = document.getElementById("purposeConclusionBox");
-      if (purpose === "aesthetic") {
-        purposeBox.innerHTML = `🎨 <strong style="color: var(--ink);">Orientación Estética:</strong> Configurado para priorizar un acabado impecable y libre de líneas de unión. Espesor de capa reducido (<strong>${s.layer_height} mm</strong>), patrón de relleno de alta eficiencia (<strong>${s.sparse_infill_pattern}</strong>) y velocidades lentas para la pared exterior para pulir el acabado del plástico.`;
-      } else if (purpose === "speed") {
-        purposeBox.innerHTML = `⚡ <strong style="color: var(--ink);">Orientación de Velocidad:</strong> Configurado para reducir el tiempo de impresión al máximo. Se aplican alturas de capa gruesas (<strong>${s.layer_height} mm</strong>), velocidades de pared máximas y un incremento térmico para permitir flujos volumétricos amplios.`;
-      } else if (purpose === "cost") {
-        purposeBox.innerHTML = `🪙 <strong style="color: var(--ink);">Orientación de Ahorro/Coste:</strong> Configurado para minimizar el desperdicio de material. Se utiliza un patrón de relleno ultra-ahorrativo de baja densidad (<strong>${s.sparse_infill_density}%</strong>), perímetros optimizados y velocidades seguras para mitigar errores que puedan suponer pérdidas de filamento.`;
-      } else { // functional
-        purposeBox.innerHTML = `⚙️ <strong style="color: var(--ink);">Orientación Estructural:</strong> Configurado para máxima rigidez. Se aplican capas estables (<strong>${s.layer_height} mm</strong>), perímetros de pared robustos (<strong>${s.wall_loops} perímetros</strong>), densidad del relleno densa (<strong>${s.sparse_infill_density}%</strong>) y aumento de temperatura para consolidar la unión mecánica.`;
-      }
+      document.getElementById("reportFileNameHeader").textContent = "📄 " + (analysis.file_name || "Malla");
 
       // --- RENDERIZADO DINÁMICO DE LOS 102 PARÁMETROS EN DISEÑO COMPACTO DE FILA ÚNICA ---
       function renderParameters(filterText = "") {
@@ -991,7 +413,6 @@
               row.className = "param-row";
               
               const labelSpan = document.createElement("span");
-              // Colocación en una sola línea de la descripción física con el código en miniatura (SIN PARÉNTESIS)
               labelSpan.innerHTML = `
                 <span style="font-size:13px; font-weight:700; color:var(--ink);">${v.label}</span><br>
                 <code style="font-size:10.5px; color:var(--muted); font-family: monospace;">${v.key}</code>
@@ -1041,7 +462,29 @@
       }
 
       if (analysis.optimized_base64) {
-        init3DViewer("canvas3dContainer", analysis.optimized_base64, analysis.critical_points, q);
+        // Inicializar lectura de la geometría y matriz de transformación en segundo plano (Headless)
+        const binaryStr = atob(analysis.optimized_base64);
+        const bytes = new Uint8Array(binaryStr.length);
+        for (let i = 0; i < binaryStr.length; i++) { bytes[i] = binaryStr.charCodeAt(i); }
+
+        const loader = new THREE.STLLoader();
+        activeGeometry = loader.parse(bytes.buffer);
+        activeGeometry.center();
+        activeGeometry.computeBoundingBox();
+
+        if (q && q.transformationMatrix) {
+          const tm = q.transformationMatrix;
+          if (Array.isArray(tm[0])) {
+            activeMatrix.set(
+              tm[0][0], tm[0][1], tm[0][2], tm[0][3],
+              tm[1][0], tm[1][1], tm[1][2], tm[1][3],
+              tm[2][0], tm[2][1], tm[2][2], tm[2][3],
+              tm[3][0], tm[3][1], tm[3][2], tm[3][3]
+            );
+          } else {
+            activeMatrix.fromArray(tm);
+          }
+        }
 
         // --- CONSTRUCTOR DE PROYECTO .3MF COMPATIBLE ---
         document.getElementById("download3mfBtn").addEventListener("click", async () => {
@@ -1066,12 +509,23 @@
 </Relationships>`;
             zip.file("_rels/.rels", relsXml);
 
-            if (!activeMesh || !activeMesh.geometry) {
-              throw new Error("Geometría del visor 3D no inicializada.");
+            if (!activeGeometry) {
+              throw new Error("Geometría 3D no inicializada.");
             }
-            const geom = activeMesh.geometry;
+            const geom = activeGeometry;
             const position = geom.attributes.position;
             
+            // Reconstrucción del mesh en memoria para calcular el bounding box exacto
+            const dummyMesh = new THREE.Mesh(geom);
+            dummyMesh.matrix.copy(activeMatrix);
+            dummyMesh.matrixAutoUpdate = false;
+            dummyMesh.updateMatrixWorld(true);
+
+            const worldBox = new THREE.Box3().setFromObject(dummyMesh);
+            const currentCenter = new THREE.Vector3();
+            worldBox.getCenter(currentCenter);
+            const currentMinY = worldBox.min.y;
+
             // --- CONSERVACIÓN EXACTA DE LA COORDENADA ABSOLUTA DE RECIENTO ---
             const limits = printerLimits[q.printer] || { x: 220, y: 220, z: 250 };
             
@@ -1079,13 +533,13 @@
             // utilizando de manera fija la mitad de la cama para respetar con total fidelidad el desfase o alineación del usuario.
             const offsetX = limits.x / 2;
             const offsetZ = limits.y / 2;
-            const offsetY = 0; 
+            const offsetY = -currentMinY; 
 
             let verticesXml = "";
             const vertex = new THREE.Vector3();
             for (let i = 0; i < position.count; i++) {
               vertex.fromBufferAttribute(position, i);
-              vertex.applyMatrix4(activeMesh.matrixWorld); // Aplicar rotación y colocación exactas definidas por el usuario
+              vertex.applyMatrix4(dummyMesh.matrixWorld); // Aplicar rotación y colocación exactas definidas por el usuario
               
               const finalX = (vertex.x + offsetX).toFixed(4);
               const finalZ = (vertex.z + offsetZ).toFixed(4);
