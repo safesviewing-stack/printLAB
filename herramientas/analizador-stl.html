@@ -253,34 +253,44 @@ main.wrap{min-height:calc(100vh - 95px)}
 }
 </style>
 
-<style id="cerrar-sesion-copiado-del-index">
-/* ===== COPIA EXACTA DEL BOTÓN DEL INDEX ===== */
-#authHeaderContainer #btn-logout.btn-auth{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  padding:12px 24px;
-  border-radius:9999px;
-  font-weight:800;
-  font-size:14px;
-  cursor:pointer;
-  transition:.2s ease;
-  text-decoration:none;
-  border:2px solid var(--ink);
-  box-sizing:border-box;
-  background:#fff;
-  color:var(--ink);
-  box-shadow:0 3px 0px var(--ink);
+<style id="cerrar-sesion-identico-index-final">
+/* ===== CERRAR SESIÓN: MISMO ESTILO EFECTIVO QUE EN INDEX =====
+   Este bloque se deja al final de los estilos de la página para que
+   el botón del analizador quede visualmente idéntico al del header principal.
+*/
+#authHeaderContainer .user-header-info .btn-auth.light#btn-logout{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:10px 20px !important;
+  border-radius:9999px !important;
+  font-weight:800 !important;
+  font-size:14px !important;
+  cursor:pointer !important;
+  transition:transform .2s ease, box-shadow .2s ease !important;
+  text-decoration:none !important;
+  border:2px solid var(--ink) !important;
+  box-sizing:border-box !important;
+  background:#fff !important;
+  color:var(--ink) !important;
+  box-shadow:0 3px 0 var(--ink) !important;
 }
 
-#authHeaderContainer #btn-logout.btn-auth:hover{
-  transform:translateY(-1px);
-  box-shadow:0 4px 0px var(--ink);
+#authHeaderContainer .user-header-info .btn-auth.light#btn-logout:hover{
+  transform:translateY(-1px) !important;
+  box-shadow:0 4px 0 var(--ink) !important;
 }
 
-#authHeaderContainer #btn-logout.btn-auth:active{
-  transform:translateY(2px);
-  box-shadow:0 1px 0px var(--ink);
+#authHeaderContainer .user-header-info .btn-auth.light#btn-logout:active{
+  transform:translateY(2px) !important;
+  box-shadow:0 1px 0 var(--ink) !important;
+}
+
+@media(max-width:768px){
+  #authHeaderContainer .user-header-info .btn-auth.light#btn-logout{
+    padding:8px 14px !important;
+    font-size:13px !important;
+  }
 }
 </style>
 </head>
