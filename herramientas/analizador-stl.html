@@ -1,4 +1,4 @@
-<!-- analizador-stl.html -->
+<!-- herramientas/analizador-stl.html -->
 <!doctype html>
 <html lang="es">
 <head>
@@ -31,12 +31,6 @@ nav{min-height:95px;display:flex;align-items:center;justify-content:space-betwee
 .dropdown-content a{padding:14px 24px;color:var(--muted);font-weight:700;font-size:15px;transition:.15s}
 .dropdown-content a:hover{color:var(--ink);background:rgba(0,0,0,.03)}
 .dropdown-content a.active{color:var(--ink);background:#f0f4f0;border-left:4px solid var(--accent);padding-left:20px}
-
-.auth-buttons{display:flex;gap:12px;align-items:center}
-.btn-auth{display:inline-flex;align-items:center;justify-content:center;padding:12px 24px;border-radius:9999px;font-weight:800;font-size:14px;border:2px solid var(--ink);cursor:pointer;text-decoration:none;transition:.2s ease}
-.btn-auth.light{background:#fff;color:var(--ink);box-shadow:0 3px 0 var(--ink)}
-.btn-auth.light:hover{transform:translateY(-1px);box-shadow:0 4px 0 var(--ink)}
-.btn-auth.green{background:var(--accent);color:var(--ink);box-shadow:0 3px 0 var(--ink)}
 
 main.wrap{min-height:calc(100vh - 95px)}
 .upload-container{max-width:740px;margin:60px auto;background:var(--card);border:2px dashed var(--line);border-radius:24px;padding:40px 32px;text-align:center;box-shadow:0 20px 40px rgba(13,17,16,.025);transition:border-color .25s ease,background-color .25s ease,transform .25s ease}
@@ -102,9 +96,6 @@ main.wrap{min-height:calc(100vh - 95px)}
 .footer-links a:hover span.arrow{color:var(--accent)}
 .footer-bottom{border-top:1px solid var(--line);padding-top:24px;display:flex;justify-content:center;align-items:center;text-align:center;font-size:13px;color:#7d8782}
 
-#authHeaderContainer span[style*="background" i],#authHeaderContainer span[style*="accent" i],#authHeaderContainer span:nth-child(2),#authHeaderContainer div span:nth-child(2){background:var(--accent)!important;background-color:var(--accent)!important;color:var(--ink)!important;padding:8px 18px!important;border-radius:9999px!important;font-weight:800!important;font-size:15px!important;border:none!important;box-shadow:none!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;align-self:center!important;line-height:1!important;height:auto!important;min-height:0!important;max-height:38px!important;margin:auto 0!important;white-space:nowrap!important}
-#authHeaderContainer .user-greeting,#authHeaderContainer span:nth-child(1),#authHeaderContainer div span:nth-child(1),#authHeaderContainer span:first-child,#authHeaderContainer div span:first-child{font-weight:700!important;font-size:15px!important;color:var(--ink)!important;display:inline-block!important;margin:auto 0!important;white-space:nowrap!important}
-
 @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:992px){.footergrid{grid-template-columns:1.2fr 1fr;gap:40px}.option-grid{grid-template-columns:repeat(2,1fr)}.option-grid.option-grid-4{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:768px){.wrap{padding:0 20px}.top nav{min-height:82px}.brand{font-size:23px}.header-left{gap:14px}.footergrid{grid-template-columns:1fr;gap:36px}.upload-container{margin:35px auto;padding:30px 20px}.step-title{font-size:18px}.wizard-nav-buttons{flex-direction:row}.auth-buttons{gap:8px}}
@@ -134,9 +125,14 @@ main.wrap{min-height:calc(100vh - 95px)}
           return;
         }
 
-        document.addEventListener("DOMContentLoaded", function(){
+        // Corrección de condición de carrera para la visibilidad del body
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", function(){
+            document.body.classList.add("auth-verified");
+          }, { once: true });
+        } else {
           document.body.classList.add("auth-verified");
-        }, { once: true });
+        }
       } catch (e) {
         console.error("No se pudo verificar la sesión:", e);
         sessionStorage.setItem("printlab_auth_redirect", "analizador-stl.html");
@@ -148,146 +144,6 @@ main.wrap{min-height:calc(100vh - 95px)}
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/STLLoader.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/controls/OrbitControls.js"></script>
-
-<style id="header-identico-informe-final">
-/* Mismos valores que la cabecera del INFORME */
-.top{
-  position:sticky;
-  top:0;
-  z-index:100;
-  background:rgba(246,247,244,.92);
-  backdrop-filter:blur(16px);
-  border-bottom:1px solid var(--line);
-}
-.top nav{
-  min-height:95px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-}
-.header-left{
-  display:flex;
-  align-items:center;
-  gap:24px;
-}
-.brand{
-  font-size:26px;
-  font-weight:800;
-  letter-spacing:-1px;
-}
-.brand span{
-  background:var(--accent);
-  padding:5px 12px;
-  border-radius:10px;
-  margin-left:6px;
-  color:var(--ink);
-}
-.auth-buttons{
-  display:flex;
-  gap:12px;
-  align-items:center;
-}
-.btn-auth{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  padding:12px 24px;
-  border-radius:9999px;
-  font-weight:800;
-  font-size:14px;
-  cursor:pointer;
-  transition:.2s ease;
-  text-decoration:none;
-  border:2px solid var(--ink);
-}
-.btn-auth.light{
-  background:#fff;
-  color:var(--ink);
-  box-shadow:0 3px 0 var(--ink);
-}
-.btn-auth.light:hover{
-  transform:translateY(-1px);
-  box-shadow:0 4px 0 var(--ink);
-}
-.btn-auth.green{
-  background:var(--accent);
-  color:var(--ink);
-  box-shadow:0 3px 0 var(--ink);
-}
-
-/* Forzar estilos del indicador de créditos y saludo tal como se muestra en la captura */
-#authHeaderContainer span[style*="background" i],
-#authHeaderContainer span[style*="accent" i],
-#authHeaderContainer span:nth-child(2),
-#authHeaderContainer div span:nth-child(2) {
-  background: var(--accent) !important;
-  background-color: var(--accent) !important;
-  color: var(--ink) !important;
-  padding: 8px 18px !important;
-  border-radius: 9999px !important;
-  font-weight: 800 !important;
-  font-size: 15px !important;
-  border: none !important;
-  border-width: 0px !important;
-  box-shadow: none !important;
-  display: inline-flex !important;
-  align-items: center !important;  
-  justify-content: center !important; 
-  align-self: center !important;
-  line-height: 1 !important; 
-  height: auto !important;
-  min-height: 0 !important;
-  max-height: 38px !important;
-  margin: auto 0 !important;
-  white-space: nowrap !important;
-}
-
-#authHeaderContainer .user-greeting,
-#authHeaderContainer span:nth-child(1),
-#authHeaderContainer div span:nth-child(1),
-#authHeaderContainer span:first-child,
-#authHeaderContainer div span:first-child {
-  font-weight: 700 !important;
-  font-size: 15px !important;
-  color: var(--ink) !important;
-  display: inline-block !important;
-  margin: auto 0 !important;
-  white-space: nowrap !important;
-}
-</style>
-
-
-<style id="cerrar-sesion-copiado-del-index">
-/* ===== COPIA EXACTA DEL BOTÓN DEL INDEX ===== */
-#authHeaderContainer #btn-logout.btn-auth{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  padding:12px 24px;
-  border-radius:9999px;
-  font-weight:800;
-  font-size:14px;
-  cursor:pointer;
-  transition:.2s ease;
-  text-decoration:none;
-  border:2px solid var(--ink);
-  box-sizing:border-box;
-  background:#fff;
-  color:var(--ink);
-  box-shadow:0 3px 0px var(--ink);
-}
-
-#authHeaderContainer #btn-logout.btn-auth:hover{
-  transform:translateY(-1px);
-  box-shadow:0 4px 0px var(--ink);
-}
-
-#authHeaderContainer #btn-logout.btn-auth:active{
-  transform:translateY(2px);
-  box-shadow:0 1px 0px var(--ink);
-}
-</style>
-
 </head>
 <body>
 
@@ -310,7 +166,7 @@ main.wrap{min-height:calc(100vh - 95px)}
           <a class="brand" href="../index.html#portada">PRINT<span>LAB</span></a>
         </div>
         
-        <!-- Contenedor unificado de sesión con transiciones idénticas a las del index -->
+        <!-- Contenedor unificado de sesión idéntico al index para renderizado dinámico transparente de auth-helper -->
         <div class="auth-buttons" id="authHeaderContainer" style="opacity: 0; visibility: hidden; transition: opacity 0.15s ease, visibility 0.15s ease;">
           <a href="login.html" class="btn-auth light" onclick="sessionStorage.removeItem('printlab_recovery_mode'); localStorage.removeItem('sb-jmwprzgfdkphbxryjbnr-auth-token');">Iniciar Sesión</a>
           <a href="registro.html" class="btn-auth green" onclick="sessionStorage.removeItem('printlab_recovery_mode'); localStorage.removeItem('sb-jmwprzgfdkphbxryjbnr-auth-token');">Registrarse</a>
