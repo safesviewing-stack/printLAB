@@ -199,6 +199,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/STLLoader.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/TransformControls.js"></script>
 </head>
 <body>
 
@@ -403,9 +404,15 @@
         <div class="viewer-section">
           <div id="limitWarningBanner" style="display:none; background:#fcebe8; border:1.5px solid var(--error); color:#9e3223; padding:16px; border-radius:12px; font-size:13.5px; font-weight:700; margin-bottom:12px; line-height:1.4; text-align:center;"></div>
           <div class="viewer-wrap">
-            <div class="viewer-toolbar">
-              <button type="button" class="auto-orient-btn" onclick="window.autoOrientZToFit()" title="Buscar una rotación que haga que la pieza quepa manteniendo la superficie seleccionada como base">
+            <div class="viewer-toolbar" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:12px;">
+              <button type="button" class="auto-orient-btn" onclick="window.autoOrientZToFit()" title="Buscar una rotación que haga que la pieza quepa">
                 🤖 Orientación automática
+              </button>
+              <button type="button" class="auto-orient-btn" id="translateModeBtn" onclick="window.setTransformMode('translate')" style="background:var(--accent); border-color:var(--ink);">
+                ➡️ Mover (Cama XY)
+              </button>
+              <button type="button" class="auto-orient-btn" id="rotateModeBtn" onclick="window.setTransformMode('rotate')">
+                🔄 Rotar (Eje Z)
               </button>
             </div>
             <div id="selector3dContainer" style="width:100%; background:#161d1a; border-radius:16px; position:relative; overflow:hidden; border:2px solid var(--line); margin-bottom:12px;"></div>
@@ -583,10 +590,15 @@
       validateCurrentStep();
     }
 
-    // VARIABLES GLOBALES DEL VISOR 3D
-    let sScene, sCamera, sRenderer, sControls, sMesh, highlightRing, gridHelper, printVolumeBox;
+    // VARIABLES GLOBALES DEL VISOR 3D Y MANIPULACIÓN
+    let sScene, sCamera, sRenderer, sControls, sMesh, highlightRing, gridHelper, printVolumeBox, transformControls;
 
     function disposeRendererAndScene() {
+      if (transformControls) {
+        transformControls.detach();
+        transformControls.dispose();
+        transformControls = null;
+      }
       if (sRenderer) {
         sRenderer.dispose();
         const container = document.getElementById("selector3dContainer");
@@ -610,7 +622,7 @@
       if (highlightRing) highlightRing = null;
     }
 
-    // ALGORITMOS DE GEOMETRÍA OPTIMIZADOS PARA CÁLCULO EN 100% DE CAPACIDAD (SIN MARGENES)
+    // ALGORITMOS DE GEOMETRÍA OPTIMIZADOS PARA CÁLCULO EN 100% DE CAPACIDAD
     function crossProduct(o, a, b) {
       return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
     }
@@ -729,7 +741,106 @@
       return result;
     }
 
-    // FUNCIÓN DE ORIENTACIÓN AUTOMÁTICA GLOBAL INTELIGENTE (100% CAPACIDAD)
+    // COMPROBACIÓN DINÁMICA DE LÍMITES FÍSICOS DE LA CAMA
+    function checkLimits() {
+      if (!sMesh || !answers.printer) return;
+      const limits = printerLimits[answers.printer];
+      if (!limits) return;
+
+      const bbox = new THREE.Box3().setFromObject(sMesh);
+      const size = bbox.getSize(new THREE.Vector3());
+
+      const minX = -limits.x / 2;
+      const maxX =  limits.x / 2;
+      const minY = -limits.y / 2;
+      const maxY =  limits.y / 2;
+      const maxZ =  limits.z;
+
+      const outOfX = bbox.min.x < minX - 0.01 || bbox.max.x > maxX + 0.01;
+      const outOfY = bbox.min.y < minY - 0.01 || bbox.max.y > maxY + 0.01;
+      const outOfZ = bbox.max.z > maxZ + 0.01 || bbox.min.z < -0.01;
+
+      const warningBanner = document.getElementById("limitWarningBanner");
+      const oldSuccess = document.getElementById("scaleSuccessBanner");
+      if (oldSuccess) oldSuccess.remove();
+
+      if (outOfX || outOfY || outOfZ) {
+        sMesh.material.color.setHex(0xb42318); // Rojo de colisión
+        sMesh.material.needsUpdate = true;
+
+        warningBanner.style.display = "block";
+        warningBanner.innerHTML = `
+          <div style="margin-bottom:10px;">
+            ⚠️ <strong>¡Pieza fuera de los límites de impresión!</strong><br>
+            La posición actual excede las dimensiones físicas de tu ${answers.printer} (${limits.x} × ${limits.y} × ${limits.z} mm).<br>
+            Por favor, arrastra la pieza o gírala para que quepa dentro del volumen.
+          </div>
+        `;
+
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = "Auto-escalar para ajustar";
+        btn.style = "background:#b42318;color:#fff;border:1.5px solid #fff;padding:8px 16px;border-radius:8px;font-weight:800;cursor:pointer;font-size:12px;margin-right:8px;";
+        btn.onclick = () => window.scaleMeshToFit();
+        warningBanner.appendChild(btn);
+
+        answers.selectedSupportFace = null; 
+      } else {
+        sMesh.material.color.setHex(0x90caf9); // Azul estándar
+        sMesh.material.needsUpdate = true;
+        warningBanner.style.display = "none";
+
+        const successBanner = document.createElement("div");
+        successBanner.id = "scaleSuccessBanner";
+        successBanner.style = "background:#eef2ee;border:1.5px solid #2e7d32;color:#2e7d32;padding:12px;border-radius:10px;font-size:13.5px;font-weight:700;margin-bottom:12px;line-height:1.4;text-align:center;";
+        successBanner.innerHTML = `✓ <strong>Pieza en posición válida.</strong> Dimensiones reales de la caja contenedora: ${size.x.toFixed(1)} × ${size.y.toFixed(1)} × ${size.z.toFixed(1)} mm.`;
+        warningBanner.parentNode.insertBefore(successBanner, warningBanner);
+
+        answers.selectedSupportFace = 1; 
+      }
+
+      const te = sMesh.matrix.elements;
+      answers.transformationMatrix = [
+        [te[0], te[4], te[8], te[12]],
+        [te[1], te[5], te[9], te[13]],
+        [te[2], te[6], te[10], te[14]],
+        [te[3], te[7], te[11], te[15]]
+      ];
+
+      validateCurrentStep();
+    }
+
+    // CONMUTADOR DE MODOS DEL MOTOR INTERACTIVO
+    window.setTransformMode = function(mode) {
+      if (!transformControls) return;
+      
+      const transBtn = document.getElementById("translateModeBtn");
+      const rotBtn = document.getElementById("rotateModeBtn");
+      
+      if (mode === 'translate') {
+        transformControls.setMode('translate');
+        transformControls.showX = true;
+        transformControls.showY = true;
+        transformControls.showZ = false; // Bloquea traslación vertical
+        
+        transBtn.style.background = "var(--accent)";
+        transBtn.style.borderColor = "var(--ink)";
+        rotBtn.style.background = "#fff";
+        rotBtn.style.borderColor = "var(--line)";
+      } else if (mode === 'rotate') {
+        transformControls.setMode('rotate');
+        transformControls.showX = false;
+        transformControls.showY = false;
+        transformControls.showZ = true; // Solo rotación sobre el plano Z (Yaw)
+        
+        rotBtn.style.background = "var(--accent)";
+        rotBtn.style.borderColor = "var(--ink)";
+        transBtn.style.background = "#fff";
+        transBtn.style.borderColor = "var(--line)";
+      }
+    };
+
+    // FUNCIÓN DE ORIENTACIÓN AUTOMÁTICA GLOBLAL INTELIGENTE (100% CAPACIDAD)
     window.autoOrientZToFit = function() {
       if (!sMesh || !answers.printer) {
         alert("Por favor, selecciona una impresora en el paso anterior.");
@@ -787,7 +898,6 @@
             const W = maxX - minX;
             const D = maxY - minY;
             
-            // Comprobación estricta al 100% de la capacidad útil de la cama
             if (W <= limits.x && D <= limits.y) {
               const diff = -Math.max(W - limits.x, D - limits.y, H - limits.z);
               if (diff > bestDiff) {
@@ -799,10 +909,11 @@
         }
         
         if (bestConfig) {
-          const { q, yaw, W, D, H } = bestConfig;
+          const { q, yaw } = bestConfig;
           const yawQuat = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), yaw);
           
           sMesh.quaternion.copy(yawQuat.multiply(q));
+          sMesh.scale.set(1, 1, 1);
           sMesh.position.set(0, 0, 0); 
           sMesh.updateMatrixWorld(true);
           
@@ -814,18 +925,8 @@
           sMesh.position.z = -bbox.min.z;
           sMesh.updateMatrixWorld(true);
           
-          sMesh.material.color.setHex(0x90caf9);
-          sMesh.material.needsUpdate = true;
-          warningBanner.style.display = "none";
-          
-          const successBanner = document.createElement("div");
-          successBanner.id = "scaleSuccessBanner";
-          successBanner.style = "background:#eef2ee;border:1.5px solid #2e7d32;color:#2e7d32;padding:12px;border-radius:10px;font-size:13.5px;font-weight:700;margin-bottom:12px;line-height:1.4;text-align:center;";
-          successBanner.innerHTML = `✓ <strong>Orientación óptima encontrada automáticamente.</strong> Medidas reales de la pieza colocadas en la cama: ${W.toFixed(1)} × ${D.toFixed(1)} × ${H.toFixed(1)} mm.`;
-          warningBanner.parentNode.insertBefore(successBanner, warningBanner);
-          
-          answers.selectedSupportFace = 1; 
           if (highlightRing) sScene.remove(highlightRing);
+          checkLimits();
         } else {
           sMesh.material.color.setHex(0xb42318);
           sMesh.material.needsUpdate = true;
@@ -872,7 +973,6 @@
       const modelSize = new THREE.Vector3();
       currentBbox.getSize(modelSize);
 
-      // Escalado estricto al 100% de la capacidad útil del área de la impresora
       const scaleX = limits.x / modelSize.x;
       const scaleY = limits.y / modelSize.y;
       const scaleZ = limits.z / modelSize.z;
@@ -956,11 +1056,43 @@
       printVolumeBox.position.set(0, 0, limits.z / 2);
       sScene.add(printVolumeBox);
 
+      // Instanciación del motor manual (TransformControls)
+      transformControls = new THREE.TransformControls(sCamera, sRenderer.domElement);
+      transformControls.size = 0.75;
+      transformControls.space = "world";
+      
+      // Restricciones iniciales del motor interactivo
+      transformControls.setMode('translate');
+      transformControls.showX = true;
+      transformControls.showY = true;
+      transformControls.showZ = false; 
+
+      sScene.add(transformControls);
+
+      // Deshabilita OrbitControls temporalmente para evitar conflictos al arrastrar la pieza
+      transformControls.addEventListener('dragging-changed', function (event) {
+        sControls.enabled = !event.value;
+      });
+
+      // Mantiene la pieza imantada a la cama caliente (Z=0) al arrastrarla o girarla
+      transformControls.addEventListener('change', () => {
+        if (sMesh) {
+          sMesh.updateMatrixWorld(true);
+          const bbox = new THREE.Box3().setFromObject(sMesh);
+          const offsetZ = -bbox.min.z;
+          if (Math.abs(offsetZ) > 0.001) {
+            sMesh.position.z += offsetZ;
+            sMesh.updateMatrixWorld(true);
+          }
+          checkLimits();
+        }
+      });
+
       const reader = new FileReader();
       reader.onload = function(e) {
         const loader = new THREE.STLLoader();
         const geometry = loader.parse(e.target.result);
-        geometry.center(); // Alinea el origen de los vértices localmente en (0,0,0)
+        geometry.center(); 
         geometry.computeBoundingBox();
 
         const material = new THREE.MeshPhongMaterial({ 
@@ -975,20 +1107,27 @@
         sMesh.updateMatrixWorld(true);
 
         const bbox = new THREE.Box3().setFromObject(sMesh);
-        sMesh.position.z = -bbox.min.z; // Ajusta para apoyar a nivel Z=0
+        sMesh.position.z = -bbox.min.z; 
         sMesh.updateMatrixWorld(true);
+
+        // Adjunta la pieza al motor de manipulación manual
+        transformControls.attach(sMesh);
 
         const size = geometry.boundingBox.getSize(new THREE.Vector3()).length();
         sCamera.position.set(size * 1.3, size * 1.3, size * 1.3);
         sControls.target.copy(geometry.boundingBox.getCenter(new THREE.Vector3()));
         sControls.update();
+
+        // Inicializa el botón con el estado activo para el modo Traslación
+        window.setTransformMode('translate');
       };
       reader.readAsArrayBuffer(window.selectedSTLFile);
 
       sRenderer.domElement.addEventListener("click", onMeshClick);
 
       function onMeshClick(event) {
-        if (!sMesh) return;
+        if (!sMesh || transformControls.dragging) return;
+        
         const rect = sRenderer.domElement.getBoundingClientRect();
         const mouse = new THREE.Vector2();
         mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
@@ -1024,7 +1163,6 @@
           
           let bestYaw = 0;
           let foundFit = false;
-          let bestW = 0, bestD = 0;
           let bestDiff = -Infinity;
           
           for (let deg = 0; deg < 180; deg += 1) {
@@ -1050,8 +1188,6 @@
                 bestDiff = diff;
                 bestYaw = rad;
                 foundFit = true;
-                bestW = W;
-                bestD = D;
               }
             }
           }
@@ -1064,7 +1200,7 @@
             const yawQuat = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), bestYaw);
             sMesh.quaternion.copy(yawQuat.multiply(q));
             sMesh.scale.set(1, 1, 1);
-            sMesh.position.set(0, 0, 0); // Limpia las traslaciones antes de re-calcular la caja contenedora
+            sMesh.position.set(0, 0, 0); 
             sMesh.updateMatrixWorld(true);
             
             const bbox = new THREE.Box3().setFromObject(sMesh);
@@ -1074,16 +1210,6 @@
             sMesh.position.y = -currentCenter.y;
             sMesh.position.z = -bbox.min.z;
             sMesh.updateMatrixWorld(true);
-            
-            sMesh.material.color.setHex(0x90caf9);
-            sMesh.material.needsUpdate = true;
-            warningBanner.style.display = "none";
-            
-            const successBanner = document.createElement("div");
-            successBanner.id = "scaleSuccessBanner";
-            successBanner.style = "background:#eef2ee;border:1.5px solid #2e7d32;color:#2e7d32;padding:12px;border-radius:10px;font-size:13.5px;font-weight:700;margin-bottom:12px;line-height:1.4;text-align:center;";
-            successBanner.innerHTML = `✓ <strong>Superficie apoyada correctamente.</strong> Modelo alineado. Medidas: ${bestW.toFixed(1)} × ${bestD.toFixed(1)} × ${H.toFixed(1)} mm.`;
-            warningBanner.parentNode.insertBefore(successBanner, warningBanner);
             
             if (highlightRing) sScene.remove(highlightRing);
             const ringGeo = new THREE.RingGeometry(2.5, 3.2, 32);
@@ -1095,6 +1221,8 @@
             highlightRing.quaternion.copy(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), ringNormal));
             highlightRing.position.addScaledVector(ringNormal, 0.4);
             sScene.add(highlightRing);
+
+            checkLimits();
           } else {
             sMesh.quaternion.copy(q);
             sMesh.scale.set(1, 1, 1);
