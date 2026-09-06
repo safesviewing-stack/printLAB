@@ -861,6 +861,163 @@
       }
     };
 
+    // BÚSQUEDA AUTOMÁTICA DE ORIENTACIÓN
+    // Explora múltiples bases de la malla y giros sobre la cama. Las orientaciones
+    // espaciales son infinitas, así que se realiza una búsqueda densa de las
+    // orientaciones relevantes para impresión 3D y se devuelve la mejor que cabe.
+    window.findBestPrintOrientation = function() {
+      if (!sMesh || !answers.printer) {
+        alert('Carga un STL y selecciona una impresora antes de buscar.');
+        return;
+      }
+
+      const btn = document.getElementById('btnFindOrientation');
+      const limits = printerLimits[answers.printer];
+      const tolerance = BED_TOLERANCE_MM;
+      if (!limits) return;
+
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span>⏳</span> Analizando...';
+      }
+
+      setTimeout(function() {
+        const geometry = sMesh.geometry;
+        const pos = geometry.attributes.position;
+        const oldPos = sMesh.position.clone();
+        const oldQuat = sMesh.quaternion.clone();
+        const oldScale = sMesh.scale.clone();
+
+        // Agrupamos normales de triángulos para obtener posibles superficies de apoyo.
+        const normalMap = new Map();
+        const A = new THREE.Vector3(), B = new THREE.Vector3(), C = new THREE.Vector3();
+        const AB = new THREE.Vector3(), AC = new THREE.Vector3(), N = new THREE.Vector3();
+        const maxSamples = 16000;
+        const step = Math.max(3, Math.ceil(pos.count / maxSamples) * 3);
+
+        for (let i = 0; i + 2 < pos.count; i += step) {
+          A.fromBufferAttribute(pos, i);
+          B.fromBufferAttribute(pos, i + 1);
+          C.fromBufferAttribute(pos, i + 2);
+          AB.subVectors(B, A);
+          AC.subVectors(C, A);
+          N.crossVectors(AB, AC);
+          const area2 = N.lengthSq();
+          if (area2 < 1e-12) continue;
+          N.normalize();
+          // Resolución angular aproximada de ~2,9 grados por eje.
+          const key = [Math.round(N.x * 20), Math.round(N.y * 20), Math.round(N.z * 20)].join('_');
+          const entry = normalMap.get(key);
+          if (entry) entry.area += area2;
+          else normalMap.set(key, { normal: N.clone(), area: area2 });
+        }
+
+        // Siempre probamos también las orientaciones ortogonales básicas.
+        [[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]].forEach(v => {
+          const key = v.join('_');
+          if (!normalMap.has(key)) normalMap.set(key, { normal:new THREE.Vector3(v[0],v[1],v[2]), area:0 });
+        });
+
+        // Las caras grandes son las candidatas más razonables como base.
+        const normals = Array.from(normalMap.values())
+          .sort((a,b) => b.area - a.area)
+          .slice(0, 100)
+          .map(e => e.normal);
+
+        const up = new THREE.Vector3(0,1,0);
+        const down = new THREE.Vector3(0,-1,0);
+        const qBase = new THREE.Quaternion();
+        const qYaw = new THREE.Quaternion();
+        const qTest = new THREE.Quaternion();
+        const box = new THREE.Box3();
+        const dimensions = new THREE.Vector3();
+        let tested = 0;
+        let valid = 0;
+        let best = null;
+
+        // 5° en el giro Z/Y de la cama. Ambas caras de cada normal.
+        for (const normal of normals) {
+          for (const direction of [down, up]) {
+            qBase.setFromUnitVectors(normal, direction);
+            for (let deg = 0; deg < 360; deg += 5) {
+              tested++;
+              qYaw.setFromAxisAngle(up, THREE.MathUtils.degToRad(deg));
+              qTest.multiplyQuaternions(qYaw, qBase);
+
+              sMesh.position.set(0,0,0);
+              sMesh.quaternion.copy(qTest);
+              sMesh.updateMatrixWorld(true);
+              box.setFromObject(sMesh);
+              box.getSize(dimensions);
+
+              const fits = dimensions.x <= limits.x + tolerance * 2 &&
+                           dimensions.z <= limits.y + tolerance * 2 &&
+                           dimensions.y <= limits.z + tolerance;
+              if (!fits) continue;
+              valid++;
+
+              // Preferimos: menor altura, después menor ocupación de cama y,
+              // finalmente, mayor superficie potencial de apoyo.
+              const heightRatio = dimensions.y / limits.z;
+              const bedRatio = (dimensions.x * dimensions.z) / (limits.x * limits.y);
+              const flatness = Math.abs(normal.dot(up));
+              const score = heightRatio * 100 + bedRatio * 10 - flatness;
+
+              if (!best || score < best.score) {
+                best = { quaternion:qTest.clone(), size:dimensions.clone(), score };
+              }
+            }
+          }
+        }
+
+        if (best) {
+          // Aplicar la orientación ganadora y colocar el centro del bounding box en el centro de la cama.
+          sMesh.position.set(0,0,0);
+          sMesh.quaternion.copy(best.quaternion);
+          sMesh.updateMatrixWorld(true);
+          box.setFromObject(sMesh);
+          sMesh.position.x = -(box.min.x + box.max.x) / 2;
+          sMesh.position.z = -(box.min.z + box.max.z) / 2;
+          sMesh.position.y = -box.min.y;
+          sMesh.updateMatrixWorld(true);
+          checkLimits();
+          sMesh.material.color.setHex(0x388e3c);
+          sMesh.material.needsUpdate = true;
+          answers.selectedSupportFace = 1;
+          showOrientationResult('✓ APTO PARA IMPRIMIR · ' + best.size.x.toFixed(1) + ' × ' + best.size.z.toFixed(1) + ' × ' + best.size.y.toFixed(1) + ' mm · ' + valid + ' orientaciones válidas de ' + tested + ' analizadas.', true);
+        } else {
+          sMesh.position.copy(oldPos);
+          sMesh.quaternion.copy(oldQuat);
+          sMesh.scale.copy(oldScale);
+          sMesh.updateMatrixWorld(true);
+          sMesh.material.color.setHex(0xb42318);
+          sMesh.material.needsUpdate = true;
+          answers.selectedSupportFace = null;
+          validateCurrentStep();
+          showOrientationResult('✕ NO CABE · No se encontró ninguna orientación válida en la búsqueda.', false);
+        }
+
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '<span>🔍</span> Buscar orientación';
+        }
+      }, 40);
+    };
+
+    function showOrientationResult(message, ok) {
+      let result = document.getElementById('orientationSearchResult');
+      if (!result) {
+        result = document.createElement('div');
+        result.id = 'orientationSearchResult';
+        result.style.cssText = 'margin:0 0 10px;padding:11px 14px;border:1.5px solid var(--line);border-radius:12px;font-size:12.5px;font-weight:800;background:#fff;';
+        const viewer = document.getElementById('selector3dContainer');
+        if (viewer && viewer.parentNode) viewer.parentNode.insertBefore(result, viewer);
+      }
+      result.textContent = message;
+      result.style.color = ok ? '#216e39' : '#b42318';
+      result.style.borderColor = ok ? '#b7dfc0' : '#e6b8b4';
+    }
+
     // AUTO-ESCALADO AL 100% DEL VOLUMEN DISPONIBLE CON RE-CENTRADO
     window.scaleMeshToFit = function() {
       if (!sMesh || !answers.printer) return;
