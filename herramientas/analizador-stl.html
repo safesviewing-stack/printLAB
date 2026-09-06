@@ -770,7 +770,7 @@
         btn.type = "button";
         btn.textContent = "Auto-escalar para ajustar";
         btn.style = "background:#b42318;color:#fff;border:1.5px solid #fff;padding:8px 16px;border-radius:8px;font-weight:800;cursor:pointer;font-size:12px;margin-right:8px;";
-        btn.onclick = () => window.scaleMeshToFit();
+        btn.onclick = (e) => { e.stopPropagation(); window.scaleMeshToFit(); };
         warningBanner.appendChild(btn);
 
         answers.selectedSupportFace = null; 
@@ -912,7 +912,7 @@
       // Instanciación del motor manual (TransformControls)
       transformControls = new THREE.TransformControls(sCamera, sRenderer.domElement);
       transformControls.size = 0.75;
-      transformControls.space = "world";
+      transformControls.space = "local"; // Orientación local de las flechas activada de forma nativa [2]
       
       // Restricciones iniciales del motor interactivo
       transformControls.setMode('translate');
@@ -926,14 +926,8 @@
       transformControls.addEventListener('dragging-changed', function (event) {
         sControls.enabled = !event.value;
         isDraggingTransform = event.value;
-        
         if (event.value) {
           wasDragging = true;
-        } else {
-          // Temporizador de desconexión de 100ms para evitar falsos clics de alineación tras soltar la pieza [2]
-          setTimeout(() => {
-            wasDragging = false;
-          }, 100);
         }
       });
 
@@ -989,7 +983,10 @@
 
       // FUNCIÓN DE ALINEACIÓN POR PULSACIÓN EN LA PIEZA (RESTABLECIDA DE FORMA SEGURA) [2]
       function onMeshClick(event) {
-        if (!sMesh || wasDragging || isDraggingTransform) return;
+        if (!sMesh || wasDragging || isDraggingTransform) {
+          wasDragging = false; // Restablece de forma lógica para admitir clics limpios en el futuro [2]
+          return;
+        }
         
         const rect = sRenderer.domElement.getBoundingClientRect();
         const mouse = new THREE.Vector2();
