@@ -156,7 +156,7 @@
     @media(max-width:480px){.option-grid,.option-grid.option-grid-4{grid-template-columns:1fr}.wizard-nav-buttons{gap:10px}.btn-secondary,.btn-green{padding:12px 20px;font-size:13px}.step-title{align-items:flex-start}.step-title span:last-child{white-space:nowrap;font-size:12px!important}}
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- Cache busting v=15 forzado para recarga instantánea del auth-helper corregido -->
+  <!-- Cache busting v=12 forzado para recarga instantánea del auth-helper corregido -->
   <script src="../assets/js/auth-helper.js?v=12"></script>
 
   <style>
@@ -556,8 +556,8 @@
         document.getElementById(steps[currentStepIdx]).classList.remove("active");
         currentStepIdx = 0;
         document.getElementById(steps[0]).classList.add("active");
-        document.querySelector(".upload-title").style.display = "block";
-        document.querySelector(".upload-desc").style.display = "block";
+        document.querySelector(".upload-title").style.display = "none"; // Evita que se duplique al reaparecer
+        document.querySelector(".upload-desc").style.display = "none";
         accessButton.style.display = "inline-block";
         document.querySelector(".drag-help").style.display = "block";
         progressContainer.style.display = "none";
@@ -610,7 +610,7 @@
       if (highlightRing) highlightRing = null;
     }
 
-    // ALGORITMOS DE GEOMETRÍA OPTIMIZADOS PARA CÁLCULO DE ÁREA Y PERÍMETRO EN 2D
+    // ALGORITMOS DE GEOMETRÍA OPTIMIZADOS PARA CÁLCULO EN 100% DE CAPACIDAD (SIN MARGENES)
     function crossProduct(o, a, b) {
       return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
     }
@@ -638,7 +638,7 @@
       return lower.concat(upper);
     }
 
-    // Obtención de vértices únicos con muestreo dinámico (mantiene la fluidez del navegador)
+    // Obtención de vértices únicos con muestreo dinámico
     function getUniqueVertices(geometry) {
       const pos = geometry.attributes.position;
       const unique = [];
@@ -660,7 +660,7 @@
       return unique;
     }
 
-    // Analizador de caras para identificar las bases estables (agrupación de normales por área)
+    // Analizador de caras para identificar las bases estables
     function getCandidateNormals(geometry) {
       const pos = geometry.attributes.position;
       const normalMap = {};
@@ -727,7 +727,7 @@
       return result;
     }
 
-    // FUNCIÓN DE ORIENTACIÓN AUTOMÁTICA GLOBLAL INTELIGENTE
+    // FUNCIÓN DE ORIENTACIÓN AUTOMÁTICA GLOBLAL INTELIGENTE (100% CAPACIDAD)
     window.autoOrientZToFit = function() {
       if (!sMesh || !answers.printer) {
         alert("Por favor, selecciona una impresora en el paso anterior.");
@@ -749,7 +749,7 @@
         const candidateNormals = getCandidateNormals(sMesh.geometry);
         
         let bestConfig = null;
-        let bestMargin = -Infinity;
+        let bestDiff = -Infinity; // Se busca maximizar la cercanía al límite sin sobrepasarlo
         
         for (const normal of candidateNormals) {
           const q = new THREE.Quaternion().setFromUnitVectors(normal, new THREE.Vector3(0, 0, -1));
@@ -785,10 +785,11 @@
             const W = maxX - minX;
             const D = maxY - minY;
             
+            // Comprobación estricta al 100% de la capacidad útil de la cama
             if (W <= limits.x && D <= limits.y) {
-              const margin = Math.min(limits.x - W, limits.y - D, limits.z - H);
-              if (margin > bestMargin) {
-                bestMargin = margin;
+              const diff = -Math.max(W - limits.x, D - limits.y, H - limits.z);
+              if (diff > bestDiff) {
+                bestDiff = diff;
                 bestConfig = { normal, q, yaw: rad, W, D, H };
               }
             }
@@ -819,7 +820,7 @@
           const successBanner = document.createElement("div");
           successBanner.id = "scaleSuccessBanner";
           successBanner.style = "background:#eef2ee;border:1.5px solid #2e7d32;color:#2e7d32;padding:12px;border-radius:10px;font-size:13.5px;font-weight:700;margin-bottom:12px;line-height:1.4;text-align:center;";
-          successBanner.innerHTML = `✓ <strong>Orientación óptima encontrada automáticamente.</strong> Medidas reales de la pieza: ${W.toFixed(1)} × ${D.toFixed(1)} × ${H.toFixed(1)} mm. Margen de seguridad: ${bestMargin.toFixed(1)} mm.`;
+          successBanner.innerHTML = `✓ <strong>Orientación óptima encontrada automáticamente.</strong> Medidas reales de la pieza colocadas en la cama: ${W.toFixed(1)} × ${D.toFixed(1)} × ${H.toFixed(1)} mm.`;
           warningBanner.parentNode.insertBefore(successBanner, warningBanner);
           
           answers.selectedSupportFace = 1; 
@@ -860,7 +861,7 @@
       }, 50);
     };
 
-    // FUNCIÓN DE ESCALADO DE EMERGENCIA PARA ENCAJAR EN EL VOLUMEN
+    // FUNCIÓN DE ESCALADO DE EMERGENCIA EXACTO AL 100%
     window.scaleMeshToFit = function() {
       if (!sMesh || !answers.printer) return;
       const limits = printerLimits[answers.printer];
@@ -870,9 +871,10 @@
       const modelSize = new THREE.Vector3();
       currentBbox.getSize(modelSize);
 
-      const scaleX = (limits.x * 0.95) / modelSize.x;
-      const scaleY = (limits.y * 0.95) / modelSize.y;
-      const scaleZ = (limits.z * 0.95) / modelSize.z;
+      // Escalado estricto al 100% de la capacidad útil del área de la impresora
+      const scaleX = limits.x / modelSize.x;
+      const scaleY = limits.y / modelSize.y;
+      const scaleZ = limits.z / modelSize.z;
       const minScale = Math.min(scaleX, scaleY, scaleZ);
 
       sMesh.scale.multiplyScalar(minScale);
@@ -905,7 +907,7 @@
       const successBanner = document.createElement("div");
       successBanner.id = "scaleSuccessBanner";
       successBanner.style = "background:#eef2ee; border:1.5px solid #2e7d32; color:#2e7d32; padding:12px; border-radius:10px; font-size:13.5px; font-weight:700; margin-bottom:12px; line-height:1.4; text-align:center;";
-      successBanner.innerHTML = `✓ <strong>Escala ajustada:</strong> Modelo escalado al ${(minScale * 100).toFixed(1)}% para caber perfectamente en el volumen de impresión de tu ${answers.printer}.`;
+      successBanner.innerHTML = `✓ <strong>Escala ajustada:</strong> Modelo escalado al ${(minScale * 100).toFixed(1)}% para caber en el volumen útil de tu impresora de forma estricta.`;
       
       warningBanner.parentNode.insertBefore(successBanner, warningBanner);
       answers.selectedSupportFace = 1; 
@@ -1015,9 +1017,9 @@
           const hull = get2DConvexHull(pts2D);
           
           let bestYaw = 0;
-          let bestMargin = -Infinity;
           let foundFit = false;
           let bestW = 0, bestD = 0;
+          let bestDiff = -Infinity;
           
           for (let deg = 0; deg < 180; deg += 1) {
             const rad = THREE.MathUtils.degToRad(deg);
@@ -1037,9 +1039,9 @@
             const D = maxY - minY;
             
             if (W <= limits.x && D <= limits.y && H <= limits.z) {
-              const margin = Math.min(limits.x - W, limits.y - D, limits.z - H);
-              if (margin > bestMargin) {
-                bestMargin = margin;
+              const diff = -Math.max(W - limits.x, D - limits.y, H - limits.z);
+              if (diff > bestDiff) {
+                bestDiff = diff;
                 bestYaw = rad;
                 foundFit = true;
                 bestW = W;
@@ -1074,7 +1076,7 @@
             const successBanner = document.createElement("div");
             successBanner.id = "scaleSuccessBanner";
             successBanner.style = "background:#eef2ee;border:1.5px solid #2e7d32;color:#2e7d32;padding:12px;border-radius:10px;font-size:13.5px;font-weight:700;margin-bottom:12px;line-height:1.4;text-align:center;";
-            successBanner.innerHTML = `✓ <strong>Superficie apoyada correctamente.</strong> Modelo alineado. Medidas: ${bestW.toFixed(1)} × ${bestD.toFixed(1)} × ${H.toFixed(1)} mm. Margen de seguridad: ${bestMargin.toFixed(1)} mm.`;
+            successBanner.innerHTML = `✓ <strong>Superficie apoyada correctamente.</strong> Modelo alineado. Medidas: ${bestW.toFixed(1)} × ${bestD.toFixed(1)} × ${H.toFixed(1)} mm.`;
             warningBanner.parentNode.insertBefore(successBanner, warningBanner);
             
             if (highlightRing) sScene.remove(highlightRing);
@@ -1164,7 +1166,7 @@
       return true;
     }
 
-    // CÁLCULO DEL VOLUMEN DE LA GEOMETRÍA (Fórmula de divergencia de Gauss)
+    // CÁLCULO DEL VOLUMEN DE LA GEOMETRÍA
     function calculateVolume(geometry) {
       let volume = 0;
       const pos = geometry.attributes.position;
