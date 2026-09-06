@@ -250,8 +250,8 @@
       "Voron 2.4 (350)": { x: 350, y: 350, z: 350 }
     };
 
-    // Base de parámetros principales oficiales mapeados de Orca, Bambu, Prusa y Cura
-    const baseParameterGroups = {
+    // Base de parámetros principales oficiales mapeados de Orca, Bambu, Prusa y Cura (monoboquilla únicamente)
+    const parameterGroups = {
       "Calidad / Calidad de impresión": [
         { key: "layer_height", label: "Altura de capa", slicers: "Orca/Bambu: layer_height | Prusa: layer_height | Cura: layer_height", unit: "mm" },
         { key: "initial_layer_print_height", label: "Altura de capa inicial", slicers: "Orca/Bambu: initial_layer_print_height | Prusa: first_layer_height | Cura: layer_height_0", unit: "mm" },
@@ -270,7 +270,11 @@
         { key: "arc_fitting", label: "Ajuste de arcos (G2/G3)", slicers: "Orca/Bambu: arc_fitting | Prusa: export_g2g3" },
         { key: "slice_closing_radius", label: "Radio de cierre de rebanado", slicers: "Orca/Bambu: slice_closing_radius | Prusa: slice_closing_radius", unit: "mm" },
         { key: "xy_hole_compensation", label: "Compensación de expansión en agujeros", slicers: "Orca/Bambu: xy_hole_compensation | Prusa: xy_hole_compensation_xy", unit: "mm" },
-        { key: "xy_contour_compensation", label: "Compensación de expansión en contorno", slicers: "Orca/Bambu: xy_contour_compensation | Prusa: xy_size_compensation", unit: "mm" }
+        { key: "xy_contour_compensation", label: "Compensación de expansión en contorno", slicers: "Orca/Bambu: xy_contour_compensation | Prusa: xy_size_compensation", unit: "mm" },
+        { key: "bridge_flow_ratio", label: "Relación de flujo en puentes", slicers: "Orca/Bambu: bridge_flow_ratio | Prusa: bridge_flow_ratio", unit: "%" },
+        { key: "infill_overlap_compensation", label: "Solapamiento entre relleno y perímetros", slicers: "Orca/Bambu: infill_overlap_compensation | Prusa: perimeter_infill_overlap", unit: "%" },
+        { key: "xy_size_compensation", label: "Compensación dimensional del plano horizontal (XY)", slicers: "Orca/Bambu: xy_size_compensation | Prusa: xy_size_compensation", unit: "mm" },
+        { key: "elefant_foot_compensation", label: "Compensación de pie de elefante", slicers: "Orca/Bambu: elefant_foot_compensation | Prusa: raft_first_layer_expansion", unit: "mm" }
       ],
       "Fuerza y Estructura": [
         { key: "wall_loops", label: "Bucles de pared (Perímetros)", slicers: "Orca/Bambu: wall_loops | Prusa: perimeters | Cura: wall_line_count", unit: "bucles" },
@@ -373,73 +377,24 @@
       "G-code y Sistema": [
         { key: "nozzle_diameter", label: "Diámetro de boquilla físico", slicers: "Orca/Bambu: nozzle_diameter | Prusa: nozzle_diameter | Cura: machine_nozzle_size", unit: "mm" },
         { key: "printer_model", label: "Modelo de impresora predefinido", slicers: "Orca/Bambu/Prusa: printer_model | Cura: machine_model" },
-        { key: "printer_variant", label: "Variante de máquina física", slicers: "Orca/Bambu: printer_variant | Prusa: printer_variant" }
+        { key: "printer_variant", label: "Variante de máquina física", slicers: "Orca/Bambu: printer_variant | Prusa: printer_variant" },
+        { key: "start_gcode", label: "G-code de inicio del proyecto", slicers: "Orca/Bambu: start_gcode | Prusa: start_gcode | Cura: start_gcode_script" },
+        { key: "end_gcode", label: "G-code de finalización del proyecto", slicers: "Orca/Bambu: end_gcode | Prusa: end_gcode | Cura: end_gcode_script" },
+        { key: "before_layer_gcode", label: "G-code antes de cambio de capa", slicers: "Orca/Bambu: before_layer_gcode | Prusa: before_layer_gcode" },
+        { key: "after_layer_gcode", label: "G-code después de cambio de capa", slicers: "Orca/Bambu: after_layer_gcode | Prusa: after_layer_gcode" }
       ],
-      "Multi-material / Extrusores": [],
-      "Límites Físicos del Hardware": []
+      "Límites Físicos del Hardware": [
+        { key: "machine_max_feedrate_x", label: "Velocidad de avance máximo (Feedrate) - Eje X", slicers: "Orca/Bambu: machine_max_feedrate_x | Prusa: max_feedrate_x", unit: "mm/s" },
+        { key: "machine_max_jerk_x", label: "Límite de tirones (Jerk) - Eje X", slicers: "Orca/Bambu: machine_max_jerk_x | Prusa: max_jerk_x", unit: "mm/s" },
+        { key: "machine_max_acceleration_x", label: "Aceleración de motor máxima - Eje X", slicers: "Orca/Bambu: machine_max_acceleration_x | Prusa: max_acceleration_x", unit: "mm/s²" },
+        { key: "machine_max_feedrate_y", label: "Velocidad de avance máximo (Feedrate) - Eje Y", slicers: "Orca/Bambu: machine_max_feedrate_y | Prusa: max_feedrate_y", unit: "mm/s" },
+        { key: "machine_max_jerk_y", label: "Límite de tirones (Jerk) - Eje Y", slicers: "Orca/Bambu: machine_max_jerk_y | Prusa: max_jerk_y", unit: "mm/s" },
+        { key: "machine_max_acceleration_y", label: "Aceleración de motor máxima - Eje Y", slicers: "Orca/Bambu: machine_max_acceleration_y | Prusa: max_acceleration_y", unit: "mm/s²" },
+        { key: "machine_max_feedrate_z", label: "Velocidad de avance máximo (Feedrate) - Eje Z", slicers: "Orca/Bambu: machine_max_feedrate_z | Prusa: max_feedrate_z", unit: "mm/s" },
+        { key: "machine_max_jerk_z", label: "Límite de tirones (Jerk) - Eje Z", slicers: "Orca/Bambu: machine_max_jerk_z | Prusa: max_jerk_z", unit: "mm/s" },
+        { key: "machine_max_acceleration_z", label: "Aceleración de motor máxima - Eje Z", slicers: "Orca/Bambu: machine_max_acceleration_z | Prusa: max_acceleration_z", unit: "mm/s²" }
+      ]
     };
-
-    // Autogenerar dinámicamente parámetros adicionales de calibración para alcanzar ~500 especificaciones oficiales
-    const parameterGroups = JSON.parse(JSON.stringify(baseParameterGroups));
-
-    // 1. Añadimos calibraciones multi-material robustas (16 extrusores estándar para AMS/MMU)
-    for (let i = 1; i <= 16; i++) {
-      parameterGroups["Multi-material / Extrusores"].push(
-        { key: `nozzle_temp_ext_${i}`, label: `Temperatura de boquilla - Extrusor ${i}`, slicers: `Orca/Bambu: nozzle_temperature[${i-1}] | Prusa: temperature[${i-1}]`, unit: "ºC" },
-        { key: `nozzle_temp_init_ext_${i}`, label: `Temperatura de boquilla inicial - Extrusor ${i}`, slicers: `Orca/Bambu: nozzle_temperature_initial_layer[${i-1}]`, unit: "ºC" },
-        { key: `flow_ratio_ext_${i}`, label: `Multiplicador / Relación de flujo - Extrusor ${i}`, slicers: `Orca/Bambu: flow_ratio[${i-1}] | Prusa: extrusion_multiplier[${i-1}]` },
-        { key: `pressure_adv_ext_${i}`, label: `Avance de presión - Extrusor ${i}`, slicers: `Orca/Bambu: pressure_advance[${i-1}] | Cura: linear_advance` },
-        { key: `filament_density_ext_${i}`, label: `Densidad de filamento - Extrusor ${i}`, slicers: `Orca/Bambu: filament_density[${i-1}]`, unit: "g/cm³" },
-        { key: `filament_diameter_ext_${i}`, label: `Diámetro de filamento - Extrusor ${i}`, slicers: `Orca/Bambu: filament_diameter[${i-1}]`, unit: "mm" },
-        { key: `retract_len_ext_${i}`, label: `Longitud de retracción - Extrusor ${i}`, slicers: `Orca/Bambu: retraction_length[${i-1}]`, unit: "mm" },
-        { key: `retract_speed_ext_${i}`, label: `Velocidad de retracción - Extrusor ${i}`, slicers: `Orca/Bambu: retraction_speed[${i-1}]`, unit: "mm/s" },
-        { key: `deretract_speed_ext_${i}`, label: `Velocidad de desretracción - Extrusor ${i}`, slicers: `Orca/Bambu: deretraction_speed[${i-1}]`, unit: "mm/s" },
-        { key: `wipe_distance_ext_${i}`, label: `Distancia de limpieza de boquilla - Extrusor ${i}`, slicers: `Orca/Bambu: wipe_distance[${i-1}]`, unit: "mm" },
-        { key: `filament_cost_ext_${i}`, label: `Costo financiero de bobina - Extrusor ${i}`, slicers: `Orca/Bambu: filament_cost[${i-1}]`, unit: "€/kg" },
-        { key: `max_volumetric_speed_ext_${i}`, label: `Velocidad volumétrica máxima - Extrusor ${i}`, slicers: `Orca/Bambu: filament_max_volumetric_speed[${i-1}]`, unit: "mm³/s" }
-      );
-    }
-
-    // 2. Añadimos especificaciones cinemáticas avanzadas de hardware (Aceleración y Jerk por ejes de máquina física)
-    const axes = ["x", "y", "z", "e"];
-    axes.forEach(axis => {
-      const upAxis = axis.toUpperCase();
-      parameterGroups["Límites Físicos del Hardware"].push(
-        { key: `machine_max_feedrate_${axis}`, label: `Velocidad de avance máximo (Feedrate) - Eje ${upAxis}`, slicers: `Orca/Bambu: machine_max_feedrate_${axis} | Prusa: max_feedrate_${axis}`, unit: "mm/s" },
-        { key: `machine_max_jerk_${axis}`, label: `Límite de tirones (Jerk) - Eje ${upAxis}`, slicers: `Orca/Bambu: machine_max_jerk_${axis} | Prusa: max_jerk_${axis}`, unit: "mm/s" },
-        { key: `machine_max_acceleration_${axis}`, label: `Aceleración de motor máxima - Eje ${upAxis}`, slicers: `Orca/Bambu: machine_max_acceleration_${axis} | Prusa: max_acceleration_${axis}`, unit: "mm/s²" }
-      );
-    });
-
-    // 3. Generar variantes térmicas y cinemáticas para perfiles de material (PLA, PETG, ABS, ASA, TPU, Nylon, Carbon)
-    const materials = ["PLA", "PETG", "ABS", "ASA", "TPU", "PA", "CF"];
-    materials.forEach(mat => {
-      parameterGroups["Filamento y Temperatura"].push(
-        { key: `nozzle_temp_${mat.toLowerCase()}`, label: `Temperatura de extrusión óptima (${mat})`, slicers: `Orca: nozzle_temperature | Prusa: temperature`, unit: "ºC" },
-        { key: `hot_plate_temp_${mat.toLowerCase()}`, label: `Temperatura de base de impresión (${mat})`, slicers: `Orca: hot_plate_temp | Prusa: bed_temperature`, unit: "ºC" },
-        { key: `volumetric_limit_${mat.toLowerCase()}`, label: `Límite de flujo volumétrico fundido (${mat})`, slicers: `Orca: filament_max_volumetric_speed`, unit: "mm³/s" },
-        { key: `cooling_fan_min_${mat.toLowerCase()}`, label: `Ventilación forzada mínima recomendada (${mat})`, slicers: `Orca: fan_speed_min`, unit: "%" },
-        { key: `cooling_fan_max_${mat.toLowerCase()}`, label: `Ventilación forzada de emergencia máxima (${mat})`, slicers: `Orca: fan_speed_max`, unit: "%" },
-        { key: `shrinkage_factor_${mat.toLowerCase()}`, label: `Factor de encogimiento molecular compensado (${mat})`, slicers: `Orca: filament_shrinkage`, unit: "%" }
-      );
-    });
-
-    // 4. Parámetros avanzados de laminación geométrica y puentes
-    parameterGroups["Calidad / Calidad de impresión"].push(
-      { key: "bridge_flow_ratio", label: "Relación de flujo en puentes", slicers: "Orca/Bambu: bridge_flow_ratio | Prusa: bridge_flow_ratio", unit: "%" },
-      { key: "infill_overlap_compensation", label: "Solapamiento entre relleno y perímetros", slicers: "Orca/Bambu: infill_overlap_compensation | Prusa: perimeter_infill_overlap", unit: "%" },
-      { key: "xy_size_compensation", label: "Compensación dimensional del plano horizontal (XY)", slicers: "Orca/Bambu: xy_size_compensation | Prusa: xy_size_compensation", unit: "mm" },
-      { key: "elefant_foot_compensation", label: "Compensación de pie de elefante", slicers: "Orca/Bambu: elefant_foot_compensation | Prusa: raft_first_layer_expansion", unit: "mm" }
-    );
-
-    // 5. Parámetros avanzados de G-code y comandos máquina
-    parameterGroups["G-code y Sistema"].push(
-      { key: "start_gcode", label: "G-code de inicio del proyecto", slicers: "Orca/Bambu: start_gcode | Prusa: start_gcode | Cura: start_gcode_script" },
-      { key: "end_gcode", label: "G-code de finalización del proyecto", slicers: "Orca/Bambu: end_gcode | Prusa: end_gcode | Cura: end_gcode_script" },
-      { key: "before_layer_gcode", label: "G-code antes de cambio de capa", slicers: "Orca/Bambu: before_layer_gcode | Prusa: before_layer_gcode" },
-      { key: "after_layer_gcode", label: "G-code después de cambio de capa", slicers: "Orca/Bambu: after_layer_gcode | Prusa: after_layer_gcode" },
-      { key: "change_filament_gcode", label: "G-code de cambio de filamento (M600)", slicers: "Orca/Bambu: change_filament_gcode | Prusa: toolchange_gcode" }
-    );
 
     document.addEventListener("DOMContentLoaded", () => {
       const stored = sessionStorage.getItem("printlab_analysis");
@@ -456,7 +411,7 @@
 
       document.getElementById("reportFileNameHeader").textContent = "📄 " + (analysis.file_name || "Malla");
 
-      // --- RENDERIZADO DINÁMICO DE LOS 500+ PARÁMETROS EN DISEÑO COMPACTO ---
+      // --- RENDERIZADO DINÁMICO DE PARÁMETROS ("Lo que no ponga nada quítalo") ---
       function renderParameters(filterText = "") {
         const container = document.getElementById("parametersDynamicContainer");
         container.innerHTML = "";
@@ -464,10 +419,19 @@
 
         for (const groupName in parameterGroups) {
           const groupVariables = parameterGroups[groupName];
+          
+          // Filtrar fuera los parámetros no definidos o vacíos, mostrando únicamente datos con valor útil real
           const filtered = groupVariables.filter(v => {
-            return v.key.toLowerCase().includes(lowerFilter) || v.label.toLowerCase().includes(lowerFilter) || v.slicers.toLowerCase().includes(lowerFilter);
+            const val = s[v.key];
+            const hasValue = val !== undefined && val !== null && String(val).trim() !== "" && String(val).trim() !== "--";
+            if (!hasValue) return false;
+
+            return v.key.toLowerCase().includes(lowerFilter) || 
+                   v.label.toLowerCase().includes(lowerFilter) || 
+                   v.slicers.toLowerCase().includes(lowerFilter);
           });
 
+          // Solo renderiza el encabezado del grupo si contiene al menos un parámetro útil activo
           if (filtered.length > 0) {
             const groupDiv = document.createElement("div");
             groupDiv.style.marginBottom = "16px";
@@ -491,8 +455,8 @@
 
               const valStrong = document.createElement("strong");
               valStrong.style = "font-size:13px; color:var(--ink);";
-              let displayVal = val !== undefined && val !== null ? val : "--";
-              if (displayVal !== "--" && v.unit) {
+              let displayVal = val;
+              if (v.unit) {
                 displayVal = `${displayVal} ${v.unit}`;
               }
               valStrong.textContent = displayVal;
