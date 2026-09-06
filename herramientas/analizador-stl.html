@@ -1076,18 +1076,9 @@
         isDraggingTransform = event.value;
       });
 
-      // Mantiene la pieza imantada a la cama caliente (Z=0) al arrastrarla o girarla
-      transformControls.addEventListener('change', () => {
-        if (sMesh) {
-          sMesh.updateMatrixWorld(true);
-          const bbox = new THREE.Box3().setFromObject(sMesh);
-          const offsetZ = -bbox.min.z;
-          if (Math.abs(offsetZ) > 0.001) {
-            sMesh.position.z += offsetZ;
-            sMesh.updateMatrixWorld(true);
-          }
-          checkLimits();
-        }
+      // Llama a checkLimits() solo cuando el objeto cambie físicamente por el usuario (corrige bucles de recálculo en 'change')
+      transformControls.addEventListener('objectChange', () => {
+        checkLimits();
       });
 
       const reader = new FileReader();
