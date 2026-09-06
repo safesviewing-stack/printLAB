@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
   <style>
     /* VARIABLES Y BASE GLOBAL - IDÉNTICAS AL INDEX */
-    :root{ --bg:#f6f7f4; --card:#fff; --ink:#0d1110; --muted:#5e6661; --line:#dfe4df; --accent:#b8ff3d; --dark:#111715; --max:1200px; }
+    :root{ --bg:#f6f7f4; --card:#fff; --ink:#0d1110; --muted:#5e6661; --line:#dfe4df; --accent:#b8ff3d; --dark:#111715; --max:1200px; --error:#b42318; }
     *{box-sizing:border-box}html{scroll-behavior:smooth}
     body{margin:0; background:var(--bg); color:var(--ink); font-family:"Plus Jakarta Sans", sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased;}
     a{color:inherit;text-decoration:none}
@@ -404,7 +404,7 @@
           <div id="limitWarningBanner" style="display:none; background:#fcebe8; border:1.5px solid var(--error); color:#9e3223; padding:16px; border-radius:12px; font-size:13.5px; font-weight:700; margin-bottom:12px; line-height:1.4; text-align:center;"></div>
           <div class="viewer-wrap">
             <div class="viewer-toolbar">
-              <button type="button" class="auto-orient-btn" onclick="autoOrientZToFit()" title="Buscar una rotación que haga que la pieza quepa manteniendo la superficie seleccionada como base">
+              <button type="button" class="auto-orient-btn" onclick="window.autoOrientZToFit()" title="Buscar una rotación que haga que la pieza quepa manteniendo la superficie seleccionada como base">
                 🤖 Orientación automática
               </button>
             </div>
@@ -583,6 +583,7 @@
       validateCurrentStep();
     }
 
+    // VARIABLES GLOBALES DEL VISOR 3D
     let sScene, sCamera, sRenderer, sControls, sMesh, highlightRing, gridHelper, printVolumeBox;
 
     function disposeRendererAndScene() {
@@ -609,6 +610,309 @@
       if (highlightRing) highlightRing = null;
     }
 
+    // ALGORITMOS DE GEOMETRÍA OPTIMIZADOS PARA CÁLCULO DE ÁREA Y PERÍMETRO EN 2D
+    function crossProduct(o, a, b) {
+      return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+    }
+
+    // Obtener Convex Hull 2D (Algoritmo Monotone Chain)
+    function get2DConvexHull(points) {
+      if (points.length <= 3) return points.slice();
+      const pts = points.slice().sort((a, b) => a.x === b.x ? a.y - b.y : a.x - b.x);
+      const lower = [];
+      for (let i = 0; i < pts.length; i++) {
+        while (lower.length >= 2 && crossProduct(lower[lower.length - 2], lower[lower.length - 1], pts[i]) <= 0) {
+          lower.pop();
+        }
+        lower.push(pts[i]);
+      }
+      const upper = [];
+      for (let i = pts.length - 1; i >= 0; i--) {
+        while (upper.length >= 2 && crossProduct(upper[upper.length - 2], upper[upper.length - 1], pts[i]) <= 0) {
+          upper.pop();
+        }
+        upper.push(pts[i]);
+      }
+      lower.pop();
+      upper.pop();
+      return lower.concat(upper);
+    }
+
+    // Obtención de vértices únicos con muestreo dinámico (mantiene la fluidez del navegador)
+    function getUniqueVertices(geometry) {
+      const pos = geometry.attributes.position;
+      const unique = [];
+      const seen = new Set();
+      const step = Math.max(1, Math.floor(pos.count / 3000)); 
+      for (let i = 0; i < pos.count; i += step) {
+        const x = pos.getX(i);
+        const y = pos.getY(i);
+        const z = pos.getZ(i);
+        const rx = Math.round(x * 100) / 100;
+        const ry = Math.round(y * 100) / 100;
+        const rz = Math.round(z * 100) / 100;
+        const key = `${rx}_${ry}_${rz}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          unique.push(new THREE.Vector3(x, y, z));
+        }
+      }
+      return unique;
+    }
+
+    // Analizador de caras para identificar las bases estables (agrupación de normales por área)
+    function getCandidateNormals(geometry) {
+      const pos = geometry.attributes.position;
+      const normalMap = {};
+      const vA = new THREE.Vector3(), vB = new THREE.Vector3(), vC = new THREE.Vector3();
+      const cb = new THREE.Vector3(), ab = new THREE.Vector3();
+      
+      const step = Math.max(1, Math.floor(pos.count / 4000)) * 3;
+      for (let i = 0; i < pos.count; i += step) {
+        if (i + 2 >= pos.count) break;
+        vA.fromBufferAttribute(pos, i);
+        vB.fromBufferAttribute(pos, i + 1);
+        vC.fromBufferAttribute(pos, i + 2);
+        
+        cb.subVectors(vC, vB);
+        ab.subVectors(vA, vB);
+        cb.cross(ab);
+        const area = cb.length() * 0.5;
+        const normal = cb.clone().normalize();
+        
+        const rx = Math.round(normal.x * 10) / 10;
+        const ry = Math.round(normal.y * 10) / 10;
+        const rz = Math.round(normal.z * 10) / 10;
+        const key = `${rx}_${ry}_${rz}`;
+        
+        if (!normalMap[key]) {
+          normalMap[key] = { normal: normal.clone(), area: 0 };
+        }
+        normalMap[key].area += area;
+      }
+      
+      const candidates = Object.values(normalMap);
+      candidates.sort((a, b) => b.area - a.area);
+      
+      const result = [];
+      const seenNormals = [];
+      const isDuplicate = (n) => {
+        for (const existing of seenNormals) {
+          if (existing.dot(n) > 0.94) return true;
+        }
+        return false;
+      };
+      
+      for (const c of candidates) {
+        if (!isDuplicate(c.normal)) {
+          seenNormals.push(c.normal);
+          result.push(c.normal);
+          if (result.length >= 10) break;
+        }
+      }
+      
+      const axes = [
+        new THREE.Vector3(0, 0, 1),
+        new THREE.Vector3(0, 0, -1),
+        new THREE.Vector3(1, 0, 0),
+        new THREE.Vector3(-1, 0, 0),
+        new THREE.Vector3(0, 1, 0),
+        new THREE.Vector3(0, -1, 0)
+      ];
+      for (const axis of axes) {
+        if (!isDuplicate(axis)) {
+          result.push(axis);
+        }
+      }
+      return result;
+    }
+
+    // FUNCIÓN DE ORIENTACIÓN AUTOMÁTICA GLOBLAL INTELIGENTE
+    window.autoOrientZToFit = function() {
+      if (!sMesh || !answers.printer) {
+        alert("Por favor, selecciona una impresora en el paso anterior.");
+        return;
+      }
+      
+      const limits = printerLimits[answers.printer];
+      if (!limits) return;
+      
+      const warningBanner = document.getElementById("limitWarningBanner");
+      const oldSuccess = document.getElementById("scaleSuccessBanner");
+      if (oldSuccess) oldSuccess.remove();
+      
+      warningBanner.style.display = "block";
+      warningBanner.innerHTML = "🤖 Calculando la orientación óptima en base a la geometría del modelo...";
+      
+      setTimeout(() => {
+        const uniqueVerts = getUniqueVertices(sMesh.geometry);
+        const candidateNormals = getCandidateNormals(sMesh.geometry);
+        
+        let bestConfig = null;
+        let bestMargin = -Infinity;
+        
+        for (const normal of candidateNormals) {
+          const q = new THREE.Quaternion().setFromUnitVectors(normal, new THREE.Vector3(0, 0, -1));
+          
+          const projectedPoints = uniqueVerts.map(v => v.clone().applyQuaternion(q));
+          let minZ = Infinity, maxZ = -Infinity;
+          const pts2D = [];
+          for (const v of projectedPoints) {
+            if (v.z < minZ) minZ = v.z;
+            if (v.z > maxZ) maxZ = v.z;
+            pts2D.push({ x: v.x, y: v.y });
+          }
+          const H = maxZ - minZ;
+          
+          if (H > limits.z) continue; 
+          
+          const hull = get2DConvexHull(pts2D);
+          
+          for (let deg = 0; deg < 180; deg += 1) {
+            const rad = THREE.MathUtils.degToRad(deg);
+            const cos = Math.cos(rad);
+            const sin = Math.sin(rad);
+            let minX = Infinity, maxX = -Infinity;
+            let minY = Infinity, maxY = -Infinity;
+            for (const p of hull) {
+              const rx = p.x * cos - p.y * sin;
+              const ry = p.x * sin + p.y * cos;
+              if (rx < minX) minX = rx;
+              if (rx > maxX) maxX = rx;
+              if (ry < minY) minY = ry;
+              if (ry > maxY) maxY = ry;
+            }
+            const W = maxX - minX;
+            const D = maxY - minY;
+            
+            if (W <= limits.x && D <= limits.y) {
+              const margin = Math.min(limits.x - W, limits.y - D, limits.z - H);
+              if (margin > bestMargin) {
+                bestMargin = margin;
+                bestConfig = { normal, q, yaw: rad, W, D, H };
+              }
+            }
+          }
+        }
+        
+        if (bestConfig) {
+          const { q, yaw, W, D, H } = bestConfig;
+          const yawQuat = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), yaw);
+          
+          sMesh.quaternion.copy(yawQuat.multiply(q));
+          sMesh.scale.set(1, 1, 1);
+          sMesh.position.set(0, 0, 0);
+          sMesh.updateMatrixWorld(true);
+          
+          const bbox = new THREE.Box3().setFromObject(sMesh);
+          const currentCenter = new THREE.Vector3();
+          bbox.getCenter(currentCenter);
+          sMesh.position.x = -currentCenter.x;
+          sMesh.position.y = -currentCenter.y;
+          sMesh.position.z = -bbox.min.z;
+          sMesh.updateMatrixWorld(true);
+          
+          sMesh.material.color.setHex(0x90caf9);
+          sMesh.material.needsUpdate = true;
+          warningBanner.style.display = "none";
+          
+          const successBanner = document.createElement("div");
+          successBanner.id = "scaleSuccessBanner";
+          successBanner.style = "background:#eef2ee;border:1.5px solid #2e7d32;color:#2e7d32;padding:12px;border-radius:10px;font-size:13.5px;font-weight:700;margin-bottom:12px;line-height:1.4;text-align:center;";
+          successBanner.innerHTML = `✓ <strong>Orientación óptima encontrada automáticamente.</strong> Medidas reales de la pieza: ${W.toFixed(1)} × ${D.toFixed(1)} × ${H.toFixed(1)} mm. Margen de seguridad: ${bestMargin.toFixed(1)} mm.`;
+          warningBanner.parentNode.insertBefore(successBanner, warningBanner);
+          
+          answers.selectedSupportFace = 1; 
+          if (highlightRing) sScene.remove(highlightRing);
+        } else {
+          sMesh.material.color.setHex(0xb42318);
+          sMesh.material.needsUpdate = true;
+          
+          const bbox = new THREE.Box3().setFromObject(sMesh);
+          const size = bbox.getSize(new THREE.Vector3());
+          
+          warningBanner.style.display = "block";
+          warningBanner.innerHTML = `
+            <div style="margin-bottom:10px;">
+              ⚠️ <strong>Imposible encajar la pieza en la cama.</strong> 
+              No existe ninguna rotación en la que el modelo quepa dentro de las dimensiones máximas (${limits.x} × ${limits.y} × ${limits.z} mm).<br>
+              Medidas actuales del modelo: ${size.x.toFixed(1)} × ${size.y.toFixed(1)} × ${size.z.toFixed(1)} mm.
+            </div>
+          `;
+          
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.textContent = "Auto-escalar pieza para ajustar al volumen de la cama";
+          btn.style = "background:#b42318;color:#fff;border:1.5px solid #fff;padding:8px 16px;border-radius:8px;font-weight:800;cursor:pointer;font-size:12px;";
+          btn.onclick = () => window.scaleMeshToFit();
+          warningBanner.appendChild(btn);
+        }
+        
+        const te = sMesh.matrix.elements;
+        answers.transformationMatrix = [
+          [te[0], te[4], te[8], te[12]],
+          [te[1], te[5], te[9], te[13]],
+          [te[2], te[6], te[10], te[14]],
+          [te[3], te[7], te[11], te[15]]
+        ];
+        
+        validateCurrentStep();
+      }, 50);
+    };
+
+    // FUNCIÓN DE ESCALADO DE EMERGENCIA PARA ENCAJAR EN EL VOLUMEN
+    window.scaleMeshToFit = function() {
+      if (!sMesh || !answers.printer) return;
+      const limits = printerLimits[answers.printer];
+      if (!limits) return;
+
+      const currentBbox = new THREE.Box3().setFromObject(sMesh);
+      const modelSize = new THREE.Vector3();
+      currentBbox.getSize(modelSize);
+
+      const scaleX = (limits.x * 0.95) / modelSize.x;
+      const scaleY = (limits.y * 0.95) / modelSize.y;
+      const scaleZ = (limits.z * 0.95) / modelSize.z;
+      const minScale = Math.min(scaleX, scaleY, scaleZ);
+
+      sMesh.scale.multiplyScalar(minScale);
+      sMesh.updateMatrixWorld(true);
+
+      const finalBbox = new THREE.Box3().setFromObject(sMesh);
+      const boxCenter = new THREE.Vector3();
+      finalBbox.getCenter(boxCenter);
+      
+      sMesh.position.x = -boxCenter.x;
+      sMesh.position.y = -boxCenter.y;
+      sMesh.position.z = -finalBbox.min.z;
+      sMesh.updateMatrixWorld(true);
+
+      const te = sMesh.matrix.elements;
+      answers.transformationMatrix = [
+        [ te[0], te[4], te[8],  te[12] ],
+        [ te[1], te[5], te[9],  te[13] ],
+        [ te[2], te[6], te[10], te[14] ],
+        [ te[3], te[7], te[11], te[15] ]
+      ];
+
+      sMesh.material.color.setHex(0x90caf9); 
+      const warningBanner = document.getElementById("limitWarningBanner");
+      warningBanner.style.display = "none";
+
+      const oldSuccess = document.getElementById("scaleSuccessBanner");
+      if (oldSuccess) oldSuccess.remove();
+
+      const successBanner = document.createElement("div");
+      successBanner.id = "scaleSuccessBanner";
+      successBanner.style = "background:#eef2ee; border:1.5px solid #2e7d32; color:#2e7d32; padding:12px; border-radius:10px; font-size:13.5px; font-weight:700; margin-bottom:12px; line-height:1.4; text-align:center;";
+      successBanner.innerHTML = `✓ <strong>Escala ajustada:</strong> Modelo escalado al ${(minScale * 100).toFixed(1)}% para caber perfectamente en el volumen de impresión de tu ${answers.printer}.`;
+      
+      warningBanner.parentNode.insertBefore(successBanner, warningBanner);
+      answers.selectedSupportFace = 1; 
+      validateCurrentStep();
+    }
+
+    // INICIALIZADOR DE LA ESCENA TRIDIMENSIONAL
     function initSelector3D() {
       disposeRendererAndScene();
 
@@ -670,13 +974,13 @@
         sCamera.position.set(size * 1.3, size * 1.3, size * 1.3);
         sControls.target.copy(geometry.boundingBox.getCenter(new THREE.Vector3()));
         sControls.update();
-        
       };
       reader.readAsArrayBuffer(window.selectedSTLFile);
 
       sRenderer.domElement.addEventListener("click", onMeshClick);
 
       function onMeshClick(event) {
+        if (!sMesh) return;
         const rect = sRenderer.domElement.getBoundingClientRect();
         const mouse = new THREE.Vector2();
         mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
@@ -688,541 +992,144 @@
 
         if (intersects.length > 0) {
           const hit = intersects[0];
-
           const supportPointLocal = sMesh.worldToLocal(hit.point.clone());
           const localNormal = hit.face.normal.clone();
 
           answers.selectedSupportFace = hit.faceIndex;
           answers.supportFaceNormal = [localNormal.x, localNormal.y, localNormal.z];
-          answers.supportFacePoint = [
-            supportPointLocal.x,
-            supportPointLocal.y,
-            supportPointLocal.z
-          ];
+          answers.supportFacePoint = [supportPointLocal.x, supportPointLocal.y, supportPointLocal.z];
 
-          const supportVerts = [];
-          const supportAttr = sMesh.geometry.attributes.position;
-          const fa = hit.face.a;
-          const fb = hit.face.b;
-          const fc = hit.face.c;
-          [fa, fb, fc].forEach((idx) => {
-            const vv = new THREE.Vector3().fromBufferAttribute(supportAttr, idx);
-            supportVerts.push([vv.x, vv.y, vv.z]);
-          });
-          answers.supportFaceVertices = supportVerts;
-
-          sMesh.scale.set(1, 1, 1);
-          sMesh.quaternion.set(0, 0, 0, 1);
-          sMesh.position.set(0, 0, 0);
-          sMesh.updateMatrixWorld(true);
-
+          const q = new THREE.Quaternion().setFromUnitVectors(localNormal, new THREE.Vector3(0, 0, -1));
+          const uniqueVerts = getUniqueVertices(sMesh.geometry);
+          const limits = printerLimits[answers.printer] || { x: 220, y: 220, z: 250 };
+          
+          const projectedPoints = uniqueVerts.map(v => v.clone().applyQuaternion(q));
+          let minZ = Infinity, maxZ = -Infinity;
+          const pts2D = [];
+          for (const v of projectedPoints) {
+            if (v.z < minZ) minZ = v.z;
+            if (v.z > maxZ) maxZ = v.z;
+            pts2D.push({ x: v.x, y: v.y });
+          }
+          const H = maxZ - minZ;
+          const hull = get2DConvexHull(pts2D);
+          
+          let bestYaw = 0;
+          let bestMargin = -Infinity;
+          let foundFit = false;
+          let bestW = 0, bestD = 0;
+          
+          for (let deg = 0; deg < 180; deg += 1) {
+            const rad = THREE.MathUtils.degToRad(deg);
+            const cos = Math.cos(rad);
+            const sin = Math.sin(rad);
+            let minX = Infinity, maxX = -Infinity;
+            let minY = Infinity, maxY = -Infinity;
+            for (const p of hull) {
+              const rx = p.x * cos - p.y * sin;
+              const ry = p.x * sin + p.y * cos;
+              if (rx < minX) minX = rx;
+              if (rx > maxX) maxX = rx;
+              if (ry < minY) minY = ry;
+              if (ry > maxY) maxY = ry;
+            }
+            const W = maxX - minX;
+            const D = maxY - minY;
+            
+            if (W <= limits.x && D <= limits.y && H <= limits.z) {
+              const margin = Math.min(limits.x - W, limits.y - D, limits.z - H);
+              if (margin > bestMargin) {
+                bestMargin = margin;
+                bestYaw = rad;
+                foundFit = true;
+                bestW = W;
+                bestD = D;
+              }
+            }
+          }
+          
+          const warningBanner = document.getElementById("limitWarningBanner");
           const oldSuccess = document.getElementById("scaleSuccessBanner");
           if (oldSuccess) oldSuccess.remove();
+          
+          if (foundFit) {
+            const yawQuat = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), bestYaw);
+            sMesh.quaternion.copy(yawQuat.multiply(q));
+            sMesh.scale.set(1, 1, 1);
+            sMesh.position.set(0, 0, 0);
+            sMesh.updateMatrixWorld(true);
+            
+            const bbox = new THREE.Box3().setFromObject(sMesh);
+            const currentCenter = new THREE.Vector3();
+            bbox.getCenter(currentCenter);
+            sMesh.position.x = -currentCenter.x;
+            sMesh.position.y = -currentCenter.y;
+            sMesh.position.z = -bbox.min.z;
+            sMesh.updateMatrixWorld(true);
+            
+            sMesh.material.color.setHex(0x90caf9);
+            sMesh.material.needsUpdate = true;
+            warningBanner.style.display = "none";
+            
+            const successBanner = document.createElement("div");
+            successBanner.id = "scaleSuccessBanner";
+            successBanner.style = "background:#eef2ee;border:1.5px solid #2e7d32;color:#2e7d32;padding:12px;border-radius:10px;font-size:13.5px;font-weight:700;margin-bottom:12px;line-height:1.4;text-align:center;";
+            successBanner.innerHTML = `✓ <strong>Superficie apoyada correctamente.</strong> Modelo alineado. Medidas: ${bestW.toFixed(1)} × ${bestD.toFixed(1)} × ${H.toFixed(1)} mm. Margen de seguridad: ${bestMargin.toFixed(1)} mm.`;
+            warningBanner.parentNode.insertBefore(successBanner, warningBanner);
+            
+            if (highlightRing) sScene.remove(highlightRing);
+            const ringGeo = new THREE.RingGeometry(2.5, 3.2, 32);
+            const ringMat = new THREE.MeshBasicMaterial({ color: 0xb8ff3d, side: THREE.DoubleSide });
+            highlightRing = new THREE.Mesh(ringGeo, ringMat);
+            highlightRing.position.copy(hit.point);
+            
+            const ringNormal = localNormal.clone().applyQuaternion(sMesh.quaternion);
+            highlightRing.quaternion.copy(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), ringNormal));
+            highlightRing.position.addScaledVector(ringNormal, 0.4);
+            sScene.add(highlightRing);
+          } else {
+            sMesh.quaternion.copy(q);
+            sMesh.scale.set(1, 1, 1);
+            sMesh.position.set(0, 0, 0);
+            sMesh.updateMatrixWorld(true);
+            
+            const bbox = new THREE.Box3().setFromObject(sMesh);
+            const currentCenter = new THREE.Vector3();
+            bbox.getCenter(currentCenter);
+            sMesh.position.x = -currentCenter.x;
+            sMesh.position.y = -currentCenter.y;
+            sMesh.position.z = -bbox.min.z;
+            sMesh.updateMatrixWorld(true);
+            
+            sMesh.material.color.setHex(0xb42318);
+            sMesh.material.needsUpdate = true;
+            
+            warningBanner.style.display = "block";
+            warningBanner.innerHTML = `
+              <div style="margin-bottom:10px;">
+                ⚠️ <strong>La pieza no cabe apoyada sobre esta cara.</strong><br>
+                Dimensiones en esta orientación: ${bbox.getSize(new THREE.Vector3()).x.toFixed(1)} × ${bbox.getSize(new THREE.Vector3()).y.toFixed(1)} × ${bbox.getSize(new THREE.Vector3()).z.toFixed(1)} mm.<br>
+                Volumen útil de la impresora: ${limits.x} × ${limits.y} × ${limits.z} mm.
+              </div>
+            `;
+            
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.textContent = "Auto-escalar pieza para ajustar al volumen de la cama";
+            btn.style = "background:#b42318;color:#fff;border:1.5px solid #fff;padding:8px 16px;border-radius:8px;font-weight:800;cursor:pointer;font-size:12px;margin-right:8px;";
+            btn.onclick = () => window.scaleMeshToFit();
+            warningBanner.appendChild(btn);
+          }
 
-          const target = new THREE.Vector3(0, 0, -1);
-          const q = new THREE.Quaternion().setFromUnitVectors(localNormal, target);
-
-          sMesh.quaternion.copy(q);
-          sMesh.position.set(0, 0, 0);
-          sMesh.updateMatrixWorld(true);
-
-          if (highlightRing) sScene.remove(highlightRing);
-          const ringGeo = new THREE.RingGeometry(2.5, 3.2, 32);
-          const ringMat = new THREE.MeshBasicMaterial({ color: 0xb8ff3d, side: THREE.DoubleSide });
-          highlightRing = new THREE.Mesh(ringGeo, ringMat);
-          highlightRing.position.copy(hit.point);
-
-          const ringNormal = localNormal.clone().applyQuaternion(q);
-          highlightRing.quaternion.copy(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), ringNormal));
-          highlightRing.position.addScaledVector(ringNormal, 0.4);
-          sScene.add(highlightRing);
-
+          const te = sMesh.matrix.elements;
+          answers.transformationMatrix = [
+            [te[0], te[4], te[8], te[12]],
+            [te[1], te[5], te[9], te[13]],
+            [te[2], te[6], te[10], te[14]],
+            [te[3], te[7], te[11], te[15]]
+          ];
           validateCurrentStep();
         }
-      }
-
-      function buildProjectedHull(points) {
-        if (points.length <= 3) return points.slice();
-        const pts = points.slice().sort((a,b) => a.x === b.x ? a.y-b.y : a.x-b.x);
-        const cross = (o,a,b) => (a.x-o.x)*(b.y-o.y) - (a.y-o.y)*(b.x-o.x);
-        const lower = [];
-        for (const p of pts) {
-          while (lower.length >= 2 && cross(lower[lower.length-2], lower[lower.length-1], p) <= 1e-12) lower.pop();
-          lower.push(p);
-        }
-        const upper = [];
-        for (let i = pts.length-1; i >= 0; i--) {
-          const p = pts[i];
-          while (upper.length >= 2 && cross(upper[upper.length-2], upper[upper.length-1], p) <= 1e-12) upper.pop();
-          upper.push(p);
-        }
-        lower.pop(); upper.pop();
-        return lower.concat(upper);
-      }
-
-      function prepareBaseSearch(baseQuat) {
-        const pos = sMesh.geometry.attributes.position;
-        const v = new THREE.Vector3();
-        const points = [];
-        let minZ = Infinity, maxZ = -Infinity;
-
-        for (let i = 0; i < pos.count; i++) {
-          v.fromBufferAttribute(pos, i).applyQuaternion(baseQuat);
-          points.push({x:v.x, y:v.y});
-          if (v.z < minZ) minZ = v.z;
-          if (v.z > maxZ) maxZ = v.z;
-        }
-        return { hull: buildProjectedHull(points), minZ, maxZ, height:maxZ-minZ };
-      }
-
-      function measureProjectedHull(hull, rad) {
-        const c = Math.cos(rad), s = Math.sin(rad);
-        let minX=Infinity, maxX=-Infinity, minY=Infinity, maxY=-Infinity;
-        for (let i=0; i<hull.length; i++) {
-          const p=hull[i];
-          const x=p.x*c-p.y*s;
-          const y=p.x*s+p.y*c;
-          if(x<minX)minX=x; if(x>maxX)maxX=x;
-          if(y<minY)minY=y; if(y>maxY)maxY=y;
-        }
-        return { minX,maxX,minY,maxY,width:maxX-minX,height:maxY-minY };
-      }
-
-      function fitAtAngle(search, rad, limits) {
-        const m=measureProjectedHull(search.hull,rad);
-        return {
-          ...m,
-          fits:m.width <= limits.x + 1e-6 && m.height <= limits.y + 1e-6 && search.height <= limits.z + 1e-6,
-          margin:Math.min(limits.x-m.width, limits.y-m.height)
-        };
-      }
-
-      function getSupportPointLocal() {
-        if (!answers.supportFacePoint) {
-          return new THREE.Vector3(0, 0, 0);
-        }
-        return new THREE.Vector3(
-          answers.supportFacePoint[0],
-          answers.supportFacePoint[1],
-          answers.supportFacePoint[2]
-        );
-      }
-
-      function setBaseOrientation(baseQuat, yawRad) {
-        const yaw = new THREE.Quaternion().setFromAxisAngle(
-          new THREE.Vector3(0, 0, 1),
-          yawRad
-        );
-
-        sMesh.quaternion.copy(yaw.multiply(baseQuat.clone()));
-        sMesh.updateMatrixWorld(true);
-
-        const p = getSupportPointLocal().applyQuaternion(sMesh.quaternion);
-        sMesh.position.set(-p.x, -p.y, -p.z);
-        sMesh.updateMatrixWorld(true);
-
-        const bbox = new THREE.Box3().setFromObject(sMesh);
-        const limits = printerLimits[answers.printer];
-        if (limits) {
-          sMesh.position.x += limits.x / 2 - (bbox.min.x + bbox.max.x) / 2;
-          sMesh.position.y += limits.y / 2 - (bbox.min.y + bbox.max.y) / 2;
-          sMesh.updateMatrixWorld(true);
-        }
-      }
-
-      function buildSearchData(baseQuat) {
-        const pos = sMesh.geometry.attributes.position;
-        const v = new THREE.Vector3();
-        const points = [];
-        let minZ = Infinity;
-        let maxZ = -Infinity;
-
-        for (let i = 0; i < pos.count; i++) {
-          v.fromBufferAttribute(pos, i).applyQuaternion(baseQuat);
-          points.push({x: v.x, y: v.y});
-          if (v.z < minZ) minZ = v.z;
-          if (v.z > maxZ) maxZ = v.z;
-        }
-
-        const supportZ = getSupportPointLocal().applyQuaternion(baseQuat).z;
-        const minZRelative = minZ - supportZ;
-        const maxZRelative = maxZ - supportZ;
-
-        return {
-          hull: buildProjectedHull(points),
-          minZRelative,
-          maxZRelative,
-          height: maxZRelative - minZRelative
-        };
-      }
-
-      function measureHullAtYaw(hull, rad) {
-        const c = Math.cos(rad);
-        const sn = Math.sin(rad);
-
-        let minX = Infinity, maxX = -Infinity;
-        let minY = Infinity, maxY = -Infinity;
-
-        for (let i = 0; i < hull.length; i++) {
-          const p = hull[i];
-          const x = p.x * c - p.y * sn;
-          const y = p.x * sn + p.y * c;
-
-          if (x < minX) minX = x;
-          if (x > maxX) maxX = x;
-          if (y < minY) minY = y;
-          if (y > maxY) maxY = y;
-        }
-
-        return {
-          minX, maxX, minY, maxY,
-          width: maxX - minX,
-          depth: maxY - minY
-        };
-      }
-
-      function evaluateYaw(search, rad, limits) {
-        const m = measureHullAtYaw(search.hull, rad);
-        const tolerance = 0;
-
-        const bedMinX = -limits.x / 2;
-        const bedMaxX =  limits.x / 2;
-        const bedMinY = -limits.y / 2;
-        const bedMaxY =  limits.y / 2;
-
-        const xMin = bedMinX - m.minX;
-        const xMax = bedMaxX - m.maxX;
-        const yMin = bedMinY - m.minY;
-        const yMax = bedMaxY - m.maxY;
-
-        const fitsXY =
-          xMin <= xMax + tolerance &&
-          yMin <= yMax + tolerance;
-
-        const fitsZ =
-          search.minZRelative >= -tolerance &&
-          search.maxZRelative <= limits.z + tolerance;
-
-        const tx = (xMin + xMax) / 2;
-        const ty = (yMin + yMax) / 2;
-
-        const marginX = Math.min(
-          tx + m.minX - bedMinX,
-          bedMaxX - (tx + m.maxX)
-        );
-        const marginY = Math.min(
-          ty + m.minY - bedMinY,
-          bedMaxY - (ty + m.maxY)
-        );
-
-        return {
-          ...m,
-          xMin, xMax, yMin, yMax,
-          tx, ty,
-          fits: fitsXY && fitsZ,
-          margin: Math.min(marginX, marginY, Math.min(-search.minZRelative, limits.z - search.maxZRelative)),
-          excess: Math.max(
-            0,
-            m.width - limits.x,
-            m.depth - limits.y,
-            Math.max(-search.minZRelative, search.maxZRelative - limits.z)
-          )
-        };
-      }
-
-      function finalizeAutomaticOrientation(baseQuat, bestAngle, bestEval, search, limits, foundFit) {
-        const bedMinX = -limits.x / 2;
-        const bedMaxX =  limits.x / 2;
-        const bedMinY = -limits.y / 2;
-        const bedMaxY =  limits.y / 2;
-
-        let valid = false;
-        let chosenAngle = bestAngle;
-        let chosenX = 0;
-        let chosenY = 0;
-        let bestFinalBox = null;
-        let bestMargin = -Infinity;
-        let checks = 0;
-
-        const testCombination = (angle, x, y) => {
-          const yaw = new THREE.Quaternion().setFromAxisAngle(
-            new THREE.Vector3(0, 0, 1),
-            angle
-          );
-
-          sMesh.quaternion.copy(yaw.multiply(baseQuat.clone()));
-          sMesh.position.set(0, 0, 0);
-          sMesh.updateMatrixWorld(true);
-
-          const supportPoint = getSupportPointLocal().applyQuaternion(sMesh.quaternion);
-          sMesh.position.z = -supportPoint.z;
-
-          sMesh.position.x = x;
-          sMesh.position.y = y;
-          sMesh.updateMatrixWorld(true);
-
-          const box = new THREE.Box3().setFromObject(sMesh);
-          checks++;
-
-          const fits =
-            box.min.x >= bedMinX &&
-            box.max.x <= bedMaxX &&
-            box.min.y >= bedMinY &&
-            box.max.y <= bedMaxY &&
-            box.min.z >= 0 &&
-            box.max.z <= limits.z;
-
-          if (fits) {
-            const mx = Math.min(box.min.x - bedMinX, bedMaxX - box.max.x);
-            const my = Math.min(box.min.y - bedMinY, bedMaxY - box.max.y);
-            const mz = Math.min(box.min.z, limits.z - box.max.z);
-            const margin = Math.min(mx, my, mz);
-
-            if (!valid || margin > bestMargin) {
-              valid = true;
-              bestMargin = margin;
-              chosenAngle = angle;
-              chosenX = x;
-              chosenY = y;
-              bestFinalBox = box.clone();
-            }
-          }
-
-          return fits;
-        };
-
-        const tryAngle = (angle) => {
-          const m = measureHullAtYaw(search.hull, angle);
-
-          const xMin = bedMinX - m.minX;
-          const xMax = bedMaxX - m.maxX;
-          const yMin = bedMinY - m.minY;
-          const yMax = bedMaxY - m.maxY;
-
-          if (
-            xMin > xMax ||
-            yMin > yMax ||
-            search.minZRelative < 0 ||
-            search.maxZRelative > limits.z
-          ) {
-            return false;
-          }
-
-          const xCenter = (xMin + xMax) / 2;
-          const yCenter = (yMin + yMax) / 2;
-
-          const candidates = [
-            [xCenter, yCenter],
-            [xMin, yCenter],
-            [xMax, yCenter],
-            [xCenter, yMin],
-            [xCenter, yMax],
-            [xMin, yMin],
-            [xMin, yMax],
-            [xMax, yMin],
-            [xMax, yMax]
-          ];
-
-          let angleValid = false;
-
-          for (const [x, y] of candidates) {
-            if (testCombination(angle, x, y)) {
-              angleValid = true;
-              break;
-            }
-          }
-
-          return angleValid;
-        };
-
-        for (let i = 0; i < 360000; i++) {
-          const angle = THREE.MathUtils.degToRad(i * 0.001);
-          tryAngle(angle);
-        }
-
-        if (!valid) {
-          const angle = bestAngle;
-          const yaw = new THREE.Quaternion().setFromAxisAngle(
-            new THREE.Vector3(0, 0, 1),
-            angle
-          );
-
-          sMesh.quaternion.copy(yaw.multiply(baseQuat.clone()));
-          sMesh.position.set(0, 0, 0);
-          sMesh.updateMatrixWorld(true);
-
-          const supportPoint = getSupportPointLocal().applyQuaternion(sMesh.quaternion);
-          sMesh.position.z = -supportPoint.z;
-          sMesh.updateMatrixWorld(true);
-
-          const b = new THREE.Box3().setFromObject(sMesh);
-          sMesh.position.x = -((b.min.x + b.max.x) / 2);
-          sMesh.position.y = -((b.min.y + b.max.y) / 2);
-          sMesh.updateMatrixWorld(true);
-        } else {
-          const yaw = new THREE.Quaternion().setFromAxisAngle(
-            new THREE.Vector3(0, 0, 1),
-            chosenAngle
-          );
-
-          sMesh.quaternion.copy(yaw.multiply(baseQuat.clone()));
-          sMesh.position.set(0, 0, 0);
-          sMesh.updateMatrixWorld(true);
-
-          const supportPoint = getSupportPointLocal().applyQuaternion(sMesh.quaternion);
-          sMesh.position.z = -supportPoint.z;
-          sMesh.position.x = chosenX;
-          sMesh.position.y = chosenY;
-          sMesh.updateMatrixWorld(true);
-
-          bestFinalBox = new THREE.Box3().setFromObject(sMesh);
-        }
-
-        const finalBox = bestFinalBox || new THREE.Box3().setFromObject(sMesh);
-        const finalSize = finalBox.getSize(new THREE.Vector3());
-
-        const finalFits =
-          valid &&
-          finalBox.min.x >= bedMinX &&
-          finalBox.max.x <= bedMaxX &&
-          finalBox.min.y >= bedMinY &&
-          finalBox.max.y <= bedMaxY &&
-          finalBox.min.z >= 0 &&
-          finalBox.max.z <= limits.z;
-
-        const warningBanner = document.getElementById("limitWarningBanner");
-        const oldSuccess = document.getElementById("scaleSuccessBanner");
-        if (oldSuccess) oldSuccess.remove();
-
-        if (finalFits) {
-          sMesh.material.color.setHex(0x90caf9);
-          sMesh.material.needsUpdate = true;
-
-          warningBanner.style.display = "none";
-          warningBanner.innerHTML = "";
-
-          const successBanner = document.createElement("div");
-          successBanner.id = "scaleSuccessBanner";
-          successBanner.style =
-            "background:#eef2ee;border:1.5px solid #2e7d32;color:#2e7d32;padding:12px;border-radius:10px;font-size:13.5px;font-weight:700;margin-bottom:12px;line-height:1.4;text-align:center;";
-
-          const angleDeg = THREE.MathUtils.radToDeg(chosenAngle);
-          const marginX = Math.min(finalBox.min.x - bedMinX, bedMaxX - finalBox.max.x);
-          const marginY = Math.min(finalBox.min.y - bedMinY, bedMaxY - finalBox.max.y);
-          const marginZ = Math.min(finalBox.min.z, limits.z - finalBox.max.z);
-          const minMargin = Math.min(marginX, marginY, marginZ);
-
-          successBanner.innerHTML =
-            `✓ <strong>Posición válida encontrada.</strong> ` +
-            `<strong>360.000 orientaciones</strong> comprobadas a 0,001° y combinaciones de X/Y. ` +
-            `Ángulo: <strong>${angleDeg.toFixed(3)}°</strong>. ` +
-            `X: <strong>${sMesh.position.x.toFixed(3)} mm</strong>, ` +
-            `Y: <strong>${sMesh.position.y.toFixed(3)} mm</strong>. ` +
-            `Tamaño: <strong>${finalSize.x.toFixed(3)} × ${finalSize.y.toFixed(3)} × ${finalSize.z.toFixed(3)} mm</strong>. ` +
-            `Margen geométrico real: <strong>${minMargin.toFixed(3)} mm</strong>.`;
-
-          warningBanner.parentNode.insertBefore(successBanner, warningBanner);
-        } else {
-          sMesh.material.color.setHex(0xb42318);
-          sMesh.material.needsUpdate = true;
-
-          warningBanner.style.display = "block";
-          warningBanner.innerHTML =
-            `<div style="margin-bottom:10px;">` +
-            `⚠️ <strong>No se ha encontrado una combinación válida</strong> ` +
-            `de rotación + X + Y manteniendo la superficie seleccionada como base. ` +
-            `Mejor posición comprobada: <strong>${finalSize.x.toFixed(3)} × ${finalSize.y.toFixed(3)} × ${finalSize.z.toFixed(3)} mm</strong>. ` +
-            `Cama: <strong>${limits.x} × ${limits.y} × ${limits.z} mm</strong>. ` +
-            `Comprobaciones: <strong>${checks.toLocaleString("es-ES")}</strong>.` +
-            `</div>`;
-
-          const btn = document.createElement("button");
-          btn.type = "button";
-          btn.textContent = "Auto-escalar pieza para ajustar al volumen de la cama";
-          btn.style =
-            "background:#b42318;color:#fff;border:1.5px solid #fff;padding:8px 16px;border-radius:8px;font-weight:800;cursor:pointer;font-size:12px;";
-          btn.onclick = () => scaleMeshToFit();
-          warningBanner.appendChild(btn);
-        }
-
-        const te = sMesh.matrix.elements;
-        answers.transformationMatrix = [
-          [te[0], te[4], te[8], te[12]],
-          [te[1], te[5], te[9], te[13]],
-          [te[2], te[6], te[10], te[14]],
-          [te[3], te[7], te[11], te[15]]
-        ];
-
-        answers.orientationSearch = {
-          angle_deg: Number(
-            THREE.MathUtils.radToDeg(bestAngle).toFixed(3)
-          ),
-          precision_deg: 0.001,
-          angle_range_deg: 360,
-          angle_positions_checked: angleChecks,
-          vertex_checks: vertexChecks,
-          xy_translation_space: "continuous",
-          base_face_index: answers.selectedSupportFace,
-          base_kept_on_bed: true,
-          x_mm: Number(sMesh.position.x.toFixed(6)),
-          y_mm: Number(sMesh.position.y.toFixed(6)),
-          final_size_mm: {
-            x: Number(finalSize.x.toFixed(6)),
-            y: Number(finalSize.y.toFixed(6)),
-            z: Number(finalSize.z.toFixed(6))
-          },
-          final_geometry_fits: finalFits
-        };
-      };
-
-      window.scaleMeshToFit = function() {
-        if (!sMesh || !answers.printer) return;
-        const limits = printerLimits[answers.printer];
-        if (!limits) return;
-
-        const currentBbox = new THREE.Box3().setFromObject(sMesh);
-        const modelSize = new THREE.Vector3();
-        currentBbox.getSize(modelSize);
-
-        const scaleX = limits.x / modelSize.x;
-        const scaleY = limits.y / modelSize.y;
-        const scaleZ = limits.z / modelSize.z;
-        const minScale = Math.min(scaleX, scaleY, scaleZ) * 0.98;
-
-        sMesh.scale.multiplyScalar(minScale);
-        sMesh.updateMatrix();
-        sMesh.updateMatrixWorld(true);
-
-        const finalBbox = new THREE.Box3().setFromObject(sMesh);
-        const boxCenter = new THREE.Vector3();
-        finalBbox.getCenter(boxCenter);
-        
-        sMesh.position.x = -boxCenter.x;
-        sMesh.position.y = -boxCenter.y;
-        sMesh.position.z = -finalBbox.min.z;
-        sMesh.updateMatrixWorld(true);
-
-        const te = sMesh.matrix.elements;
-        answers.transformationMatrix = [
-          [ te[0], te[4], te[8],  te[12] ],
-          [ te[1], te[5], te[9],  te[13] ],
-          [ te[2], te[6], te[10], te[14] ],
-          [ te[3], te[7], te[11], te[15] ]
-        ];
-
-        sMesh.material.color.setHex(0x90caf9); 
-        const warningBanner = document.getElementById("limitWarningBanner");
-        warningBanner.style.display = "none";
-
-        const successBanner = document.createElement("div");
-        successBanner.id = "scaleSuccessBanner";
-        successBanner.style = "background:#eef2ee; border:1.5px solid #2e7d32; color:#2e7d32; padding:12px; border-radius:10px; font-size:13.5px; font-weight:700; margin-bottom:12px; line-height:1.4; text-align:center;";
-        successBanner.innerHTML = `✓ <strong>Escala ajustada:</strong> Modelo escalado al ${(minScale * 100).toFixed(1)}% para caber perfectamente en el volumen de impresión de tu ${answers.printer}.`;
-        
-        const oldSuccess = document.getElementById("scaleSuccessBanner");
-        if (oldSuccess) oldSuccess.remove();
-        
-        warningBanner.parentNode.insertBefore(successBanner, warningBanner);
       }
 
       function animate() {
@@ -1233,6 +1140,7 @@
       animate();
     }
 
+    // COMPROBACIÓN DE QUE LA MALLA SEA CERRADA (WATERTIGHT)
     function checkIsWatertight(geometry) {
       const pos = geometry.attributes.position;
       const index = geometry.index;
@@ -1256,6 +1164,7 @@
       return true;
     }
 
+    // CÁLCULO DEL VOLUMEN DE LA GEOMETRÍA (Fórmula de divergencia de Gauss)
     function calculateVolume(geometry) {
       let volume = 0;
       const pos = geometry.attributes.position;
@@ -1279,6 +1188,7 @@
       return parseFloat(Math.abs(volume / 6.0 / 1000.0).toFixed(2));
     }
 
+    // CÁLCULO DE ÁREA DE VOLADIZOS CRÍTICOS
     function calculateOverhangArea(geometry, mesh) {
       let overhangArea = 0;
       const pos = geometry.attributes.position;
@@ -1313,6 +1223,7 @@
       return parseFloat((overhangArea / 100.0).toFixed(2));
     }
 
+    // EXPORTACIÓN A BASE64 PARA TRANSMISIÓN
     function exportSTL(geometry) {
       const pos = geometry.attributes.position;
       const index = geometry.index;
@@ -1428,8 +1339,7 @@
 
         const session = await getCurrentSession();
 
-        // Comprobar créditos antes de iniciar el análisis (pregunta 5 / Orientación Interactiva).
-        // Si el usuario real no tiene créditos, se envía directamente a Precios.
+        // Comprobar créditos antes de iniciar el análisis
         if (client && session && session !== mockSession) {
           try {
             const { data: profile, error: profileError } = await client
@@ -1513,9 +1423,6 @@
           } else if (purposes.includes("cost")) {
             lh = parseFloat(answers.nozzleSize) * 0.45;
             wl = 2; id = 8; pat = "lightning"; spMult = 0.6;
-          } else {
-            lh = parseFloat(answers.nozzleSize) * 0.5;
-            wl = 3; id = 20; pat = "giroide"; spMult = 0.7;
           }
 
           sessionStorage.setItem("printlab_analysis", JSON.stringify({
@@ -1527,7 +1434,7 @@
             optimized_base64: optimizedMeshBase64,
             slicer_settings: {
               material: answers.material || "PLA",
-              nozzle_temperature: (answers.material === "PLA" ? 215 : (answers.material === "ABS" || answers.material === "ASA" ? 255 : (answers.material === "TPU" ? 225 : 240))) + (answers.purpose === "functional" ? 8 : (answers.purpose === "speed" ? 5 : 0)),
+              nozzle_temperature: (answers.material === "PLA" ? 215 : (answers.material === "ABS" || answers.material === "ASA" ? 255 : (answers.material === "TPU" ? 225 : 240))),
               hot_plate_temp: answers.material === "PLA" ? 60 : (answers.material === "ABS" || answers.material === "ASA" ? 100 : (answers.material === "TPU" ? 50 : 80)),
               layer_height: lh,
               initial_layer_print_height: 0.2,
