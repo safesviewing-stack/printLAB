@@ -112,28 +112,18 @@
     .viewer-section{margin-top:8px}
     .viewer-wrap{position:relative;width:100%;margin-top:10px}
     
-    #selector3dContainer{
+    #selector3dContainer {
       height:460px!important;
       min-height:460px;
       position:relative;
       overflow:hidden;
-      /* Aislamiento de capa GPU para evitar artefactos visuales al hacer scroll */
-      transform: translate3d(0, 0, 0);
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
     }
     
-    /* Fijación absoluta del lienzo WebGL acelerado por hardware para evitar duplicaciones en el scroll */
+    /* Configuración estándar del lienzo para un comportamiento fluido y libre de rastros al hacer scroll */
     #selector3dContainer canvas {
-      position: absolute !important;
-      top: 0 !important;
-      left: 0 !important;
+      display: block !important;
       width: 100% !important;
       height: 100% !important;
-      display: block !important;
-      transform: translate3d(0, 0, 0) !important;
-      backface-visibility: hidden !important;
-      -webkit-backface-visibility: hidden !important;
     }
     
     .option-card{background:var(--bg);border:1.5px solid var(--line);border-radius:18px;padding:14px 16px;font-size:13.5px;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease,background .18s ease;display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:4px;min-height:100%;box-shadow:0 1px 0 rgba(13,17,16,.03)}
@@ -788,48 +778,47 @@
       }
     }
 
-    // COMPROBACIÓN EXACTA DE LÍMITES POR CAJA ORIENTADA (OBB)
+    // COMPROBACIÓN EXACTA DE LÍMITES POR CAJA ORIENTADA (OBB) Y VÉRTICES REALES
     function isOBBInBounds() {
       if (!sMesh || !answers.printer) return false;
       const limits = printerLimits[answers.printer];
       if (!limits) return false;
 
-      // Asegurar que boundingBox de la geometría está calculado
-      if (!sMesh.geometry.boundingBox) {
-        sMesh.geometry.computeBoundingBox();
+      // Forzar la actualización de la matriz mundial para evitar desfases de cálculo
+      sMesh.updateMatrixWorld(true);
+
+      // Comprobar la altura exacta (Y) a través de su punto más alto y más bajo real
+      const bbox = new THREE.Box3().setFromObject(sMesh);
+      const minY = -0.05;
+      const maxY = limits.z + 0.05;
+
+      if (bbox.min.y < minY || bbox.max.y > maxY) {
+        return false; // Altura fuera de rango
       }
-      
-      const localBox = sMesh.geometry.boundingBox;
-      
-      // Obtener las 8 esquinas reales del volumen local de la pieza
-      const corners = [
-        new THREE.Vector3(localBox.min.x, localBox.min.y, localBox.min.z),
-        new THREE.Vector3(localBox.min.x, localBox.min.y, localBox.max.z),
-        new THREE.Vector3(localBox.min.x, localBox.max.y, localBox.min.z),
-        new THREE.Vector3(localBox.min.x, localBox.max.y, localBox.max.z),
-        new THREE.Vector3(localBox.max.x, localBox.min.y, localBox.min.z),
-        new THREE.Vector3(localBox.max.x, localBox.min.y, localBox.max.z),
-        new THREE.Vector3(localBox.max.x, localBox.max.y, localBox.min.z),
-        new THREE.Vector3(localBox.max.x, localBox.max.y, localBox.max.z),
-      ];
 
-      const minX = -limits.x / 2 - 0.01;
-      const maxX =  limits.x / 2 + 0.01;
-      const minZ = -limits.y / 2 - 0.01;
-      const maxZ =  limits.y / 2 + 0.01;
-      const minY = -0.01;
-      const maxY =  limits.z + 0.01;
+      // Para los ejes horizontales (X/Z), utilizamos los vértices reales muestreandolos de forma eficiente
+      const uniqueVerts = getUniqueVertices(sMesh);
+      
+      const minX = -limits.x / 2 - 0.05;
+      const maxX =  limits.x / 2 + 0.05;
+      const minZ = -limits.y / 2 - 0.05;
+      const maxZ =  limits.y / 2 + 0.05;
 
-      // Transformar cada esquina al espacio global para verificar si caben en el recinto de impresión
-      for (const corner of corners) {
-        corner.applyMatrix4(sMesh.matrixWorld);
-        if (corner.x < minX || corner.x > maxX ||
-            corner.z < minZ || corner.z > maxZ ||
-            corner.y < minY || corner.y > maxY) {
-          return false; // Sale de los límites físicos
+      // Matriz de transformación sin escala (ya que getUniqueVertices ya aplica la escala del mesh localmente)
+      const tempMatrix = new THREE.Matrix4().compose(
+        sMesh.position,
+        sMesh.quaternion,
+        new THREE.Vector3(1, 1, 1)
+      );
+
+      for (const v of uniqueVerts) {
+        const worldV = v.clone().applyMatrix4(tempMatrix);
+        if (worldV.x < minX || worldV.x > maxX || worldV.z < minZ || worldV.z > maxZ) {
+          return false; // Colisiona o sobresale de los bordes físicos de la cama
         }
       }
-      return true; // Todo cabe perfectamente dentro del recinto
+
+      return true; // Todo cabe perfectamente dentro del recinto de impresión
     }
 
     // COMPROBACIÓN DINÁMICA DE LÍMITES FÍSICOS DE LA CAMA (TOLERANCIA ESTRICTA DE CENTÉSIMAS)
