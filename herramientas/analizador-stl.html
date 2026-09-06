@@ -111,9 +111,19 @@
     .option-grid.option-grid-4{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
     .viewer-section{margin-top:8px}
     .viewer-wrap{position:relative;width:100%;margin-top:10px}
-    #selector3dContainer{height:460px!important;min-height:460px;position:relative;overflow:hidden;}
     
-    /* Fijación del lienzo WebGL para evitar desplazamientos y duplicaciones por scroll */
+    #selector3dContainer{
+      height:460px!important;
+      min-height:460px;
+      position:relative;
+      overflow:hidden;
+      /* Aislamiento de capa GPU para evitar artefactos visuales al hacer scroll */
+      transform: translate3d(0, 0, 0);
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+    
+    /* Fijación absoluta del lienzo WebGL acelerado por hardware para evitar duplicaciones en el scroll */
     #selector3dContainer canvas {
       position: absolute !important;
       top: 0 !important;
@@ -121,6 +131,9 @@
       width: 100% !important;
       height: 100% !important;
       display: block !important;
+      transform: translate3d(0, 0, 0) !important;
+      backface-visibility: hidden !important;
+      -webkit-backface-visibility: hidden !important;
     }
     
     .option-card{background:var(--bg);border:1.5px solid var(--line);border-radius:18px;padding:14px 16px;font-size:13.5px;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease,background .18s ease;display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:4px;min-height:100%;box-shadow:0 1px 0 rgba(13,17,16,.03)}
@@ -575,6 +588,7 @@
         progressContainer.style.display = "none";
         wizardNav.style.display = "none";
         validateCurrentStep();
+        disposeRendererAndScene();
         return;
       }
 
@@ -588,7 +602,9 @@
       document.getElementById("prevBtn").style.visibility = currentStepIdx === 0 ? "hidden" : "visible";
       document.getElementById("nextBtn").textContent = currentStepIdx === steps.length - 1 ? "Iniciar Análisis Real" : "Siguiente";
 
-      if (currentStepIdx === 5) {
+      if (currentStepIdx !== 5) {
+        disposeRendererAndScene();
+      } else {
         initSelector3D();
       }
 
@@ -772,26 +788,57 @@
       }
     }
 
+    // COMPROBACIÓN EXACTA DE LÍMITES POR CAJA ORIENTADA (OBB)
+    function isOBBInBounds() {
+      if (!sMesh || !answers.printer) return false;
+      const limits = printerLimits[answers.printer];
+      if (!limits) return false;
+
+      // Asegurar que boundingBox de la geometría está calculado
+      if (!sMesh.geometry.boundingBox) {
+        sMesh.geometry.computeBoundingBox();
+      }
+      
+      const localBox = sMesh.geometry.boundingBox;
+      
+      // Obtener las 8 esquinas reales del volumen local de la pieza
+      const corners = [
+        new THREE.Vector3(localBox.min.x, localBox.min.y, localBox.min.z),
+        new THREE.Vector3(localBox.min.x, localBox.min.y, localBox.max.z),
+        new THREE.Vector3(localBox.min.x, localBox.max.y, localBox.min.z),
+        new THREE.Vector3(localBox.min.x, localBox.max.y, localBox.max.z),
+        new THREE.Vector3(localBox.max.x, localBox.min.y, localBox.min.z),
+        new THREE.Vector3(localBox.max.x, localBox.min.y, localBox.max.z),
+        new THREE.Vector3(localBox.max.x, localBox.max.y, localBox.min.z),
+        new THREE.Vector3(localBox.max.x, localBox.max.y, localBox.max.z),
+      ];
+
+      const minX = -limits.x / 2 - 0.01;
+      const maxX =  limits.x / 2 + 0.01;
+      const minZ = -limits.y / 2 - 0.01;
+      const maxZ =  limits.y / 2 + 0.01;
+      const minY = -0.01;
+      const maxY =  limits.z + 0.01;
+
+      // Transformar cada esquina al espacio global para verificar si caben en el recinto de impresión
+      for (const corner of corners) {
+        corner.applyMatrix4(sMesh.matrixWorld);
+        if (corner.x < minX || corner.x > maxX ||
+            corner.z < minZ || corner.z > maxZ ||
+            corner.y < minY || corner.y > maxY) {
+          return false; // Sale de los límites físicos
+        }
+      }
+      return true; // Todo cabe perfectamente dentro del recinto
+    }
+
     // COMPROBACIÓN DINÁMICA DE LÍMITES FÍSICOS DE LA CAMA (TOLERANCIA ESTRICTA DE CENTÉSIMAS)
     function checkLimits() {
       if (!sMesh || !answers.printer) return;
-      const limits = printerLimits[answers.printer];
-      if (!limits) return;
 
-      const bbox = new THREE.Box3().setFromObject(sMesh);
+      const inBounds = isOBBInBounds();
 
-      const minX = -limits.x / 2;
-      const maxX =  limits.x / 2;
-      const minZ = -limits.y / 2;
-      const maxZ =  limits.y / 2;
-      const maxY =  limits.z; // altura en Y (eje verde)
-
-      // Tolerancia estricta de 0.01 mm (centésimas de milímetro) para validez instantánea
-      const outOfX = bbox.min.x < minX - 0.01 || bbox.max.x > maxX + 0.01;
-      const outOfZ = bbox.min.z < minZ - 0.01 || bbox.max.z > maxZ + 0.01;
-      const outOfY = bbox.max.y > maxY + 0.01 || bbox.min.y < -0.01;
-
-      if (outOfX || outOfZ || outOfY) {
+      if (!inBounds) {
         sMesh.material.color.setHex(0xb42318); // Rojo de colisión
         sMesh.material.needsUpdate = true;
         answers.selectedSupportFace = null; 
@@ -909,7 +956,7 @@
       sCamera.position.set(130, 130, 150);
       sCamera.up.set(0, 1, 0); // Configuración del espacio con Y como vertical (eje verde)
 
-      sRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+      sRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, preserveDrawingBuffer: false });
       sRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       sRenderer.setSize(container.clientWidth, container.clientHeight);
       sRenderer.domElement.style.display = 'block';
@@ -1165,6 +1212,7 @@
         animationFrameId = requestAnimationFrame(animate);
         sControls.update();
         if (sRenderer && sScene && sCamera) {
+          sRenderer.clear(); // Limpieza explícita del búfer antes de pintar el nuevo fotograma para evitar ghosting
           sRenderer.render(sScene, sCamera);
         }
       }
