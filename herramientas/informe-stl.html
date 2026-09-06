@@ -45,7 +45,7 @@
     
     /* Contenedor Compacto con Scroll */
     .scrollable-params-container {
-      max-height: 520px;
+      max-height: 480px;
       overflow-y: auto;
       padding: 8px;
       border: 1.5px solid var(--line);
@@ -250,7 +250,7 @@
       "Voron 2.4 (350)": { x: 350, y: 350, z: 350 }
     };
 
-    // Base de parámetros principales oficiales mapeados de Orca, Bambu, Prusa y Cura (monoboquilla únicamente)
+    // Base de parámetros oficiales mapeados (Soporte monoboquilla únicamente)
     const parameterGroups = {
       "Calidad / Calidad de impresión": [
         { key: "layer_height", label: "Altura de capa", slicers: "Orca/Bambu: layer_height | Prusa: layer_height | Cura: layer_height", unit: "mm" },
@@ -545,7 +545,7 @@
           try {
             const zip = new JSZip();
 
-            const contentTypesXml = `<?xml version="1.0" encoding="UTF-8"?>
+            const contentTypesXml = `xml` + `<?xml version="1.0" encoding="UTF-8"?>
 <Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
   <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
   <Default Extension="model" ContentType="application/vnd.ms-package.3dmanufacturing-3dmodel+xml"/>
