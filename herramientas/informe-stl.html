@@ -75,28 +75,6 @@
       overflow:hidden;
     }
 
-    /* Tarjetas con geometría y espaciado uniformes */
-    .score-card{
-      background:var(--card);
-      border:2px solid var(--line);
-      border-radius:20px;
-      padding:24px;
-      margin-bottom:24px;
-      min-height:150px;
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-    }
-    .score-title{font-size:14px; text-transform:uppercase; font-weight:800; color:var(--muted); margin:0 0 10px;}
-    .score-value{font-size:32px; font-weight:800; line-height:1.2; color:var(--ink); margin:0 0 10px; letter-spacing: -1px;}
-
-    .prob-card{background:var(--card); border:1.5px solid var(--line); border-radius:18px; padding:24px; margin-bottom:24px;}
-    .prob-card.err{border-color:var(--error); border-left:6px solid var(--error);}
-    .prob-card.warn{border-color:var(--warning); border-left:6px solid var(--warning);}
-    .prob-header{display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;}
-    .prob-title{font-size:18px; font-weight:800; margin:0;}
-    .prob-badge{font-size:11px; font-weight:800; padding:4px 10px; border-radius:6px; text-transform:uppercase;}
-
     .param-box{background:var(--card); border:2px solid var(--line); border-radius:20px; padding:24px; margin-bottom:24px;}
     .param-title{font-size:14px; text-transform:uppercase; font-weight:800; color:var(--muted); margin-bottom: 12px;}
     
@@ -106,7 +84,7 @@
       border: 2px solid #bcd1db;
       border-radius: 20px;
       padding: 24px;
-      margin-top: 24px;
+      margin-top: 0px;
     }
     .geom-card h4 {
       color: #1a3c48;
@@ -188,7 +166,7 @@
     @media(max-width:600px) {
       .wrap { padding-left:20px; padding-right:20px; }
       .tool-header { padding-top:40px; }
-      .mesh-comparison, .score-card, .geom-card, .param-box, .download-panel { padding:20px; }
+      .mesh-comparison, .geom-card, .param-box, .download-panel { padding:20px; }
       .mesh-canvas { height:320px; }
     }
   </style>
@@ -484,8 +462,8 @@
         </div>
         
         <div class="auth-buttons" id="authHeaderContainer" style="opacity: 0; visibility: hidden; transition: opacity 0.15s ease, visibility 0.15s ease;">
-          <a href="login.html" class="btn-auth light">Iniciar Sesión</a>
-          <a href="registro.html" class="btn-auth green">Registrarse</a>
+          <a href="login.html" class="btn-auth light" onclick="sessionStorage.removeItem('printlab_recovery_mode'); localStorage.removeItem('sb-jmwprzgfdkphbxryjbnr-auth-token');">Iniciar Sesión</a>
+          <a href="registro.html" class="btn-auth green" onclick="sessionStorage.removeItem('printlab_recovery_mode'); localStorage.removeItem('sb-jmwprzgfdkphbxryjbnr-auth-token');">Registrarse</a>
         </div>
       </nav>
     </div>
@@ -531,16 +509,8 @@
           </div>
         </div>
 
-        <!-- SECCIÓN 3, 4 & 5: PROBLEMAS Y PARÁMETROS ORCASLICER COMPLETOS -->
+        <!-- SECCIÓN 3, 4 & 5: PARÁMETROS ORCASLICER COMPLETOS Y EXPORTACIÓN -->
         <div>
-          <div class="score-card">
-            <p class="score-title">Laminabilidad Global</p>
-            <p class="score-value" id="reportScore">Calculando...</p>
-            <p style="margin:0; color:var(--muted); font-size:14.5px;" id="reportScoreDesc">Procesando geometría...</p>
-          </div>
-
-          <div id="problemsContainer"></div>
-
           <!-- Parámetros de OrcaSlicer Completos con Buscador y Scroll -->
           <div class="param-box" style="padding: 24px;">
             <h4 class="param-title" style="margin-bottom: 4px;">Parámetros del Slicer (Base de datos unificada)</h4>
@@ -810,26 +780,21 @@
 
       // Reconstrucción y aplicación exacta de la matriz de rotación/colocación aplicada por el usuario
       if (questionnaire && questionnaire.transformationMatrix) {
-        const m = questionnaire.transformationMatrix;
-        const matrix = new THREE.Matrix4().set(
-          m[0][0], m[0][1], m[0][2], m[0][3],
-          m[1][0], m[1][1], m[1][2], m[1][3],
-          m[2][0], m[2][1], m[2][2], m[2][3],
-          m[3][0], m[3][1], m[3][2], m[3][3]
-        );
-        activeMesh.matrix.copy(matrix);
-        activeMesh.matrix.decompose(activeMesh.position, activeMesh.quaternion, activeMesh.scale);
+        const tm = questionnaire.transformationMatrix;
+        if (Array.isArray(tm[0])) {
+          // Compatibilidad hacia atrás para el formato anidado antiguo
+          activeMesh.matrix.set(
+            tm[0][0], tm[0][1], tm[0][2], tm[0][3],
+            tm[1][0], tm[1][1], tm[1][2], tm[1][3],
+            tm[2][0], tm[2][1], tm[2][2], tm[2][3],
+            tm[3][0], tm[3][1], tm[3][2], tm[3][3]
+          );
+        } else {
+          // Nuevo formato de array plano de 16 elementos (directo e idéntico)
+          activeMesh.matrix.fromArray(tm);
+        }
+        activeMesh.matrixAutoUpdate = false; // Desactiva los recálculos para mantener la rotación y posición intactas
         activeMesh.updateMatrixWorld(true);
-      }
-
-      if (criticalPoints && criticalPoints.length > 0) {
-        criticalPoints.forEach(pt => {
-          const sphereGeo = new THREE.SphereGeometry(1.2, 16, 16);
-          const sphereMat = new THREE.MeshBasicMaterial({ color: 0xd9432f });
-          const sphere = new THREE.Mesh(sphereGeo, sphereMat);
-          sphere.position.set(pt.x, pt.y, pt.z);
-          activeMesh.add(sphere);
-        });
       }
 
       const worldBox = new THREE.Box3().setFromObject(activeMesh);
@@ -844,7 +809,10 @@
       function animate() {
         requestAnimationFrame(animate);
         controls.update();
-        renderer.render(scene, camera);
+        if (renderer && scene && camera) {
+          renderer.clear();
+          renderer.render(scene, camera);
+        }
       }
       animate();
     }
@@ -881,49 +849,6 @@
       } else { // functional
         purposeBox.innerHTML = `⚙️ <strong style="color: var(--ink);">Orientación Estructural:</strong> Configurado para máxima rigidez. Se aplican capas estables (<strong>${s.layer_height} mm</strong>), perímetros de pared robustos (<strong>${s.wall_loops} perímetros</strong>), densidad del relleno densa (<strong>${s.sparse_infill_density}%</strong>) y aumento de temperatura para consolidar la unión mecánica.`;
       }
-
-      let scoreText = "ÓPTIMO";
-      let scoreColor = "var(--accent)";
-      let scoreDesc = "La pieza es idónea para fabricación aditiva FDM con la configuración establecida.";
-
-      if (!analysis.watertight) {
-        scoreText = "ERROR GEOMÉTRICO";
-        scoreColor = "var(--error)";
-        scoreDesc = "La pieza no está cerrada. El motor matemático ha corregido la base para exportación virtual, pero se aconseja inspección del CAD.";
-      } else if (s.thin_wall_warning) {
-        scoreText = "RIESGO DE PARED FINA";
-        scoreColor = "var(--warning)";
-        scoreDesc = "Se han localizado grosores de pared críticos para el tamaño de boquilla configurado.";
-      }
-
-      document.getElementById("reportScore").textContent = scoreText;
-      document.getElementById("reportScore").style.color = scoreColor;
-      document.getElementById("reportScoreDesc").textContent = scoreDesc;
-
-      let problemsHtml = "";
-      if (!analysis.watertight) {
-        problemsHtml += `
-          <div class="prob-card err">
-            <div class="prob-header">
-              <h4 class="prob-title">Geometría Abierta (Agujeros en Malla)</h4>
-              <span class="prob-badge" style="background:#fcebe8; color:var(--error);">No estanco</span>
-            </div>
-            <p style="margin:0; font-size:14px; color:var(--muted);">El archivo posee caras abiertas. Puede causar laminaciones de cáscara vacías o errores de trayectorias cerradas.</p>
-          </div>
-        `;
-      }
-      if (s.thin_wall_warning) {
-        problemsHtml += `
-          <div class="prob-card warn">
-            <div class="prob-header">
-              <h4 class="prob-title">Pared Delgada No Soportada</h4>
-              <span class="prob-badge" style="background:#fff3cd; color:var(--warning);">Pared Fina</span>
-            </div>
-            <p style="margin:0; font-size:14px; color:var(--muted);">${s.thin_wall_warning}</p>
-          </div>
-        `;
-      }
-      document.getElementById("problemsContainer").innerHTML = problemsHtml;
 
       // --- RENDERIZADO DINÁMICO DE LOS 102 PARÁMETROS EN DISEÑO COMPACTO DE FILA ÚNICA ---
       function renderParameters(filterText = "") {
