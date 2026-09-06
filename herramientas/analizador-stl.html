@@ -85,33 +85,6 @@
       white-space: nowrap !important;
     }
 
-    /* ESTILO UNIFICADO PARA EL BOTÓN DE CERRAR SESIÓN DENTRO DE CONTENEDOR */
-    #authHeaderContainer #btn-logout.btn-auth {
-      display: inline-flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      padding: 12px 24px !important;
-      border-radius: 9999px !important;
-      font-weight: 800 !important;
-      font-size: 14px !important;
-      cursor: pointer !important;
-      transition: .2s ease !important;
-      text-decoration: none !important;
-      border: 2px solid var(--ink) !important;
-      box-sizing: border-box !important;
-      background: #fff !important;
-      color: var(--ink) !important;
-      box-shadow: 0 3px 0px var(--ink) !important;
-    }
-    #authHeaderContainer #btn-logout.btn-auth:hover {
-      transform: translateY(-1px) !important;
-      box-shadow: 0 4px 0px var(--ink) !important;
-    }
-    #authHeaderContainer #btn-logout.btn-auth:active {
-      transform: translateY(2px) !important;
-      box-shadow: 0 1px 0px var(--ink) !important;
-    }
-
     /* ESTILOS DEL CONTENEDOR DE CONTENIDO PRINCIPAL */
     main.wrap{min-height:calc(100vh - 95px)}
     .upload-container{max-width:740px;margin:60px auto;background:var(--card);border:2px dashed var(--line);border-radius:24px;padding:40px 32px;text-align:center;box-shadow:0 20px 40px rgba(13,17,16,.025);transition:border-color .25s ease,background-color .25s ease,transform .25s ease}
@@ -184,7 +157,7 @@
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- Cache busting v=15 forzado para recarga instantánea del auth-helper corregido -->
-  <script src="../assets/js/auth-helper.js?v=15"></script>
+  <script src="../assets/js/auth-helper.js?v=12"></script>
 
   <style>
     /* El analizador requiere una sesión iniciada. Evita mostrar el contenido antes de comprobarla. */
