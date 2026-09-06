@@ -111,9 +111,6 @@
     .option-grid.option-grid-4{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
     .viewer-section{margin-top:8px}
     .viewer-wrap{position:relative;width:100%;margin-top:10px}
-    .viewer-toolbar{display:flex;justify-content:flex-start;margin:0 0 10px}
-    .auto-orient-btn{background:#fff;color:var(--ink);border:1.5px solid var(--line);padding:9px 15px;border-radius:999px;font-weight:800;cursor:pointer;font-size:12px;box-shadow:0 2px 0 rgba(13,17,16,.08);display:inline-flex;align-items:center;gap:7px;transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease,background .15s ease}
-    .auto-orient-btn:hover{background:var(--accent);border-color:var(--ink);transform:translateY(-1px);box-shadow:0 3px 0 var(--ink)}
     #selector3dContainer{height:460px!important;min-height:460px}
     
     .option-card{background:var(--bg);border:1.5px solid var(--line);border-radius:18px;padding:14px 16px;font-size:13.5px;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease,background .18s ease;display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:4px;min-height:100%;box-shadow:0 1px 0 rgba(13,17,16,.03)}
@@ -381,7 +378,7 @@
           <div class="option-card" data-val="functional" onclick="selectCard(this, 'purpose')">
             <span class="emoji">⚙️</span>
             <span class="option-card-title">Funcional / Mecánica</span>
-            <span class="option-card-desc">Prioriza la rígidez del plano XY y la cohesión de capas. Más perímetros robustos, mayor densidad de relleno tridimensional y temperaturas altas.</span>
+            <span class="option-card-desc">Prioriza la rigidez del plano XY y la cohesión de capas. Más perímetros robustos, mayor densidad de relleno tridimensional y temperaturas altas.</span>
           </div>
           <div class="option-card" data-val="speed" onclick="selectCard(this, 'purpose')">
             <span class="emoji">⚡</span>
@@ -404,14 +401,6 @@
         <div class="viewer-section">
           <div id="limitWarningBanner" style="display:none; background:#fcebe8; border:1.5px solid var(--error); color:#9e3223; padding:16px; border-radius:12px; font-size:13.5px; font-weight:700; margin-bottom:12px; line-height:1.4; text-align:center;"></div>
           <div class="viewer-wrap">
-            <div class="viewer-toolbar" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:12px;">
-              <button type="button" class="auto-orient-btn" id="translateModeBtn" onclick="event.stopPropagation(); window.setTransformMode('translate')" style="background:var(--accent); border-color:var(--ink);">
-                ➡️ Mover (Cama XYZ)
-              </button>
-              <button type="button" class="auto-orient-btn" id="rotateModeBtn" onclick="event.stopPropagation(); window.setTransformMode('rotate')">
-                🔄 Rotar (Ejes XYZ)
-              </button>
-            </div>
             <div id="selector3dContainer" style="width:100%; background:#161d1a; border-radius:16px; position:relative; overflow:hidden; border:2px solid var(--line); margin-bottom:12px;"></div>
           </div>
         </div>
@@ -755,7 +744,7 @@
       const maxY =  limits.y / 2;
       const maxZ =  limits.z;
 
-      // Tolerancia estricta de 0.01 mm (centésimas de milímetro) para validez instantánea
+      // Tolerancia estricta de 0.01 mm (centésimas de milímetro) para validez instantánea [2]
       const outOfX = bbox.min.x < minX - 0.01 || bbox.max.x > maxX + 0.01;
       const outOfY = bbox.min.y < minY - 0.01 || bbox.max.y > maxY + 0.01;
       const outOfZ = bbox.max.z > maxZ + 0.01 || bbox.min.z < -0.01;
@@ -786,7 +775,7 @@
 
         answers.selectedSupportFace = null; 
       } else {
-        sMesh.material.color.setHex(0x90caf9); // Azul estándar (posición válida)
+        sMesh.material.color.setHex(0x90caf9); // Azul estándar (posición válida) [2]
         sMesh.material.needsUpdate = true;
         warningBanner.style.display = "none";
 
@@ -814,29 +803,16 @@
     window.setTransformMode = function(mode) {
       if (!transformControls) return;
       
-      const transBtn = document.getElementById("translateModeBtn");
-      const rotBtn = document.getElementById("rotateModeBtn");
-      
       if (mode === 'translate') {
         transformControls.setMode('translate');
         transformControls.showX = true;
         transformControls.showY = true;
         transformControls.showZ = true; // Movimiento habilitado en el eje Z (elevación libre)
-        
-        if (transBtn) transBtn.style.background = "var(--accent)";
-        if (transBtn) transBtn.style.borderColor = "var(--ink)";
-        if (rotBtn) rotBtn.style.background = "#fff";
-        if (rotBtn) rotBtn.style.borderColor = "var(--line)";
       } else if (mode === 'rotate') {
         transformControls.setMode('rotate');
         transformControls.showX = true; // Rotación libre en todos los ejes del espacio
         transformControls.showY = true;
         transformControls.showZ = true; 
-        
-        if (rotBtn) rotBtn.style.background = "var(--accent)";
-        if (rotBtn) rotBtn.style.borderColor = "var(--ink)";
-        if (transBtn) transBtn.style.background = "#fff";
-        if (transBtn) transBtn.style.borderColor = "var(--line)";
       }
     };
 
