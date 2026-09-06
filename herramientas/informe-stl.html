@@ -1029,19 +1029,14 @@
             const geom = activeMesh.geometry;
             const position = geom.attributes.position;
             
-            // --- ALGORITMO DE CENTRADO ABSOLUTO EN LA CAMA DE LA IMPRESORA (Y-UP) ---
-            const worldBox = new THREE.Box3().setFromObject(activeMesh);
-            const currentCenter = new THREE.Vector3();
-            worldBox.getCenter(currentCenter);
-            const currentMinY = worldBox.min.y; // El punto más bajo real en el eje de altura vertical
-
-            // Determinar dimensiones reales de la cama para centrar la pieza
+            // --- CONSERVACIÓN EXACTA DE LA COORDENADA ABSOLUTA DE RECIENTO ---
             const limits = printerLimits[q.printer] || { x: 220, y: 220, z: 250 };
             
-            // Calculamos offsets de translación para centrar sobre el plano horizontal de la cama (X/Z) y apoyar a Y=0
-            const offsetX = (limits.x / 2) - currentCenter.x;
-            const offsetZ = (limits.y / 2) - currentCenter.z;
-            const offsetY = -currentMinY;
+            // Se realiza la traslación de la malla del analizador (con centro en 0,0) al formato 3MF (origen en la esquina inferior izquierda)
+            // utilizando de manera fija la mitad de la cama para respetar con total fidelidad el desfase o alineación del usuario.
+            const offsetX = limits.x / 2;
+            const offsetZ = limits.y / 2;
+            const offsetY = 0; 
 
             let verticesXml = "";
             const vertex = new THREE.Vector3();
