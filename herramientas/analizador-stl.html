@@ -409,10 +409,10 @@
                 🤖 Orientación automática
               </button>
               <button type="button" class="auto-orient-btn" id="translateModeBtn" onclick="event.stopPropagation(); window.setTransformMode('translate')" style="background:var(--accent); border-color:var(--ink);">
-                ➡️ Mover (Cama XY)
+                ➡️ Mover (Cama XYZ)
               </button>
               <button type="button" class="auto-orient-btn" id="rotateModeBtn" onclick="event.stopPropagation(); window.setTransformMode('rotate')">
-                🔄 Rotar (Eje Z)
+                🔄 Rotar (Ejes XYZ)
               </button>
             </div>
             <div id="selector3dContainer" style="width:100%; background:#161d1a; border-radius:16px; position:relative; overflow:hidden; border:2px solid var(--line); margin-bottom:12px;"></div>
@@ -811,7 +811,7 @@
       validateCurrentStep();
     }
 
-    // CONMUTADOR DE MODOS DEL MOTOR INTERACTIVO
+    // CONMUTADOR DE MODOS DEL MOTOR INTERACTIVO TRIDIMENSIONAL (XYZ)
     window.setTransformMode = function(mode) {
       if (!transformControls) return;
       
@@ -822,7 +822,7 @@
         transformControls.setMode('translate');
         transformControls.showX = true;
         transformControls.showY = true;
-        transformControls.showZ = false; // Bloquea traslación vertical
+        transformControls.showZ = true; // Movimiento habilitado en el eje Z (elevación libre)
         
         if (transBtn) transBtn.style.background = "var(--accent)";
         if (transBtn) transBtn.style.borderColor = "var(--ink)";
@@ -830,9 +830,9 @@
         if (rotBtn) rotBtn.style.borderColor = "var(--line)";
       } else if (mode === 'rotate') {
         transformControls.setMode('rotate');
-        transformControls.showX = false;
-        transformControls.showY = false;
-        transformControls.showZ = true; // Solo rotación sobre el plano Z (Yaw)
+        transformControls.showX = true; // Rotación libre en todos los ejes del espacio
+        transformControls.showY = true;
+        transformControls.showZ = true; 
         
         if (rotBtn) rotBtn.style.background = "var(--accent)";
         if (rotBtn) rotBtn.style.borderColor = "var(--ink)";
@@ -1066,7 +1066,7 @@
       transformControls.setMode('translate');
       transformControls.showX = true;
       transformControls.showY = true;
-      transformControls.showZ = false; 
+      transformControls.showZ = true; 
 
       sScene.add(transformControls);
 
