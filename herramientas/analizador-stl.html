@@ -556,7 +556,7 @@
         document.getElementById(steps[currentStepIdx]).classList.remove("active");
         currentStepIdx = 0;
         document.getElementById(steps[0]).classList.add("active");
-        document.querySelector(".upload-title").style.display = "none"; // Evita que se duplique al reaparecer
+        document.querySelector(".upload-title").style.display = "none"; 
         document.querySelector(".upload-desc").style.display = "none";
         accessButton.style.display = "inline-block";
         document.querySelector(".drag-help").style.display = "block";
@@ -638,16 +638,18 @@
       return lower.concat(upper);
     }
 
-    // Obtención de vértices únicos con muestreo dinámico
-    function getUniqueVertices(geometry) {
+    // Obtención de vértices únicos aplicando la escala actual del Mesh para consistencia
+    function getUniqueVertices(mesh) {
+      const geometry = mesh.geometry;
+      const scale = mesh.scale;
       const pos = geometry.attributes.position;
       const unique = [];
       const seen = new Set();
       const step = Math.max(1, Math.floor(pos.count / 3000)); 
       for (let i = 0; i < pos.count; i += step) {
-        const x = pos.getX(i);
-        const y = pos.getY(i);
-        const z = pos.getZ(i);
+        const x = pos.getX(i) * scale.x;
+        const y = pos.getY(i) * scale.y;
+        const z = pos.getZ(i) * scale.z;
         const rx = Math.round(x * 100) / 100;
         const ry = Math.round(y * 100) / 100;
         const rz = Math.round(z * 100) / 100;
@@ -727,7 +729,7 @@
       return result;
     }
 
-    // FUNCIÓN DE ORIENTACIÓN AUTOMÁTICA GLOBLAL INTELIGENTE (100% CAPACIDAD)
+    // FUNCIÓN DE ORIENTACIÓN AUTOMÁTICA GLOBAL INTELIGENTE (100% CAPACIDAD)
     window.autoOrientZToFit = function() {
       if (!sMesh || !answers.printer) {
         alert("Por favor, selecciona una impresora en el paso anterior.");
@@ -745,11 +747,11 @@
       warningBanner.innerHTML = "🤖 Calculando la orientación óptima en base a la geometría del modelo...";
       
       setTimeout(() => {
-        const uniqueVerts = getUniqueVertices(sMesh.geometry);
+        const uniqueVerts = getUniqueVertices(sMesh);
         const candidateNormals = getCandidateNormals(sMesh.geometry);
         
         let bestConfig = null;
-        let bestDiff = -Infinity; // Se busca maximizar la cercanía al límite sin sobrepasarlo
+        let bestDiff = -Infinity; 
         
         for (const normal of candidateNormals) {
           const q = new THREE.Quaternion().setFromUnitVectors(normal, new THREE.Vector3(0, 0, -1));
@@ -801,8 +803,7 @@
           const yawQuat = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), yaw);
           
           sMesh.quaternion.copy(yawQuat.multiply(q));
-          sMesh.scale.set(1, 1, 1);
-          sMesh.position.set(0, 0, 0);
+          sMesh.position.set(0, 0, 0); 
           sMesh.updateMatrixWorld(true);
           
           const bbox = new THREE.Box3().setFromObject(sMesh);
@@ -861,7 +862,7 @@
       }, 50);
     };
 
-    // FUNCIÓN DE ESCALADO DE EMERGENCIA EXACTO AL 100%
+    // FUNCIÓN DE ESCALADO DE EMERGENCIA EXACTO AL 100% CON RE-CENTRADO PRECOZ
     window.scaleMeshToFit = function() {
       if (!sMesh || !answers.printer) return;
       const limits = printerLimits[answers.printer];
@@ -884,9 +885,10 @@
       const boxCenter = new THREE.Vector3();
       finalBbox.getCenter(boxCenter);
       
-      sMesh.position.x = -boxCenter.x;
-      sMesh.position.y = -boxCenter.y;
-      sMesh.position.z = -finalBbox.min.z;
+      // Corrección de posición acumulada relativa para evitar desfases fuera del origen
+      sMesh.position.x += -boxCenter.x;
+      sMesh.position.y += -boxCenter.y;
+      sMesh.position.z += -finalBbox.min.z;
       sMesh.updateMatrixWorld(true);
 
       const te = sMesh.matrix.elements;
@@ -958,7 +960,7 @@
       reader.onload = function(e) {
         const loader = new THREE.STLLoader();
         const geometry = loader.parse(e.target.result);
-        geometry.center();
+        geometry.center(); // Alinea el origen de los vértices localmente en (0,0,0)
         geometry.computeBoundingBox();
 
         const material = new THREE.MeshPhongMaterial({ 
@@ -969,8 +971,12 @@
         });
 
         sMesh = new THREE.Mesh(geometry, material);
-        sMesh.position.z = -geometry.boundingBox.min.z;
-        sScene.add(sMesh);
+        sMesh.position.set(0, 0, 0);
+        sMesh.updateMatrixWorld(true);
+
+        const bbox = new THREE.Box3().setFromObject(sMesh);
+        sMesh.position.z = -bbox.min.z; // Ajusta para apoyar a nivel Z=0
+        sMesh.updateMatrixWorld(true);
 
         const size = geometry.boundingBox.getSize(new THREE.Vector3()).length();
         sCamera.position.set(size * 1.3, size * 1.3, size * 1.3);
@@ -1002,7 +1008,7 @@
           answers.supportFacePoint = [supportPointLocal.x, supportPointLocal.y, supportPointLocal.z];
 
           const q = new THREE.Quaternion().setFromUnitVectors(localNormal, new THREE.Vector3(0, 0, -1));
-          const uniqueVerts = getUniqueVertices(sMesh.geometry);
+          const uniqueVerts = getUniqueVertices(sMesh);
           const limits = printerLimits[answers.printer] || { x: 220, y: 220, z: 250 };
           
           const projectedPoints = uniqueVerts.map(v => v.clone().applyQuaternion(q));
@@ -1058,7 +1064,7 @@
             const yawQuat = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), bestYaw);
             sMesh.quaternion.copy(yawQuat.multiply(q));
             sMesh.scale.set(1, 1, 1);
-            sMesh.position.set(0, 0, 0);
+            sMesh.position.set(0, 0, 0); // Limpia las traslaciones antes de re-calcular la caja contenedora
             sMesh.updateMatrixWorld(true);
             
             const bbox = new THREE.Box3().setFromObject(sMesh);
