@@ -740,21 +740,21 @@
 
       const minX = -limits.x / 2;
       const maxX =  limits.x / 2;
-      const minY = -limits.y / 2;
-      const maxY =  limits.y / 2;
-      const maxZ =  limits.z;
+      const minZ = -limits.y / 2;
+      const maxZ =  limits.y / 2;
+      const maxY =  limits.z; // altura en Y (eje verde) [1]
 
       // Tolerancia estricta de 0.01 mm (centésimas de milímetro) para validez instantánea [2]
       const outOfX = bbox.min.x < minX - 0.01 || bbox.max.x > maxX + 0.01;
-      const outOfY = bbox.min.y < minY - 0.01 || bbox.max.y > maxY + 0.01;
-      const outOfZ = bbox.max.z > maxZ + 0.01 || bbox.min.z < -0.01;
+      const outOfZ = bbox.min.z < minZ - 0.01 || bbox.max.z > maxZ + 0.01;
+      const outOfY = bbox.max.y > maxY + 0.01 || bbox.min.y < -0.01;
 
       const warningBanner = document.getElementById("limitWarningBanner");
       const oldSuccess = document.getElementById("scaleSuccessBanner");
       if (oldSuccess) oldSuccess.remove();
 
-      if (outOfX || outOfY || outOfZ) {
-        sMesh.material.color.setHex(0xb42318); // Rojo de colisión
+      if (outOfX || outOfZ || outOfY) {
+        sMesh.material.color.setHex(0xb42318); // Rojo de colisión [2]
         sMesh.material.needsUpdate = true;
 
         warningBanner.style.display = "block";
@@ -775,14 +775,14 @@
 
         answers.selectedSupportFace = null; 
       } else {
-        sMesh.material.color.setHex(0x90caf9); // Azul estándar (posición válida) [2]
+        sMesh.material.color.setHex(0x388e3c); // Verde estándar (posición válida) [2]
         sMesh.material.needsUpdate = true;
         warningBanner.style.display = "none";
 
         const successBanner = document.createElement("div");
         successBanner.id = "scaleSuccessBanner";
         successBanner.style = "background:#eef2ee;border:1.5px solid #2e7d32;color:#2e7d32;padding:12px;border-radius:10px;font-size:13.5px;font-weight:700;margin-bottom:12px;line-height:1.4;text-align:center;";
-        successBanner.innerHTML = `✓ <strong>Pieza en posición válida.</strong> Dimensiones reales de la caja contenedora: ${size.x.toFixed(1)} × ${size.y.toFixed(1)} × ${size.z.toFixed(1)} mm.`;
+        successBanner.innerHTML = `✓ <strong>Pieza en posición válida.</strong> Dimensiones reales de la caja contenedora: ${size.x.toFixed(1)} × ${size.z.toFixed(1)} × ${size.y.toFixed(1)} mm.`;
         warningBanner.parentNode.insertBefore(successBanner, warningBanner);
 
         answers.selectedSupportFace = 1; 
@@ -807,7 +807,7 @@
         transformControls.setMode('translate');
         transformControls.showX = true;
         transformControls.showY = true;
-        transformControls.showZ = true; // Movimiento habilitado en el eje Z (elevación libre)
+        transformControls.showZ = true; // Movimiento habilitado en el eje Z (desplazamiento en profundidad)
       } else if (mode === 'rotate') {
         transformControls.setMode('rotate');
         transformControls.showX = true; // Rotación libre en todos los ejes del espacio
@@ -826,9 +826,10 @@
       const modelSize = new THREE.Vector3();
       currentBbox.getSize(modelSize);
 
+      // Bed es X (limits.x), Z (limits.y). Altura es Y (limits.z) [1]
       const scaleX = limits.x / modelSize.x;
-      const scaleY = limits.y / modelSize.y;
-      const scaleZ = limits.z / modelSize.z;
+      const scaleY = limits.z / modelSize.y; // altura útil
+      const scaleZ = limits.y / modelSize.z; // profundidad útil
       const minScale = Math.min(scaleX, scaleY, scaleZ);
 
       sMesh.scale.multiplyScalar(minScale);
@@ -840,8 +841,8 @@
       
       // Corrección de posición acumulada relativa para evitar desfases fuera del origen
       sMesh.position.x += -boxCenter.x;
-      sMesh.position.y += -boxCenter.y;
-      sMesh.position.z += -finalBbox.min.z;
+      sMesh.position.z += -boxCenter.z;
+      sMesh.position.y += -finalBbox.min.y;
       sMesh.updateMatrixWorld(true);
 
       const te = sMesh.matrix.elements;
@@ -852,7 +853,7 @@
         [ te[3], te[7], te[11], te[15] ]
       ];
 
-      sMesh.material.color.setHex(0x90caf9); 
+      sMesh.material.color.setHex(0x388e3c); 
       const warningBanner = document.getElementById("limitWarningBanner");
       warningBanner.style.display = "none";
 
@@ -869,7 +870,7 @@
       validateCurrentStep();
     }
 
-    // INICIALIZADOR DE LA ESCENA TRIDIMENSIONAL
+    // INICIALIZADOR DE LA ESCENA TRIDIMENSIONAL (Y-UP)
     function initSelector3D() {
       disposeRendererAndScene();
 
@@ -881,14 +882,14 @@
 
       sCamera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 1, 1000);
       sCamera.position.set(130, 130, 150);
-      sCamera.up.set(0, 0, 1);
+      sCamera.up.set(0, 1, 0); // Configuración del espacio con Y como vertical (eje verde) [1]
 
       sRenderer = new THREE.WebGLRenderer({ antialias: true });
       sRenderer.setSize(container.clientWidth, container.clientHeight);
       container.appendChild(sRenderer.domElement);
 
       const light1 = new THREE.DirectionalLight(0xffffff, 1.4);
-      light1.position.set(1, 1, 3).normalize();
+      light1.position.set(1, 3, 1).normalize();
       sScene.add(light1);
       sScene.add(new THREE.AmbientLight(0x404040));
 
@@ -898,15 +899,14 @@
       const limits = printerLimits[answers.printer] || { x: 220, y: 220, z: 250 };
       const gridSize = Math.max(limits.x, limits.y);
       
-      gridHelper = new THREE.GridHelper(gridSize, 30, 0x5e6661, 0x2e3a35);
-      gridHelper.rotation.x = Math.PI / 2;
+      gridHelper = new THREE.GridHelper(gridSize, 30, 0x5e6661, 0x2e3a35); // Rejilla plana natural sobre X-Z
       sScene.add(gridHelper);
 
-      const boxGeo = new THREE.BoxGeometry(limits.x, limits.y, limits.z);
+      const boxGeo = new THREE.BoxGeometry(limits.x, limits.z, limits.y); // Alto en Y (eje verde) [1]
       const edges = new THREE.EdgesGeometry(boxGeo);
       const lineMaterial = new THREE.LineBasicMaterial({ color: 0x5e6661, transparent: true, opacity: 0.15 });
       printVolumeBox = new THREE.LineSegments(edges, lineMaterial);
-      printVolumeBox.position.set(0, 0, limits.z / 2);
+      printVolumeBox.position.set(0, limits.z / 2, 0);
       sScene.add(printVolumeBox);
 
       // Instanciación del motor manual (TransformControls)
@@ -931,9 +931,19 @@
         }
       });
 
-      // Llama a checkLimits() solo cuando el objeto cambie físicamente por el usuario
+      // Llama a checkLimits() y restringe la penetración de la cama (eje verde Y) [2]
       transformControls.addEventListener('objectChange', () => {
-        checkLimits();
+        if (sMesh) {
+          sMesh.updateMatrixWorld(true);
+          const bbox = new THREE.Box3().setFromObject(sMesh);
+          const offsetY = -bbox.min.y;
+          // Si el fondo de la pieza sobrepasa el suelo (Y=0), bloquea y colisiona [2]
+          if (offsetY > 0.001) {
+            sMesh.position.y += offsetY;
+            sMesh.updateMatrixWorld(true);
+          }
+          checkLimits();
+        }
       });
 
       // Evento de clic en el canvas para seleccionar cara de apoyo (filtrado por temporizador de arrastre) [2]
@@ -947,7 +957,7 @@
         geometry.computeBoundingBox();
 
         const material = new THREE.MeshPhongMaterial({ 
-          color: 0x90caf9, 
+          color: 0x388e3c, // Verde de posición correcta por defecto
           specular: 0x222222, 
           shininess: 40, 
           side: THREE.DoubleSide 
@@ -958,7 +968,7 @@
         sMesh.updateMatrixWorld(true);
 
         const bbox = new THREE.Box3().setFromObject(sMesh);
-        sMesh.position.z = -bbox.min.z; 
+        sMesh.position.y = -bbox.min.y; // Apoya a nivel Y=0 (cama de impresión) [2]
         sMesh.updateMatrixWorld(true);
 
         sScene.add(sMesh); // Agregado a la escena de forma efectiva
@@ -981,7 +991,7 @@
       };
       reader.readAsArrayBuffer(window.selectedSTLFile);
 
-      // FUNCIÓN DE ALINEACIÓN POR PULSACIÓN EN LA PIEZA (RESTABLECIDA DE FORMA SEGURA) [2]
+      // FUNCIÓN DE ALINEACIÓN POR PULSACIÓN EN LA PIEZA (RESTABLECIDA DE FORMA SEGURA EN Y-UP) [2]
       function onMeshClick(event) {
         if (!sMesh || wasDragging || isDraggingTransform) {
           wasDragging = false; // Restablece de forma lógica para admitir clics limpios en el futuro [2]
@@ -1006,7 +1016,7 @@
           answers.supportFaceNormal = [localNormal.x, localNormal.y, localNormal.z];
           answers.supportFacePoint = [supportPointLocal.x, supportPointLocal.y, supportPointLocal.z];
 
-          const q = new THREE.Quaternion().setFromUnitVectors(localNormal, new THREE.Vector3(0, 0, -1));
+          const q = new THREE.Quaternion().setFromUnitVectors(localNormal, new THREE.Vector3(0, -1, 0)); // Apunta hacia Y negativo
           const uniqueVerts = getUniqueVertices(sMesh);
           const limits = printerLimits[answers.printer] || { x: 220, y: 220, z: 250 };
           
@@ -1060,7 +1070,7 @@
           if (oldSuccess) oldSuccess.remove();
           
           if (foundFit) {
-            const yawQuat = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), bestYaw);
+            const yawQuat = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), bestYaw); // Rotación sobre eje verde Y
             sMesh.quaternion.copy(yawQuat.multiply(q));
             sMesh.scale.set(1, 1, 1);
             sMesh.position.set(0, 0, 0); 
@@ -1070,11 +1080,11 @@
             const currentCenter = new THREE.Vector3();
             bbox.getCenter(currentCenter);
             sMesh.position.x = -currentCenter.x;
-            sMesh.position.y = -currentCenter.y;
-            sMesh.position.z = -bbox.min.z;
+            sMesh.position.z = -currentCenter.z;
+            sMesh.position.y = -bbox.min.y;
             sMesh.updateMatrixWorld(true);
             
-            sMesh.material.color.setHex(0x90caf9);
+            sMesh.material.color.setHex(0x388e3c); // Verde de posición correcta [2]
             sMesh.material.needsUpdate = true;
             warningBanner.style.display = "none";
             
@@ -1106,8 +1116,8 @@
             const currentCenter = new THREE.Vector3();
             bbox.getCenter(currentCenter);
             sMesh.position.x = -currentCenter.x;
-            sMesh.position.y = -currentCenter.y;
-            sMesh.position.z = -bbox.min.z;
+            sMesh.position.z = -currentCenter.z;
+            sMesh.position.y = -bbox.min.y;
             sMesh.updateMatrixWorld(true);
             
             sMesh.material.color.setHex(0xb42318);
