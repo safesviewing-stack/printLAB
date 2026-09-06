@@ -327,50 +327,25 @@ document.head.appendChild(
 
 
 // =====================================================
-// INICIALIZACIÓN
+// INICIALIZACIÓN DE AUTENTICACIÓN EVITANDO CONDICIONES DE CARRERA
 // =====================================================
 
-document.addEventListener(
-  "DOMContentLoaded",
-  () => {
-
-    // -------------------------------------------------
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => {
     // Transición suave entre páginas
-    // -------------------------------------------------
-
-    const prefersReduced =
-      window.matchMedia(
-        "(prefers-reduced-motion: reduce)"
-      ).matches;
-
-
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (!prefersReduced) {
-
-      document.body.style.opacity =
-        "0";
-
-      document.body.style.transition =
-        "opacity 0.2s ease-in-out";
-
-
+      document.body.style.opacity = "0";
+      document.body.style.transition = "opacity 0.2s ease-in-out";
       setTimeout(() => {
-
-        document.body.style.opacity =
-          "1";
-
+        document.body.style.opacity = "1";
       }, 50);
-
     }
-
-
-    // -------------------------------------------------
-    // Inicializar autenticación
-    // -------------------------------------------------
-
     initAuth();
-
-  }
-);
+  });
+} else {
+  initAuth();
+}
 
 
 // =====================================================
