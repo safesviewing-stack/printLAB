@@ -399,7 +399,6 @@
         <div class="step-subtitle" style="color:var(--ink); font-weight:700; margin-bottom:12px;">Haz clic sobre la superficie que quieres apoyar en la cama.</div>
         
         <div class="viewer-section">
-          <div id="limitWarningBanner" style="display:none; background:#fcebe8; border:1.5px solid var(--error); color:#9e3223; padding:16px; border-radius:12px; font-size:13.5px; font-weight:700; margin-bottom:12px; line-height:1.4; text-align:center;"></div>
           <div class="viewer-wrap">
             <div id="selector3dContainer" style="width:100%; background:#161d1a; border-radius:16px; position:relative; overflow:hidden; border:2px solid var(--line); margin-bottom:12px;"></div>
           </div>
@@ -736,7 +735,6 @@
       if (!limits) return;
 
       const bbox = new THREE.Box3().setFromObject(sMesh);
-      const size = bbox.getSize(new THREE.Vector3());
 
       const minX = -limits.x / 2;
       const maxX =  limits.x / 2;
@@ -749,42 +747,13 @@
       const outOfZ = bbox.min.z < minZ - 0.01 || bbox.max.z > maxZ + 0.01;
       const outOfY = bbox.max.y > maxY + 0.01 || bbox.min.y < -0.01;
 
-      const warningBanner = document.getElementById("limitWarningBanner");
-      const oldSuccess = document.getElementById("scaleSuccessBanner");
-      if (oldSuccess) oldSuccess.remove();
-
       if (outOfX || outOfZ || outOfY) {
         sMesh.material.color.setHex(0xb42318); // Rojo de colisión [2]
         sMesh.material.needsUpdate = true;
-
-        warningBanner.style.display = "block";
-        warningBanner.innerHTML = `
-          <div style="margin-bottom:10px;">
-            ⚠️ <strong>¡Pieza fuera de los límites de impresión!</strong><br>
-            La posición actual excede las dimensiones físicas de tu ${answers.printer} (${limits.x} × ${limits.y} × ${limits.z} mm).<br>
-            Por favor, arrastra la pieza o gírala para que quepa dentro del volumen.
-          </div>
-        `;
-
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.textContent = "Auto-escalar para ajustar";
-        btn.style = "background:#b42318;color:#fff;border:1.5px solid #fff;padding:8px 16px;border-radius:8px;font-weight:800;cursor:pointer;font-size:12px;margin-right:8px;";
-        btn.onclick = (e) => { e.stopPropagation(); window.scaleMeshToFit(); };
-        warningBanner.appendChild(btn);
-
         answers.selectedSupportFace = null; 
       } else {
         sMesh.material.color.setHex(0x388e3c); // Verde estándar (posición válida) [2]
         sMesh.material.needsUpdate = true;
-        warningBanner.style.display = "none";
-
-        const successBanner = document.createElement("div");
-        successBanner.id = "scaleSuccessBanner";
-        successBanner.style = "background:#eef2ee;border:1.5px solid #2e7d32;color:#2e7d32;padding:12px;border-radius:10px;font-size:13.5px;font-weight:700;margin-bottom:12px;line-height:1.4;text-align:center;";
-        successBanner.innerHTML = `✓ <strong>Pieza en posición válida.</strong> Dimensiones reales de la caja contenedora: ${size.x.toFixed(1)} × ${size.z.toFixed(1)} × ${size.y.toFixed(1)} mm.`;
-        warningBanner.parentNode.insertBefore(successBanner, warningBanner);
-
         answers.selectedSupportFace = 1; 
       }
 
@@ -854,20 +823,8 @@
       ];
 
       sMesh.material.color.setHex(0x388e3c); 
-      const warningBanner = document.getElementById("limitWarningBanner");
-      warningBanner.style.display = "none";
-
-      const oldSuccess = document.getElementById("scaleSuccessBanner");
-      if (oldSuccess) oldSuccess.remove();
-
-      const successBanner = document.createElement("div");
-      successBanner.id = "scaleSuccessBanner";
-      successBanner.style = "background:#eef2ee; border:1.5px solid #2e7d32; color:#2e7d32; padding:12px; border-radius:10px; font-size:13.5px; font-weight:700; margin-bottom:12px; line-height:1.4; text-align:center;";
-      successBanner.innerHTML = `✓ <strong>Escala ajustada:</strong> Modelo escalado al ${(minScale * 100).toFixed(1)}% para caber en el volumen útil de tu impresora de forma estricta.`;
-      
-      warningBanner.parentNode.insertBefore(successBanner, warningBanner);
       answers.selectedSupportFace = 1; 
-      validateCurrentStep();
+      checkLimits();
     }
 
     // INICIALIZADOR DE LA ESCENA TRIDIMENSIONAL (Y-UP)
@@ -1065,10 +1022,6 @@
             }
           }
           
-          const warningBanner = document.getElementById("limitWarningBanner");
-          const oldSuccess = document.getElementById("scaleSuccessBanner");
-          if (oldSuccess) oldSuccess.remove();
-          
           if (foundFit) {
             const yawQuat = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), bestYaw); // Rotación sobre eje verde Y
             sMesh.quaternion.copy(yawQuat.multiply(q));
@@ -1086,13 +1039,6 @@
             
             sMesh.material.color.setHex(0x388e3c); // Verde de posición correcta [2]
             sMesh.material.needsUpdate = true;
-            warningBanner.style.display = "none";
-            
-            const successBanner = document.createElement("div");
-            successBanner.id = "scaleSuccessBanner";
-            successBanner.style = "background:#eef2ee;border:1.5px solid #2e7d32;color:#2e7d32;padding:12px;border-radius:10px;font-size:13.5px;font-weight:700;margin-bottom:12px;line-height:1.4;text-align:center;";
-            successBanner.innerHTML = `✓ <strong>Superficie apoyada correctamente.</strong> Modelo alineado. Medidas: ${bestW.toFixed(1)} × ${bestD.toFixed(1)} × ${H.toFixed(1)} mm.`;
-            warningBanner.parentNode.insertBefore(successBanner, warningBanner);
             
             if (highlightRing) sScene.remove(highlightRing);
             const ringGeo = new THREE.RingGeometry(2.5, 3.2, 32);
@@ -1122,22 +1068,6 @@
             
             sMesh.material.color.setHex(0xb42318);
             sMesh.material.needsUpdate = true;
-            
-            warningBanner.style.display = "block";
-            warningBanner.innerHTML = `
-              <div style="margin-bottom:10px;">
-                ⚠️ <strong>La pieza no cabe apoyada sobre esta cara.</strong><br>
-                Dimensiones en esta orientación: ${bbox.getSize(new THREE.Vector3()).x.toFixed(1)} × ${bbox.getSize(new THREE.Vector3()).y.toFixed(1)} × ${bbox.getSize(new THREE.Vector3()).z.toFixed(1)} mm.<br>
-                Volumen útil de la impresora: ${limits.x} × ${limits.y} × ${limits.z} mm.
-              </div>
-            `;
-            
-            const btn = document.createElement("button");
-            btn.type = "button";
-            btn.textContent = "Auto-escalar pieza para ajustar al volumen de la cama";
-            btn.style = "background:#b42318;color:#fff;border:1.5px solid #fff;padding:8px 16px;border-radius:8px;font-weight:800;cursor:pointer;font-size:12px;margin-right:8px;";
-            btn.onclick = () => window.scaleMeshToFit();
-            warningBanner.appendChild(btn);
           }
 
           const te = sMesh.matrix.elements;
