@@ -569,8 +569,8 @@
  <!-- SUPABASE -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<!-- Parámetro cache-busting v=13 para forzar recarga de la pre-carga síncrona corregida -->
-<script src="../assets/js/auth-helper.js?v=13"></script>
+<!-- Parámetro cache-busting v=15 para obligar al navegador a tirar la caché de sesión anterior -->
+<script src="../assets/js/auth-helper.js?v=15"></script>
 
 <script>
   const SUPABASE_URL =
@@ -1075,7 +1075,7 @@
 
     /* =====================================================
        ENLACES DE REGISTRO
-    ===================================================== */
+    ==================================================== */
 
     const registerLink =
       document.getElementById(
@@ -1610,15 +1610,32 @@
 
 
     /* =====================================================
-       DETECCIÓN Y ACTIVACIÓN DE MODO RECUPERACIÓN (CORREGIDA)
+       DETECCIÓN Y ACTIVACIÓN DE MODO RECUPERACIÓN (CORREGIDA DE RAÍZ)
     ===================================================== */
 
     let isRecoveryMode = false;
 
+    const isLoginPage = window.location.pathname.toLowerCase().includes("login.html");
+    const hasRecoveryInUrl = window.location.hash.includes("type=recovery") || window.location.search.includes("type=recovery");
+
+    // Limpieza drástica si el usuario viene de un flujo de registro/invitación
+    if (
+      window.location.hash.includes("type=signup") ||
+      window.location.hash.includes("type=invite") ||
+      window.location.search.includes("type=signup") ||
+      window.location.search.includes("type=invite")
+    ) {
+      sessionStorage.removeItem("printlab_recovery_mode");
+    }
+
+    // Si detectamos que no hay parámetros de recuperación reales en la URL, borramos la memoria atascada
+    if (!hasRecoveryInUrl) {
+      sessionStorage.removeItem("printlab_recovery_mode");
+    }
+
     // Detectar si la URL o el sessionStorage contienen indicativo de recuperación (Filtrando confirmaciones de registro)
     if (
-      window.location.hash.includes("type=recovery") ||
-      window.location.search.includes("type=recovery") ||
+      hasRecoveryInUrl ||
       (window.location.hash.includes("access_token=") && 
        !window.location.hash.includes("type=signup") && 
        !window.location.hash.includes("type=invite")) ||
@@ -1626,15 +1643,7 @@
     ) {
       isRecoveryMode = true;
       sessionStorage.setItem("printlab_recovery_mode", "true");
-    }
-
-    if (
-      window.location.hash.includes("type=signup") ||
-      window.location.hash.includes("type=invite") ||
-      window.location.search.includes("type=signup") ||
-      window.location.search.includes("type=invite")
-    ) {
-      // Limpiamos proactivamente en login.html si el usuario viene de verificar registro
+    } else {
       isRecoveryMode = false;
       sessionStorage.removeItem("printlab_recovery_mode");
     }
