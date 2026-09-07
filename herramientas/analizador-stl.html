@@ -500,9 +500,10 @@
   </script>
 
   <script>
-    // --- LÓGICA DE PERSISTENCIA MEDIANTE INDEXEDDB (BLINDADA CONTRA ERRORES DE SEGURIDAD) ---
+    // --- LÓGICA DE PERSISTENCIA MEDIANTE INDEXEDDB (BLINDADA CONTRA ERRORES DE SEGURIDAD Y UPGRADES) ---
     const DB_NAME = "PrintLabDB";
     const STORE_NAME = "AnalysisSession";
+    const DB_VERSION = 2; // Versión incremental para forzar la creación del objectStore en navegadores existentes
 
     function openDB() {
       return new Promise((resolve) => {
@@ -511,7 +512,7 @@
             resolve(null); // Evitar rejections que bloqueen el script principal
             return;
           }
-          const request = indexedDB.open(DB_NAME, 1);
+          const request = indexedDB.open(DB_NAME, DB_VERSION);
           request.onupgradeneeded = (e) => {
             const db = e.target.result;
             if (!db.objectStoreNames.contains(STORE_NAME)) {
@@ -531,17 +532,22 @@
         const db = await openDB();
         if (!db) return;
         return new Promise((resolve) => {
-          const transaction = db.transaction(STORE_NAME, "readwrite");
-          const store = transaction.objectStore(STORE_NAME);
-          const request = store.put({
-            id: "current_session",
-            file: file,
-            answers: answers,
-            stepIdx: stepIdx,
-            timestamp: Date.now()
-          });
-          request.onsuccess = () => resolve();
-          request.onerror = () => resolve(); // Evitar interrupciones ante fallos de escritura
+          try {
+            const transaction = db.transaction(STORE_NAME, "readwrite");
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.put({
+              id: "current_session",
+              file: file,
+              answers: answers,
+              stepIdx: stepIdx,
+              timestamp: Date.now()
+            });
+            request.onsuccess = () => resolve();
+            request.onerror = () => resolve(); // Evitar interrupciones ante fallos de escritura o cuota de disco
+          } catch (e) {
+            console.warn("Fallo síncrono al escribir en el almacén IndexedDB:", e);
+            resolve();
+          }
         });
       } catch (err) {
         console.warn("No se pudo guardar la sesión local:", err);
@@ -553,11 +559,16 @@
         const db = await openDB();
         if (!db) return null;
         return new Promise((resolve) => {
-          const transaction = db.transaction(STORE_NAME, "readonly");
-          const store = transaction.objectStore(STORE_NAME);
-          const request = store.get("current_session");
-          request.onsuccess = (e) => resolve(e.target.result);
-          request.onerror = () => resolve(null);
+          try {
+            const transaction = db.transaction(STORE_NAME, "readonly");
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.get("current_session");
+            request.onsuccess = (e) => resolve(e.target.result);
+            request.onerror = () => resolve(null);
+          } catch (e) {
+            console.warn("Fallo síncrono al leer del almacén IndexedDB:", e);
+            resolve(null);
+          }
         });
       } catch (err) {
         console.warn("No se pudo cargar la sesión local:", err);
@@ -570,11 +581,16 @@
         const db = await openDB();
         if (!db) return;
         return new Promise((resolve) => {
-          const transaction = db.transaction(STORE_NAME, "readwrite");
-          const store = transaction.objectStore(STORE_NAME);
-          const request = store.delete("current_session");
-          request.onsuccess = () => resolve();
-          request.onerror = () => resolve();
+          try {
+            const transaction = db.transaction(STORE_NAME, "readwrite");
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.delete("current_session");
+            request.onsuccess = () => resolve();
+            request.onerror = () => resolve();
+          } catch (e) {
+            console.warn("Fallo síncrono al limpiar almacén IndexedDB:", e);
+            resolve();
+          }
         });
       } catch (err) {
         console.warn("No se pudo limpiar la sesión local:", err);
@@ -1741,7 +1757,8 @@
         try {
           nextBtn.textContent = "Almacenando archivo...";
           const filePath = `uploads/${session.user.id}/${Date.now()}.stl`;
-          await client.storage.from('stls').upload(window.selectedSTLFile, filePath, { cacheControl: '3600', 'upsert': true });
+          // CORRECCIÓN CLAVE: Restablecido el orden estándar oficial de parámetros de subida (path primero, archivo segundo)
+          await client.storage.from('stls').upload(filePath, window.selectedSTLFile, { cacheControl: '3600', 'upsert': true });
 
           nextBtn.textContent = "Analizando geometría...";
           const formData = new FormData();
