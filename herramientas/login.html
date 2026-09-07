@@ -572,19 +572,7 @@
 <!-- Parámetro cache-busting v=10 para forzar recarga de la pre-carga síncrona en cabecera -->
 <script src="../assets/js/auth-helper.js?v=10"></script>
 
-<script>
-  const SUPABASE_URL =
-    "https://jmwprzgfdkphbxryjbnr.supabase.co";
 
-  const SUPABASE_ANON_KEY =
-    "sb_publishable_kelRYJ3Fa56DXY3GhxWLHQ_YiLJzStR";
-
-  const supabaseClient =
-    supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_ANON_KEY
-    );
-</script>
 
 </head>
 
@@ -1627,13 +1615,13 @@
     }
 
     // Escuchar el evento de recuperación de Supabase
-    supabaseClient.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") {
-        isRecoveryMode = true;
-        sessionStorage.setItem("printlab_recovery_mode", "true");
-        activateRecoveryMode();
-      }
-    });
+    window.supabaseClient.auth.onAuthStateChange((event) => {
+  if (event === "PASSWORD_RECOVERY") {
+    isRecoveryMode = true;
+    sessionStorage.setItem("printlab_recovery_mode", "true");
+    activateRecoveryMode();
+  }
+});
 
     if (isRecoveryMode) {
       activateRecoveryMode();
