@@ -1495,6 +1495,13 @@ registerForm.addEventListener(
           });
         }
 
+        // DESTRUIR SESIÓN AUTOMÁTICA EN LOCALSTORAGE PARA EVITAR AUTO-LOGIN
+        try {
+          await supabaseClient.auth.signOut();
+        } catch (e) {
+          console.warn("Error al forzar signout en registro:", e);
+        }
+
         /*
          * Guardar información temporal.
          */
