@@ -162,6 +162,22 @@
         <p id="reportFileNameHeader" style="margin-top: 12px; font-weight:800; color:var(--ink); font-size:16px;">📄 Cargando...</p>
       </div>
 
+      <!-- PROPUESTA A: Métricas Estimadas (Volumen, Masa, Coste) -->
+      <div class="param-box" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; border: 1.5px solid var(--line); margin-top: 24px;">
+        <div>
+          <div style="font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Volumen del Modelo</div>
+          <div id="estVolume" style="font-size: 22px; font-weight: 800; margin-top: 6px; color: var(--ink);">Calculando...</div>
+        </div>
+        <div>
+          <div style="font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Masa Estimada</div>
+          <div id="estWeight" style="font-size: 22px; font-weight: 800; margin-top: 6px; color: var(--ink);">Calculando...</div>
+        </div>
+        <div>
+          <div style="font-size: 11px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px;">Coste de Material</div>
+          <div id="estCost" style="font-size: 22px; font-weight: 800; margin-top: 6px; color: var(--ink);">Calculando...</div>
+        </div>
+      </div>
+
       <!-- Parámetros de OrcaSlicer Completos con Buscador y Scroll -->
       <div class="param-box" style="padding: 24px; margin-top:24px;">
         <h4 class="param-title" style="margin-bottom: 4px;">Parámetros del Slicer (Base de datos unificada)</h4>
@@ -177,8 +193,10 @@
       <div class="download-panel">
         <h4 style="margin:0 0 16px; font-weight:800;">Exportación de Proyecto</h4>
         
+        <!-- CORRECCIÓN DEL EMOJI: Sustituido por Icono SVG Moderno -->
         <button class="btn-auth green" id="download3mfBtn" style="padding: 12px 24px; border-radius: 9999px; font-weight: 800; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; border: 2px solid var(--ink); width: auto; justify-content: flex-start; outline: none; transition: transform .15s, box-shadow .15s;">
-          <span>💾</span> Abrir proyecto en laminador (.3MF)
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          Abrir proyecto en laminador (.3MF)
         </button>
       </div>
     </div>
@@ -396,6 +414,40 @@
       ]
     };
 
+    // Función auxiliar para calcular el volumen de un tetraedro firmado
+    function signedVolumeOfTriangle(p1, p2, p3) {
+      const cross = new THREE.Vector3().crossVectors(p2, p3);
+      return p1.dot(cross) / 6.0;
+    }
+
+    // Función para calcular el volumen total de una BufferGeometry
+    function calculateVolume(geometry) {
+      if (!geometry || !geometry.attributes || !geometry.attributes.position) return 0;
+      const position = geometry.attributes.position;
+      let volume = 0;
+      const vA = new THREE.Vector3();
+      const vB = new THREE.Vector3();
+      const vC = new THREE.Vector3();
+      
+      if (geometry.index) {
+        const index = geometry.index;
+        for (let i = 0; i < index.count; i += 3) {
+          vA.fromBufferAttribute(position, index.getX(i));
+          vB.fromBufferAttribute(position, index.getX(i + 1));
+          vC.fromBufferAttribute(position, index.getX(i + 2));
+          volume += signedVolumeOfTriangle(vA, vB, vC);
+        }
+      } else {
+        for (let i = 0; i < position.count; i += 3) {
+          vA.fromBufferAttribute(position, i);
+          vB.fromBufferAttribute(position, i + 1);
+          vC.fromBufferAttribute(position, i + 2);
+          volume += signedVolumeOfTriangle(vA, vB, vC);
+        }
+      }
+      return Math.abs(volume); // El volumen en mm³ siempre debe ser positivo
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
       const stored = sessionStorage.getItem("printlab_analysis");
       if (!stored) {
@@ -505,6 +557,23 @@
         activeGeometry = loader.parse(bytes.buffer);
         activeGeometry.center();
         activeGeometry.computeBoundingBox();
+
+        // --- CÁLCULO DINÁMICO DE MÉTRICAS (PROPUESTA A) ---
+        const volumeMm3 = calculateVolume(activeGeometry);
+        const volumeCm3 = volumeMm3 / 1000; // 1 cm³ = 1000 mm³
+        
+        // Obtener densidad de filamento (PLA genérico = 1.24 g/cm³ por defecto si no se encuentra)
+        const density = parseFloat(s.filament_density ?? "1.24") || 1.24;
+        const weightG = volumeCm3 * density;
+
+        // Obtener costo de filamento (€/kg, por defecto 20 €/kg si no se encuentra)
+        const costPerKg = parseFloat(s.filament_cost ?? "20") || 20;
+        const totalCost = weightG * (costPerKg / 1000);
+
+        // Actualizar elementos DOM con la información real del modelo
+        document.getElementById("estVolume").textContent = `${volumeCm3.toFixed(2)} cm³`;
+        document.getElementById("estWeight").textContent = `${weightG.toFixed(2)} g`;
+        document.getElementById("estCost").textContent = `${totalCost.toFixed(2)} €`;
 
         if (q && q.transformationMatrix) {
           const tm = q.transformationMatrix;
@@ -939,8 +1008,10 @@
             alert("Error al construir el archivo de proyecto 3MF: " + err.message);
           } finally {
             downloadBtn.disabled = false;
+            // CORRECCIÓN DEL EMOJI: Mantiene la consistencia del SVG en el restablecimiento
             downloadBtn.innerHTML = `
-              <span>💾</span> Abrir proyecto en laminador (.3MF)
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              Abrir proyecto en laminador (.3MF)
             `;
           }
         });
