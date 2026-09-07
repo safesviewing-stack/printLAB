@@ -991,20 +991,6 @@ document.addEventListener(
    DESTINO ORIGINAL
 ===================================================== */
 
-/*
- * Si el usuario llegó aquí desde el analizador:
- *
- * registro.html?redirect=analizador-stl.html
- *
- * guardamos ese destino.
- *
- * Si llegó desde Registrarse del inicio:
- *
- * registro.html
- *
- * el destino será index.html.
- */
-
 const params =
   new URLSearchParams(
     window.location.search
@@ -1023,12 +1009,6 @@ if(!redirectTarget){
 }
 
 
-/*
- * Seguridad:
- * impedir que alguien pueda utilizar una URL
- * externa como destino.
- */
-
 if(
   redirectTarget.startsWith(
     "http://"
@@ -1046,13 +1026,6 @@ if(
 
 }
 
-
-/*
- * Guardamos el destino en sessionStorage.
- *
- * Esto permite conservarlo incluso cuando
- * pasemos a verificar-correo.html.
- */
 
 sessionStorage.setItem(
   "printlab_redirect_after_auth",
@@ -1277,21 +1250,10 @@ registerForm.addEventListener(
 
             },
 
-            /*
-             * IMPORTANTE:
-             *
-             * El correo NO vuelve directamente al login.
-             *
-             * Primero vuelve a verificar-correo.html.
-             *
-             * Esa página recuperará el destino original
-             * y decidirá si debe llevar al inicio o al
-             * analizador.
-             */
-
+            // REDIRECCIÓN DIRECTA AL LOGIN DE FORMA CORRECTA Y SEGURA
             emailRedirectTo:
               window.location.origin +
-              "/printLAB/herramientas/verificar-correo.html"
+              "/printLAB/herramientas/login.html?verified=true"
 
           }
 
@@ -1316,10 +1278,6 @@ registerForm.addEventListener(
             ""
           ).toLowerCase();
 
-
-        /* -----------------------------------------------
-           CUENTA YA EXISTENTE
-        ----------------------------------------------- */
 
         if(
           message.includes(
@@ -1353,10 +1311,6 @@ registerForm.addEventListener(
         }
 
 
-        /* -----------------------------------------------
-           EMAIL INVÁLIDO
-        ----------------------------------------------- */
-
         if(
           message.includes(
             "invalid email"
@@ -1369,10 +1323,6 @@ registerForm.addEventListener(
 
         }
 
-        /* -----------------------------------------------
-           CONTRASEÑA
-        ----------------------------------------------- */
-
         else if(
           message.includes(
             "password"
@@ -1384,10 +1334,6 @@ registerForm.addEventListener(
           );
 
         }
-
-        /* -----------------------------------------------
-           ERROR DE ENVÍO DE EMAIL
-        ----------------------------------------------- */
 
         else if(
           message.includes(
@@ -1405,10 +1351,6 @@ registerForm.addEventListener(
           );
 
         }
-
-        /* -----------------------------------------------
-           ERROR GENERAL
-        ----------------------------------------------- */
 
         else{
 
@@ -1432,10 +1374,6 @@ registerForm.addEventListener(
 
       }
 
-
-      /* =================================================
-         DETECTAR CUENTA EXISTENTE
-      ================================================= */
 
       if(
         data &&
@@ -1464,18 +1402,10 @@ registerForm.addEventListener(
       }
 
 
-      /* =================================================
-         REGISTRO CORRECTO
-      ================================================= */
-
       if(
         data &&
         data.user
       ){
-
-        /*
-         * Guardar información temporal.
-         */
 
         sessionStorage.setItem(
           "printlab_pending_name",
@@ -1489,19 +1419,11 @@ registerForm.addEventListener(
         );
 
 
-        /*
-         * Guardar también el destino.
-         */
-
         sessionStorage.setItem(
           "printlab_redirect_after_auth",
           redirectTarget
         );
 
-
-        /*
-         * Espera de 500 ms.
-         */
 
         registerButton.textContent =
           "Cuenta creada ✓";
@@ -1528,10 +1450,6 @@ registerForm.addEventListener(
 
       }
 
-
-      /* =================================================
-         RESPUESTA INESPERADA
-      ================================================= */
 
       showMessage(
         "No se ha podido completar el registro. Inténtalo de nuevo."
