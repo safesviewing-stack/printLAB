@@ -834,7 +834,7 @@ function showStatus(
 
 
 /* =====================================================
-   COMPROBAR VERIFICACIÓN
+   COMPROBAR VERIFICACIÓN (FORZANDO CIERRE DE SESIÓN AUTOMÁTICA)
 ===================================================== */
 
 async function checkVerification(){
@@ -869,7 +869,7 @@ async function checkVerification(){
       "Correo verificado ✓";
 
     pageDescription.textContent =
-      "Tu cuenta de PrintLab ya está activa. Te estamos llevando al siguiente paso.";
+      "Tu cuenta de PrintLab ya está activa. Te estamos redirigiendo para que inicies sesión.";
 
 
     if (mailButton) {
@@ -889,6 +889,16 @@ async function checkVerification(){
     );
 
 
+    // ---------------------------------------------------
+    // CERRAR SESIÓN DE SEGURIDAD (Destruye el auto-login de Supabase)
+    // ---------------------------------------------------
+    try {
+      await supabaseClient.auth.signOut();
+    } catch (e) {
+      console.warn("Error al forzar signout:", e);
+    }
+
+
     sessionStorage.removeItem(
       "printlab_recovery_mode"
     );
@@ -906,16 +916,16 @@ async function checkVerification(){
     );
 
 
-    // Redirección ágil de 1000 ms tras éxito
+    // Redirección obligatoria a login.html pidiendo iniciar sesión manualmente
     setTimeout(
       function(){
 
         window.location.replace(
-          redirectTarget
+          "login.html?redirect=" + encodeURIComponent(redirectTarget)
         );
 
       },
-      1000
+      1500
     );
 
 
@@ -937,7 +947,7 @@ checkVerification();
 
 
 /*
- * También escuchamos el cambio de sesión.
+ * También escuchamos el cambio de sesión para actuar al instante.
  */
 
 supabaseClient.auth.onAuthStateChange(
@@ -964,7 +974,7 @@ supabaseClient.auth.onAuthStateChange(
           "Correo verificado ✓";
 
         pageDescription.textContent =
-          "Tu cuenta de PrintLab ya está activa. Te estamos llevando al siguiente paso.";
+          "Tu cuenta de PrintLab ya está activa. Te estamos redirigiendo para que inicies sesión.";
 
         if (mailButton) {
           mailButton.style.display =
@@ -981,6 +991,16 @@ supabaseClient.auth.onAuthStateChange(
           "Verificación completada correctamente.",
           "success"
         );
+
+
+        // ---------------------------------------------------
+        // CERRAR SESIÓN DE SEGURIDAD (Destruye el auto-login de Supabase)
+        // ---------------------------------------------------
+        try {
+          await supabaseClient.auth.signOut();
+        } catch (e) {
+          console.warn("Error al forzar signout en evento:", e);
+        }
 
 
         sessionStorage.removeItem(
@@ -1006,16 +1026,16 @@ supabaseClient.auth.onAuthStateChange(
         );
 
 
-        // Redirección ágil de 500 ms
+        // Redirección obligatoria a login.html pidiendo iniciar sesión manualmente
         setTimeout(
           function(){
 
             window.location.replace(
-              destination
+              "login.html?redirect=" + encodeURIComponent(destination)
             );
 
           },
-          500
+          1500
         );
 
       }
