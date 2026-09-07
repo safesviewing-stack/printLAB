@@ -96,11 +96,9 @@
       padding:40px 32px;
       text-align:center;
       box-shadow:0 20px 40px rgba(13,17,16,.025);
-      /* Se quita transform de la transición para evitar desfases del visor WebGL en hover */
       transition: border-color .25s ease, background-color .25s ease;
     }
     .upload-container:hover{border-color:var(--ink)}
-    /* Se remueve la escala en hover para garantizar un renderizado estable */
     .upload-container.drag-over{border-color:var(--accent);background:#fbfcfa;}
     .upload-icon-wrapper{width:72px;height:72px;background:var(--bg);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:30px;border:1.5px solid var(--line);box-shadow:0 8px 16px rgba(13,17,16,.02);transition:transform .3s ease,background-color .3s ease}
     .upload-container:hover .upload-icon-wrapper{transform:translateY(-4px) scale(1.05);background:#fff}
@@ -129,11 +127,9 @@
       min-height:460px;
       position:relative;
       background:#111715;
-      /* Marco plano rígido para impedir fallos en el mapa de renderizado síncrono */
       border: 2px solid var(--ink);
     }
     
-    /* Configuración estándar del lienzo WebGL en flujo nativo de alto rendimiento */
     #selector3dContainer canvas {
       display: block !important;
       width: 100% !important;
@@ -166,7 +162,7 @@
     /* SECCIÓN FOOTER */
     .footer{background:var(--bg);border-top:1px solid var(--line);padding:80px 0 40px;color:var(--muted);font-size:14px;line-height:1.6}
     .footergrid{display:grid;grid-template-columns:1.3fr .85fr .85fr;gap:60px;margin-bottom:48px}
-    .footer-col h3{font-size:16px;font-weight:800;color:var(--ink);margin:0 0 20px;letter-spacing:-.3px}
+    .footer-col h3{font-size:16px;font-weight:800;color:var(--ink);margin:0 0 20px;}
     .footer-col p{margin:0 0 16px;color:var(--muted)}
     .footer-secondary-text{font-size:12.5px;line-height:1.5;color:#7d8782;margin-top:12px}
     .footer-links{display:flex;flex-direction:column;gap:10px}
@@ -503,6 +499,77 @@
   </script>
 
   <script>
+    // --- LÓGICA DE PERSISTENCIA MEDIANTE INDEXEDDB (EVITA PÉRDIDAS DEL STL) ---
+    const DB_NAME = "PrintLabDB";
+    const STORE_NAME = "AnalysisSession";
+
+    function openDB() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, 1);
+        request.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains(STORE_NAME)) {
+            db.createObjectStore(STORE_NAME, { keyPath: "id" });
+          }
+        };
+        request.onsuccess = (e) => resolve(e.target.result);
+        request.onerror = (e) => reject(e.target.error);
+      });
+    }
+
+    async function saveSession(file, answers, stepIdx) {
+      try {
+        const db = await openDB();
+        return new Promise((resolve, reject) => {
+          const transaction = db.transaction(STORE_NAME, "readwrite");
+          const store = transaction.objectStore(STORE_NAME);
+          const request = store.put({
+            id: "current_session",
+            file: file,
+            answers: answers,
+            stepIdx: stepIdx,
+            timestamp: Date.now()
+          });
+          request.onsuccess = () => resolve();
+          request.onerror = (e) => reject(e.target.error);
+        });
+      } catch (err) {
+        console.error("No se pudo guardar la sesión local:", err);
+      }
+    }
+
+    async function loadSession() {
+      try {
+        const db = await openDB();
+        return new Promise((resolve, reject) => {
+          const transaction = db.transaction(STORE_NAME, "readonly");
+          const store = transaction.objectStore(STORE_NAME);
+          const request = store.get("current_session");
+          request.onsuccess = (e) => resolve(e.target.result);
+          request.onerror = (e) => reject(e.target.error);
+        });
+      } catch (err) {
+        console.error("No se pudo cargar la sesión local:", err);
+        return null;
+      }
+    }
+
+    async function clearSession() {
+      try {
+        const db = await openDB();
+        return new Promise((resolve, reject) => {
+          const transaction = db.transaction(STORE_NAME, "readwrite");
+          const store = transaction.objectStore(STORE_NAME);
+          const request = store.delete("current_session");
+          request.onsuccess = () => resolve();
+          request.onerror = (e) => reject(e.target.error);
+        });
+      } catch (err) {
+        console.error("No se pudo limpiar la sesión local:", err);
+      }
+    }
+    // ----------------=======================================----------------
+
     const answers = {
       nozzleSize: "",
       material: "",
@@ -592,32 +659,6 @@
       else if (currentStepIdx === 5) isValid = answers.selectedSupportFace !== null;
 
       nextBtn.disabled = !isValid;
-    }
-
-    // FUNCIÓN DE RESTAURACIÓN VISUAL DE TARJETAS EN CUESTIONARIO REANUDADO
-    function restoreVisualAnswers() {
-      // 1. Nozzle Size
-      if (answers.nozzleSize) {
-        const card = document.querySelector(`#step-nozzle .option-card[data-val="${answers.nozzleSize}"]`);
-        if (card) card.classList.add("selected");
-      }
-      // 2. Material
-      if (answers.material) {
-        const card = document.querySelector(`#step-material .option-card[data-val="${answers.material}"]`);
-        if (card) card.classList.add("selected");
-      }
-      // 3. Printer Select
-      if (answers.printer) {
-        const select = document.getElementById("printerSelect");
-        if (select) select.value = answers.printer;
-      }
-      // 4. Purpose Multi-select
-      if (Array.isArray(answers.purpose)) {
-        answers.purpose.forEach(val => {
-          const card = document.querySelector(`#step-purpose .option-card[data-val="${val}"]`);
-          if (card) card.classList.add("selected");
-        });
-      }
     }
 
     function navigateStep(direction) {
@@ -879,7 +920,7 @@
       return true; // Todo cabe perfectamente dentro del recinto de impresión
     }
 
-    // COMPROBACIÓN DINÁMICA DE LÍMITES FÍSICOS DE LA CAMA (TOLERANCIA ESTRICTA DE CENTÉSIMAS)
+    // COMPROBACIÓN DINÁMICA DE LÍMITES FÍSIGOS DE LA CAMA (TOLERANCIA ESTRICTA DE CENTÉSIMAS)
     function checkLimits() {
       if (!sMesh || !answers.printer) return;
 
@@ -1003,7 +1044,6 @@
       sCamera.position.set(130, 130, 150);
       sCamera.up.set(0, 1, 0); // Configuración del espacio con Y como vertical (eje verde)
 
-      // preserveDrawingBuffer: true para impedir parpadeos o artifacts rayados durante el scroll dinámico en Chrome
       sRenderer = new THREE.WebGLRenderer({ 
         antialias: true, 
         alpha: false, 
@@ -1401,33 +1441,6 @@
       selectedFileSize.textContent = file.size < 1024*1024 ? (file.size/1024).toFixed(0) + " KB" : (file.size/(1024*1024)).toFixed(1) + " MB";
       selectedFile.classList.add("show");
       updateButtonState();
-
-      // === LÓGICA DE REANUDACIÓN POST-COMPRA (Salto directo al paso 5) ===
-      if (sessionStorage.getItem("printlab_resume_analysis") === "true") {
-        document.querySelector(".upload-title").style.display = "none";
-        document.querySelector(".upload-desc").style.display = "none";
-        accessButton.style.display = "none";
-        document.querySelector(".drag-help").style.display = "none";
-        progressContainer.style.display = "block";
-        wizardNav.style.display = "flex";
-
-        currentStepIdx = 5; // Forzar paso del visor 3D
-        document.getElementById(steps[0]).classList.remove("active");
-        document.getElementById(steps[currentStepIdx]).classList.add("active");
-
-        const progressPercent = (currentStepIdx / (steps.length - 1)) * 100;
-        document.getElementById("progressBar").style.width = `${progressPercent}%`;
-
-        document.getElementById("prevBtn").style.visibility = "visible";
-        document.getElementById("nextBtn").textContent = "Iniciar Análisis Real";
-
-        initSelector3D();
-        validateCurrentStep();
-
-        // Limpieza de banderas de sesión para evitar redirecciones en futuros análisis limpios
-        sessionStorage.removeItem("printlab_resume_analysis");
-        sessionStorage.removeItem("printlab_resume_answers");
-      }
     }
 
     const accessButton = document.getElementById("analyzerAccessButton");
@@ -1495,19 +1508,78 @@
     document.addEventListener("DOMContentLoaded", async () => {
       await updateButtonState();
 
-      // === DETECCIÓN Y RESTAURACIÓN DEL ESTADO DE REANUDACIÓN ===
+      // --- VERIFICAR Y RESTAURAR SESIÓN DE CONTINGENCIA TRAS LA COMPRA ---
       const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get("action") === "resume" || sessionStorage.getItem("printlab_resume_analysis") === "true") {
-        sessionStorage.setItem("printlab_resume_analysis", "true");
-        const savedAnswers = sessionStorage.getItem("printlab_resume_answers");
-        if (savedAnswers) {
-          try {
-            const parsed = JSON.parse(savedAnswers);
-            Object.assign(answers, parsed);
-            restoreVisualAnswers();
-          } catch (e) {
-            console.error("Error al restaurar las respuestas de la sesión:", e);
+      const isResume = urlParams.get("action") === "resume" || sessionStorage.getItem("printlab_resume_analysis") === "true";
+      
+      if (isResume) {
+        const saved = await loadSession();
+        if (saved && saved.file) {
+          // Restaurar archivo STL
+          window.selectedSTLFile = saved.file;
+          selectedFileName.textContent = saved.file.name;
+          selectedFileSize.textContent = saved.file.size < 1024*1024 
+            ? (saved.file.size/1024).toFixed(0) + " KB" 
+            : (saved.file.size/(1024*1024)).toFixed(1) + " MB";
+          selectedFile.classList.add("show");
+          
+          // Restaurar respuestas del cuestionario
+          if (saved.answers) {
+            Object.assign(answers, saved.answers);
+            
+            // Marcar visualmente las tarjetas previamente seleccionadas
+            document.querySelectorAll(".option-card").forEach(card => {
+              const val = card.dataset.val;
+              const onclickAttr = card.getAttribute("onclick");
+              const match = onclickAttr ? onclickAttr.match(/'([^']+)'/) : null;
+              const field = match ? match[1] : null;
+              if (field) {
+                if (field === 'purpose') {
+                  if (Array.isArray(answers.purpose) && answers.purpose.includes(val)) {
+                    card.classList.add("selected");
+                  }
+                } else {
+                  if (answers[field] === val) {
+                    card.classList.add("selected");
+                  }
+                }
+              }
+            });
+            
+            // Restaurar el dropdown de la impresora
+            const printerSelect = document.getElementById("printerSelect");
+            if (printerSelect && answers.printer) {
+              printerSelect.value = answers.printer;
+            }
           }
+          
+          // Ocultar elementos iniciales de subida y mostrar barra de navegación
+          document.querySelector(".upload-title").style.display = "none";
+          document.querySelector(".upload-desc").style.display = "none";
+          accessButton.style.display = "none";
+          document.querySelector(".drag-help").style.display = "none";
+          progressContainer.style.display = "block";
+          wizardNav.style.display = "flex";
+          
+          // Saltar directamente al paso guardado (generalmente el paso 5 - visor)
+          const targetStep = saved.stepIdx !== undefined ? saved.stepIdx : 5;
+          currentStepIdx = targetStep;
+          
+          document.getElementById(steps[0]).classList.remove("active");
+          document.getElementById(steps[currentStepIdx]).classList.add("active");
+          
+          const progressPercent = (currentStepIdx / (steps.length - 1)) * 100;
+          document.getElementById("progressBar").style.width = `${progressPercent}%`;
+          document.getElementById("prevBtn").style.visibility = "visible";
+          document.getElementById("nextBtn").textContent = "Iniciar Análisis Real";
+          
+          // Inicializar el visor 3D con la pieza restaurada
+          initSelector3D();
+          validateCurrentStep();
+          
+          // Opcional: borrar el indicador temporal de sesión si ya se restauró con éxito
+          sessionStorage.removeItem("printlab_resume_analysis");
+          await clearSession();
         }
       }
 
@@ -1521,7 +1593,7 @@
 
         const session = await getCurrentSession();
 
-        // Comprobar créditos antes de iniciar el análisis real
+        // Comprobar créditos antes de iniciar el análisis
         if (client && session && session !== mockSession) {
           try {
             const { data: profile, error: profileError } = await client
@@ -1532,10 +1604,10 @@
 
             if (profileError) throw profileError;
 
-            // REDIRECCIÓN CONTROLADA A PRECIOS CON PERSISTENCIA DE SESIÓN
             if (!profile || Number(profile.credits || 0) < 1) {
               sessionStorage.setItem("printlab_resume_analysis", "true");
-              sessionStorage.setItem("printlab_resume_answers", JSON.stringify(answers));
+              // Guardar el estado de la sesión incluyendo el archivo STL físico antes de ir a precios
+              await saveSession(window.selectedSTLFile, answers, currentStepIdx);
               window.location.href = "precios.html";
               return;
             }
