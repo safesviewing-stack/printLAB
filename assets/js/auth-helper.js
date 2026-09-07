@@ -416,45 +416,40 @@ async function initAuth() {
 
 
   // ===================================================
-  // DETECCIÓN GLOBAL DE MODO DE RECUPERACIÓN
+  // DETECCIÓN GLOBAL DE MODO DE RECUPERACIÓN (CORREGIDA)
   // ===================================================
 
   const isRecovery =
-    window.location.hash.includes(
-      "type=recovery"
-    ) ||
-
-    window.location.hash.includes(
-      "access_token="
-    ) ||
-
-    window.location.search.includes(
-      "type=recovery"
-    ) ||
-
-    sessionStorage.getItem(
-      "printlab_recovery_mode"
-    ) === "true";
+    window.location.hash.includes("type=recovery") ||
+    window.location.search.includes("type=recovery") ||
+    (window.location.hash.includes("access_token=") && 
+     !window.location.hash.includes("type=signup") && 
+     !window.location.hash.includes("type=invite")) ||
+    sessionStorage.getItem("printlab_recovery_mode") === "true";
 
 
   if (
-    window.location.hash.includes(
-      "type=recovery"
-    ) ||
-
-    window.location.hash.includes(
-      "access_token="
-    ) ||
-
-    window.location.search.includes(
-      "type=recovery"
-    )
+    window.location.hash.includes("type=recovery") ||
+    window.location.search.includes("type=recovery") ||
+    (window.location.hash.includes("access_token=") && 
+     !window.location.hash.includes("type=signup") && 
+     !window.location.hash.includes("type=invite"))
   ) {
 
     sessionStorage.setItem(
       "printlab_recovery_mode",
       "true"
     );
+
+  } else if (
+    window.location.hash.includes("type=signup") ||
+    window.location.hash.includes("type=invite") ||
+    window.location.search.includes("type=signup") ||
+    window.location.search.includes("type=invite")
+  ) {
+
+    // Si es una confirmación de registro o invitación, limpiamos explícitamente el modo recuperación
+    sessionStorage.removeItem("printlab_recovery_mode");
 
   }
 
