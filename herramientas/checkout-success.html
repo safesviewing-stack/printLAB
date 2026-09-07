@@ -205,10 +205,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   // === LÓGICA DEL BOTÓN INTELIGENTE (Action y Texto Exacto) ===
   const btnSmartAction = document.getElementById("btnSmartAction");
   if (sessionStorage.getItem("printlab_resume_analysis") === "true") {
-    btnSmartAction.textContent = "Continuar análisis";
+    btnSmartAction.textContent = "Continuar laminado";
     btnSmartAction.href = "analizador-stl.html?action=resume";
   } else {
-    btnSmartAction.textContent = "Empezar análisis";
+    btnSmartAction.textContent = "Empezar laminado";
     btnSmartAction.href = "analizador-stl.html";
   }
   // ============================================================
