@@ -120,14 +120,38 @@
     .option-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
     .option-grid.option-grid-4{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
     .viewer-section{margin-top:8px}
-    .viewer-wrap{position:relative;width:100%;margin-top:10px}
-    
+
+    /* PREGUNTA 5: el visor permanece anclado al viewport durante el scroll.
+       Se mantiene el espacio en el layout para que no haya saltos ni capas
+       superpuestas cuando el navegador repinta el canvas WebGL. */
+    #step-viewer.active{
+      position:fixed;
+      top:calc(95px + 18px);
+      left:50%;
+      transform:translateX(-50%);
+      width:min(676px, calc(100vw - 80px));
+      max-height:calc(100vh - 95px - 30px);
+      overflow:hidden;
+      z-index:50;
+      background:var(--card);
+      padding:0 0 18px;
+    }
+
+    #step-viewer.active .viewer-wrap{
+      position:relative;
+      width:100%;
+      margin-top:10px;
+    }
+
     #selector3dContainer {
       height:460px!important;
       min-height:460px;
       position:relative;
       background:#111715;
-      border: 2px solid var(--ink);
+      border:2px solid var(--ink);
+      isolation:isolate;
+      transform:translateZ(0);
+      backface-visibility:hidden;
     }
     
     /* Configuración estándar del lienzo WebGL en flujo nativo de alto rendimiento */
@@ -175,6 +199,16 @@
     .footer-bottom{border-top:1px solid var(--line);padding-top:24px;display:flex;justify-content:center;align-items:center;text-align:center;font-size:13px;color:#7d8782}
 
     @media(max-width:992px){.footergrid{grid-template-columns:1.2fr 1fr;gap:40px}.option-grid{grid-template-columns:repeat(2,1fr)}.option-grid.option-grid-4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:768px){
+      #step-viewer.active{
+        top:82px;
+        width:calc(100vw - 40px);
+        max-height:calc(100vh - 94px);
+        overflow:auto;
+        padding-bottom:14px;
+      }
+      #selector3dContainer{height:min(460px, 58vh)!important;min-height:min(460px, 58vh);}
+    }
     @media(max-width:768px){.wrap{padding:0 20px}.top nav{min-height:82px}.brand{font-size:23px}.header-left{gap:14px}.footergrid{grid-template-columns:1fr;gap:36px}.upload-container{margin:35px auto;padding:30px 20px}.step-title{font-size:18px}.wizard-nav-buttons{flex-direction:row}.auth-buttons{gap:8px}}
     @media(max-width:480px){.option-grid,.option-grid.option-grid-4{grid-template-columns:1fr}.wizard-nav-buttons{gap:10px}.btn-secondary,.btn-green{padding:12px 20px;font-size:13px}.step-title{align-items:flex-start}.step-title span:last-child{white-space:nowrap;font-size:12px!important}}
   </style>
