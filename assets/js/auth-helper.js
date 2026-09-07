@@ -1,6 +1,32 @@
 // assets/js/auth-helper.js
 
 // =====================================================
+// REDIRECCIÓN INTELIGENTE SI SUPABASE NOS ENVÍA AL INDEX CON EL TOKEN de recuperación
+// =====================================================
+(function() {
+  const hasRecoveryParams = 
+    window.location.hash.includes("type=recovery") ||
+    window.location.hash.includes("access_token=") ||
+    window.location.search.includes("type=recovery");
+
+  if (hasRecoveryParams && !window.location.pathname.toLowerCase().includes("login.html")) {
+    sessionStorage.setItem("printlab_recovery_mode", "true");
+    
+    const currentPathname = window.location.pathname.toLowerCase();
+    let pathPrefix = "";
+    if (currentPathname.includes("/herramientas/")) {
+      pathPrefix = "";
+    } else if (currentPathname.includes("/guias/") || currentPathname.includes("/materiales/")) {
+      pathPrefix = "../herramientas/";
+    } else {
+      pathPrefix = "herramientas/";
+    }
+
+    window.location.replace(pathPrefix + "login.html" + window.location.search + window.location.hash);
+  }
+})();
+
+// =====================================================
 // HOOK GLOBAL DE CONTROL DE SESIÓN (Intercepción a nivel de raíz)
 // =====================================================
 (function() {
@@ -22,10 +48,13 @@
       ) {
 
         return null;
+
       }
+
     }
 
     return originalGetItem.apply(this, arguments);
+
   };
 
 })();
@@ -328,39 +357,20 @@ document.head.appendChild(
 // =====================================================
 
 if (document.readyState === "loading") {
-
   document.addEventListener("DOMContentLoaded", () => {
-
     // Transición suave entre páginas
-    const prefersReduced =
-      window.matchMedia(
-        "(prefers-reduced-motion: reduce)"
-      ).matches;
-
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (!prefersReduced) {
-
       document.body.style.opacity = "0";
-
-      document.body.style.transition =
-        "opacity 0.2s ease-in-out";
-
+      document.body.style.transition = "opacity 0.2s ease-in-out";
       setTimeout(() => {
-
-        document.body.style.opacity =
-          "1";
-
+        document.body.style.opacity = "1";
       }, 50);
-
     }
-
     initAuth();
-
   });
-
 } else {
-
   initAuth();
-
 }
 
 
@@ -425,7 +435,6 @@ async function initAuth() {
   } else {
 
     // Estamos en el directorio raíz
-
     pathPrefix =
       "herramientas/";
 
@@ -703,6 +712,7 @@ async function initAuth() {
 
       profile =
         result.data || null;
+
 
     } catch (error) {
 
