@@ -470,71 +470,6 @@
 
       document.getElementById("reportFileNameHeader").textContent = "📄 " + (analysis.file_name || "Malla");
 
-      // --- RENDERIZADO DINÁMICO DE PARÁMETROS ("Lo que no ponga nada quítalo") ---
-      function renderParameters(filterText = "") {
-        const container = document.getElementById("parametersDynamicContainer");
-        container.innerHTML = "";
-        const lowerFilter = filterText.toLowerCase();
-
-        for (const groupName in parameterGroups) {
-          const groupVariables = parameterGroups[groupName];
-          
-          // Filtrar fuera los parámetros no definidos o vacíos, mostrando únicamente datos con valor útil real
-          const filtered = groupVariables.filter(v => {
-            const val = s[v.key];
-            const hasValue = val !== undefined && val !== null && String(val).trim() !== "" && String(val).trim() !== "--";
-            if (!hasValue) return false;
-
-            return v.key.toLowerCase().includes(lowerFilter) || 
-                   v.label.toLowerCase().includes(lowerFilter) || 
-                   v.slicers.toLowerCase().includes(lowerFilter);
-          });
-
-          // Solo renderiza el encabezado del grupo si contiene al menos un parámetro útil activo
-          if (filtered.length > 0) {
-            const groupDiv = document.createElement("div");
-            groupDiv.style.marginBottom = "16px";
-
-            const groupHeader = document.createElement("div");
-            groupHeader.style = "font-size: 11.5px; font-weight: 800; color: var(--muted); margin: 10px 0 4px; border-bottom: 2.5px solid var(--line); padding-bottom: 2px; text-transform: uppercase;";
-            groupHeader.textContent = groupName;
-            groupDiv.appendChild(groupHeader);
-
-            filtered.forEach(v => {
-              const val = s[v.key];
-              const row = document.createElement("div");
-              row.className = "param-row";
-              
-              const labelSpan = document.createElement("span");
-              labelSpan.innerHTML = `
-                <span style="font-size:13px; font-weight:700; color:var(--ink);">${v.label}</span><br>
-                <code style="font-size:10.5px; color:var(--muted); font-family: monospace;">${v.key}</code>
-              `;
-              row.appendChild(labelSpan);
-
-              const valStrong = document.createElement("strong");
-              valStrong.style = "font-size:13px; color:var(--ink);";
-              let displayVal = val;
-              if (v.unit) {
-                displayVal = `${displayVal} ${v.unit}`;
-              }
-              valStrong.textContent = displayVal;
-              row.appendChild(valStrong);
-
-              groupDiv.appendChild(row);
-            });
-
-            container.appendChild(groupDiv);
-          }
-        }
-      }
-
-      renderParameters();
-
-      document.getElementById("paramSearch").addEventListener("input", (e) => {
-        renderParameters(e.target.value);
-      });
-
       // --- TRADUCTOR DE VALORES PARA ORCASLICER ---
       function translateToOrcaValue(key, value) {
         if (value === undefined || value === null) return value;
@@ -553,7 +488,7 @@
 
         let valStr = String(value).trim().toLowerCase();
 
-        if (key === "sparse_infill_pattern") {
+        if (key === "sparse_infill_pattern" || key === "fill_pattern") {
           if (valStr === "giroide" || valStr === "gyroid") return "gyroid";
           if (valStr === "rejilla" || valStr === "grid") return "grid";
           if (valStr === "relámpago" || valStr === "lightning") return "lightning";
@@ -564,8 +499,8 @@
         }
 
         if (key === "support_type") {
-          if (valStr === "normal" || valStr === "normal(auto)") return "normal";
-          if (valStr === "árbol" || valStr === "tree" || valStr === "tree(auto)") return "tree";
+          if (valStr === "normal" || valStr === "normal(auto)" || valStr === "auto" || valStr === "automático") return "normal(auto)";
+          if (valStr === "árbol" || valStr === "tree" || valStr === "tree(auto)") return "tree(auto)";
           if (valStr === "ninguno" || valStr === "none") return "none";
         }
 
@@ -587,6 +522,92 @@
 
         return String(value).trim();
       }
+
+      // --- RENDERIZADO DINÁMICO DE PARÁMETROS ("Lo que no ponga nada quítalo") ---
+      function renderParameters(filterText = "") {
+        const container = document.getElementById("parametersDynamicContainer");
+        container.innerHTML = "";
+        const lowerFilter = filterText.toLowerCase();
+
+        for (const groupName in parameterGroups) {
+          const groupVariables = parameterGroups[groupName];
+          
+          // Filtrar fuera los parámetros no definidos o vacíos, mostrando únicamente datos con valor útil real
+          const filtered = groupVariables.filter(v => {
+            let val = s[v.key];
+            if (val === undefined && v.key === "sparse_infill_pattern") {
+              val = s["fill_pattern"];
+            }
+            const hasValue = val !== undefined && val !== null && String(val).trim() !== "" && String(val).trim() !== "--";
+            if (!hasValue) return false;
+
+            return v.key.toLowerCase().includes(lowerFilter) || 
+                   v.label.toLowerCase().includes(lowerFilter) || 
+                   v.slicers.toLowerCase().includes(lowerFilter);
+          });
+
+          // Solo renderiza el encabezado del grupo si contiene al menos un parámetro útil activo
+          if (filtered.length > 0) {
+            const groupDiv = document.createElement("div");
+            groupDiv.style.marginBottom = "16px";
+
+            const groupHeader = document.createElement("div");
+            groupHeader.style = "font-size: 11.5px; font-weight: 800; color: var(--muted); margin: 10px 0 4px; border-bottom: 2.5px solid var(--line); padding-bottom: 2px; text-transform: uppercase;";
+            groupHeader.textContent = groupName;
+            groupDiv.appendChild(groupHeader);
+
+            filtered.forEach(v => {
+              let val = s[v.key];
+              if (val === undefined && v.key === "sparse_infill_pattern") {
+                val = s["fill_pattern"];
+              }
+
+              const row = document.createElement("div");
+              row.className = "param-row";
+              
+              const labelSpan = document.createElement("span");
+              labelSpan.innerHTML = `
+                <span style="font-size:13px; font-weight:700; color:var(--ink);">${v.label}</span><br>
+                <code style="font-size:10.5px; color:var(--muted); font-family: monospace;">${v.key}</code>
+              `;
+              row.appendChild(labelSpan);
+
+              const valStrong = document.createElement("strong");
+              valStrong.style = "font-size:13px; color:var(--ink);";
+              
+              let displayVal = translateToOrcaValue(v.key, val);
+              
+              // Mapeo estético legible en pantalla para el usuario
+              if (typeof displayVal === "string") {
+                if (displayVal === "gyroid") displayVal = "Gyroid (Giroide)";
+                else if (displayVal === "grid") displayVal = "Grid (Rejilla)";
+                else if (displayVal === "lightning") displayVal = "Lightning (Relámpago)";
+                else if (displayVal === "rectilinear") displayVal = "Rectilinear (Rectilíneo)";
+                else if (displayVal === "no_brim") displayVal = "Sin visera (No brim)";
+                else if (displayVal === "outer_only") displayVal = "Solo exterior";
+                else if (displayVal === "tree(auto)") displayVal = "Árbol automático (Tree auto)";
+                else if (displayVal === "normal(auto)") displayVal = "Normal automático";
+              }
+
+              if (v.unit) {
+                displayVal = `${displayVal} ${v.unit}`;
+              }
+              valStrong.textContent = displayVal;
+              row.appendChild(valStrong);
+
+              groupDiv.appendChild(row);
+            });
+
+            container.appendChild(groupDiv);
+          }
+        }
+      }
+
+      renderParameters();
+
+      document.getElementById("paramSearch").addEventListener("input", (e) => {
+        renderParameters(e.target.value);
+      });
 
       if (analysis.optimized_base64) {
         // Inicializar lectura de la geometría y matriz de transformación en segundo plano (Headless)
@@ -998,7 +1019,10 @@
 
             for (const groupName in parameterGroups) {
               parameterGroups[groupName].forEach(v => {
-                const rawValue = s[v.key];
+                let rawValue = s[v.key];
+                if (rawValue === undefined && v.key === "sparse_infill_pattern") {
+                  rawValue = s["fill_pattern"];
+                }
                 if (rawValue === undefined || rawValue === null) return;
 
                 const finalValue = translateToOrcaValue(v.key, rawValue);
@@ -1023,19 +1047,25 @@
                 !key ||
                 s[key] === undefined ||
                 s[key] === null ||
-                Object.prototype.hasOwnProperty.call(orcaSettingsJson, key) ||
                 key === "material"
               ) return;
 
-              const finalValue = translateToOrcaValue(key, s[key]);
-              orcaSettingsJson[key] = finalValue;
+              let finalKey = key;
+              if (key === "fill_pattern") {
+                finalKey = "sparse_infill_pattern";
+              }
 
-              if (key.startsWith("filament_") || filamentKeys.has(key)) {
-                if (!filamentOverrideKeys.includes(key)) filamentOverrideKeys.push(key);
-              } else if (printerKeys.has(key)) {
-                if (!printerOverrideKeys.includes(key)) printerOverrideKeys.push(key);
+              if (Object.prototype.hasOwnProperty.call(orcaSettingsJson, finalKey)) return;
+
+              const finalValue = translateToOrcaValue(finalKey, s[key]);
+              orcaSettingsJson[finalKey] = finalValue;
+
+              if (finalKey.startsWith("filament_") || filamentKeys.has(finalKey)) {
+                if (!filamentOverrideKeys.includes(finalKey)) filamentOverrideKeys.push(finalKey);
+              } else if (printerKeys.has(finalKey)) {
+                if (!printerOverrideKeys.includes(finalKey)) printerOverrideKeys.push(finalKey);
               } else {
-                if (!processOverrideKeys.includes(key)) processOverrideKeys.push(key);
+                if (!processOverrideKeys.includes(finalKey)) processOverrideKeys.push(finalKey);
               }
             });
 
