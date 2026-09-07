@@ -747,33 +747,10 @@ document.addEventListener(
 
 
 /* =====================================================
-   DESTINO ORIGINAL
+   DESTINO FINAL (PANTALLA DE LOGIN CON AVISO VERDE)
 ===================================================== */
 
-let redirectTarget =
-  sessionStorage.getItem(
-    "printlab_redirect_after_auth"
-  );
-
-
-if(!redirectTarget){
-
-  redirectTarget =
-    "login.html";
-
-}
-
-
-if(
-  redirectTarget.startsWith("http://") ||
-  redirectTarget.startsWith("https://") ||
-  redirectTarget.startsWith("//")
-){
-
-  redirectTarget =
-    "login.html";
-
-}
+let redirectTarget = "login.html?verified=true";
 
 
 /* =====================================================
@@ -869,7 +846,7 @@ async function checkVerification(){
       "Correo verificado ✓";
 
     pageDescription.textContent =
-      "Tu cuenta de PrintLab ya está activa. Te estamos llevando al siguiente paso.";
+      "Tu cuenta de PrintLab ya está activa. Te estamos llevando al inicio de sesión.";
 
 
     if (mailButton) {
@@ -901,8 +878,10 @@ async function checkVerification(){
       "printlab_redirect_after_auth"
     );
 
+    // CERRAMOS SESIÓN AUTOMÁTICA DE SUPABASE PARA FORZAR LOGIN MANUAL LIMPIO
+    await supabaseClient.auth.signOut();
 
-    // Redirección ágil de 1000 ms tras éxito
+    // Redirección ágil de 1500 ms tras éxito
     setTimeout(
       function(){
 
@@ -911,7 +890,7 @@ async function checkVerification(){
         );
 
       },
-      1000
+      1500
     );
 
 
@@ -960,7 +939,7 @@ supabaseClient.auth.onAuthStateChange(
           "Correo verificado ✓";
 
         pageDescription.textContent =
-          "Tu cuenta de PrintLab ya está activa. Te estamos llevando al siguiente paso.";
+          "Tu cuenta de PrintLab ya está activa. Te estamos llevando al inicio de sesión.";
 
         if (mailButton) {
           mailButton.style.display =
@@ -987,25 +966,23 @@ supabaseClient.auth.onAuthStateChange(
           "printlab_pending_email"
         );
 
-
-        const destination = "login.html";
-
-
         sessionStorage.removeItem(
           "printlab_redirect_after_auth"
         );
 
+        // CERRAMOS SESIÓN AUTOMÁTICA DE SUPABASE PARA FORZAR LOGIN MANUAL LIMPIO
+        await supabaseClient.auth.signOut();
 
-        // Redirección ágil de 500 ms
+        // Redirección ágil de 1500 ms
         setTimeout(
           function(){
 
             window.location.replace(
-              destination
+              redirectTarget
             );
 
           },
-          500
+          1500
         );
 
       }
