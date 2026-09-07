@@ -573,18 +573,6 @@
 <script src="../assets/js/auth-helper.js?v=16"></script>
 
 <script>
-  // DETECTAR RECUPERACIÓN INMEDIATAMENTE ANTES DE QUE SUPABASE PROCESE Y LIMPIE EL HASH DE LA URL
-  const hasRecoveryOnInit = window.location.hash.includes("type=recovery") || 
-                            window.location.search.includes("type=recovery") || 
-                            (window.location.hash.includes("access_token=") && 
-                             !window.location.hash.includes("type=signup") && 
-                             !window.location.hash.includes("type=invite"));
-  
-  if (hasRecoveryOnInit) {
-    window.isRecoveryInitiated = true;
-    sessionStorage.setItem("printlab_recovery_mode", "true");
-  }
-
   const SUPABASE_URL =
     "https://jmwprzgfdkphbxryjbnr.supabase.co";
 
@@ -950,7 +938,7 @@
 
     /* =====================================================
        MENÚ
-    ==================================================== */
+    ===================================================== */
 
     const menuButton =
       document.getElementById("menu-button");
@@ -1640,15 +1628,14 @@
       sessionStorage.removeItem("printlab_recovery_mode");
     }
 
-    // Si detectamos que no hay parámetros de recuperación reales en la URL, borramos la memoria atascada (solo si no se inició en esta carga de página)
-    if (!hasRecoveryInUrl && !window.isRecoveryInitiated) {
+    // Si detectamos que no hay parámetros de recuperación reales en la URL, borramos la memoria atascada
+    if (!hasRecoveryInUrl) {
       sessionStorage.removeItem("printlab_recovery_mode");
     }
 
     // Detectar si la URL o el sessionStorage contienen indicativo de recuperación (Filtrando confirmaciones de registro)
     if (
       hasRecoveryInUrl ||
-      window.isRecoveryInitiated ||
       (window.location.hash.includes("access_token=") && 
        !window.location.hash.includes("type=signup") && 
        !window.location.hash.includes("type=invite")) ||
