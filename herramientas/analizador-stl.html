@@ -123,20 +123,26 @@
     .viewer-wrap{position:relative;width:100%;margin-top:10px}
     
     #selector3dContainer {
-      height:460px!important;
-      min-height:460px;
-      position:relative;
-      background:#111715;
+      height: 460px !important;
+      min-height: 460px;
+      position: relative;
+      background: #111715;
       border: 2px solid var(--ink);
-      overflow: hidden; /* CORRECCIÓN: EVITA LAS FRANJAS AL HACER SCROLL */
+      overflow: hidden;
+      transform: translateZ(0); /* Aisla la caja de la página principal */
     }
     
-    /* Configuración estándar del lienzo WebGL en flujo nativo de alto rendimiento */
+    /* Configuración aislada por hardware para evitar franjas al hacer scroll */
     #selector3dContainer canvas {
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
       display: block !important;
       width: 100% !important;
       height: 100% !important;
       outline: none;
+      transform: translateZ(0); /* Forza al navegador a crear una capa GPU exclusiva */
+      will-change: transform;
     }
     
     .option-card{background:var(--bg);border:1.5px solid var(--line);border-radius:18px;padding:14px 16px;font-size:13.5px;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease,background .18s ease;display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:4px;min-height:100%;box-shadow:0 1px 0 rgba(13,17,16,.03)}
@@ -469,7 +475,7 @@
           </div>
 
           <div class="viewer-wrap">
-            <div id="selector3dContainer" style="width:100%; background:#111715; position:relative; border:2px solid var(--ink); margin-bottom:12px;"></div>
+            <div id="selector3dContainer"></div>
           </div>
         </div>
       </div>
@@ -1122,12 +1128,13 @@
 
       sRenderer = new THREE.WebGLRenderer({ 
         antialias: true, 
-        alpha: false, 
-        powerPreference: "high-performance" /* CORRECCIÓN: ELIMINADO EL preserveDrawingBuffer */
+        alpha: true, /* PREVIENE TEARING AL HACER SCROLL */
+        powerPreference: "high-performance"
       });
+      sRenderer.setClearColor(0x111715, 1); /* Asegura el fondo idéntico al contenedor */
+      
       sRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       sRenderer.setSize(container.clientWidth, container.clientHeight);
-      sRenderer.domElement.style.display = 'block';
       container.appendChild(sRenderer.domElement);
 
       const light1 = new THREE.DirectionalLight(0xffffff, 1.4);
@@ -1201,7 +1208,7 @@
           prevHeight = height;
           sCamera.aspect = width / height;
           sCamera.updateProjectionMatrix();
-          sRenderer.setSize(width, height, true); // Sincroniza la resolución de manera estable
+          sRenderer.setSize(width, height, false); /* false EVITA LAYOUT THRASHING QUE ROMPE EL SCROLL */
         }
       });
       sResizeObserver.observe(container);
