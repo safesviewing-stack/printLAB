@@ -1176,32 +1176,54 @@
         warnDiv.style.display = 'none';
       }
 
-      let minOptTemp = 195, maxOptTemp = 220, minOptBed = 45, maxOptBed = 65, maxOptSpeed = 150;
-      let textWarnTemp = "", textWarnBed = "", textWarnSpeed = "";
+      // Parámetros de materiales y sweet spots óptimos
+      let minOptTemp = 195, maxOptTemp = 220;
+      let minOptBed = 45, maxOptBed = 65;
+      let baseStrength = 70;
+      let baseFinish = 80;
+      let baseCohesion = 60;
+      let baseEase = 50;
+      let baseWarping = 20;
 
       if (material === 'PLA') {
-        minOptTemp = 195; maxOptTemp = 220; minOptBed = 45; maxOptBed = 65; maxOptSpeed = 150;
+        minOptTemp = 195; maxOptTemp = 220;
+        minOptBed = 45; maxOptBed = 65;
+        baseStrength = 55; baseFinish = 92; baseCohesion = 65; baseEase = 95; baseWarping = 5;
+      } else if (material === 'PETG') {
+        minOptTemp = 225; maxOptTemp = 250;
+        minOptBed = 70; maxOptBed = 90;
+        baseStrength = 75; baseFinish = 75; baseCohesion = 80; baseEase = 75; baseWarping = 15;
+      } else if (material === 'ABS') {
+        minOptTemp = 240; maxOptTemp = 265;
+        minOptBed = 90; maxOptBed = 110;
+        baseStrength = 70; baseFinish = 80; baseCohesion = 55; baseEase = 40; baseWarping = 75;
+      } else if (material === 'TPU') {
+        minOptTemp = 215; maxOptTemp = 235;
+        minOptBed = 30; maxOptBed = 60;
+        baseStrength = 82; baseFinish = 60; baseCohesion = 98; baseEase = 50; baseWarping = 8;
+      } else if (material === 'PC') {
+        minOptTemp = 260; maxOptTemp = 295;
+        minOptBed = 100; maxOptBed = 120;
+        baseStrength = 95; baseFinish = 65; baseCohesion = 75; baseEase = 25; baseWarping = 85;
+      }
+
+      // Generar alertas de límites de temperatura dinámica en base a inputs
+      let textWarnTemp = "", textWarnBed = "";
+
+      if (material === 'PLA') {
         if (temp < minOptTemp) textWarnTemp = `⚠️ Temperatura baja para PLA: riesgo de extrusión deficiente y atascos.`;
         else if (temp > maxOptTemp) textWarnTemp = `⚠️ Temperatura elevada para PLA: riesgo alto de stringing (hilos).`;
         if (bed < minOptBed) textWarnBed = `⚠️ Cama fría para PLA: riesgo de warping.`;
-        if (speed > maxOptSpeed) textWarnSpeed = `⚠️ Velocidad alta: el PLA puede experimentar subextrusión.`;
       } else if (material === 'PETG') {
-        minOptTemp = 225; maxOptTemp = 250; minOptBed = 70; maxOptBed = 90; maxOptSpeed = 100;
         if (temp < minOptTemp) textWarnTemp = `⚠️ Temperatura baja para PETG: cohesión deficiente y fragilidad.`;
         else if (temp > maxOptTemp) textWarnTemp = `⚠️ Temperatura elevada para PETG: stringing severo.`;
         if (bed < minOptBed) textWarnBed = `⚠️ Cama fría para PETG: alta probabilidad de warping.`;
-        if (speed > maxOptSpeed) textWarnSpeed = `⚠️ Velocidad alta para PETG: genera hilos y debilita la fusión.`;
       } else if (material === 'ABS') {
-        minOptTemp = 240; maxOptTemp = 265; minOptBed = 90; maxOptBed = 110; maxOptSpeed = 120;
         if (temp < minOptTemp) textWarnTemp = `⚠️ Temperatura baja para ABS: el material no fundirá correctamente.`;
         if (bed < minOptBed) textWarnBed = `⚠️ Cama fría para ABS: delaminación severa y warping térmico.`;
-        if (speed > maxOptSpeed) textWarnSpeed = `⚠️ Velocidad alta para ABS: el enfriamiento rápido debilita la fusión.`;
       } else if (material === 'TPU') {
-        minOptTemp = 215; maxOptTemp = 235; minOptBed = 30; maxOptBed = 60; maxOptSpeed = 50;
         if (temp < minOptTemp) textWarnTemp = `⚠️ Temperatura baja para TPU: riesgo de extrusión deficiente o acople.`;
-        if (speed > maxOptSpeed) textWarnSpeed = `⚠️ Velocidad excesiva para TPU: el filamento flexible se doblará en los engranajes.`;
       } else if (material === 'PC') {
-        minOptTemp = 260; maxOptTemp = 295; minOptBed = 100; maxOptBed = 120; maxOptSpeed = 90;
         if (temp < minOptTemp) textWarnTemp = `⚠️ Temperatura insuficiente para PC: nula adherencia entre capas.`;
         if (bed < minOptBed) textWarnBed = `⚠️ Cama fría para PC: desprendimiento inminente de la base.`;
       }
@@ -1209,15 +1231,33 @@
       renderParamWarning('warn-temp', textWarnTemp);
       renderParamWarning('warn-bed', textWarnBed);
 
-      let baseStrength = 70;
-      if (material === 'PLA') baseStrength = 55;
-      else if (material === 'PETG') baseStrength = 75;
-      else if (material === 'ABS') baseStrength = 70;
-      else if (material === 'TPU') baseStrength = 82;
-      else if (material === 'PC') baseStrength = 95;
+      // --- CÁLCULO 1: ADHESIÓN ENTRE CAPAS (COHESIÓN Z) ---
+      let tempCohesionFactor = 1.0;
+      if (temp < minOptTemp) {
+        tempCohesionFactor = Math.max(0.4, 1.0 - (minOptTemp - temp) * 0.03);
+      } else if (temp > maxOptTemp) {
+        tempCohesionFactor = 1.02; // Favorece ligeramente la fluidez a más temp
+      }
 
-      const fWall = Math.min(1.0, 0.4 + (walls - 1) * 0.15);
-      const fInfill = 0.3 + (infill / 100) * 0.7;
+      // El factor de aspecto (altura de capa respecto a la boquilla) dicta la cohesión
+      const ratio = layer / nozzle;
+      let ratioCohesionFactor = 1.0;
+      if (ratio > 0.6) {
+        ratioCohesionFactor = Math.max(0.3, 1.0 - (ratio - 0.6) * 2.0); // El hilo redondo no aplasta
+      } else if (ratio < 0.3) {
+        ratioCohesionFactor = 1.15; // Altas tasas de aplastamiento aumentan área de contacto
+      }
+
+      const speedCohesionFactor = Math.max(0.65, 1.1 - (speed / 300)); // Menor velocidad = más tiempo de difusión polimérica
+
+      let cohesion = Math.min(100, Math.round(baseCohesion * tempCohesionFactor * ratioCohesionFactor * speedCohesionFactor));
+      cohesion = Math.max(10, cohesion);
+
+      // --- CÁLCULO 2: RESISTENCIA MECÁNICA ESTRUCTURAL ---
+      // Físicamente, la resistencia depende de la sección de pared real construida (perímetros * ancho)
+      const wallThickness = walls * nozzle * 1.2;
+      const fWallThickness = Math.min(1.4, wallThickness / 1.6); // Normalizado frente a un estándar de pared de 1.6 mm
+      const fInfill = 0.2 + (infill / 100) * 0.8;
       
       let fPattern = 0.85; 
       if (['giroide', 'panal_3d', 'cubico'].includes(pattern)) fPattern = 1.05;
@@ -1225,70 +1265,57 @@
       else if (['rejilla', 'cruz'].includes(pattern)) fPattern = 0.95;
       else if (['rectilineo', 'rectilineo_alineado', 'linea'].includes(pattern)) fPattern = 0.85;
       else if (['concentrico', 'arquimedes', 'octagrama', 'hilbert'].includes(pattern)) fPattern = 0.75;
-      else if (pattern === 'rayo') fPattern = 0.50;
+      else if (pattern === 'rayo') fPattern = 0.40;
 
-      const fSlicing = ((fWall * 0.6) + (fInfill * 0.4)) * fPattern;
-      const fNozzle = 0.8 + (nozzle - 0.2) * 0.5;
+      const fStructure = ((fWallThickness * 0.75) + (fInfill * 0.25)) * fPattern;
 
+      // Dependencia de la orientación
       let fOrientation = 1.0;
-      if (orientation === 'vertical') fOrientation = 0.60;
-      else if (orientation === 'angled') fOrientation = 0.85;
+      if (orientation === 'vertical') {
+        // La resistencia en vertical está sujeta puramente a la cohesión del eje Z
+        fOrientation = 0.4 + 0.5 * (cohesion / 100);
+      } else if (orientation === 'angled') {
+        fOrientation = 0.85;
+      }
 
-      let fLayer = 1.0;
-      const ratio = layer / nozzle;
-      if (ratio > 0.6) fLayer = 1.0 - (ratio - 0.6) * 1.5;
+      // Temperatura de impresión en la fuerza del filamento
+      const tempStrengthFactor = temp >= minOptTemp ? 1.02 : Math.max(0.7, 1.0 - (minOptTemp - temp) * 0.015);
 
-      let strength = Math.min(100, Math.round(baseStrength * fSlicing * fNozzle * fOrientation * fLayer));
+      let strength = Math.min(100, Math.round(baseStrength * fStructure * fOrientation * tempStrengthFactor));
       strength = Math.max(10, strength);
 
-      let baseFinish = 80;
-      if (material === 'PLA') baseFinish = 92;
-      else if (material === 'PETG') baseFinish = 72;
-      else if (material === 'ABS') baseFinish = 80;
-      else if (material === 'TPU') baseFinish = 60;
-      else if (material === 'PC') baseFinish = 65;
-
-      const fNozzleFinish = 1.3 - nozzle * 0.75;
-      const fLayerFinish = 1.35 - ratio * 0.85;
+      // --- CÁLCULO 3: CALIDAD SUPERFICIAL ---
+      const fNozzleFinish = 1.3 - nozzle * 0.75; // Boquillas más pequeñas = detalles X/Y infinitamente superiores
+      const fLayerFinish = 1.45 - ratio * 1.1;  // Alturas de capa reducidas minimizan el efecto escalera
+      const fSpeedFinish = Math.max(0.6, 1.15 - (speed / 250)); // Menos velocidad = menor vibración y mejor flujo
       
-      let fSpeedFinish = 1.0;
-      if (speed > 60) fSpeedFinish = Math.max(0.6, 1.0 - (speed - 60) * 0.0015);
+      let fTempFinish = 1.0;
+      if (temp > maxOptTemp) {
+        fTempFinish = Math.max(0.7, 1.0 - (temp - maxOptTemp) * 0.015); // Exceso térmico produce hilos e imperfecciones
+      }
 
-      let finish = Math.min(100, Math.round(baseFinish * fNozzleFinish * fLayerFinish * fSpeedFinish));
+      let finish = Math.min(100, Math.round(baseFinish * fNozzleFinish * fLayerFinish * fSpeedFinish * fTempFinish));
       finish = Math.max(10, finish);
 
-      let baseCohesion = 60;
-      if (material === 'PLA') baseCohesion = 55;
-      else if (material === 'PETG') baseCohesion = 78;
-      else if (material === 'ABS') baseCohesion = 50;
-      else if (material === 'TPU') baseCohesion = 98;
-      else if (material === 'PC') baseCohesion = 72;
+      // --- CÁLCULO 4: RIESGO DE DEFORMACIÓN (WARPING) ---
+      let bedWarpFactor = 1.0;
+      if (bed < minOptBed) {
+        bedWarpFactor = Math.min(3.0, 1.0 + (minOptBed - bed) * 0.04); // Cama fría dispara contracción
+      }
+      
+      const massWarpFactor = 0.8 + (infill / 200) + (walls * 0.05); // Más material concentrado acumula tensiones térmicas
 
-      const fCompresion = Math.max(0.4, 1.2 - ratio * 1.3);
-      let cohesion = Math.min(100, Math.round(baseCohesion * fCompresion));
-      cohesion = Math.max(10, cohesion);
-
-      let baseEase = 50;
-      if (material === 'PLA') baseEase = 95;
-      else if (material === 'PETG') baseEase = 75;
-      else if (material === 'ABS', baseEase = 40);
-      else if (material === 'TPU') baseEase = 50;
-      else if (material === 'PC') baseEase = 30;
-
-      let ease = baseEase;
-      if (speed > 120) ease -= 15;
-      ease = Math.max(10, Math.min(100, ease));
-
-      let baseWarping = 20;
-      if (material === 'PLA') baseWarping = 5;
-      else if (material === 'PETG') baseWarping = 15;
-      else if (material === 'ABS') baseWarping = 75;
-      else if (material === 'TPU') baseWarping = 10;
-      else if (material === 'PC') baseWarping = 85;
-
-      let warping = Math.min(100, Math.round(baseWarping));
+      let warping = Math.min(100, Math.round(baseWarping * bedWarpFactor * massWarpFactor));
       warping = Math.max(5, warping);
 
+      // --- CÁLCULO 5: FACILIDAD DE IMPRESIÓN ---
+      const fWarpEase = Math.max(0.5, 1.1 - (warping / 100));
+      const fSpeedEase = Math.max(0.7, 1.1 - (speed / 250));
+
+      let ease = Math.min(100, Math.round(baseEase * fWarpEase * fSpeedEase));
+      ease = Math.max(10, ease);
+
+      // --- CÁLCULO 6: TIEMPO ESTIMADO DE IMPRESIÓN ---
       const densityProxy = (walls * extrusionWidth) + (infill * 0.02);
       const outputRate = speed * layer * extrusionWidth;
       const timeIndex = (densityProxy / outputRate) * 110;
@@ -1302,6 +1329,7 @@
       else if (timeIndex < 180) timeLabel = "Largo";
       else timeLabel = "Muy Largo";
 
+      // --- TEXTOS RECOMENDADOS ---
       let recText = "Configuración estable.";
       if (material === 'PLA') {
         recText = "PLA óptimo. El enfriamiento rápido de capa ayuda a sostener voladizos y puentes.";
@@ -1319,6 +1347,7 @@
         recText = "⚠️ Nota: El patrón Rayo (Lightning) solo se usa para dar soporte al techo superior (top layers). No aportará fuerza estructural interna aunque subas la densidad.";
       }
 
+      // Renderizar resultados en el DOM
       document.getElementById('res-strength').innerText = `${strength}%`;
       document.getElementById('bar-strength').style.width = `${strength}%`;
 
