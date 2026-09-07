@@ -890,6 +890,10 @@ async function checkVerification(){
 
 
     sessionStorage.removeItem(
+      "printlab_recovery_mode"
+    );
+
+    sessionStorage.removeItem(
       "printlab_pending_name"
     );
 
@@ -978,6 +982,10 @@ supabaseClient.auth.onAuthStateChange(
           "success"
         );
 
+
+        sessionStorage.removeItem(
+          "printlab_recovery_mode"
+        );
 
         sessionStorage.removeItem(
           "printlab_pending_name"
