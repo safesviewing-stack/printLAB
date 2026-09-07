@@ -166,6 +166,7 @@
     .footer-col h3{font-size:16px;font-weight:800;color:var(--ink);margin:0 0 20px;}
     .footer-col p{margin:0 0 16px;color:var(--muted)}
     .footer-secondary-text{font-size:12.5px;line-height:1.5;color:#7d8782;margin-top:12px}
+    .footer-secondary-text a { text-decoration: underline; color: var(--ink); font-weight: 700; }
     .footer-links{display:flex;flex-direction:column;gap:10px}
     .footer-links a{color:var(--muted);transition:color .15s ease,transform .15s ease;cursor:pointer;display:inline-flex;align-items:center;gap:6px;text-decoration:none}
     .footer-links a:hover{color:var(--ink);transform:translateX(2px)}
@@ -352,7 +353,7 @@
       </div>
 
       <!-- PREGUNTA 3: SELECCIÓN DE IMPRESORA -->
-      <div class="wizard-step" id="step-printer">
+      <div class="wizard-step" id="step-printer" style="padding-bottom: 220px;">
         <div class="step-title"><span>¿Qué impresora 3D utilizarás?</span> <span style="font-size:14px; color:var(--muted);">3 / 5</span></div>
         <div class="step-subtitle">Determinará los límites físicos reales de volumen y velocidades.</div>
         
@@ -372,18 +373,41 @@
               <option value="Prusa XL">Prusa XL (360x360x360 mm)</option>
             </optgroup>
             <optgroup label="Creality">
-              <option value="Creality Ender-3 V3 SE">Creality Ender-3 V3 SE (220x220x250 mm)</option>
+              <option value="Creality Ender 3">Creality Ender 3 (220x220x250 mm)</option>
+              <option value="Creality Ender 3 Pro">Creality Ender 3 Pro (220x220x250 mm)</option>
               <option value="Creality Ender 3 V2">Creality Ender 3 V2 (220x220x250 mm)</option>
+              <option value="Creality Ender 3 Neo">Creality Ender 3 Neo (220x220x250 mm)</option>
+              <option value="Creality Ender 3 S1">Creality Ender 3 S1 (220x220x270 mm)</option>
+              <option value="Creality Ender 3 S1 Pro">Creality Ender 3 S1 Pro (220x220x270 mm)</option>
+              <option value="Creality Ender-3 V3 SE">Creality Ender-3 V3 SE (220x220x250 mm)</option>
+              <option value="Creality Ender-3 V3 Plus">Creality Ender-3 V3 Plus (300x300x330 mm)</option>
+              <option value="Creality Ender 5 Pro">Creality Ender 5 Pro (220x220x300 mm)</option>
+              <option value="Creality Ender 5 S1">Creality Ender 5 S1 (220x220x280 mm)</option>
+              <option value="Creality CR-10">Creality CR-10 (300x300x400 mm)</option>
+              <option value="Creality CR-10 Smart">Creality CR-10 Smart (300x300x400 mm)</option>
               <option value="Creality K1">Creality K1 (220x220x250 mm)</option>
               <option value="Creality K1C">Creality K1C (220x220x250 mm)</option>
               <option value="Creality K1 Max">Creality K1 Max (300x300x300 mm)</option>
-              <option value="Creality Ender-3 V3 Plus">Creality Ender-3 V3 Plus (300x300x330 mm)</option>
+            </optgroup>
+            <optgroup label="Artillery">
+              <option value="Artillery Genius">Artillery Genius (220x220x250 mm)</option>
+              <option value="Artillery Genius Pro">Artillery Genius Pro (220x220x250 mm)</option>
+              <option value="Artillery Sidewinder X1">Artillery Sidewinder X1 (300x300x400 mm)</option>
+              <option value="Artillery Sidewinder X2">Artillery Sidewinder X2 (300x300x400 mm)</option>
+              <option value="Artillery Sidewinder X3 Pro">Artillery Sidewinder X3 Pro (240x240x260 mm)</option>
+              <option value="Artillery Sidewinder X4 Pro">Artillery Sidewinder X4 Pro (240x240x260 mm)</option>
+              <option value="Artillery Sidewinder X4 Plus">Artillery Sidewinder X4 Plus (300x300x300 mm)</option>
             </optgroup>
             <optgroup label="Elegoo / Anycubic / Qidi">
               <option value="Elegoo Neptune 4">Elegoo Neptune 4 (225x225x265 mm)</option>
               <option value="Elegoo Neptune 4 Max">Elegoo Neptune 4 Max (420x420x480 mm)</option>
               <option value="Anycubic Kobra 2">Anycubic Kobra 2 (220x220x250 mm)</option>
               <option value="Anycubic Kobra 3">Anycubic Kobra 3 (250x250x260 mm)</option>
+              <option value="Anycubic i3 Mega S">Anycubic i3 Mega S (210x210x205 mm)</option>
+              <option value="Anycubic Vyper">Anycubic Vyper (245x245x260 mm)</option>
+              <option value="Anycubic Kobra 2 Neo">Anycubic Kobra 2 Neo (220x220x250 mm)</option>
+              <option value="Anycubic Kobra 2 Pro">Anycubic Kobra 2 Pro (220x220x250 mm)</option>
+              <option value="Anycubic Mega Zero">Anycubic Mega Zero (220x220x250 mm)</option>
               <option value="Qidi Tech Q1 Pro">Qidi Tech Q1 Pro (245x245x240 mm)</option>
             </optgroup>
             <optgroup label="Sovol">
@@ -628,16 +652,40 @@
       "Prusa i3 MK4": { x: 250, y: 210, z: 220 },
       "Prusa MINI+": { x: 180, y: 180, z: 180 },
       "Prusa XL": { x: 360, y: 360, z: 360 },
-      "Creality Ender-3 V3 SE": { x: 220, y: 220, z: 250 },
+      // Creality
+      "Creality Ender 3": { x: 220, y: 220, z: 250 },
+      "Creality Ender 3 Pro": { x: 220, y: 220, z: 250 },
       "Creality Ender 3 V2": { x: 220, y: 220, z: 250 },
+      "Creality Ender 3 Neo": { x: 220, y: 220, z: 250 },
+      "Creality Ender 3 S1": { x: 220, y: 220, z: 270 },
+      "Creality Ender 3 S1 Pro": { x: 220, y: 220, z: 270 },
+      "Creality Ender-3 V3 SE": { x: 220, y: 220, z: 250 },
+      "Creality Ender-3 V3 Plus": { x: 300, y: 300, z: 330 },
+      "Creality Ender 5 Pro": { x: 220, y: 220, z: 300 },
+      "Creality Ender 5 S1": { x: 220, y: 220, z: 280 },
+      "Creality CR-10": { x: 300, y: 300, z: 400 },
+      "Creality CR-10 Smart": { x: 300, y: 300, z: 400 },
       "Creality K1": { x: 220, y: 220, z: 250 },
       "Creality K1C": { x: 220, y: 220, z: 250 },
       "Creality K1 Max": { x: 300, y: 300, z: 300 },
-      "Creality Ender-3 V3 Plus": { x: 300, y: 300, z: 330 },
+      // Artillery
+      "Artillery Genius": { x: 220, y: 220, z: 250 },
+      "Artillery Genius Pro": { x: 220, y: 220, z: 250 },
+      "Artillery Sidewinder X1": { x: 300, y: 300, z: 400 },
+      "Artillery Sidewinder X2": { x: 300, y: 300, z: 400 },
+      "Artillery Sidewinder X3 Pro": { x: 240, y: 240, z: 260 },
+      "Artillery Sidewinder X4 Pro": { x: 240, y: 240, z: 260 },
+      "Artillery Sidewinder X4 Plus": { x: 300, y: 300, z: 300 },
+      // Elegoo / Anycubic
       "Elegoo Neptune 4": { x: 225, y: 225, z: 265 },
       "Elegoo Neptune 4 Max": { x: 420, y: 420, z: 480 },
       "Anycubic Kobra 2": { x: 220, y: 220, z: 250 },
       "Anycubic Kobra 3": { x: 250, y: 250, z: 260 },
+      "Anycubic i3 Mega S": { x: 210, y: 210, z: 205 },
+      "Anycubic Vyper": { x: 245, y: 245, z: 260 },
+      "Anycubic Kobra 2 Neo": { x: 220, y: 220, z: 250 },
+      "Anycubic Kobra 2 Pro": { x: 220, y: 220, z: 250 },
+      "Anycubic Mega Zero": { x: 220, y: 220, z: 250 },
       "Qidi Tech Q1 Pro": { x: 245, y: 245, z: 240 },
       "Sovol SV08": { x: 350, y: 350, z: 345 },
       "Voron 2.4 (300)": { x: 300, y: 300, z: 300 },
