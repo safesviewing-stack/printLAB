@@ -416,24 +416,44 @@ async function initAuth() {
 
 
   // ===================================================
-  // DETECCIÓN GLOBAL DE MODO DE RECUPERACIÓN (MÁXIMA SEGURIDAD)
+  // INTERCEPTOR GLOBAL DE VERIFICACIÓN (MÁXIMA SEGURIDAD)
+  // ===================================================
+  const hash = window.location.hash || "";
+  const search = window.location.search || "";
+
+  const isSignupVerification = 
+    hash.includes("type=signup") || 
+    hash.includes("type=invite") ||
+    hash.includes("type=verify") ||
+    search.includes("type=signup") ||
+    search.includes("type=invite") ||
+    search.includes("type=verify");
+
+  if (isSignupVerification) {
+    // 1. Limpiamos cualquier rastro de sesión para que no se auto-loguee
+    sessionStorage.removeItem("printlab_recovery_mode");
+    localStorage.removeItem("sb-jmwprzgfdkphbxryjbnr-auth-token");
+    
+    try {
+      await supabaseClient.auth.signOut();
+    } catch (e) {
+      console.warn("Error en signout de interceptor:", e);
+    }
+    
+    // 2. Redirigimos directamente al login limpio con parámetro de éxito
+    window.location.replace(pathPrefix + "login.html?verified=true");
+    return;
+  }
+
+
+  // ===================================================
+  // DETECCIÓN GLOBAL DE MODO DE RECUPERACIÓN
   // ===================================================
 
   const isLoginPage = currentPathname.includes("login.html");
   const hasRecoveryInUrl = window.location.hash.includes("type=recovery") || window.location.search.includes("type=recovery");
 
-  // Si estamos en cualquier página que NO sea login.html y no hay token de recuperación en la URL, limpiamos obligatoriamente la memoria
   if (!isLoginPage && !hasRecoveryInUrl) {
-    sessionStorage.removeItem("printlab_recovery_mode");
-  }
-
-  // Si se detecta confirmación de registro o invitación, limpiamos a la fuerza
-  if (
-    window.location.hash.includes("type=signup") ||
-    window.location.hash.includes("type=invite") ||
-    window.location.search.includes("type=signup") ||
-    window.location.search.includes("type=invite")
-  ) {
     sessionStorage.removeItem("printlab_recovery_mode");
   }
 
