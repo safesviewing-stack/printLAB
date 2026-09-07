@@ -96,11 +96,9 @@
       padding:40px 32px;
       text-align:center;
       box-shadow:0 20px 40px rgba(13,17,16,.025);
-      /* Se quita transform de la transición para evitar desfases del visor WebGL en hover */
       transition: border-color .25s ease, background-color .25s ease;
     }
     .upload-container:hover{border-color:var(--ink)}
-    /* Se remueve la escala en hover para garantizar un renderizado estable */
     .upload-container.drag-over{border-color:var(--accent);background:#fbfcfa;}
     .upload-icon-wrapper{width:72px;height:72px;background:var(--bg);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:30px;border:1.5px solid var(--line);box-shadow:0 8px 16px rgba(13,17,16,.02);transition:transform .3s ease,background-color .3s ease}
     .upload-container:hover .upload-icon-wrapper{transform:translateY(-4px) scale(1.05);background:#fff}
@@ -129,11 +127,9 @@
       min-height:460px;
       position:relative;
       background:#111715;
-      /* Marco plano rígido para impedir fallos en el mapa de renderizado síncrono */
       border: 2px solid var(--ink);
     }
     
-    /* Configuración estándar del lienzo WebGL en flujo nativo de alto rendimiento */
     #selector3dContainer canvas {
       display: block !important;
       width: 100% !important;
@@ -365,6 +361,7 @@
             <optgroup label="Bambu Lab">
               <option value="Bambu Lab X1 Carbon">Bambu Lab X1 Carbon (256x256x256 mm)</option>
               <option value="Bambu Lab P1S">Bambu Lab P1S (256x256x256 mm)</option>
+              <option value="Bambu Lab P1P">Bambu Lab P1P (256x256x256 mm)</option>
               <option value="Bambu Lab A1">Bambu Lab A1 (256x256x256 mm)</option>
               <option value="Bambu Lab A1 Mini">Bambu Lab A1 Mini (180x180x180 mm)</option>
             </optgroup>
@@ -377,16 +374,24 @@
               <option value="Creality Ender-3 V3 SE">Creality Ender-3 V3 SE (220x220x250 mm)</option>
               <option value="Creality Ender 3 V2">Creality Ender 3 V2 (220x220x250 mm)</option>
               <option value="Creality K1">Creality K1 (220x220x250 mm)</option>
+              <option value="Creality K1C">Creality K1C (220x220x250 mm)</option>
               <option value="Creality K1 Max">Creality K1 Max (300x300x300 mm)</option>
+              <option value="Creality Ender-3 V3 Plus">Creality Ender-3 V3 Plus (300x300x330 mm)</option>
             </optgroup>
-            <optgroup label="Elegoo / Anycubic">
+            <optgroup label="Elegoo / Anycubic / Qidi">
               <option value="Elegoo Neptune 4">Elegoo Neptune 4 (225x225x265 mm)</option>
               <option value="Elegoo Neptune 4 Max">Elegoo Neptune 4 Max (420x420x480 mm)</option>
               <option value="Anycubic Kobra 2">Anycubic Kobra 2 (220x220x250 mm)</option>
+              <option value="Anycubic Kobra 3">Anycubic Kobra 3 (250x250x260 mm)</option>
+              <option value="Qidi Tech Q1 Pro">Qidi Tech Q1 Pro (245x245x240 mm)</option>
+            </optgroup>
+            <optgroup label="Sovol">
+              <option value="Sovol SV08">Sovol SV08 (350x350x345 mm)</option>
             </optgroup>
             <optgroup label="Voron (DIY)">
               <option value="Voron 2.4 (300)">Voron 2.4 (300x300x300 mm)</option>
               <option value="Voron 2.4 (350)">Voron 2.4 (350x350x350 mm)</option>
+              <option value="Voron V0.2">Voron V0.2 (120x120x120 mm)</option>
             </optgroup>
           </select>
         </div>
@@ -518,6 +523,7 @@
     const printerLimits = {
       "Bambu Lab X1 Carbon": { x: 256, y: 256, z: 256 },
       "Bambu Lab P1S": { x: 256, y: 256, z: 256 },
+      "Bambu Lab P1P": { x: 256, y: 256, z: 256 },
       "Bambu Lab A1": { x: 256, y: 256, z: 256 },
       "Bambu Lab A1 Mini": { x: 180, y: 180, z: 180 },
       "Prusa i3 MK4": { x: 250, y: 210, z: 220 },
@@ -526,12 +532,18 @@
       "Creality Ender-3 V3 SE": { x: 220, y: 220, z: 250 },
       "Creality Ender 3 V2": { x: 220, y: 220, z: 250 },
       "Creality K1": { x: 220, y: 220, z: 250 },
+      "Creality K1C": { x: 220, y: 220, z: 250 },
       "Creality K1 Max": { x: 300, y: 300, z: 300 },
+      "Creality Ender-3 V3 Plus": { x: 300, y: 300, z: 330 },
       "Elegoo Neptune 4": { x: 225, y: 225, z: 265 },
       "Elegoo Neptune 4 Max": { x: 420, y: 420, z: 480 },
       "Anycubic Kobra 2": { x: 220, y: 220, z: 250 },
+      "Anycubic Kobra 3": { x: 250, y: 250, z: 260 },
+      "Qidi Tech Q1 Pro": { x: 245, y: 245, z: 240 },
+      "Sovol SV08": { x: 350, y: 350, z: 345 },
       "Voron 2.4 (300)": { x: 300, y: 300, z: 300 },
-      "Voron 2.4 (350)": { x: 350, y: 350, z: 350 }
+      "Voron 2.4 (350)": { x: 350, y: 350, z: 350 },
+      "Voron V0.2": { x: 120, y: 120, z: 120 }
     };
 
     function selectCard(cardElement, field) {
@@ -1504,13 +1516,13 @@
           let lh = parseFloat(answers.nozzleSize) * 0.5;
           let wl = 3;
           let id = 20;
-          let pat = "giroide";
+          let pat = "gyroid"; 
           let spMult = 0.7;
 
           const purposes = Array.isArray(answers.purpose) ? answers.purpose : [answers.purpose];
           if (purposes.includes("functional")) {
             lh = parseFloat(answers.nozzleSize) * 0.55;
-            wl = 5; id = 40; pat = "giroide"; spMult = 0.7;
+            wl = 5; id = 40; pat = "gyroid"; spMult = 0.7; 
           } else if (purposes.includes("aesthetic")) {
             lh = parseFloat(answers.nozzleSize) * 0.3;
             wl = 2; id = 12; pat = "lightning"; spMult = 0.4;
@@ -1542,11 +1554,11 @@
               inner_wall_speed: Math.round(180 * spMult * 1.0),
               travel_speed: 200,
               enable_support: overhangLocal > 0.5 ? 1 : 0,
-              support_type: overhangLocal > 0.5 ? "normal" : "none",
-              support_style: overhangLocal > 5.0 ? "tree" : "normal",
+              support_type: overhangLocal > 0.5 ? "normal" : "none", 
+              support_style: overhangLocal > 5.0 ? "organic" : "default", 
               filament_max_volumetric_speed: answers.material === "PLA" ? 15.0 : (answers.material === "PETG" ? 10.0 : (answers.material === "TPU" ? 3.5 : 12.0)),
               fan_cooling_speed: answers.material === "PLA" ? 100 : (answers.material === "PETG" ? 40 : (answers.material === "TPU" ? 100 : 15)),
-              brim_type: "none",
+              brim_type: "no_brim", 
               brim_width: 0,
               flow_ratio: 0.98,
               pressure_advance: 0.02,
