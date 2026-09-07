@@ -87,9 +87,21 @@
 
     /* ESTILOS DEL CONTENEDOR DE CONTENIDO PRINCIPAL */
     main.wrap{min-height:calc(100vh - 95px)}
-    .upload-container{max-width:740px;margin:60px auto;background:var(--card);border:2px dashed var(--line);border-radius:24px;padding:40px 32px;text-align:center;box-shadow:0 20px 40px rgba(13,17,16,.025);transition:border-color .25s ease,background-color .25s ease,transform .25s ease}
+    .upload-container{
+      max-width:740px;
+      margin:60px auto;
+      background:var(--card);
+      border:2px dashed var(--line);
+      border-radius:24px;
+      padding:40px 32px;
+      text-align:center;
+      box-shadow:0 20px 40px rgba(13,17,16,.025);
+      /* Se quita transform de la transición para evitar desfases del visor WebGL en hover */
+      transition: border-color .25s ease, background-color .25s ease;
+    }
     .upload-container:hover{border-color:var(--ink)}
-    .upload-container.drag-over{border-color:var(--accent);background:#fbfcfa;transform:scale(1.015)}
+    /* Se remueve la escala en hover para garantizar un renderizado estable */
+    .upload-container.drag-over{border-color:var(--accent);background:#fbfcfa;}
     .upload-icon-wrapper{width:72px;height:72px;background:var(--bg);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:30px;border:1.5px solid var(--line);box-shadow:0 8px 16px rgba(13,17,16,.02);transition:transform .3s ease,background-color .3s ease}
     .upload-container:hover .upload-icon-wrapper{transform:translateY(-4px) scale(1.05);background:#fff}
     .upload-title{font-size:24px;font-weight:800;letter-spacing:-.5px;margin-top:12px;margin-bottom:6px;color:var(--ink)}
@@ -116,24 +128,17 @@
       height:460px!important;
       min-height:460px;
       position:relative;
-      overflow:hidden;
-      /* Capa de composición GPU independiente y contención estricta para eliminar distorsiones durante el scroll */
-      contain: paint;
-      transform: translate3d(0, 0, 0);
-      backface-visibility: hidden;
-      will-change: transform;
+      background:#111715;
+      /* Marco plano rígido para impedir fallos en el mapa de renderizado síncrono */
+      border: 2px solid var(--ink);
     }
     
-    /* Configuración del lienzo para un comportamiento fluido y libre de rastros al hacer scroll */
+    /* Configuración estándar del lienzo WebGL en flujo nativo de alto rendimiento */
     #selector3dContainer canvas {
       display: block !important;
-      position: absolute;
-      top: 0;
-      left: 0;
       width: 100% !important;
       height: 100% !important;
-      image-rendering: -webkit-optimize-contrast;
-      image-rendering: crisp-edges;
+      outline: none;
     }
     
     .option-card{background:var(--bg);border:1.5px solid var(--line);border-radius:18px;padding:14px 16px;font-size:13.5px;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease,background .18s ease;display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:4px;min-height:100%;box-shadow:0 1px 0 rgba(13,17,16,.03)}
@@ -433,7 +438,8 @@
           </div>
 
           <div class="viewer-wrap">
-            <div id="selector3dContainer" style="width:100%; background:#161d1a; border-radius:16px; position:relative; overflow:hidden; border:2px solid var(--line); margin-bottom:12px;"></div>
+            <!-- Se elimina el border-radius de 16px y el overflow hidden inline para erradicar las franjas de corrupción GPU -->
+            <div id="selector3dContainer" style="width:100%; background:#111715; position:relative; border:2px solid var(--ink); margin-bottom:12px;"></div>
           </div>
         </div>
       </div>
@@ -955,7 +961,13 @@
       sCamera.position.set(130, 130, 150);
       sCamera.up.set(0, 1, 0); // Configuración del espacio con Y como vertical (eje verde)
 
-      sRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, preserveDrawingBuffer: false });
+      // preserveDrawingBuffer: true para impedir parpadeos o artifacts rayados durante el scroll dinámico en Chrome
+      sRenderer = new THREE.WebGLRenderer({ 
+        antialias: true, 
+        alpha: false, 
+        preserveDrawingBuffer: true,
+        powerPreference: "high-performance"
+      });
       sRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       sRenderer.setSize(container.clientWidth, container.clientHeight);
       sRenderer.domElement.style.display = 'block';
@@ -1032,7 +1044,7 @@
           prevHeight = height;
           sCamera.aspect = width / height;
           sCamera.updateProjectionMatrix();
-          sRenderer.setSize(width, height, false); // Desactiva la alteración inline de estilos CSS del lienzo
+          sRenderer.setSize(width, height, true); // Sincroniza la resolución de manera estable
         }
       });
       sResizeObserver.observe(container);
