@@ -130,6 +130,7 @@
       border: 2px solid var(--ink);
     }
     
+    /* Configuración estándar del lienzo WebGL en flujo nativo de alto rendimiento */
     #selector3dContainer canvas {
       display: block !important;
       width: 100% !important;
@@ -920,7 +921,7 @@
       return true; // Todo cabe perfectamente dentro del recinto de impresión
     }
 
-    // COMPROBACIÓN DINÁMICA DE LÍMITES FÍSIGOS DE LA CAMA (TOLERANCIA ESTRICTA DE CENTÉSIMAS)
+    // COMPROBACIÓN DINÁMICA DE LÍMITES FÍSICOS DE LA CAMA (TOLERANCIA ESTRICTA DE CENTÉSIMAS)
     function checkLimits() {
       if (!sMesh || !answers.printer) return;
 
@@ -1593,8 +1594,9 @@
 
         const session = await getCurrentSession();
 
-        // Comprobar créditos antes de iniciar el análisis
+        // Comprobar créditos antes de iniciar el análisis de forma no bloqueante
         if (client && session && session !== mockSession) {
+          let credits = 0;
           try {
             const { data: profile, error: profileError } = await client
               .from("profiles")
@@ -1602,20 +1604,19 @@
               .eq("id", session.user.id)
               .single();
 
-            if (profileError) throw profileError;
-
-            if (!profile || Number(profile.credits || 0) < 1) {
-              sessionStorage.setItem("printlab_resume_analysis", "true");
-              // Guardar el estado de la sesión incluyendo el archivo STL físico antes de ir a precios
-              await saveSession(window.selectedSTLFile, answers, currentStepIdx);
-              window.location.href = "precios.html";
-              return;
+            if (!profileError && profile && typeof profile.credits === "number") {
+              credits = profile.credits;
             }
           } catch (creditError) {
-            console.error("No se pudo comprobar el saldo de créditos:", creditError);
-            nextBtn.disabled = false;
-            nextBtn.textContent = "Iniciar Análisis Real";
-            alert("No se ha podido comprobar tu saldo de créditos. Inténtalo de nuevo.");
+            console.warn("No se pudo comprobar el saldo de créditos, se asume 0 para asegurar el guardado de la sesión:", creditError);
+          }
+
+          // Si el saldo de créditos es inferior a 1 o se produce un error en la obtención, 
+          // se guarda la sesión de forma síncrona en IndexedDB y se redirige a la página de precios.
+          if (credits < 1) {
+            sessionStorage.setItem("printlab_resume_analysis", "true");
+            await saveSession(window.selectedSTLFile, answers, currentStepIdx);
+            window.location.href = "precios.html";
             return;
           }
         }
