@@ -252,6 +252,7 @@
     const printerLimits = {
       "Bambu Lab X1 Carbon": { x: 256, y: 256, z: 256 },
       "Bambu Lab P1S": { x: 256, y: 256, z: 256 },
+      "Bambu Lab P1P": { x: 256, y: 256, z: 256 },
       "Bambu Lab A1": { x: 256, y: 256, z: 256 },
       "Bambu Lab A1 Mini": { x: 180, y: 180, z: 180 },
       "Prusa i3 MK4": { x: 250, y: 210, z: 220 },
@@ -260,12 +261,18 @@
       "Creality Ender-3 V3 SE": { x: 220, y: 220, z: 250 },
       "Creality Ender 3 V2": { x: 220, y: 220, z: 250 },
       "Creality K1": { x: 220, y: 220, z: 250 },
+      "Creality K1C": { x: 220, y: 220, z: 250 },
       "Creality K1 Max": { x: 300, y: 300, z: 300 },
+      "Creality Ender-3 V3 Plus": { x: 300, y: 300, z: 330 },
       "Elegoo Neptune 4": { x: 225, y: 225, z: 265 },
       "Elegoo Neptune 4 Max": { x: 420, y: 420, z: 480 },
       "Anycubic Kobra 2": { x: 220, y: 220, z: 250 },
+      "Anycubic Kobra 3": { x: 250, y: 250, z: 260 },
+      "Qidi Tech Q1 Pro": { x: 245, y: 245, z: 240 },
+      "Sovol SV08": { x: 350, y: 350, z: 345 },
       "Voron 2.4 (300)": { x: 300, y: 300, z: 300 },
-      "Voron 2.4 (350)": { x: 350, y: 350, z: 350 }
+      "Voron 2.4 (350)": { x: 350, y: 350, z: 350 },
+      "Voron V0.2": { x: 120, y: 120, z: 120 }
     };
 
     // Base de parámetros principales oficiales mapeados de Orca, Bambu, Prusa y Cura (monoboquilla únicamente)
@@ -544,6 +551,40 @@
           return value ? "1" : "0";
         }
 
+        let valStr = String(value).trim().toLowerCase();
+
+        if (key === "sparse_infill_pattern") {
+          if (valStr === "giroide" || valStr === "gyroid") return "gyroid";
+          if (valStr === "rejilla" || valStr === "grid") return "grid";
+          if (valStr === "relámpago" || valStr === "lightning") return "lightning";
+          if (valStr === "rectilíneo" || valStr === "rectilinear") return "rectilinear";
+          if (valStr === "triángulos" || valStr === "triangles") return "triangles";
+          if (valStr === "cúbico" || valStr === "cubic") return "cubic";
+          if (valStr === "panal" || valStr === "honeycomb") return "honeycomb";
+        }
+
+        if (key === "support_type") {
+          if (valStr === "normal" || valStr === "normal(auto)") return "normal";
+          if (valStr === "árbol" || valStr === "tree" || valStr === "tree(auto)") return "tree";
+          if (valStr === "ninguno" || valStr === "none") return "none";
+        }
+
+        if (key === "support_style") {
+          if (valStr === "por defecto" || valStr === "default") return "default";
+          if (valStr === "orgánico" || valStr === "organic") return "organic";
+          if (valStr === "ajustado" || valStr === "snug") return "snug";
+          if (valStr === "tree_default") return "tree_default";
+          if (valStr === "tree_slim") return "tree_slim";
+        }
+
+        if (key === "brim_type") {
+          if (valStr === "ninguno" || valStr === "none" || valStr === "no_brim" || valStr === "sin_visera") return "no_brim";
+          if (valStr === "auto" || valStr === "auto_brim") return "auto_brim";
+          if (valStr === "solo_exterior" || valStr === "outer_only") return "outer_only";
+          if (valStr === "solo_interior" || valStr === "inner_only") return "inner_only";
+          if (valStr === "ambos" || valStr === "outer_and_inner") return "outer_and_inner";
+        }
+
         return String(value).trim();
       }
 
@@ -708,6 +749,13 @@
                 process: `0.20mm Standard @BBL P1S ${nozzleStr}`,
                 x: 256, y: 256, z: 256
               },
+              "Bambu Lab P1P": {
+                model: "Bambu Lab P1P",
+                variant: nozzleStr,
+                profile: `Bambu Lab P1P ${nozzleStr} nozzle`,
+                process: `0.20mm Standard @BBL P1P ${nozzleStr}`,
+                x: 256, y: 256, z: 256
+              },
               "Bambu Lab A1": {
                 model: "Bambu Lab A1",
                 variant: nozzleStr,
@@ -764,12 +812,26 @@
                 process: `0.20mm Standard @Creality K1 (${nozzleStr} nozzle)`,
                 x: 220, y: 220, z: 250
               },
+              "Creality K1C": {
+                model: "Creality K1C",
+                variant: nozzleStr,
+                profile: `Creality K1C ${nozzleStr} nozzle`,
+                process: `0.20mm Standard @Creality K1C (${nozzleStr} nozzle)`,
+                x: 220, y: 220, z: 250
+              },
               "Creality K1 Max": {
                 model: "Creality K1 Max",
                 variant: nozzleStr,
                 profile: `Creality K1 Max ${nozzleStr} nozzle`,
                 process: `0.20mm Standard @Creality K1Max (${nozzleStr} nozzle)`,
                 x: 300, y: 300, z: 300
+              },
+              "Creality Ender-3 V3 Plus": {
+                model: "Creality Ender-3 V3 Plus",
+                variant: nozzleStr,
+                profile: `Creality Ender-3 V3 Plus ${nozzleStr} nozzle`,
+                process: `0.20mm Standard @Creality Ender3V3Plus (${nozzleStr} nozzle)`,
+                x: 300, y: 300, z: 330
               },
               "Elegoo Neptune 4": {
                 model: "Elegoo Neptune 4",
@@ -785,6 +847,34 @@
                 process: `0.20mm Standard @Elegoo Neptune 4 Max`,
                 x: 420, y: 420, z: 480
               },
+              "Anycubic Kobra 2": {
+                model: "Anycubic Kobra 2",
+                variant: nozzleStr,
+                profile: `Anycubic Kobra 2 ${nozzleStr} nozzle`,
+                process: `0.20mm Standard @Anycubic Kobra 2`,
+                x: 220, y: 220, z: 250
+              },
+              "Anycubic Kobra 3": {
+                model: "Anycubic Kobra 3",
+                variant: nozzleStr,
+                profile: `Anycubic Kobra 3 ${nozzleStr} nozzle`,
+                process: `0.20mm Standard @Anycubic Kobra 3`,
+                x: 250, y: 250, z: 260
+              },
+              "Qidi Tech Q1 Pro": {
+                model: "Qidi Tech Q1 Pro",
+                variant: nozzleStr,
+                profile: `Qidi Tech Q1 Pro ${nozzleStr} nozzle`,
+                process: `0.20mm Standard @Qidi Tech Q1 Pro`,
+                x: 245, y: 245, z: 240
+              },
+              "Sovol SV08": {
+                model: "Sovol SV08",
+                variant: nozzleStr,
+                profile: `Sovol SV08 ${nozzleStr} nozzle`,
+                process: `0.20mm Standard @Sovol SV08`,
+                x: 350, y: 350, z: 345
+              },
               "Voron 2.4 (300)": {
                 model: "Voron 2.4",
                 variant: "300",
@@ -798,6 +888,13 @@
                 profile: `Voron 2.4 350 ${nozzleStr} nozzle`,
                 process: `0.20mm Standard @Voron 2.4`,
                 x: 350, y: 350, z: 350
+              },
+              "Voron V0.2": {
+                model: "Voron V0.2",
+                variant: nozzleStr,
+                profile: `Voron V0.2 ${nozzleStr} nozzle`,
+                process: `0.20mm Standard @Voron V0.2`,
+                x: 120, y: 120, z: 120
               }
             };
 
