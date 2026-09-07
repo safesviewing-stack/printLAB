@@ -41,12 +41,83 @@
     .tool-header h1{font-size:clamp(32px, 4.5vw, 54px); letter-spacing:-0.03em; line-height:1.05; margin:0 0 12px; font-weight:800;}
     .tool-header p{font-size:18px; color:var(--muted); max-width:900px; margin:0; line-height:1.5;}
 
+    .report-grid{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      gap:24px;
+      align-items:start;
+      padding:24px 0 64px;
+    }
+    .report-grid > div{
+      min-width:0;
+      width:100%;
+    }
+    .report-grid > div > *{width:100%;}
+
+    .mesh-comparison{
+      background:var(--dark);
+      border-radius:24px;
+      padding:24px;
+      color:#fff;
+      display:flex;
+      flex-direction:column;
+      gap:20px;
+      box-shadow:0 15px 35px rgba(0,0,0,0.12);
+    }
+    .mesh-canvas{
+      background:#161d1a;
+      border-radius:16px;
+      height:380px;
+      width:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border:1px dashed #2e3a35;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .score-card{
+      background:var(--card);
+      border:2px solid var(--line);
+      border-radius:20px;
+      padding:24px;
+      margin-bottom:24px;
+      min-height:150px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+    }
+    .score-title{font-size:14px; text-transform:uppercase; font-weight:800; color:var(--muted); margin:0 0 10px;}
+    .score-value{font-size:32px; font-weight:800; line-height:1.2; color:var(--ink); margin:0 0 10px; letter-spacing: -1px;}
+
+    .prob-card{background:var(--card); border:1.5px solid var(--line); border-radius:18px; padding:24px; margin-bottom:24px;}
+    .prob-card.err{border-color:var(--error); border-left:6px solid var(--error);}
+    .prob-card.warn{border-color:var(--warning); border-left:6px solid var(--warning);}
+    .prob-header{display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;}
+    .prob-title{font-size:18px; font-weight:800; margin:0;}
+    .prob-badge{font-size:11px; font-weight:800; padding:4px 10px; border-radius:6px; text-transform:uppercase;}
+
     .param-box{background:var(--card); border:2px solid var(--line); border-radius:20px; padding:24px; margin-bottom:24px;}
     .param-title{font-size:14px; text-transform:uppercase; font-weight:800; color:var(--muted); margin-bottom: 12px;}
     
+    /* Tarjeta Geométrica Real (Azul suave) */
+    .geom-card {
+      background: #f0f6fa;
+      border: 2px solid #bcd1db;
+      border-radius: 20px;
+      padding: 24px;
+      margin-top: 24px;
+    }
+    .geom-card h4 {
+      color: #1a3c48;
+      margin: 0 0 16px;
+      font-weight: 800;
+    }
+    
     /* Contenedor Compacto con Scroll */
     .scrollable-params-container {
-      max-height: 480px;
+      max-height: 520px;
       overflow-y: auto;
       padding: 8px;
       border: 1.5px solid var(--line);
@@ -118,13 +189,19 @@
     .footer-links a:hover span.arrow { color: var(--accent); }
     .footer-bottom { border-top: 1px solid var(--line); padding-top: 24px; display:flex; justify-content:center; align-items:center; text-align:center; font-size: 13px; color: #7d8782;}
 
+    @media(max-width:992px) {
+      .report-grid { grid-template-columns:1fr; gap:20px; }
+      .mesh-canvas { height:360px; }
+    }
+
     @media(max-width:768px){
       .wrap{padding:0 20px}
       .footergrid{grid-template-columns:1fr; gap:36px}
     }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/STLLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/STLLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../assets/js/auth-helper.js?v=11"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -172,31 +249,81 @@
         <p id="reportFileNameHeader" style="margin-top: 12px; font-weight:800; color:var(--ink); font-size:16px;">📄 Cargando...</p>
       </div>
 
-      <!-- Parámetros de OrcaSlicer Completos con Buscador y Scroll -->
-      <div class="param-box" style="padding: 24px; margin-top:24px;">
-        <h4 class="param-title" style="margin-bottom: 4px;">Parámetros del Slicer (Base de datos unificada)</h4>
-        <p style="font-size: 13px; color: var(--muted); margin-bottom: 16px; margin-top:0;">Fusión de parámetros equivalentes para OrcaSlicer, BambuStudio, PrusaSlicer y Cura.</p>
-        
-        <input type="text" id="paramSearch" placeholder="🔍 Filtrar parámetro por código, descripción o laminador..." style="width:100%; padding: 12px 16px; border-radius: 12px; border: 1.5px solid var(--line); font-family: inherit; font-size:14px; outline:none; margin-bottom: 24px; background:var(--bg); color:var(--ink);">
-
-        <div class="scrollable-params-container" style="max-height: 480px;">
-          <div id="parametersDynamicContainer"></div>
-        </div>
-      </div>
-
-      <!-- Panel de Exportación Rediseñado con Estética de Doble Columna -->
-      <div class="download-panel">
-        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 24px;">
-          <div style="flex: 1; min-width: 280px;">
-            <h4 style="margin: 0 0 6px 0; font-weight: 800; font-size: 18px; color: var(--ink);">Exportación de Proyecto Calibrado</h4>
-            <p style="margin: 0; font-size: 13.5px; color: var(--muted); line-height: 1.5;">
-              Descarga el proyecto estructurado en formato <strong>.3MF</strong>. Contiene la malla con su orientación exacta sobre la cama de impresión y la totalidad de los parámetros de laminación listos para abrir en OrcaSlicer o Bambu Studio.
-            </p>
+      <div class="report-grid">
+        <!-- COLUMNA IZQUIERDA: VISOR, GEOMETRÍA, SOPORTES Y PROPÓSITO -->
+        <div>
+          <div class="mesh-comparison">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span id="reportFileName" style="font-weight:800; font-size:15px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:240px;">Cargando...</span>
+              <span style="color:var(--accent); font-weight:800; font-size:12px;">✓ Orientación Aplicada</span>
+            </div>
+            <div class="mesh-canvas" id="canvas3dContainer"></div>
           </div>
-          <div>
-            <button class="btn-auth green" id="download3mfBtn" style="outline: none;">
-              <span>💾</span> Abrir proyecto en laminador (.3MF)
-            </button>
+
+          <!-- Tarjeta de Análisis Geométrico (Azul diferenciador) -->
+          <div class="geom-card">
+            <h4>Análisis Geométrico Real</h4>
+            <div class="param-row"><span>Volumen de la pieza:</span> <strong id="reportVolume">Calculando...</strong></div>
+            <div class="param-row"><span>Dimensiones límite de caja:</span> <strong id="reportDimensions">Calculando...</strong></div>
+            <div class="param-row"><span>Aristas Manifold (Estanco):</span> <strong id="reportManifold">Calculando...</strong></div>
+            <div class="param-row"><span>Grosor de pared local mínimo:</span> <strong id="reportThickness">Calculando...</strong></div>
+            <div class="param-row"><span>Área física de voladizo crítico:</span> <strong id="reportOverhang">Calculando...</strong></div>
+          </div>
+
+          <!-- Tarjeta de Soportes Calculados (Tono ámbar/naranja suave) -->
+          <div style="background: #fffcf0; border: 2px solid #ecdca5; border-radius: 20px; padding: 24px; margin-top: 24px;">
+            <h4 style="color: #4a3e1a; margin: 0 0 16px; font-weight: 800; font-size:16px;">Soportes de Fabricación Recomendados</h4>
+            <div class="param-row"><span>Soportes Necesarios:</span> <strong id="reportSupportNeeded">Calculando...</strong></div>
+            <div class="param-row"><span>Estilo de Estructura:</span> <strong id="reportSupportStyle">Calculando...</strong></div>
+            <div class="param-row"><span>Tipo de Soporte:</span> <strong id="reportSupportType">Calculando...</strong></div>
+            <div class="param-row"><span>Área en Voladizo (Overhang):</span> <strong id="reportSupportArea">Calculando...</strong></div>
+            <div class="param-row"><span>Distancia de Contacto Superior (Z):</span> <strong id="reportSupportZDistance">Calculando...</strong></div>
+          </div>
+
+          <!-- Tarjeta de Conclusiones de Propósito (Blanco hueso suave) -->
+          <div style="margin-top:24px; padding:24px; background:#fbfbf9; border:1.5px solid #d3d3cf; border-radius:20px;">
+            <h4 style="margin:0 0 12px; font-weight:800; color: #32322c;">Propósito del Laminado</h4>
+            <div id="purposeConclusionBox" style="font-size: 14px; line-height:1.5; color: var(--muted); outline: none;"></div>
+          </div>
+        </div>
+
+        <!-- COLUMNA DERECHA: DIAGNÓSTICO, PARÁMETROS Y DESCARGA -->
+        <div>
+          <div class="score-card">
+            <p class="score-title">Laminabilidad Global</p>
+            <p class="score-value" id="reportScore">Calculando...</p>
+            <p style="margin:0; color:var(--muted); font-size:14.5px;" id="reportScoreDesc">Procesando geometría...</p>
+          </div>
+
+          <div id="problemsContainer"></div>
+
+          <!-- Parámetros de OrcaSlicer Completos con Buscador y Scroll -->
+          <div class="param-box" style="padding: 24px;">
+            <h4 class="param-title" style="margin-bottom: 4px;">Parámetros del Slicer (Base de datos unificada)</h4>
+            <p style="font-size: 13px; color: var(--muted); margin-bottom: 16px; margin-top:0;">Fusión de parámetros equivalentes para OrcaSlicer, BambuStudio, PrusaSlicer y Cura.</p>
+            
+            <input type="text" id="paramSearch" placeholder="🔍 Filtrar parámetro por código, descripción o laminador..." style="width:100%; padding: 12px 16px; border-radius: 12px; border: 1.5px solid var(--line); font-family: inherit; font-size:14px; outline:none; margin-bottom: 24px; background:var(--bg); color:var(--ink);">
+
+            <div class="scrollable-params-container" style="max-height: 480px;">
+              <div id="parametersDynamicContainer"></div>
+            </div>
+          </div>
+
+          <!-- Panel de Exportación Rediseñado con Estética de Doble Columna -->
+          <div class="download-panel">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 24px;">
+              <div style="flex: 1; min-width: 280px;">
+                <h4 style="margin: 0 0 6px 0; font-weight: 800; font-size: 18px; color: var(--ink);">Exportación de Proyecto Calibrado</h4>
+                <p style="margin: 0; font-size: 13.5px; color: var(--muted); line-height: 1.5;">
+                  Descarga el proyecto estructurado en formato <strong>.3MF</strong>. Contiene la malla con su orientación exacta sobre la cama de impresión y la totalidad de los parámetros de laminación listos para abrir en OrcaSlicer o Bambu Studio.
+                </p>
+              </div>
+              <div>
+                <button class="btn-auth green" id="download3mfBtn" style="outline: none;">
+                  <span>💾</span> Abrir proyecto en laminador (.3MF)
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -247,8 +374,8 @@
   </script>
 
   <script>
-    let activeGeometry = null;
-    let activeMatrix = new THREE.Matrix4();
+    let scene, camera, renderer, controls, activeMesh, highlightRing;
+    let animationFrameId = null;
 
     const printerLimits = {
       "Bambu Lab X1 Carbon": { x: 256, y: 256, z: 256 },
@@ -270,7 +397,7 @@
     };
 
     // Base de parámetros principales oficiales mapeados de Orca, Bambu, Prusa y Cura (monoboquilla únicamente)
-    const parameterGroups = {
+    const baseParameterGroups = {
       "Calidad / Calidad de impresión": [
         { key: "layer_height", label: "Altura de capa", slicers: "Orca/Bambu: layer_height | Prusa: layer_height | Cura: layer_height", unit: "mm" },
         { key: "initial_layer_print_height", label: "Altura de capa inicial", slicers: "Orca/Bambu: initial_layer_print_height | Prusa: first_layer_height | Cura: layer_height_0", unit: "mm" },
@@ -293,7 +420,11 @@
         { key: "bridge_flow_ratio", label: "Relación de flujo en puentes", slicers: "Orca/Bambu: bridge_flow_ratio | Prusa: bridge_flow_ratio", unit: "%" },
         { key: "infill_overlap_compensation", label: "Solapamiento entre relleno y perímetros", slicers: "Orca/Bambu: infill_overlap_compensation | Prusa: perimeter_infill_overlap", unit: "%" },
         { key: "xy_size_compensation", label: "Compensación dimensional del plano horizontal (XY)", slicers: "Orca/Bambu: xy_size_compensation | Prusa: xy_size_compensation", unit: "mm" },
-        { key: "elefant_foot_compensation", label: "Compensación de pie de elefante", slicers: "Orca/Bambu: elefant_foot_compensation | Prusa: raft_first_layer_expansion", unit: "mm" }
+        { key: "elefant_foot_compensation", label: "Compensación de pie de elefante", slicers: "Orca/Bambu: elefant_foot_compensation | Prusa: raft_first_layer_expansion", unit: "mm" },
+        { key: "precise_wall", label: "Paredes precisas (Precise wall)", slicers: "Orca/Bambu: precise_wall | Cura: outer_inset_first" },
+        { key: "inner_outer_inner_wall", label: "Orden de paredes concéntricas", slicers: "Orca/Bambu: inner_outer_inner_wall" },
+        { key: "seam_gap", label: "Espacio de costura (Seam gap)", slicers: "Orca/Bambu: seam_gap | Prusa: seam_gap", unit: "%" },
+        { key: "small_perimeter_threshold", label: "Umbral de perímetros pequeños", slicers: "Orca/Bambu: small_perimeter_threshold", unit: "mm" }
       ],
       "Fuerza y Estructura": [
         { key: "wall_loops", label: "Bucles de pared (Perímetros)", slicers: "Orca/Bambu: wall_loops | Prusa: perimeters | Cura: wall_line_count", unit: "bucles" },
@@ -310,7 +441,9 @@
         { key: "infill_combination", label: "Combinación de relleno", slicers: "Orca/Bambu: infill_combination | Prusa: infill_every_layers" },
         { key: "infill_solid_every", label: "Relleno sólido cada N capas", slicers: "Orca/Bambu: infill_solid_every | Prusa: solid_infill_every_layers", unit: "capas" },
         { key: "infill_anchor", label: "Anclaje del relleno", slicers: "Orca/Bambu: infill_anchor | Prusa: infill_anchor", unit: "mm" },
-        { key: "infill_anchor_max", label: "Anclaje máximo del relleno", slicers: "Orca/Bambu: infill_anchor_max | Prusa: infill_anchor_max", unit: "mm" }
+        { key: "infill_anchor_max", label: "Anclaje máximo del relleno", slicers: "Orca/Bambu: infill_anchor_max | Prusa: infill_anchor_max", unit: "mm" },
+        { key: "minimum_sparse_infill_area", label: "Área de relleno mínima", slicers: "Orca/Bambu: minimum_sparse_infill_area", unit: "mm²" },
+        { key: "top_one_wall_loops", label: "Un solo perímetro en superficie superior", slicers: "Orca/Bambu: top_one_wall_loops" }
       ],
       "Velocidades de Impresión": [
         { key: "outer_wall_speed", label: "Velocidad de pared exterior", slicers: "Orca/Bambu: outer_wall_speed | Prusa: external_perimeter_speed | Cura: speed_wall_x", unit: "mm/s" },
@@ -328,7 +461,8 @@
         { key: "overhang_1_4_speed", label: "Velocidad voladizo (1/4)", slicers: "Orca/Bambu: overhang_1_4_speed | Prusa: overhangs_speed_1", unit: "mm/s" },
         { key: "overhang_2_4_speed", label: "Velocidad voladizo (2/4)", slicers: "Orca/Bambu: overhang_2_4_speed | Prusa: overhangs_speed_2", unit: "mm/s" },
         { key: "overhang_3_4_speed", label: "Velocidad voladizo (3/4)", slicers: "Orca/Bambu: overhang_3_4_speed | Prusa: overhangs_speed_3", unit: "mm/s" },
-        { key: "overhang_4_4_speed", label: "Velocidad voladizo (4/4)", slicers: "Orca/Bambu: overhang_4_4_speed | Prusa: overhangs_speed_4", unit: "mm/s" }
+        { key: "overhang_4_4_speed", label: "Velocidad voladizo (4/4)", slicers: "Orca/Bambu: overhang_4_4_speed | Prusa: overhangs_speed_4", unit: "mm/s" },
+        { key: "small_perimeter_speed", label: "Velocidad de perímetros pequeños", slicers: "Orca/Bambu: small_perimeter_speed", unit: "mm/s" }
       ],
       "Dinámicas y Aceleraciones": [
         { key: "default_acceleration", label: "Aceleración por defecto", slicers: "Orca/Bambu: default_acceleration | Prusa: default_acceleration | Cura: acceleration_print", unit: "mm/s²" },
@@ -343,7 +477,8 @@
         { key: "jerk_xy_item", label: "Jerk XY", slicers: "Orca/Bambu: jerk_xy_item | Prusa: jerk_xy | Cura: jerk_print", unit: "mm/s" },
         { key: "jerk_z_item", label: "Jerk Z", slicers: "Orca/Bambu: jerk_z_item | Prusa: jerk_z | Cura: jerk_travel", unit: "mm/s" },
         { key: "jerk_e_item", label: "Jerk Extrusor", slicers: "Orca/Bambu: jerk_e_item | Prusa: jerk_e | Cura: jerk_travel", unit: "mm/s" },
-        { key: "pressure_advance", label: "Avance de presión", slicers: "Orca/Bambu: pressure_advance | Prusa: pressure_advance | Cura: linear_advance" }
+        { key: "pressure_advance", label: "Avance de presión", slicers: "Orca/Bambu: pressure_advance | Prusa: pressure_advance | Cura: linear_advance" },
+        { key: "smooth_pressure_advance", label: "Suavizado de avance de presión", slicers: "Orca/Bambu: smooth_pressure_advance", unit: "s" }
       ],
       "Filamento y Temperatura": [
         { key: "nozzle_temperature", label: "Temperatura de boquilla", slicers: "Orca/Bambu: nozzle_temperature | Prusa: temperature | Cura: material_print_temperature", unit: "ºC" },
@@ -369,10 +504,11 @@
         { key: "fan_speed_min", label: "Velocidad mínima del ventilador", slicers: "Orca/Bambu: fan_speed_min | Prusa: min_fan_speed | Cura: cool_fan_speed_min", unit: "%" },
         { key: "fan_speed_max", label: "Velocidad máxima del ventilador", slicers: "Orca/Bambu: fan_speed_max | Prusa: max_fan_speed | Cura: cool_fan_speed_max", unit: "%" },
         { key: "cool_plate_fan_speed", label: "Ventilador para cama fría", slicers: "Orca/Bambu: cool_plate_fan_speed | Prusa: cool_plate_fan_speed", unit: "%" },
-        { key: "additional_cooling_fan_speed", label: "Ventilador adicional", slicers: "Orca/Bambu: additional_cooling_fan_speed", unit: "%" },
-        { key: "exhaust_fan_speed", label: "Ventilador extractor", slicers: "Orca/Bambu: exhaust_fan_speed", unit: "%" },
+        { key: "additional_cooling_fan_speed", label: "Ventilador adicional (Aux fan)", slicers: "Orca/Bambu: additional_cooling_fan_speed", unit: "%" },
+        { key: "exhaust_fan_speed", label: "Ventilador extractor de cámara", slicers: "Orca/Bambu: exhaust_fan_speed", unit: "%" },
         { key: "cooling_threshold_time", label: "Tiempo umbral de enfriamiento", slicers: "Orca/Bambu: cooling_threshold_time | Prusa: slow_down_below", unit: "s" },
-        { key: "fan_speed_overhangs", label: "Ventilador para voladizos", slicers: "Orca/Bambu: fan_speed_overhangs" }
+        { key: "fan_speed_overhangs", label: "Ventilador para voladizos", slicers: "Orca/Bambu: fan_speed_overhangs" },
+        { key: "chamber_temperature", label: "Temperatura de cámara activa", slicers: "Orca/Bambu: chamber_temperature", unit: "ºC" }
       ],
       "Soportes y Adhesión": [
         { key: "enable_support", label: "Soportes activados", slicers: "Orca/Bambu: enable_support | Prusa: support_material | Cura: support_enable" },
@@ -391,7 +527,11 @@
         { key: "brim_object_gap", label: "Espacio entre visera y objeto", slicers: "Orca/Bambu: brim_object_gap | Prusa: brim_object_gap | Cura: brim_gap", unit: "mm" },
         { key: "skirt_loops", label: "Bucles de falda", slicers: "Orca/Bambu: skirt_loops | Prusa: skirt_line | Cura: skirt_line_count", unit: "bucles" },
         { key: "skirt_distance", label: "Distancia de falda", slicers: "Orca/Bambu: skirt_distance | Prusa: skirt_distance | Cura: skirt_distance", unit: "mm" },
-        { key: "skirt_height", label: "Altura de falda", slicers: "Orca/Bambu: skirt_height | Prusa: skirt_height", unit: "capas" }
+        { key: "skirt_height", label: "Altura de falda", slicers: "Orca/Bambu: skirt_height | Prusa: skirt_height", unit: "capas" },
+        { key: "tree_support_branch_angle", label: "Ángulo de ramas (Soporte árbol)", slicers: "Orca/Bambu: tree_support_branch_angle", unit: "º" },
+        { key: "tree_support_branch_diameter", label: "Diámetro de rama (Soporte árbol)", slicers: "Orca/Bambu: tree_support_branch_diameter", unit: "mm" },
+        { key: "tree_support_collision_resolution", label: "Resolución de colisión árbol", slicers: "Orca/Bambu: tree_support_collision_resolution", unit: "mm" },
+        { key: "independent_support_boundary", label: "Límite de soporte independiente", slicers: "Orca: independent_support_boundary" }
       ],
       "G-code y Sistema": [
         { key: "nozzle_diameter", label: "Diámetro de boquilla físico", slicers: "Orca/Bambu: nozzle_diameter | Prusa: nozzle_diameter | Cura: machine_nozzle_size", unit: "mm" },
@@ -417,6 +557,188 @@
 
     // Copiar de forma limpia y directa la base de datos de parámetros (sin declaraciones duplicadas de parameterGroups)
     const parameterGroups = JSON.parse(JSON.stringify(baseParameterGroups));
+  </script>
+
+  <script>
+    function getUniqueVerticesForBounds(mesh) {
+      const geometry = mesh.geometry;
+      const scale = mesh.scale;
+      const pos = geometry.attributes.position;
+      const unique = [];
+      const seen = new Set();
+      const step = Math.max(1, Math.floor(pos.count / 3000)); 
+      for (let i = 0; i < pos.count; i += step) {
+        const x = pos.getX(i) * scale.x;
+        const y = pos.getY(i) * scale.y;
+        const z = pos.getZ(i) * scale.z;
+        const rx = Math.round(x * 100) / 100;
+        const ry = Math.round(y * 100) / 100;
+        const rz = Math.round(z * 100) / 100;
+        const key = `${rx}_${ry}_${rz}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          unique.push(new THREE.Vector3(x, y, z));
+        }
+      }
+      return unique;
+    }
+
+    function checkMeshBounds(mesh, limits) {
+      if (!mesh || !limits) return false;
+      mesh.updateMatrixWorld(true);
+
+      const bbox = new THREE.Box3().setFromObject(mesh);
+      const minY = -0.05;
+      const maxY = limits.z + 0.05;
+
+      if (bbox.min.y < minY || bbox.max.y > maxY) {
+        return false;
+      }
+
+      const uniqueVerts = getUniqueVerticesForBounds(mesh);
+      const minX = -limits.x / 2 - 0.05;
+      const maxX =  limits.x / 2 + 0.05;
+      const minZ = -limits.y / 2 - 0.05;
+      const maxZ =  limits.y / 2 + 0.05;
+
+      const tempMatrix = new THREE.Matrix4().compose(
+        mesh.position,
+        mesh.quaternion,
+        new THREE.Vector3(1, 1, 1)
+      );
+
+      for (const v of uniqueVerts) {
+        const worldV = v.clone().applyMatrix4(tempMatrix);
+        if (worldV.x < minX || worldV.x > maxX || worldV.z < minZ || worldV.z > maxZ) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    function init3DViewer(containerId, base64Data, criticalPoints, questionnaire) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x111715);
+
+      camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 1, 1000);
+      camera.position.set(130, 130, 150);
+      camera.up.set(0, 1, 0); // Y-UP estándar idéntico al analizador
+
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(container.clientWidth, container.clientHeight);
+      container.appendChild(renderer.domElement);
+
+      const light1 = new THREE.DirectionalLight(0xffffff, 1.4);
+      light1.position.set(1, 3, 1).normalize();
+      scene.add(light1);
+      scene.add(new THREE.AmbientLight(0x404040));
+
+      controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+
+      // Generar volumen y cama dinámicos idénticos a los del analizador para mantener coherencia visual
+      const limits = printerLimits[questionnaire.printer] || { x: 220, y: 220, z: 250 };
+      const gridSize = Math.max(limits.x, limits.y);
+      const gridHelper = new THREE.GridHelper(gridSize, 30, 0x5e6661, 0x2e3a35);
+      scene.add(gridHelper);
+
+      const boxGeo = new THREE.BoxGeometry(limits.x, limits.z, limits.y); // Alto en Y (eje verde)
+      const edges = new THREE.EdgesGeometry(boxGeo);
+      const lineMaterial = new THREE.LineBasicMaterial({ color: 0x5e6661, transparent: true, opacity: 0.15 });
+      const printVolumeBox = new THREE.LineSegments(edges, lineMaterial);
+      printVolumeBox.position.set(0, limits.z / 2, 0);
+      scene.add(printVolumeBox);
+
+      const binaryStr = atob(base64Data);
+      const bytes = new Uint8Array(binaryStr.length);
+      for (let i = 0; i < binaryStr.length; i++) { bytes[i] = binaryStr.charCodeAt(i); }
+
+      const loader = new THREE.STLLoader();
+      const geometry = loader.parse(bytes.buffer);
+      
+      // ALINEACIÓN Y CENTRADO DE ORIGEN IDÉNTICO AL ANALIZADOR (Evita el rastro de desfase del STL original)
+      geometry.center();
+      geometry.computeBoundingBox();
+
+      const material = new THREE.MeshPhongMaterial({ 
+        color: 0x388e3c, // Verde estándar idéntico al del analizador
+        specular: 0x222222, 
+        shininess: 40,
+        side: THREE.DoubleSide
+      });
+
+      activeMesh = new THREE.Mesh(geometry, material);
+      scene.add(activeMesh);
+
+      // Reconstrucción y aplicación exacta de la matriz de rotación/colocación aplicada por el usuario
+      if (questionnaire && questionnaire.transformationMatrix) {
+        const tm = questionnaire.transformationMatrix;
+        if (Array.isArray(tm[0])) {
+          // Compatibilidad hacia atrás para el formato anidado antiguo
+          activeMesh.matrix.set(
+            tm[0][0], tm[0][1], tm[0][2], tm[0][3],
+            tm[1][0], tm[1][1], tm[1][2], tm[1][3],
+            tm[2][0], tm[2][1], tm[2][2], tm[2][3],
+            tm[3][0], tm[3][1], tm[3][2], tm[3][3]
+          );
+        } else {
+          // Nuevo formato de array plano de 16 elementos (directo e idéntico)
+          activeMesh.matrix.fromArray(tm);
+        }
+        activeMesh.matrixAutoUpdate = false; // Desactiva los recálculos para mantener la rotación y posición intactas
+        activeMesh.updateMatrixWorld(true);
+      }
+
+      // Aplicar color en base a la validez física exacta del recinto idéntico al analizador
+      const inBounds = checkMeshBounds(activeMesh, limits);
+      if (inBounds) {
+        activeMesh.material.color.setHex(0x388e3c); // Verde estándar (posición válida)
+      } else {
+        activeMesh.material.color.setHex(0xb42318); // Rojo de colisión
+      }
+      activeMesh.material.needsUpdate = true;
+
+      // Dibujar anillo de neón si se ha guardado el punto de apoyo por cara en el analizador
+      if (questionnaire && questionnaire.supportFacePoint && questionnaire.supportFaceNormal) {
+        const localPt = new THREE.Vector3().fromArray(questionnaire.supportFacePoint);
+        const localNorm = new THREE.Vector3().fromArray(questionnaire.supportFaceNormal);
+        
+        // Convertir punto local y normal local a coordenadas de mundo
+        const worldPt = localPt.clone().applyMatrix4(activeMesh.matrixWorld);
+        
+        const ringGeo = new THREE.RingGeometry(2.5, 3.2, 32);
+        const ringMat = new THREE.MeshBasicMaterial({ color: 0xb8ff3d, side: THREE.DoubleSide });
+        highlightRing = new THREE.Mesh(ringGeo, ringMat);
+        highlightRing.position.copy(worldPt);
+        
+        const ringNormal = localNorm.clone().applyQuaternion(activeMesh.quaternion);
+        highlightRing.quaternion.copy(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), ringNormal));
+        highlightRing.position.addScaledVector(ringNormal, 0.4);
+        scene.add(highlightRing);
+      }
+
+      const worldBox = new THREE.Box3().setFromObject(activeMesh);
+      const center = new THREE.Vector3();
+      worldBox.getCenter(center);
+      controls.target.copy(center);
+
+      const size = worldBox.getSize(new THREE.Vector3()).length();
+      camera.position.set(center.x + size * 0.9, center.y + size * 0.9, center.z + size * 0.9);
+      controls.update();
+
+      function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+        if (renderer && scene && camera) {
+          renderer.clear();
+          renderer.render(scene, camera);
+        }
+      }
+      animate();
+    }
 
     document.addEventListener("DOMContentLoaded", () => {
       const stored = sessionStorage.getItem("printlab_analysis");
@@ -432,8 +754,91 @@
       const q = analysis.user_questionnaire || {};
 
       document.getElementById("reportFileNameHeader").textContent = "📄 " + (analysis.file_name || "Malla");
+      document.getElementById("reportFileName").textContent = "📄 " + (analysis.file_name || "Malla");
+      document.getElementById("reportVolume").textContent = analysis.volume ? `${analysis.volume} cm³` : "[NO DISPONIBLE] Malla no estanca";
+      document.getElementById("reportDimensions").textContent = analysis.dimensions || "[NO DISPONIBLE]";
+      document.getElementById("reportManifold").textContent = analysis.watertight ? "SÍ (Estanco)" : "NO (Malla abierta con agujeros)";
+      document.getElementById("reportThickness").textContent = s.min_thickness_mm ? `${s.min_thickness_mm} mm` : "[NO CALCULADO]";
+      document.getElementById("reportOverhang").textContent = s.overhang_area_cm2 !== undefined ? `${s.overhang_area_cm2} cm²` : "0.0 cm²";
 
-      // --- RENDERIZADO DINÁMICO DE PARÁMETROS ("Lo que no ponga nada quítalo") ---
+      // --- CONFIGURACIÓN DE SOPORTES RECOMENDADA DINÁMICA ---
+      const enableSupportVal = s.enable_support;
+      const supportNeededText = (enableSupportVal === 1 || s.overhang_area_cm2 > 0.5) ? "SÍ (Voladizos detectados)" : "NO (Estructura autoportante)";
+      document.getElementById("reportSupportNeeded").textContent = supportNeededText;
+
+      let styleText = "No requerido";
+      if (enableSupportVal === 1 || s.overhang_area_cm2 > 0.5) {
+        styleText = s.support_style === "tree" ? "Árbol (Tree)" : "Normal (Rejilla)";
+      }
+      document.getElementById("reportSupportStyle").textContent = styleText;
+
+      let typeText = "Ninguno";
+      if (enableSupportVal === 1 || s.overhang_area_cm2 > 0.5) {
+        typeText = s.support_type === "normal" ? "Normal (Base)" : "Snug / Ajustado";
+      }
+      document.getElementById("reportSupportType").textContent = typeText;
+
+      document.getElementById("reportSupportArea").textContent = s.overhang_area_cm2 !== undefined ? `${s.overhang_area_cm2} cm²` : "0.0 cm²";
+      document.getElementById("reportSupportZDistance").textContent = s.support_top_z_distance ? `${s.support_top_z_distance} mm` : "0.20 mm";
+
+      // --- CONCLUSIÓN DINÁMICA DE PROPÓSITO ---
+      const purpose = q.purpose || "aesthetic";
+      const purposeBox = document.getElementById("purposeConclusionBox");
+      if (purpose === "aesthetic") {
+        purposeBox.innerHTML = `🎨 <strong style="color: var(--ink);">Orientación Estética:</strong> Configurado para priorizar un acabado impecable y libre de líneas de unión. Espesor de capa reducido (<strong>${s.layer_height} mm</strong>), patrón de relleno de alta eficiencia (<strong>${s.sparse_infill_pattern}</strong>) y velocidades lentas para la pared exterior para pulir el acabado del plástico.`;
+      } else if (purpose === "speed") {
+        purposeBox.innerHTML = `⚡ <strong style="color: var(--ink);">Orientación de Velocidad:</strong> Configurado para reducir el tiempo de impresión al máximo. Se aplican alturas de capa gruesas (<strong>${s.layer_height} mm</strong>), velocidades de pared máximas y un incremento térmico para permitir flujos volumétricos amplios.`;
+      } else if (purpose === "cost") {
+        purposeBox.innerHTML = `🪙 <strong style="color: var(--ink);">Orientación de Ahorro/Coste:</strong> Configurado para minimizar el desperdicio de material. Se utiliza un patrón de relleno ultra-ahorrativo de baja densidad (<strong>${s.sparse_infill_density}%</strong>), perímetros optimizados y velocidades seguras para mitigar errores que puedan suponer pérdidas de filamento.`;
+      } else { // functional
+        purposeBox.innerHTML = `⚙️ <strong style="color: var(--ink);">Orientación Estructural:</strong> Configurado para máxima rigidez. Se aplican capas estables (<strong>${s.layer_height} mm</strong>), perímetros de pared robustos (<strong>${s.wall_loops} perímetros</strong>), densidad del relleno densa (<strong>${s.sparse_infill_density}%</strong>) y aumento de temperatura para consolidar la unión mecánica.`;
+      }
+
+      // --- DIAGNÓSTICO DE LAMINABILIDAD GLOBAL ---
+      let scoreText = "ÓPTIMO";
+      let scoreColor = "var(--accent)";
+      let scoreDesc = "La pieza es idónea para fabricación aditiva FDM con la configuración establecida.";
+
+      if (!analysis.watertight) {
+        scoreText = "ERROR GEOMÉTRICO";
+        scoreColor = "var(--error)";
+        scoreDesc = "La pieza no está cerrada. El motor matemático ha corregido la base para exportación virtual, pero se aconseja inspección del CAD.";
+      } else if (s.thin_wall_warning) {
+        scoreText = "RIESGO DE PARED FINA";
+        scoreColor = "var(--warning)";
+        scoreDesc = "Se han localizado grosores de pared críticos para el tamaño de boquilla configurado.";
+      }
+
+      document.getElementById("reportScore").textContent = scoreText;
+      document.getElementById("reportScore").style.color = scoreColor;
+      document.getElementById("reportScoreDesc").textContent = scoreDesc;
+
+      let problemsHtml = "";
+      if (!analysis.watertight) {
+        problemsHtml += `
+          <div class="prob-card err">
+            <div class="prob-header">
+              <h4 class="prob-title">Geometría Abierta (Agujeros en Malla)</h4>
+              <span class="prob-badge" style="background:#fcebe8; color:var(--error);">No estanco</span>
+            </div>
+            <p style="margin:0; font-size:14px; color:var(--muted);">El archivo posee caras abiertas. Puede causar laminaciones de cáscara vacías o errores de trayectorias cerradas.</p>
+          </div>
+        `;
+      }
+      if (s.thin_wall_warning) {
+        problemsHtml += `
+          <div class="prob-card warn">
+            <div class="prob-header">
+              <h4 class="prob-title">Pared Delgada No Soportada</h4>
+              <span class="prob-badge" style="background:#fff3cd; color:var(--warning);">Pared Fina</span>
+            </div>
+            <p style="margin:0; font-size:14px; color:var(--muted);">${s.thin_wall_warning}</p>
+          </div>
+        `;
+      }
+      document.getElementById("problemsContainer").innerHTML = problemsHtml;
+
+      // --- RENDERIZADO DINÁMICO DE LOS PARÁMETROS EN DISEÑO COMPACTO DE FILA ÚNICA ---
       function renderParameters(filterText = "") {
         const container = document.getElementById("parametersDynamicContainer");
         container.innerHTML = "";
@@ -518,29 +923,7 @@
       }
 
       if (analysis.optimized_base64) {
-        // Inicializar lectura de la geometría y matriz de transformación en segundo plano (Headless)
-        const binaryStr = atob(analysis.optimized_base64);
-        const bytes = new Uint8Array(binaryStr.length);
-        for (let i = 0; i < binaryStr.length; i++) { bytes[i] = binaryStr.charCodeAt(i); }
-
-        const loader = new THREE.STLLoader();
-        activeGeometry = loader.parse(bytes.buffer);
-        activeGeometry.center();
-        activeGeometry.computeBoundingBox();
-
-        if (q && q.transformationMatrix) {
-          const tm = q.transformationMatrix;
-          if (Array.isArray(tm[0])) {
-            activeMatrix.set(
-              tm[0][0], tm[0][1], tm[0][2], tm[0][3],
-              tm[1][0], tm[1][1], tm[1][2], tm[1][3],
-              tm[2][0], tm[2][1], tm[2][2], tm[2][3],
-              tm[3][0], tm[3][1], tm[3][2], tm[3][3]
-            );
-          } else {
-            activeMatrix.fromArray(tm);
-          }
-        }
+        init3DViewer("canvas3dContainer", analysis.optimized_base64, analysis.critical_points, q);
 
         // --- CONSTRUCTOR DE PROYECTO .3MF COMPATIBLE ---
         document.getElementById("download3mfBtn").addEventListener("click", async () => {
@@ -565,23 +948,12 @@
 </Relationships>`;
             zip.file("_rels/.rels", relsXml);
 
-            if (!activeGeometry) {
-              throw new Error("Geometría 3D no inicializada.");
+            if (!activeMesh || !activeMesh.geometry) {
+              throw new Error("Geometría del visor 3D no inicializada.");
             }
-            const geom = activeGeometry;
+            const geom = activeMesh.geometry;
             const position = geom.attributes.position;
             
-            // Reconstrucción del mesh en memoria para calcular el bounding box exacto
-            const dummyMesh = new THREE.Mesh(geom);
-            dummyMesh.matrix.copy(activeMatrix);
-            dummyMesh.matrixAutoUpdate = false;
-            dummyMesh.updateMatrixWorld(true);
-
-            const worldBox = new THREE.Box3().setFromObject(dummyMesh);
-            const currentCenter = new THREE.Vector3();
-            worldBox.getCenter(currentCenter);
-            const currentMinY = worldBox.min.y;
-
             // --- CONSERVACIÓN EXACTA DE LA COORDENADA ABSOLUTA DE RECIENTO ---
             const limits = printerLimits[q.printer] || { x: 220, y: 220, z: 250 };
             
@@ -589,13 +961,13 @@
             // utilizando de manera fija la mitad de la cama para respetar con total fidelidad el desfase o alineación del usuario.
             const offsetX = limits.x / 2;
             const offsetZ = limits.y / 2;
-            const offsetY = -currentMinY; 
+            const offsetY = 0; 
 
             let verticesXml = "";
             const vertex = new THREE.Vector3();
             for (let i = 0; i < position.count; i++) {
               vertex.fromBufferAttribute(position, i);
-              vertex.applyMatrix4(dummyMesh.matrixWorld); // Aplicar rotación y colocación exactas definidas por el usuario
+              vertex.applyMatrix4(activeMesh.matrixWorld); // Aplicar rotación y colocación exactas definidas por el usuario
               
               const finalX = (vertex.x + offsetX).toFixed(4);
               const finalZ = (vertex.z + offsetZ).toFixed(4);
@@ -962,7 +1334,7 @@
           } finally {
             downloadBtn.disabled = false;
             downloadBtn.innerHTML = `
-              Abrir proyecto en laminador (.3MF)
+              <span>💾</span> Abrir proyecto en laminador (.3MF)
             `;
           }
         });
