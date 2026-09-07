@@ -416,41 +416,42 @@ async function initAuth() {
 
 
   // ===================================================
-  // DETECCIÓN GLOBAL DE MODO DE RECUPERACIÓN (CORREGIDA)
+  // DETECCIÓN GLOBAL DE MODO DE RECUPERACIÓN (MÁXIMA SEGURIDAD)
   // ===================================================
 
+  const isLoginPage = currentPathname.includes("login.html");
+  const hasRecoveryInUrl = window.location.hash.includes("type=recovery") || window.location.search.includes("type=recovery");
+
+  // Si estamos en cualquier página que NO sea login.html y no hay token de recuperación en la URL, limpiamos obligatoriamente la memoria
+  if (!isLoginPage && !hasRecoveryInUrl) {
+    sessionStorage.removeItem("printlab_recovery_mode");
+  }
+
+  // Si se detecta confirmación de registro o invitación, limpiamos a la fuerza
+  if (
+    window.location.hash.includes("type=signup") ||
+    window.location.hash.includes("type=invite") ||
+    window.location.search.includes("type=signup") ||
+    window.location.search.includes("type=invite")
+  ) {
+    sessionStorage.removeItem("printlab_recovery_mode");
+  }
+
   const isRecovery =
-    window.location.hash.includes("type=recovery") ||
-    window.location.search.includes("type=recovery") ||
+    hasRecoveryInUrl ||
     (window.location.hash.includes("access_token=") && 
      !window.location.hash.includes("type=signup") && 
      !window.location.hash.includes("type=invite")) ||
     sessionStorage.getItem("printlab_recovery_mode") === "true";
 
 
-  if (
-    window.location.hash.includes("type=recovery") ||
-    window.location.search.includes("type=recovery") ||
-    (window.location.hash.includes("access_token=") && 
-     !window.location.hash.includes("type=signup") && 
-     !window.location.hash.includes("type=invite"))
-  ) {
-
+  if (isRecovery && (isLoginPage || hasRecoveryInUrl)) {
     sessionStorage.setItem(
       "printlab_recovery_mode",
       "true"
     );
-
-  } else if (
-    window.location.hash.includes("type=signup") ||
-    window.location.hash.includes("type=invite") ||
-    window.location.search.includes("type=signup") ||
-    window.location.search.includes("type=invite")
-  ) {
-
-    // Si es una confirmación de registro o invitación, limpiamos explícitamente el modo recuperación
+  } else {
     sessionStorage.removeItem("printlab_recovery_mode");
-
   }
 
 
