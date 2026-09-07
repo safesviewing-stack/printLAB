@@ -1469,6 +1469,10 @@
       selectedFileSize.textContent = file.size < 1024*1024 ? (file.size/1024).toFixed(0) + " KB" : (file.size/(1024*1024)).toFixed(1) + " MB";
       selectedFile.classList.add("show");
       updateButtonState();
+
+      // DESPERTADO PRECOZ (PRE-WARM) DEL SERVIDOR BACKEND (AL CARGAR ARCHIVO)
+      // Envía una petición síncrona en segundo plano para iniciar el arranque de la máquina virtual de Render
+      fetch("https://printlab-backend-dy7v.onrender.com/").catch(() => {});
     }
 
     const accessButton = document.getElementById("analyzerAccessButton");
@@ -1534,6 +1538,9 @@
     }
 
     document.addEventListener("DOMContentLoaded", async () => {
+      // DESPERTADO PRECOZ (PRE-WARM) DEL SERVIDOR BACKEND (AL CARGAR LA PÁGINA)
+      fetch("https://printlab-backend-dy7v.onrender.com/").catch(() => {});
+
       await updateButtonState();
 
       // --- VERIFICAR Y RESTAURAR SESIÓN DE CONTINGENCIA TRAS LA COMPRA ---
@@ -1755,17 +1762,21 @@
         }
 
         try {
-          nextBtn.textContent = "Almacenando archivo...";
-          const filePath = `uploads/${session.user.id}/${Date.now()}.stl`;
-          // CORRECCIÓN CLAVE: Restablecido el orden estándar oficial de parámetros de subida (path primero, archivo segundo)
-          await client.storage.from('stls').upload(filePath, window.selectedSTLFile, { cacheControl: '3600', 'upsert': true });
-
           nextBtn.textContent = "Analizando geometría...";
+          const filePath = `uploads/${session.user.id}/${Date.now()}.stl`;
+
           const formData = new FormData();
           formData.append("file", window.selectedSTLFile);
           formData.append("questionnaire", JSON.stringify(answers));
 
-          const res = await fetch("https://printlab-backend-dy7v.onrender.com/analyze", { method: "POST", body: formData });
+          // EJECUCIÓN EN PARALELO (PROMISE.ALL)
+          // Se transmiten concurrentemente la copia a la base de datos de almacenamiento (Supabase)
+          // y el cuerpo del archivo con sus respuestas correspondientes al motor del servidor de Render.
+          const [uploadResult, res] = await Promise.all([
+            client.storage.from('stls').upload(filePath, window.selectedSTLFile, { cacheControl: '3600', 'upsert': true }),
+            fetch("https://printlab-backend-dy7v.onrender.com/analyze", { method: "POST", body: formData })
+          ]);
+
           if (!res.ok) throw new Error("Error en servidor. Código: " + res.status);
 
           const analysisData = await res.json();
