@@ -523,7 +523,7 @@
 
     }
 
-    /* REGLA FORZADA PARA EL INDICADOR DE CRÉDITOS */
+    /* REGLA FORZADA PARA EL INDICADOR DE CRÉDITOS (Alineado simétrico y redondeado perfecto) */
     #authHeaderContainer span[style*="background" i],
     #authHeaderContainer span[style*="accent" i],
     #authHeaderContainer span:nth-child(2),
@@ -550,7 +550,7 @@
       white-space: nowrap !important;
     }
 
-    /* REGLA FORZADA PARA EL SALUDO DE USUARIO */
+    /* REGLA FORZADA PARA EL SALUDO DE USUARIO (Impide alteraciones de tamaño) */
     #authHeaderContainer .user-greeting,
     #authHeaderContainer span:nth-child(1),
     #authHeaderContainer div span:nth-child(1),
@@ -569,8 +569,8 @@
  <!-- SUPABASE -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<!-- Parámetro cache-busting v=16 para obligar al navegador a tirar la caché de sesión anterior -->
-<script src="../assets/js/auth-helper.js?v=16"></script>
+<!-- Parámetro cache-busting v=10 para forzar recarga de la pre-carga síncrona en cabecera -->
+<script src="../assets/js/auth-helper.js?v=10"></script>
 
 <script>
   const SUPABASE_URL =
@@ -579,7 +579,8 @@
   const SUPABASE_ANON_KEY =
     "sb_publishable_kelRYJ3Fa56DXY3GhxWLHQ_YiLJzStR";
 
-  const supabaseClient =
+  // REUTILIZAR LA INSTANCIA GLOBAL DE SUPABASE CREADA POR AUTH-HELPER
+  const supabaseClient = window.supabaseClient ||
     supabase.createClient(
       SUPABASE_URL,
       SUPABASE_ANON_KEY
@@ -1610,42 +1611,20 @@
 
 
     /* =====================================================
-       DETECCIÓN Y ACTIVACIÓN DE MODO RECUPERACIÓN (CORREGIDA DE RAÍZ)
+       DETECCIÓN Y ACTIVACIÓN DE MODO RECUPERACIÓN
     ===================================================== */
 
     let isRecoveryMode = false;
 
-    const isLoginPage = window.location.pathname.toLowerCase().includes("login.html");
-    const hasRecoveryInUrl = window.location.hash.includes("type=recovery") || window.location.search.includes("type=recovery");
-
-    // Limpieza drástica si el usuario viene de un flujo de registro/invitación
+    // Detectar si la URL o el sessionStorage contienen indicativo de recuperación
     if (
-      window.location.hash.includes("type=signup") ||
-      window.location.hash.includes("type=invite") ||
-      window.location.search.includes("type=signup") ||
-      window.location.search.includes("type=invite")
-    ) {
-      sessionStorage.removeItem("printlab_recovery_mode");
-    }
-
-    // Si detectamos que no hay parámetros de recuperación reales en la URL, borramos la memoria atascada
-    if (!hasRecoveryInUrl) {
-      sessionStorage.removeItem("printlab_recovery_mode");
-    }
-
-    // Detectar si la URL o el sessionStorage contienen indicativo de recuperación (Filtrando confirmaciones de registro)
-    if (
-      hasRecoveryInUrl ||
-      (window.location.hash.includes("access_token=") && 
-       !window.location.hash.includes("type=signup") && 
-       !window.location.hash.includes("type=invite")) ||
+      window.location.hash.includes("type=recovery") ||
+      window.location.hash.includes("access_token=") ||
+      window.location.search.includes("type=recovery") ||
       sessionStorage.getItem("printlab_recovery_mode") === "true"
     ) {
       isRecoveryMode = true;
       sessionStorage.setItem("printlab_recovery_mode", "true");
-    } else {
-      isRecoveryMode = false;
-      sessionStorage.removeItem("printlab_recovery_mode");
     }
 
     // Escuchar el evento de recuperación de Supabase
