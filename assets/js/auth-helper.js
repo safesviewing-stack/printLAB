@@ -6,13 +6,7 @@
 (function() {
   const originalGetItem = localStorage.getItem;
 
-  localStorage.getItem = function(key) {
-
-    if (
-      key &&
-      key.includes("auth-token") &&
-      sessionStorage.getItem("printlab_recovery_mode") === "true"
-    ) {
+ 
 
       // Permitir lectura única en login.html para que el formulario de recuperación pueda procesar updateUser
       if (
