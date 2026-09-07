@@ -579,7 +579,7 @@
   const SUPABASE_ANON_KEY =
     "sb_publishable_kelRYJ3Fa56DXY3GhxWLHQ_YiLJzStR";
 
-  // REUTILIZAR LA INSTANCIA GLOBAL DE SUPABASE CREADA POR AUTH-HELPER
+  // Reutilizar la instancia global de Supabase creada por auth-helper para compartir la sesión activa de recuperación
   const supabaseClient = window.supabaseClient ||
     supabase.createClient(
       SUPABASE_URL,
