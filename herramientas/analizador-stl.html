@@ -37,7 +37,7 @@
 
     .auth-buttons { display:flex; gap:12px; align-items:center; }
     .btn-auth { display: inline-flex; align-items: center; justify-content: center; padding: 12px 24px; border-radius: 9999px; font-weight: 800; font-size: 14px; cursor: pointer; transition: .2s ease; text-decoration: none; border: 2px solid var(--ink); }
-    .btn-auth.light { background: #fff; color: var(--ink); box-shadow: 0 3px 0px var(--ink); }
+    .btn-auth.light { background: #fff; color: var(--ink); box-shadow: 0 3px 0 var(--ink); }
     .btn-auth.light:hover { transform: translateY(-1px); box-shadow: 0 4px 0px var(--ink); }
     .btn-auth.light:active { transform: translateY(2px); box-shadow: 0 1px 0px var(--ink); }
     .btn-auth.green { background: var(--accent); color: var(--ink); box-shadow: 0 3px 0px var(--ink); }
@@ -500,28 +500,37 @@
   </script>
 
   <script>
-    // --- LÓGICA DE PERSISTENCIA MEDIANTE INDEXEDDB (EVITA PÉRDIDAS DEL STL) ---
+    // --- LÓGICA DE PERSISTENCIA MEDIANTE INDEXEDDB (BLINDADA CONTRA ERRORES DE SEGURIDAD) ---
     const DB_NAME = "PrintLabDB";
     const STORE_NAME = "AnalysisSession";
 
     function openDB() {
-      return new Promise((resolve, reject) => {
-        const request = indexedDB.open(DB_NAME, 1);
-        request.onupgradeneeded = (e) => {
-          const db = e.target.result;
-          if (!db.objectStoreNames.contains(STORE_NAME)) {
-            db.createObjectStore(STORE_NAME, { keyPath: "id" });
+      return new Promise((resolve) => {
+        try {
+          if (!window.indexedDB) {
+            resolve(null); // Evitar rejections que bloqueen el script principal
+            return;
           }
-        };
-        request.onsuccess = (e) => resolve(e.target.result);
-        request.onerror = (e) => reject(e.target.error);
+          const request = indexedDB.open(DB_NAME, 1);
+          request.onupgradeneeded = (e) => {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains(STORE_NAME)) {
+              db.createObjectStore(STORE_NAME, { keyPath: "id" });
+            }
+          };
+          request.onsuccess = (e) => resolve(e.target.result);
+          request.onerror = () => resolve(null); // Retornar nulo ante bloqueos de permisos o modo incógnito
+        } catch (err) {
+          resolve(null);
+        }
       });
     }
 
     async function saveSession(file, answers, stepIdx) {
       try {
         const db = await openDB();
-        return new Promise((resolve, reject) => {
+        if (!db) return;
+        return new Promise((resolve) => {
           const transaction = db.transaction(STORE_NAME, "readwrite");
           const store = transaction.objectStore(STORE_NAME);
           const request = store.put({
@@ -532,25 +541,26 @@
             timestamp: Date.now()
           });
           request.onsuccess = () => resolve();
-          request.onerror = (e) => reject(e.target.error);
+          request.onerror = () => resolve(); // Evitar interrupciones ante fallos de escritura
         });
       } catch (err) {
-        console.error("No se pudo guardar la sesión local:", err);
+        console.warn("No se pudo guardar la sesión local:", err);
       }
     }
 
     async function loadSession() {
       try {
         const db = await openDB();
-        return new Promise((resolve, reject) => {
+        if (!db) return null;
+        return new Promise((resolve) => {
           const transaction = db.transaction(STORE_NAME, "readonly");
           const store = transaction.objectStore(STORE_NAME);
           const request = store.get("current_session");
           request.onsuccess = (e) => resolve(e.target.result);
-          request.onerror = (e) => reject(e.target.error);
+          request.onerror = () => resolve(null);
         });
       } catch (err) {
-        console.error("No se pudo cargar la sesión local:", err);
+        console.warn("No se pudo cargar la sesión local:", err);
         return null;
       }
     }
@@ -558,15 +568,16 @@
     async function clearSession() {
       try {
         const db = await openDB();
-        return new Promise((resolve, reject) => {
+        if (!db) return;
+        return new Promise((resolve) => {
           const transaction = db.transaction(STORE_NAME, "readwrite");
           const store = transaction.objectStore(STORE_NAME);
           const request = store.delete("current_session");
           request.onsuccess = () => resolve();
-          request.onerror = (e) => reject(e.target.error);
+          request.onerror = () => resolve();
         });
       } catch (err) {
-        console.error("No se pudo limpiar la sesión local:", err);
+        console.warn("No se pudo limpiar la sesión local:", err);
       }
     }
     // ----------------=======================================----------------
@@ -1510,78 +1521,82 @@
       await updateButtonState();
 
       // --- VERIFICAR Y RESTAURAR SESIÓN DE CONTINGENCIA TRAS LA COMPRA ---
-      const urlParams = new URLSearchParams(window.location.search);
-      const isResume = urlParams.get("action") === "resume" || sessionStorage.getItem("printlab_resume_analysis") === "true";
-      
-      if (isResume) {
-        const saved = await loadSession();
-        if (saved && saved.file) {
-          // Restaurar archivo STL
-          window.selectedSTLFile = saved.file;
-          selectedFileName.textContent = saved.file.name;
-          selectedFileSize.textContent = saved.file.size < 1024*1024 
-            ? (saved.file.size/1024).toFixed(0) + " KB" 
-            : (saved.file.size/(1024*1024)).toFixed(1) + " MB";
-          selectedFile.classList.add("show");
-          
-          // Restaurar respuestas del cuestionario
-          if (saved.answers) {
-            Object.assign(answers, saved.answers);
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const isResume = urlParams.get("action") === "resume" || sessionStorage.getItem("printlab_resume_analysis") === "true";
+        
+        if (isResume) {
+          const saved = await loadSession();
+          if (saved && saved.file) {
+            // Restaurar archivo STL
+            window.selectedSTLFile = saved.file;
+            selectedFileName.textContent = saved.file.name;
+            selectedFileSize.textContent = saved.file.size < 1024*1024 
+              ? (saved.file.size/1024).toFixed(0) + " KB" 
+              : (saved.file.size/(1024*1024)).toFixed(1) + " MB";
+            selectedFile.classList.add("show");
             
-            // Marcar visualmente las tarjetas previamente seleccionadas
-            document.querySelectorAll(".option-card").forEach(card => {
-              const val = card.dataset.val;
-              const onclickAttr = card.getAttribute("onclick");
-              const match = onclickAttr ? onclickAttr.match(/'([^']+)'/) : null;
-              const field = match ? match[1] : null;
-              if (field) {
-                if (field === 'purpose') {
-                  if (Array.isArray(answers.purpose) && answers.purpose.includes(val)) {
-                    card.classList.add("selected");
-                  }
-                } else {
-                  if (answers[field] === val) {
-                    card.classList.add("selected");
+            // Restaurar respuestas del cuestionario
+            if (saved.answers) {
+              Object.assign(answers, saved.answers);
+              
+              // Marcar visualmente las tarjetas previamente seleccionadas
+              document.querySelectorAll(".option-card").forEach(card => {
+                const val = card.dataset.val;
+                const onclickAttr = card.getAttribute("onclick");
+                const match = onclickAttr ? onclickAttr.match(/'([^']+)'/) : null;
+                const field = match ? match[1] : null;
+                if (field) {
+                  if (field === 'purpose') {
+                    if (Array.isArray(answers.purpose) && answers.purpose.includes(val)) {
+                      card.classList.add("selected");
+                    }
+                  } else {
+                    if (answers[field] === val) {
+                      card.classList.add("selected");
+                    }
                   }
                 }
+              });
+              
+              // Restaurar el dropdown de la impresora
+              const printerSelect = document.getElementById("printerSelect");
+              if (printerSelect && answers.printer) {
+                printerSelect.value = answers.printer;
               }
-            });
-            
-            // Restaurar el dropdown de la impresora
-            const printerSelect = document.getElementById("printerSelect");
-            if (printerSelect && answers.printer) {
-              printerSelect.value = answers.printer;
             }
+            
+            // Ocultar elementos iniciales de subida y mostrar barra de navegación
+            document.querySelector(".upload-title").style.display = "none";
+            document.querySelector(".upload-desc").style.display = "none";
+            accessButton.style.display = "none";
+            document.querySelector(".drag-help").style.display = "none";
+            progressContainer.style.display = "block";
+            wizardNav.style.display = "flex";
+            
+            // Saltar directamente al paso guardado (generalmente el paso 5 - visor)
+            const targetStep = saved.stepIdx !== undefined ? saved.stepIdx : 5;
+            currentStepIdx = targetStep;
+            
+            document.getElementById(steps[0]).classList.remove("active");
+            document.getElementById(steps[currentStepIdx]).classList.add("active");
+            
+            const progressPercent = (currentStepIdx / (steps.length - 1)) * 100;
+            document.getElementById("progressBar").style.width = `${progressPercent}%`;
+            document.getElementById("prevBtn").style.visibility = "visible";
+            document.getElementById("nextBtn").textContent = "Iniciar Análisis Real";
+            
+            // Inicializar el visor 3D con la pieza restaurada
+            initSelector3D();
+            validateCurrentStep();
+            
+            // Opcional: borrar el indicador temporal de sesión si ya se restauró con éxito
+            sessionStorage.removeItem("printlab_resume_analysis");
+            await clearSession();
           }
-          
-          // Ocultar elementos iniciales de subida y mostrar barra de navegación
-          document.querySelector(".upload-title").style.display = "none";
-          document.querySelector(".upload-desc").style.display = "none";
-          accessButton.style.display = "none";
-          document.querySelector(".drag-help").style.display = "none";
-          progressContainer.style.display = "block";
-          wizardNav.style.display = "flex";
-          
-          // Saltar directamente al paso guardado (generalmente el paso 5 - visor)
-          const targetStep = saved.stepIdx !== undefined ? saved.stepIdx : 5;
-          currentStepIdx = targetStep;
-          
-          document.getElementById(steps[0]).classList.remove("active");
-          document.getElementById(steps[currentStepIdx]).classList.add("active");
-          
-          const progressPercent = (currentStepIdx / (steps.length - 1)) * 100;
-          document.getElementById("progressBar").style.width = `${progressPercent}%`;
-          document.getElementById("prevBtn").style.visibility = "visible";
-          document.getElementById("nextBtn").textContent = "Iniciar Análisis Real";
-          
-          // Inicializar el visor 3D con la pieza restaurada
-          initSelector3D();
-          validateCurrentStep();
-          
-          // Opcional: borrar el indicador temporal de sesión si ya se restauró con éxito
-          sessionStorage.removeItem("printlab_resume_analysis");
-          await clearSession();
         }
+      } catch (resumeError) {
+        console.warn("No se pudo recuperar la sesión de contingencia de forma segura:", resumeError);
       }
 
       document.getElementById("nextBtn").addEventListener("click", async () => {
@@ -1726,7 +1741,7 @@
         try {
           nextBtn.textContent = "Almacenando archivo...";
           const filePath = `uploads/${session.user.id}/${Date.now()}.stl`;
-          await client.storage.from('stls').upload(filePath, window.selectedSTLFile, { cacheControl: '3600', 'upsert': true });
+          await client.storage.from('stls').upload(window.selectedSTLFile, filePath, { cacheControl: '3600', 'upsert': true });
 
           nextBtn.textContent = "Analizando geometría...";
           const formData = new FormData();
