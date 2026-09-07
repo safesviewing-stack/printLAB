@@ -569,24 +569,6 @@
  <!-- SUPABASE -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<!-- ELIMINAR EL INICIO DE SESIÓN EN SEGUNDO PLANO DE MANERA SÍNCRONA ANTES DE CARGAR EL AUTH-HELPER -->
-<script>
-  (function() {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("verified") === "true") {
-      const keysToRemove = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && (key.includes("-auth-token") || key.startsWith("sb-"))) {
-          keysToRemove.push(key);
-        }
-      }
-      keysToRemove.forEach(key => localStorage.removeItem(key));
-      sessionStorage.clear();
-    }
-  })();
-</script>
-
 <!-- Parámetro cache-busting v=10 para forzar recarga de la pre-carga síncrona en cabecera -->
 <script src="../assets/js/auth-helper.js?v=10"></script>
 
@@ -841,7 +823,7 @@
           </h3>
 
           <p>
-            Plataforma profesional de análisis y optimización STL mediante Inteligencia Artificial y simuladores paramétricos. Transformamos modelos 3D con problemas en geometrías perfectas listas para fabricar, ahorrando tiempo, material y costes en entornos industriales.
+            Plataforma profesional de análisis de optimización STL mediante Inteligencia Artificial y simuladores paramétricos. Transformamos modelos 3D con problemas en geometrías perfectas listas para fabricar, ahorrando tiempo, material y costes en entornos industriales.
           </p>
 
           <p class="footer-secondary-text">
@@ -1003,6 +985,29 @@
        DESTINO DESPUÉS DEL LOGIN
     ===================================================== */
 
+    /*
+      Hay tres posibilidades:
+
+      1. Venimos del analizador:
+
+         login.html?redirect=analizador-stl.html
+
+         → volvemos al analizador.
+
+
+      2. Venimos de otra herramienta:
+
+         login.html?redirect=informe-stl.html
+
+         → volvemos a esa herramienta.
+
+
+      3. Entramos directamente a login.html:
+
+         → vamos al inicio.
+    */
+
+
     const loginParams =
       new URLSearchParams(
         window.location.search
@@ -1013,6 +1018,12 @@
       loginParams.get("redirect") || "";
 
 
+    /*
+      Si no existe redirect en la URL,
+      intentamos recuperar el destino
+      que hubiera guardado otra página.
+    */
+
     if(!requestedLoginRedirect){
 
       requestedLoginRedirect =
@@ -1022,6 +1033,15 @@
 
     }
 
+
+    /*
+      Solo permitimos destinos internos
+      conocidos.
+
+      Esto evita que alguien pueda utilizar
+      el parámetro redirect para enviar al
+      usuario a una página externa.
+    */
 
     const allowedLoginRedirects = [
 
@@ -1041,6 +1061,11 @@
       ? requestedLoginRedirect
       : "../index.html";
 
+
+    /*
+      Guardamos el destino para que no se pierda
+      al navegar entre las páginas de autenticación.
+    */
 
     sessionStorage.setItem(
       "printlab_auth_redirect",
@@ -1108,7 +1133,7 @@
       );
 
 
-    // NUEVO: Mostrar aviso de éxito si el usuario viene de verificar su correo por Gmail y forzar cierre de sesión automático
+    // NUEVO: Mostrar aviso de éxito si el usuario viene de verificar su correo por Gmail
     if (loginParams.get("verified") === "true" && loginMessage) {
       supabaseClient.auth.signOut();
       loginMessage.style.background = "#eef9f0";
@@ -1128,6 +1153,10 @@
           e.preventDefault();
 
 
+          /*
+            Ocultar mensaje anterior.
+          */
+
           loginMessage.classList.remove(
             "show"
           );
@@ -1138,6 +1167,9 @@
           loginMessage.style.color = "";
 
 
+          /*
+            PROCESAR ACTUALIZACIÓN DE CONTRASEÑA EN MODO RECUPERACIÓN
+          */
           if (isRecoveryMode) {
 
             const password =
@@ -1177,8 +1209,10 @@
                 throw error;
               }
 
+              // Limpiar estado de recuperación en memoria del navegador
               sessionStorage.removeItem("printlab_recovery_mode");
 
+              // Cerrar la sesión temporal para forzar al usuario a iniciar sesión con su nueva contraseña
               await supabaseClient.auth.signOut();
 
               loginMessage.style.background = "#eef9f0";
@@ -1227,6 +1261,10 @@
           }
 
 
+          /*
+            FLUJO NORMAL DE INICIO DE SESIÓN
+          */
+
           const email =
             document
               .getElementById("login-email")
@@ -1239,6 +1277,10 @@
               .getElementById("login-password")
               .value;
 
+
+          /*
+            Validación básica.
+          */
 
           if(!email || !password){
 
@@ -1254,6 +1296,10 @@
           }
 
 
+          /*
+            Estado de carga.
+          */
+
           loginButton.disabled = true;
 
           loginButton.textContent =
@@ -1263,323 +1309,11 @@
           try{
 
 
+            /*
+              Iniciar sesión con Supabase.
+            */
+
             const {
               data,
               error
             } =
-              await supabaseClient.auth
-                .signInWithPassword({
-
-                  email:email,
-
-                  password:password
-
-                });
-
-
-            if(error){
-
-              throw error;
-
-            }
-
-
-            if(
-              !data ||
-              !data.session
-            ){
-
-              throw new Error(
-                "No se pudo crear la sesión."
-              );
-
-            }
-
-
-            loginButton.textContent =
-              "Sesión iniciada ✓";
-
-
-            const finalRedirect =
-              sessionStorage.getItem(
-                "printlab_auth_redirect"
-              ) || loginRedirectTarget;
-
-
-            setTimeout(
-              function(){
-
-                sessionStorage.removeItem(
-                  "printlab_auth_redirect"
-                );
-
-
-                window.location.href =
-                  finalRedirect;
-
-              },
-              500
-            );
-
-
-          }
-          catch(error){
-
-            console.error(
-              "Error al iniciar sesión:",
-              error
-            );
-
-
-            let errorText =
-              "No se pudo iniciar sesión. Comprueba tu email y contraseña.";
-
-
-            if(
-              error &&
-              typeof error.message === "string"
-            ){
-
-              const message =
-                error.message.toLowerCase();
-
-
-              if(
-                message.includes(
-                  "email not confirmed"
-                )
-              ){
-
-                errorText =
-                  "Debes verificar tu correo electrónico antes de iniciar sesión.";
-
-              }
-
-              else if(
-                message.includes(
-                  "invalid login credentials"
-                )
-              ){
-
-                errorText =
-                  "El email o la contraseña no son correctos.";
-
-              }
-
-              else if(
-                message.includes(
-                  "too many requests"
-                )
-              ){
-
-                errorText =
-                  "Demasiados intentos. Espera unos minutos y vuelve a intentarlo.";
-
-              }
-
-            }
-
-
-            loginMessage.textContent =
-              errorText;
-
-
-            loginMessage.classList.add(
-              "show"
-            );
-
-
-            loginButton.disabled =
-              false;
-
-            loginButton.textContent =
-              "Entrar a mi cuenta";
-
-          }
-
-        }
-      );
-
-    }
-
-
-    /* =====================================================
-       OLVIDÉ MI CONTRASEÑA
-    ===================================================== */
-
-    const forgotPassword =
-      document.getElementById(
-        "forgot-password"
-      );
-
-
-    if(forgotPassword){
-
-      forgotPassword.addEventListener(
-        "click",
-        async function(e){
-
-          e.preventDefault();
-
-
-          loginMessage.classList.remove("show");
-          loginMessage.textContent = "";
-          loginMessage.style.background = "";
-          loginMessage.style.borderColor = "";
-          loginMessage.style.color = "";
-
-          const emailInput = document.getElementById("login-email");
-          const email = emailInput ? emailInput.value.trim() : "";
-
-
-          if(!email){
-
-            loginMessage.textContent =
-              "Por favor, introduce tu email profesional en el campo superior para enviarte el enlace de recuperación.";
-
-            loginMessage.classList.add(
-              "show"
-            );
-
-            return;
-
-          }
-
-
-          forgotPassword.style.pointerEvents = "none";
-          forgotPassword.style.opacity = "0.5";
-
-          loginMessage.style.background = "#f0f4f8";
-          loginMessage.style.borderColor = "#d0e2ff";
-          loginMessage.style.color = "#0043ce";
-          loginMessage.textContent = "Enviando enlace de recuperación...";
-          loginMessage.classList.add("show");
-
-
-          try{
-
-            const redirectUrl = window.location.origin + window.location.pathname;
-
-            const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-              redirectTo: redirectUrl,
-            });
-
-            if(error){
-              throw error;
-            }
-
-
-            loginMessage.style.background = "#eef9f0";
-            loginMessage.style.borderColor = "#c3e6cb";
-            loginMessage.style.color = "#155724";
-            loginMessage.textContent = "Enlace enviado. Revisa tu correo electrónico para restablecer tu contraseña.";
-
-          }
-          catch(error){
-
-            console.error(
-              "Error al enviar email de recuperación:",
-              error
-            );
-
-            loginMessage.style.background = "#fff1f1";
-            loginMessage.style.borderColor = "#e3caca";
-            loginMessage.style.color = "#8b2929";
-
-            let errMsg = "No se pudo enviar el enlace. Inténtalo de nuevo.";
-            if (error && error.message) {
-              if (error.message.toLowerCase().includes("rate limit") || error.message.toLowerCase().includes("too many requests")) {
-                errMsg = "Demasiados intentos. Espera unos minutos y vuelve a intentarlo.";
-              } else {
-                errMsg = error.message;
-              }
-            }
-
-            loginMessage.textContent = errMsg;
-
-          }
-          finally{
-
-            forgotPassword.style.pointerEvents = "auto";
-            forgotPassword.style.opacity = "1";
-
-          }
-
-        }
-      );
-
-    }
-
-
-    /* =====================================================
-       DETECCIÓN Y ACTIVACIÓN DE MODO RECUPERACIÓN
-    ===================================================== */
-
-    let isRecoveryMode = false;
-
-    if (
-      window.location.hash.includes("type=recovery") ||
-      window.location.hash.includes("access_token=") ||
-      window.location.search.includes("type=recovery") ||
-      sessionStorage.getItem("printlab_recovery_mode") === "true"
-    ) {
-      isRecoveryMode = true;
-      sessionStorage.setItem("printlab_recovery_mode", "true");
-    }
-
-    supabaseClient.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") {
-        isRecoveryMode = true;
-        sessionStorage.setItem("printlab_recovery_mode", "true");
-        activateRecoveryMode();
-      }
-    });
-
-    if (isRecoveryMode) {
-      activateRecoveryMode();
-    }
-
-    function activateRecoveryMode() {
-
-      isRecoveryMode = true;
-
-      const headerTitle = document.querySelector(".auth-header h1");
-      const headerDesc = document.querySelector(".auth-header p");
-      if (headerTitle) headerTitle.textContent = "Nueva contraseña";
-      if (headerDesc) headerDesc.textContent = "Introduce tu nueva contraseña segura de acceso.";
-
-      const emailInput = document.getElementById("login-email");
-      if (emailInput) {
-        const emailGroup = emailInput.closest(".form-group");
-        if (emailGroup) emailGroup.style.display = "none";
-        emailInput.removeAttribute("required");
-      }
-
-      const passwordLabel = document.querySelector('label[for="login-password"]');
-      if (passwordLabel) {
-        passwordLabel.innerHTML = 'Nueva contraseña';
-      }
-      const passwordInput = document.getElementById("login-password");
-      if (passwordInput) {
-        passwordInput.placeholder = "Escribe tu nueva contraseña";
-        passwordInput.autocomplete = "new-password";
-      }
-
-      if (loginButton) {
-        loginButton.textContent = "Actualizar contraseña";
-      }
-
-      const switchAuth = document.querySelector(".switch-auth");
-      if (switchAuth) {
-        switchAuth.style.display = "none";
-      }
-
-    }
-
-
-  </script>
-
-
-</body>
-
-</html>
