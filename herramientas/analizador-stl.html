@@ -117,13 +117,23 @@
       min-height:460px;
       position:relative;
       overflow:hidden;
+      /* Capa de composición GPU independiente y contención estricta para eliminar distorsiones durante el scroll */
+      contain: paint;
+      transform: translate3d(0, 0, 0);
+      backface-visibility: hidden;
+      will-change: transform;
     }
     
-    /* Configuración estándar del lienzo para un comportamiento fluido y libre de rastros al hacer scroll */
+    /* Configuración del lienzo para un comportamiento fluido y libre de rastros al hacer scroll */
     #selector3dContainer canvas {
       display: block !important;
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100% !important;
       height: 100% !important;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
     }
     
     .option-card{background:var(--bg);border:1.5px solid var(--line);border-radius:18px;padding:14px 16px;font-size:13.5px;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease,background .18s ease;display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:4px;min-height:100%;box-shadow:0 1px 0 rgba(13,17,16,.03)}
@@ -1010,14 +1020,20 @@
       // Evento de clic en el canvas para seleccionar cara de apoyo (filtrado por temporizador de arrastre)
       sRenderer.domElement.addEventListener("click", onMeshClick);
 
-      // Observador para actualizar el aspect ratio del viewport durante el redimensionamiento o scroll dinámico
+      // Observador inteligente para actualizar el aspect ratio evitando redimensionar constantemente en scroll
+      let prevWidth = 0;
+      let prevHeight = 0;
       sResizeObserver = new ResizeObserver(() => {
         if (!sRenderer || !sCamera || !container) return;
-        const width = container.clientWidth;
-        const height = container.clientHeight;
-        sCamera.aspect = width / height;
-        sCamera.updateProjectionMatrix();
-        sRenderer.setSize(width, height);
+        const width = Math.floor(container.clientWidth);
+        const height = Math.floor(container.clientHeight);
+        if (width !== prevWidth || height !== prevHeight) {
+          prevWidth = width;
+          prevHeight = height;
+          sCamera.aspect = width / height;
+          sCamera.updateProjectionMatrix();
+          sRenderer.setSize(width, height, false); // Desactiva la alteración inline de estilos CSS del lienzo
+        }
       });
       sResizeObserver.observe(container);
 
@@ -1201,8 +1217,7 @@
         animationFrameId = requestAnimationFrame(animate);
         sControls.update();
         if (sRenderer && sScene && sCamera) {
-          sRenderer.clear(); // Limpieza explícita del búfer antes de pintar el nuevo fotograma para evitar ghosting
-          sRenderer.render(sScene, sCamera);
+          sRenderer.render(sScene, sCamera); // Delegación nativa en Three.js para la limpieza síncrona
         }
       }
       animate();
