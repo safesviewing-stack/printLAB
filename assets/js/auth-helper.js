@@ -1,19 +1,22 @@
 // assets/js/auth-helper.js
 
 // =====================================================
-// REDIRECCIÓN INTELIGENTE SI SUPABASE NOS ENVÍA AL INDEX CON EL TOKEN de recuperación
+// REDIRECCIÓN AUTOMÁTICA SI SUPABASE NOS ENVÍA AL INDEX AL RECUPERAR
 // =====================================================
 (function() {
-  const hasRecoveryParams = 
+  const isRecoveryInUrl = 
     window.location.hash.includes("type=recovery") ||
     window.location.hash.includes("access_token=") ||
     window.location.search.includes("type=recovery");
 
-  if (hasRecoveryParams && !window.location.pathname.toLowerCase().includes("login.html")) {
+  const onLoginPage = window.location.pathname.toLowerCase().includes("login.html");
+
+  if (isRecoveryInUrl && !onLoginPage) {
     sessionStorage.setItem("printlab_recovery_mode", "true");
-    
+
     const currentPathname = window.location.pathname.toLowerCase();
     let pathPrefix = "";
+    
     if (currentPathname.includes("/herramientas/")) {
       pathPrefix = "";
     } else if (currentPathname.includes("/guias/") || currentPathname.includes("/materiales/")) {
