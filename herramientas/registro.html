@@ -19,6 +19,17 @@
     rel="stylesheet"
   >
 
+  <!-- ETIQUETA GLOBAL DE GOOGLE (Analytics + Google Ads) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-CD5S65HWKN"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-CD5S65HWKN');
+    gtag('config', 'AW-18436510866');
+  </script>
+
   <style>
 
     :root{
@@ -1472,6 +1483,17 @@ registerForm.addEventListener(
         data &&
         data.user
       ){
+
+        /*
+         * Registrar conversión en Google Ads
+         */
+        if (typeof gtag === 'function') {
+          gtag('event', 'conversion', {
+              'send_to': 'AW-18436510866/7skhCM6K4vAcEJKpm9dE',
+              'value': 1.0,
+              'currency': 'EUR'
+          });
+        }
 
         /*
          * Guardar información temporal.
