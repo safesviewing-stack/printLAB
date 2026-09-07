@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>PrintLab — Laminador Inteligente y Optimización 3D</title>
-  <meta name="description" content="Slicing inteligente y optimización de G-Code basada en datos técnicos de Prusa, UltiMaker, Formlabs, Bambu Lab, ISO y ASTM.">
+  <title>PrintLab — Guías, diagnóstico y laminación inteligente 3D</title>
+  <meta name="description" content="Decisiones técnicas de impresión 3D basadas en datos de Prusa, UltiMaker, Formlabs, Bambu Lab, ISO, ASTM, NIOSH y CDC.">
   <meta name="robots" content="index,follow">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,7 +17,7 @@
     a{color:inherit;text-decoration:none}
     .wrap{max-width:var(--max);margin:auto;padding:0 40px}
 
-    /* CABECERA Y NAVEGACIÓN HAMBURGUESA */
+    /* CABECERA Y NAVEGACIÓN HAMBURGUESA - Corregido para que sea opaco y evite destellos al refrescar */
     .top{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--line)}
     nav{min-height:95px;display:flex;align-items:center;justify-content:space-between;}
     
@@ -92,16 +92,13 @@
     .sectionhead h2{font-size:clamp(32px, 4vw, 42px); letter-spacing:-0.02em; margin:0 0 12px; font-weight:800; line-height:1.1;}
     .sectionhead p{margin:0;color:var(--muted);font-size:18px}
     
-    /* LAMINADOR BENTO BOX (ESTILO REFORMULADO) */
-    .bento-container { display:grid; grid-template-columns:1.2fr 0.8fr; gap:20px; }
-    .bento-card-main { background:#111715; color:#fff; border-radius:28px; padding:44px; display:flex; flex-direction:column; justify-content:center; position:relative; overflow:hidden; box-shadow:0 20px 40px rgba(0,0,0,0.06); }
-    .bento-col-right { display:flex; flex-direction:column; gap:20px; }
-    .bento-card { background:#fff; border:1.5px solid #dfe4df; border-radius:28px; padding:28px; flex:1; display:flex; flex-direction:column; justify-content:center; transition:.25s ease; box-shadow:0 10px 20px rgba(0,0,0,0.01); }
-    .bento-card:hover { border-color:#111715; transform:translateY(-4px); box-shadow:0 15px 35px rgba(0,0,0,0.04); }
-    .bento-grid-mini { display:grid; grid-template-columns:1fr 1fr; gap:20px; flex:1; }
-
-    /* ICON CONTAINER ESTILO MODERNO */
-    .bento-icon-box { width:48px; height:48px; background:#f4f6f4; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px; border:1px solid #dfe4df; flex-shrink:0; }
+    /* ANALIZADOR TIPO BENTO BOX */
+    .bento-container { display:grid; grid-template-columns:1.2fr 0.8fr; gap:16px; }
+    .bento-card-main { background:var(--dark); color:#fff; border-radius:32px; padding:32px; display:flex; flex-direction:column; justify-content:center; position:relative; overflow:hidden; box-shadow:0 20px 40px rgba(0,0,0,0.12); }
+    .bento-col-right { display:flex; flex-direction:column; gap:16px; }
+    .bento-card { background:var(--card); border:1.5px solid var(--line); border-radius:32px; padding:22px 24px; flex:1; display:flex; flex-direction:column; justify-content:center; transition:.25s ease; box-shadow:0 10px 20px rgba(0,0,0,0.015); }
+    .bento-card:hover { border-color:var(--ink); transform:translateY(-4px); box-shadow:0 15px 35px rgba(0,0,0,0.05); }
+    .bento-grid-mini { display:grid; grid-template-columns:1fr 1fr; gap:16px; flex:1; }
 
     /* SIMULADOR INTERACTIVO */
     .sim-container{background:#101614; color:#fff; border-radius:24px; padding:42px; display:grid; grid-template-columns:1.1fr 0.9fr; gap:40px; box-shadow:0 20px 40px rgba(0,0,0,0.08);}
@@ -245,7 +242,7 @@
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- Parámetro cache-busting v=12 para forzar recarga del JS corregido globalmente -->
+  <!-- Parámetro cache-busting v=11 para forzar recarga del JS corregido globalmente -->
   <script src="assets/js/auth-helper.js?v=12"></script>
 </head>
 <body>
@@ -263,7 +260,7 @@
             </button>
             <div class="dropdown-content" id="mainMenu">
               <a href="#portada" class="active">Inicio</a>
-              <a href="#laminador">Laminador Inteligente</a>
+              <a href="#analizador">Laminador Inteligente</a>
               <a href="#simulador">Simulador</a>
               <a href="#herramientas">Herramientas</a>
               <a href="#guias">Guías</a>
@@ -352,8 +349,8 @@
           })();
         </script>
 
-        <h1>El laminador inteligente y optimizador de impresión 3D.</h1>
-        <p>Soluciones de ingeniería respaldadas por normativas ISO, ASTM y documentación de fabricantes (Prusa, UltiMaker, Formlabs). Optimiza tus parámetros de extrusión de forma automática.</p>
+        <h1>La guía práctica para entender la impresión 3D.</h1>
+        <p>Soluciones de ingeniería respaldadas por normativas ISO, ASTM y documentación de fabricantes (Prusa, UltiMaker, Formlabs). Deja de adivinar parámetros.</p>
         
         <div style="display:flex;gap:12px;flex-wrap:wrap">
           <button class="btn green" onclick="toggleAssistant()">¿Qué material necesito?</button>
@@ -395,56 +392,56 @@
 
     <hr class="section-divider">
 
-    <!-- SECCIÓN: LAMINADOR INTELIGENTE (ESTILO REDISEÑADO SEGÚN FOTO) -->
-    <section id="laminador" class="section">
+    <!-- SECCIÓN: LAMINADOR INTELIGENTE IA -->
+    <section id="analizador" class="section">
       
-      <div style="margin-bottom: 20px;">
+      <div style="margin-bottom: 24px;">
         <span class="eyebrow" style="background:rgba(184, 255, 61, 0.25); color:#507a00; border:1px solid rgba(184, 255, 61, 0.4);">🔒 Requiere Suscripción</span>
       </div>
 
       <div class="bento-container">
         
         <!-- Tarjeta Principal (Izquierda) -->
-        <div class="bento-card-main">
+        <div class="bento-card-main" style="background: var(--dark); color: #fff; border-radius: 32px; padding: 42px; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.12); min-height: 380px;">
           
-          <h3 style="font-size:clamp(34px, 4vw, 48px); font-weight:800; line-height:1.05; margin:0 0 16px; letter-spacing:-1px; color:#fff;">Laminador Inteligente 3D</h3>
-          <p style="color:#bcc5c0; font-size:16px; line-height:1.6; margin:0 0 32px; max-width:92%;">Sube tu diseño y prevén fallos antes de encender la impresora. Nuestro motor inteligente analiza la geometría del modelo, localiza zonas críticas de concentración de tensiones y te genera los parámetros de laminación exactos para tu máquina.</p>
+          <div>
+            <h3 style="font-size: clamp(34px, 4.2vw, 48px); font-weight: 800; line-height: 1.1; margin: 0 0 16px; letter-spacing: -1.5px; color: #fff;">Laminador Inteligente</h3>
+            <p style="color: #bcc5c0; font-size: 16px; line-height: 1.6; margin: 0 0 32px; max-width: 95%;">Sube tu diseño y prevén fallos antes de encender la impresora. Nuestro motor detecta errores geométricos, localiza zonas críticas de concentración de tensiones y te devuelve los parámetros exactos para tu laminador.</p>
+          </div>
           
-          <!-- Botón de estilo idéntico al de la imagen -->
-          <a href="herramientas/laminador-inteligente.html" style="display:inline-flex; align-items:center; justify-content:center; padding:18px 36px; border-radius:9999px; background:#b8ff3d; color:#0d1110; font-weight:800; font-size:16px; border:none; cursor:pointer; transition:.2s ease; box-shadow:0 4px 14px rgba(184,255,61,0.25); text-decoration:none; align-self:flex-start; margin-bottom:24px;">Subir archivo e iniciar laminación</a>
-          
-          <div style="font-size:13px; color:#7d8782; font-weight:700; display:flex; align-items:center; gap:6px;">
-            <span style="color:var(--accent);">🔒</span> Procesamiento local cifrado. Cero retención de datos.
+          <div>
+            <a href="herramientas/analizador-stl.html" class="btn" style="align-self: flex-start; padding: 15px 30px; font-size: 15px; margin-bottom: 20px; background-color: #b8ff3d; color: #111715; border: none; font-weight: 800; border-radius: 9999px; box-shadow: 0 4px 0px #111715; transition: 0.2s ease; display: inline-flex; align-items: center; justify-content: center;">Subir archivo e iniciar análisis</a>
+            
+            <div style="font-size: 13px; color: #7d8782; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+              <span style="color: var(--accent);">🔒</span> Procesamiento local cifrado. Cero retención de datos.
+            </div>
           </div>
         </div>
 
         <!-- Tarjetas Secundarias (Derecha) -->
         <div class="bento-col-right">
           
-          <!-- Tarjeta Superior (Línea Horizontal con Icono Izquierdo) -->
-          <div class="bento-card">
-            <div style="display:flex; align-items:center; gap:16px; margin-bottom:12px;">
-              <div class="bento-icon-box">📐</div>
-              <h4 style="margin:0; font-size:19px; font-weight:800; color:#0d1110; letter-spacing:-0.3px;">Cálculo Geométrico Real</h4>
+          <!-- Tarjeta Superior -->
+          <div class="bento-card" style="background: var(--card); border: 1.5px solid var(--line); border-radius: 32px; padding: 28px 32px; flex: 1; display: flex; flex-direction: column; justify-content: center; transition: .25s ease; box-shadow: 0 10px 20px rgba(0,0,0,0.015);">
+            <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 14px;">
+              <div style="width: 48px; height: 48px; background: #ecefe9; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; border: 1px solid rgba(0,0,0,0.05);">📐</div>
+              <h4 style="margin: 0; font-size: 18px; font-weight: 800; color: var(--ink); letter-spacing: -0.3px;">Cálculo Geométrico Real</h4>
             </div>
-            <p style="margin:0; font-size:15px; color:var(--muted); line-height:1.6;">Procesamos la estructura interna, los perímetros y los voladizos mediante un algoritmo en Python que interpreta la malla y detecta debilidades críticas en el G-Code.</p>
+            <p style="margin: 0; font-size: 14.5px; color: var(--muted); line-height: 1.5;">Procesamos la estructura interna, los perímetros y los voladizos mediante un algoritmo en Python que interpreta la malla y detecta debilidades críticas.</p>
           </div>
 
-          <!-- Tarjetas Inferiores (Grid Dividido de 2 Columnas) -->
+          <!-- Tarjetas Inferiores (Grid Dividido) -->
           <div class="bento-grid-mini">
-            
-            <!-- Tarjeta Inferior Izquierda -->
-            <div class="bento-card" style="padding:22px 24px;">
-              <div class="bento-icon-box" style="margin-bottom:16px;">🎯</div>
-              <h4 style="margin:0 0 8px; font-size:17px; font-weight:800; color:#0d1110; letter-spacing:-0.2px;">Soluciones Slicer</h4>
-              <p style="margin:0; font-size:14px; color:var(--muted); line-height:1.5;">Instrucciones precisas y listas para aplicar en tu laminador habitual.</p>
+            <div class="bento-card" style="padding: 24px; background: var(--card); border: 1.5px solid var(--line); border-radius: 32px; transition: .25s ease; box-shadow: 0 10px 20px rgba(0,0,0,0.015);">
+              <div style="width: 48px; height: 48px; background: #ecefe9; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 14px; border: 1px solid rgba(0,0,0,0.05);">🎯</div>
+              <h4 style="margin: 0 0 6px; font-size: 16px; font-weight: 800; color: var(--ink); letter-spacing: -0.2px;">Soluciones Slicer</h4>
+              <p style="margin: 0; font-size: 13.5px; color: var(--muted); line-height: 1.5;">Instrucciones precisas y listas para aplicar en tu laminador.</p>
             </div>
             
-            <!-- Tarjeta Inferior Derecha -->
-            <div class="bento-card" style="padding:22px 24px;">
-              <div class="bento-icon-box" style="margin-bottom:16px;">💵</div>
-              <h4 style="margin:0 0 8px; font-size:17px; font-weight:800; color:#0d1110; letter-spacing:-0.2px;">Ahorro de Costes</h4>
-              <p style="margin:0; font-size:14px; color:var(--muted); line-height:1.5;">Reduce material de soporte y elimina por completo los fallos de lote.</p>
+            <div class="bento-card" style="padding: 24px; background: var(--card); border: 1.5px solid var(--line); border-radius: 32px; transition: .25s ease; box-shadow: 0 10px 20px rgba(0,0,0,0.015);">
+              <div style="width: 48px; height: 48px; background: #ecefe9; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 14px; border: 1px solid rgba(0,0,0,0.05);">💶</div>
+              <h4 style="margin: 0 0 6px; font-size: 16px; font-weight: 800; color: var(--ink); letter-spacing: -0.2px;">Ahorro de Costes</h4>
+              <p style="margin: 0; font-size: 13.5px; color: var(--muted); line-height: 1.5;">Reduce material de soporte y elimina por completo los fallos de lote.</p>
             </div>
           </div>
 
@@ -853,14 +850,14 @@
       <div class="footergrid">
         <div class="footer-col">
           <h3>PrintLab — Ingeniería 3D</h3>
-          <p>Plataforma profesional de laminación inteligente, optimización y simulación paramétrica de G-Code. Transformamos archivos 3D con posibles debilidades en códigos óptimos listos para fabricar, ahorrando tiempo, material y costes en entornos de ingeniería y producción.</p>
-          <p class="footer-secondary-text">Desarrollado bajo principios de Privacy by Design. Los datos y archivos se procesan en local con estricta confidencialidad.</p>
+          <p>Plataforma profesional de laminación inteligente y optimización STL mediante Inteligencia Artificial y simuladores paramétricos. Transformamos modelos 3D con problemas en geometrías perfectas listas para fabricar, ahorrando tiempo, material y costes en entornos industriales.</p>
+          <p class="footer-secondary-text">Desarrollado bajo principios de Privacy by Design. Los datos y archivos STL se procesan con estricta confidencialidad.</p>
         </div>
         
         <div class="footer-col">
           <h3>Recursos y Herramientas</h3>
           <div class="footer-links">
-            <a href="herramientas/laminador-inteligente.html"><span class="arrow">→</span> Laminador Inteligente</a>
+            <a href="herramientas/analizador-stl.html"><span class="arrow">→</span> Laminador Inteligente IA</a>
             <a href="#simulador"><span class="arrow">→</span> Simulador de Extrusión</a>
             <a href="herramientas/calculadora-coste.html"><span class="arrow">→</span> Calculadoras de Coste y Masa</a>
             <a href="#guias"><span class="arrow">→</span> Base de Conocimiento</a>
@@ -997,7 +994,7 @@
         let title = text;
         let type = "Sección";
         
-        if (el.id === 'simulador' || el.id === 'laminador' || el.tagName === 'H2') {
+        if (el.id === 'simulador' || el.id === 'analizador' || el.tagName === 'H2') {
           type = "Categoría Principal";
           title = text;
         } else if (el.tagName === 'H3') {
