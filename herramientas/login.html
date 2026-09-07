@@ -663,7 +663,6 @@
         </div>
 
 
-        <!-- Se añade ocultación inicial por estilos inline para prevenir destellos -->
         <div class="auth-buttons" id="authHeaderContainer" style="opacity: 0; visibility: hidden; transition: opacity 0.15s ease, visibility 0.15s ease;">
 
           <a
@@ -823,7 +822,7 @@
           </h3>
 
           <p>
-            Plataforma profesional de análisis y optimización STL mediante Inteligencia Artificial y simuladores paramétricos. Transformamos modelos 3D con problemas en geometrías perfectas listas para fabricar, ahorrando tiempo, material y costes en entornos industriales.
+            Plataforma profesional de análisis de optimización STL mediante Inteligencia Artificial y simuladores paramétricos. Transformamos modelos 3D con problemas en geometrías perfectas listas para fabricar, ahorrando tiempo, material y costes en entornos industriales.
           </p>
 
           <p class="footer-secondary-text">
@@ -985,29 +984,6 @@
        DESTINO DESPUÉS DEL LOGIN
     ===================================================== */
 
-    /*
-      Hay tres posibilidades:
-
-      1. Venimos del analizador:
-
-         login.html?redirect=analizador-stl.html
-
-         → volvemos al analizador.
-
-
-      2. Venimos de otra herramienta:
-
-         login.html?redirect=informe-stl.html
-
-         → volvemos a esa herramienta.
-
-
-      3. Entramos directamente a login.html:
-
-         → vamos al inicio.
-    */
-
-
     const loginParams =
       new URLSearchParams(
         window.location.search
@@ -1018,12 +994,6 @@
       loginParams.get("redirect") || "";
 
 
-    /*
-      Si no existe redirect en la URL,
-      intentamos recuperar el destino
-      que hubiera guardado otra página.
-    */
-
     if(!requestedLoginRedirect){
 
       requestedLoginRedirect =
@@ -1033,15 +1003,6 @@
 
     }
 
-
-    /*
-      Solo permitimos destinos internos
-      conocidos.
-
-      Esto evita que alguien pueda utilizar
-      el parámetro redirect para enviar al
-      usuario a una página externa.
-    */
 
     const allowedLoginRedirects = [
 
@@ -1061,11 +1022,6 @@
       ? requestedLoginRedirect
       : "../index.html";
 
-
-    /*
-      Guardamos el destino para que no se pierda
-      al navegar entre las páginas de autenticación.
-    */
 
     sessionStorage.setItem(
       "printlab_auth_redirect",
@@ -1133,6 +1089,17 @@
       );
 
 
+    // NUEVO: Mostrar aviso de éxito si el usuario viene de verificar su correo por Gmail
+    if (loginParams.get("verified") === "true" && loginMessage) {
+      supabaseClient.auth.signOut();
+      loginMessage.style.background = "#eef9f0";
+      loginMessage.style.borderColor = "#c3e6cb";
+      loginMessage.style.color = "#155724";
+      loginMessage.textContent = "¡Correo verificado con éxito! Ya puedes iniciar sesión.";
+      loginMessage.classList.add("show");
+    }
+
+
     if(loginForm){
 
       loginForm.addEventListener(
@@ -1141,10 +1108,6 @@
 
           e.preventDefault();
 
-
-          /*
-            Ocultar mensaje anterior.
-          */
 
           loginMessage.classList.remove(
             "show"
@@ -1156,9 +1119,6 @@
           loginMessage.style.color = "";
 
 
-          /*
-            PROCESAR ACTUALIZACIÓN DE CONTRASEÑA EN MODO RECUPERACIÓN
-          */
           if (isRecoveryMode) {
 
             const password =
@@ -1198,10 +1158,8 @@
                 throw error;
               }
 
-              // Limpiar estado de recuperación en memoria del navegador
               sessionStorage.removeItem("printlab_recovery_mode");
 
-              // Cerrar la sesión temporal para forzar al usuario a iniciar sesión con su nueva contraseña
               await supabaseClient.auth.signOut();
 
               loginMessage.style.background = "#eef9f0";
@@ -1250,10 +1208,6 @@
           }
 
 
-          /*
-            FLUJO NORMAL DE INICIO DE SESIÓN
-          */
-
           const email =
             document
               .getElementById("login-email")
@@ -1266,10 +1220,6 @@
               .getElementById("login-password")
               .value;
 
-
-          /*
-            Validación básica.
-          */
 
           if(!email || !password){
 
@@ -1285,10 +1235,6 @@
           }
 
 
-          /*
-            Estado de carga.
-          */
-
           loginButton.disabled = true;
 
           loginButton.textContent =
@@ -1297,10 +1243,6 @@
 
           try{
 
-
-            /*
-              Iniciar sesión con Supabase.
-            */
 
             const {
               data,
@@ -1323,11 +1265,6 @@
             }
 
 
-            /*
-              Comprobamos que Supabase
-              realmente haya creado la sesión.
-            */
-
             if(
               !data ||
               !data.session
@@ -1340,23 +1277,9 @@
             }
 
 
-            /*
-              Login correcto.
-            */
-
             loginButton.textContent =
               "Sesión iniciada ✓";
 
-
-            /*
-              Recuperamos el destino
-              una última vez.
-
-              Esto es importante porque permite
-              volver al analizador aunque el
-              usuario haya pasado por otras
-              páginas antes del login.
-            */
 
             const finalRedirect =
               sessionStorage.getItem(
@@ -1364,27 +1287,13 @@
               ) || loginRedirectTarget;
 
 
-            /*
-              Pequeña espera visual.
-            */
-
             setTimeout(
               function(){
-
-                /*
-                  Limpiamos el destino después
-                  de utilizarlo.
-                */
 
                 sessionStorage.removeItem(
                   "printlab_auth_redirect"
                 );
 
-
-                /*
-                  Volvemos exactamente a la
-                  página que originó el login.
-                */
 
                 window.location.href =
                   finalRedirect;
@@ -1403,19 +1312,9 @@
             );
 
 
-            /*
-              Mostrar error dentro de la página.
-              No usamos alert().
-            */
-
             let errorText =
               "No se pudo iniciar sesión. Comprueba tu email y contraseña.";
 
-
-            /*
-              Mensajes más específicos
-              cuando Supabase los proporciona.
-            */
 
             if(
               error &&
@@ -1471,10 +1370,6 @@
             );
 
 
-            /*
-              Restaurar botón.
-            */
-
             loginButton.disabled =
               false;
 
@@ -1490,7 +1385,7 @@
 
 
     /* =====================================================
-       OLVIDÉ MI CONTRASEÑA (SOPORTE DE RECUPERACIÓN REAL)
+       OLVIDÉ MI CONTRASEÑA
     ===================================================== */
 
     const forgotPassword =
@@ -1508,9 +1403,6 @@
           e.preventDefault();
 
 
-          /*
-            Ocultar mensaje anterior y restaurar estilos de error.
-          */
           loginMessage.classList.remove("show");
           loginMessage.textContent = "";
           loginMessage.style.background = "";
@@ -1521,9 +1413,6 @@
           const email = emailInput ? emailInput.value.trim() : "";
 
 
-          /*
-            Validación de email para la recuperación.
-          */
           if(!email){
 
             loginMessage.textContent =
@@ -1538,9 +1427,6 @@
           }
 
 
-          /*
-            Estado de envío.
-          */
           forgotPassword.style.pointerEvents = "none";
           forgotPassword.style.opacity = "0.5";
 
@@ -1564,9 +1450,6 @@
             }
 
 
-            /*
-              Envío correcto.
-            */
             loginMessage.style.background = "#eef9f0";
             loginMessage.style.borderColor = "#c3e6cb";
             loginMessage.style.color = "#155724";
@@ -1615,7 +1498,6 @@
 
     let isRecoveryMode = false;
 
-    // Detectar si la URL o el sessionStorage contienen indicativo de recuperación
     if (
       window.location.hash.includes("type=recovery") ||
       window.location.hash.includes("access_token=") ||
@@ -1626,7 +1508,6 @@
       sessionStorage.setItem("printlab_recovery_mode", "true");
     }
 
-    // Escuchar el evento de recuperación de Supabase
     supabaseClient.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY") {
         isRecoveryMode = true;
@@ -1643,13 +1524,11 @@
 
       isRecoveryMode = true;
 
-      // Cambiar encabezados
       const headerTitle = document.querySelector(".auth-header h1");
       const headerDesc = document.querySelector(".auth-header p");
       if (headerTitle) headerTitle.textContent = "Nueva contraseña";
       if (headerDesc) headerDesc.textContent = "Introduce tu nueva contraseña segura de acceso.";
 
-      // Ocultar campo de email
       const emailInput = document.getElementById("login-email");
       if (emailInput) {
         const emailGroup = emailInput.closest(".form-group");
@@ -1657,7 +1536,6 @@
         emailInput.removeAttribute("required");
       }
 
-      // Modificar campo de contraseña
       const passwordLabel = document.querySelector('label[for="login-password"]');
       if (passwordLabel) {
         passwordLabel.innerHTML = 'Nueva contraseña';
@@ -1668,12 +1546,10 @@
         passwordInput.autocomplete = "new-password";
       }
 
-      // Cambiar texto del botón
       if (loginButton) {
         loginButton.textContent = "Actualizar contraseña";
       }
 
-      // Ocultar sección de registro
       const switchAuth = document.querySelector(".switch-auth");
       if (switchAuth) {
         switchAuth.style.display = "none";
