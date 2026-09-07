@@ -569,6 +569,25 @@
  <!-- SUPABASE -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+<!-- EVITAR REDIRECCIÓN DE AUTH-HELPER SI EL USUARIO VIENE DESDE EL EMAIL DE VERIFICACIÓN -->
+<script>
+  (function() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("verified") === "true") {
+      // Limpiamos las sesiones locales del navegador antes de que el script de cabecera compruebe las credenciales
+      const keysToRemove = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && (key.includes("-auth-token") || key.startsWith("sb-"))) {
+          keysToRemove.push(key);
+        }
+      }
+      keysToRemove.forEach(key => localStorage.removeItem(key));
+      sessionStorage.clear();
+    }
+  })();
+</script>
+
 <!-- Parámetro cache-busting v=10 para forzar recarga de la pre-carga síncrona en cabecera -->
 <script src="../assets/js/auth-helper.js?v=10"></script>
 
