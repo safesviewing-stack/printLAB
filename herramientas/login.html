@@ -663,6 +663,7 @@
         </div>
 
 
+        <!-- Se añade ocultación inicial por estilos inline para prevenir destellos -->
         <div class="auth-buttons" id="authHeaderContainer" style="opacity: 0; visibility: hidden; transition: opacity 0.15s ease, visibility 0.15s ease;">
 
           <a
@@ -1089,7 +1090,7 @@
       );
 
 
-    // NUEVO: Mostrar aviso de éxito si el usuario viene de verificar su correo por Gmail
+    // NUEVO: Mostrar aviso de éxito si el usuario viene de verificar su correo por Gmail y forzar cierre de sesión automático
     if (loginParams.get("verified") === "true" && loginMessage) {
       supabaseClient.auth.signOut();
       loginMessage.style.background = "#eef9f0";
