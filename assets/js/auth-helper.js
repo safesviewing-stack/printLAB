@@ -966,18 +966,31 @@ async function initAuth() {
 
 
   // ===================================================
-  // SOLO INFORME PRIVADO
+  // REDIRECCIÓN OBLIGATORIA PARA PÁGINAS PRIVADAS (INFORME Y LAMINADOR)
   // ===================================================
 
   if (
-    currentPathname.includes(
-      "informe-stl"
-    )
+    currentPathname.includes("informe-stl")
   ) {
 
     const redirect =
       encodeURIComponent(
         "informe-stl.html"
+      );
+
+
+    window.location.href =
+      pathPrefix +
+      "login.html?redirect=" +
+      redirect;
+
+  } else if (
+    currentPathname.includes("analizador-stl")
+  ) {
+
+    const redirect =
+      encodeURIComponent(
+        "analizador-stl.html"
       );
 
 
