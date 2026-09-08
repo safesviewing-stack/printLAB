@@ -828,7 +828,7 @@
           </p>
 
           <p class="footer-secondary-text">
-            Desarrollado under principles of Privacy by Design. Los datos y archivos STL se procesan con estricta confidencialidad.
+            Desarrollado bajo principios de Privacy by Design. Los datos y archivos STL se procesan con estricta confidencialidad.
           </p>
 
         </div>
@@ -986,29 +986,6 @@
        DESTINO DESPUÉS DEL LOGIN
     ===================================================== */
 
-    /*
-      Hay tres posibilidades:
-
-      1. Venimos del analizador:
-
-         login.html?redirect=analizador-stl.html
-
-         → volvemos al analizador.
-
-
-      2. Venimos de otra herramienta:
-
-         login.html?redirect=informe-stl.html
-
-         → volvemos a esa herramienta.
-
-
-      3. Entramos directamente a login.html:
-
-         → vamos al inicio.
-    */
-
-
     const loginParams =
       new URLSearchParams(
         window.location.search
@@ -1035,38 +1012,16 @@
     }
 
 
-    /*
-      Solo permitimos destinos internos
-      conocidos.
+    // CAMBIO: Validación flexible por subcadena para evitar que falle por diferencias de ruta (ej. herramientas/analizador-stl.html)
+    let loginRedirectTarget = "../index.html";
 
-      Esto evita que alguien pueda utilizar
-      el parámetro redirect para enviar al
-      usuario a una página externa.
-    */
-
-    const allowedLoginRedirects = [
-
-      "../index.html",
-
-      "analizador-stl.html",
-
-      "informe-stl.html"
-
-    ];
-
-
-    let loginRedirectTarget =
-      allowedLoginRedirects.includes(
-        requestedLoginRedirect
-      )
-      ? requestedLoginRedirect
-      : "../index.html";
-
-
-    /*
-      Guardamos el destino para que no se pierda
-      al navegar entre las páginas de autenticación.
-    */
+    if (requestedLoginRedirect.includes("analizador-stl") || requestedLoginRedirect.includes("analizador")) {
+      loginRedirectTarget = "analizador-stl.html";
+    } else if (requestedLoginRedirect.includes("informe-stl")) {
+      loginRedirectTarget = "informe-stl.html";
+    } else {
+      loginRedirectTarget = "../index.html";
+    }
 
     sessionStorage.setItem(
       "printlab_auth_redirect",
@@ -1559,11 +1514,22 @@
 
             // Capturar si hay un redirect activo (ej: analizador-stl.html) para mantenerlo en el flujo
             const loginParams = new URLSearchParams(window.location.search);
-            const currentRedirect = loginParams.get("redirect") || sessionStorage.getItem("printlab_auth_redirect") || "";
-
+            const rawRedirect = loginParams.get("redirect") || sessionStorage.getItem("printlab_auth_redirect") || "";
+            
             let redirectUrl = window.location.origin + "/printLAB/herramientas/login.html";
-            if (currentRedirect) {
-              redirectUrl += "?redirect=" + encodeURIComponent(currentRedirect);
+            
+            if (rawRedirect) {
+              let normalizedTarget = "../index.html";
+              if (rawRedirect.includes("analizador")) {
+                normalizedTarget = "analizador-stl.html";
+              } else if (rawRedirect.includes("informe")) {
+                normalizedTarget = "informe-stl.html";
+              }
+              
+              // Solo añadimos el parámetro si no es el index (el index es el comportamiento por defecto)
+              if (normalizedTarget !== "../index.html") {
+                redirectUrl += "?redirect=" + encodeURIComponent(normalizedTarget);
+              }
             }
 
             const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
