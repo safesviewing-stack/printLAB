@@ -828,7 +828,7 @@
           </p>
 
           <p class="footer-secondary-text">
-            Desarrollado bajo principios de Privacy by Design. Los datos y archivos STL se procesan con estricta confidencialidad.
+            Desarrollado under principles of Privacy by Design. Los datos y archivos STL se procesan con estricta confidencialidad.
           </p>
 
         </div>
@@ -1217,7 +1217,10 @@
 
               setTimeout(
                 function(){
-                  window.location.href = "login.html";
+                  // Mantener el destino del redireccionamiento al volver al login normal
+                  const finalRedirect = sessionStorage.getItem("printlab_auth_redirect");
+                  const redirectParam = finalRedirect ? "?redirect=" + encodeURIComponent(finalRedirect) : "";
+                  window.location.href = "login.html" + redirectParam;
                 },
                 2500
               );
@@ -1554,7 +1557,14 @@
 
           try{
 
-            const redirectUrl = window.location.origin + "/printLAB/herramientas/login.html";
+            // Capturar si hay un redirect activo (ej: analizador-stl.html) para mantenerlo en el flujo
+            const loginParams = new URLSearchParams(window.location.search);
+            const currentRedirect = loginParams.get("redirect") || sessionStorage.getItem("printlab_auth_redirect") || "";
+
+            let redirectUrl = window.location.origin + "/printLAB/herramientas/login.html";
+            if (currentRedirect) {
+              redirectUrl += "?redirect=" + encodeURIComponent(currentRedirect);
+            }
 
             const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
               redirectTo: redirectUrl,
