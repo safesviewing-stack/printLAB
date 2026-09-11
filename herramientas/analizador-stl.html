@@ -8,11 +8,189 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
-  <!-- [...] Estilos conservados [...] -->
+  <style>
+    /* VARIABLES Y BASE GLOBAL - IDÉNTICAS AL INDEX */
+    :root{ --bg:#f6f7f4; --card:#fff; --ink:#0d1110; --muted:#5e6661; --line:#dfe4df; --accent:#b8ff3d; --dark:#111715; --max:1200px; --error:#b42318; }
+    *{box-sizing:border-box}html{scroll-behavior:smooth}
+    body{margin:0; background:var(--bg); color:var(--ink); font-family:"Plus Jakarta Sans", sans-serif; line-height:1.6; -webkit-font-smoothing:antialiased;}
+    a{color:inherit;text-decoration:none}
+    .wrap{max-width:var(--max);margin:auto;padding:0 40px}
+
+    /* CABECERA Y NAVEGACIÓN HAMBURGUESA - COPIA EXACTA DEL INDEX */
+    .top{position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--line)}
+    nav{min-height:95px;display:flex;align-items:center;justify-content:space-between;}
+    
+    .header-left{display:flex; align-items:center; gap:24px;}
+    .brand{font-size:26px;font-weight:800;letter-spacing:-1px}
+    .brand span{background:var(--accent);padding:5px 12px;border-radius:10px;margin-left:6px;color:var(--ink)}
+    
+    .menu-dropdown { position: relative; display: inline-block; }
+    .hamburger { background: none; border: none; cursor: pointer; padding: 10px; display: flex; flex-direction: column; gap: 5px; outline:none; }
+    .hamburger span { display: block; width: 26px; height: 3px; background: var(--ink); border-radius: 2px; transition: 0.3s; }
+    .hamburger:hover span { background: var(--muted); }
+    
+    .dropdown-content { display: none; position: absolute; top: 110%; left: 0; background-color: var(--card); min-width: 240px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); border: 1.5px solid var(--line); border-radius: 16px; z-index: 200; flex-direction: column; padding: 12px 0; }
+    .dropdown-content.show { display: flex; animation: slideDown 0.2s ease; }
+    .dropdown-content a { padding: 14px 24px; color: var(--muted); font-weight: 700; font-size:15px; transition: 0.15s; }
+    .dropdown-content a:hover { color: var(--ink); background: rgba(0,0,0,0.03); }
+    .dropdown-content a.active { color: var(--ink); background: #f0f4f0; border-left: 4px solid var(--accent); padding-left: 20px; }
+
+    .auth-buttons { display:flex; gap:12px; align-items:center; }
+    .btn-auth { display: inline-flex; align-items: center; justify-content: center; padding: 12px 24px; border-radius: 9999px; font-weight: 800; font-size: 14px; cursor: pointer; transition: .2s ease; text-decoration: none; border: 2px solid var(--ink); }
+    .btn-auth.light { background: #fff; color: var(--ink); box-shadow: 0 3px 0 var(--ink); }
+    .btn-auth.light:hover { transform: translateY(-1px); box-shadow: 0 4px 0px var(--ink); }
+    .btn-auth.light:active { transform: translateY(2px); box-shadow: 0 1px 0px var(--ink); }
+    .btn-auth.green { background: var(--accent); color: var(--ink); box-shadow: 0 3px 0px var(--ink); }
+    .btn-auth.green:hover { transform: translateY(-1px); box-shadow: 0 4px 0px var(--ink); }
+    .btn-auth.green:active { transform: translateY(2px); box-shadow: 0 1px 0px var(--ink); }
+
+    /* REGLA FORZADA PARA EL INDICADOR DE CRÉDITOS - COPIA EXACTA DEL INDEX */
+    #authHeaderContainer span[style*="background" i],
+    #authHeaderContainer span[style*="accent" i],
+    #authHeaderContainer span:nth-child(2),
+    #authHeaderContainer div span:nth-child(2) {
+      background: var(--accent) !important;
+      background-color: var(--accent) !important;
+      color: var(--ink) !important;
+      padding: 8px 18px !important;
+      border-radius: 9999px !important;
+      font-weight: 800 !important;
+      font-size: 15px !important;
+      border: none !important;
+      border-width: 0px !important;
+      box-shadow: none !important;
+      display: inline-flex !important;
+      align-items: center !important;  
+      justify-content: center !important; 
+      align-self: center !important;
+      line-height: 1 !important; 
+      height: auto !important;
+      min-height: 0 !important;
+      max-height: 38px !important;
+      margin: auto 0 !important;
+      white-space: nowrap !important;
+    }
+
+    /* REGLA FORZADA PARA EL SALUDO DE USUARIO - COPIA EXACTA DEL INDEX */
+    #authHeaderContainer .user-greeting,
+    #authHeaderContainer span:nth-child(1),
+    #authHeaderContainer div span:nth-child(1),
+    #authHeaderContainer span:first-child,
+    #authHeaderContainer div span:first-child {
+      font-weight: 700 !important;
+      font-size: 15px !important;
+      color: var(--ink) !important;
+      display: inline-block !important;
+      margin: auto 0 !important;
+      white-space: nowrap !important;
+    }
+
+    /* ESTILOS DEL CONTENEDOR DE CONTENIDO PRINCIPAL */
+    main.wrap{min-height:calc(100vh - 95px)}
+    .upload-container{
+      max-width:740px;
+      margin:60px auto;
+      background:var(--card);
+      border:2px dashed var(--line);
+      border-radius:24px;
+      padding:40px 32px;
+      text-align:center;
+      box-shadow:0 20px 40px rgba(13,17,16,.025);
+      transition: border-color .25s ease, background-color .25s ease;
+    }
+    .upload-container:hover{border-color:var(--ink)}
+    .upload-container.drag-over{border-color:var(--accent);background:#fbfcfa;}
+    .upload-icon-wrapper{width:72px;height:72px;background:var(--bg);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:30px;border:1.5px solid var(--line);box-shadow:0 8px 16px rgba(13,17,16,.02);transition:transform .3s ease,background-color .3s ease}
+    .upload-container:hover .upload-icon-wrapper{transform:translateY(-4px) scale(1.05);background:#fff}
+    .upload-title{font-size:24px;font-weight:800;letter-spacing:-.5px;margin-top:12px;margin-bottom:6px;color:var(--ink)}
+    .upload-desc{font-size:14.5px;color:var(--muted);margin-bottom:28px}
+    .drag-help{font-size:13px;color:var(--muted);margin-top:16px;font-weight:500}
+    .selected-file{display:none;margin:20px auto 0;max-width:600px;padding:14px 20px;background:#fbfcfa;border:1.5px solid rgba(184,255,61,.5);border-radius:14px;align-items:center;justify-content:space-between;box-shadow:0 8px 20px rgba(184,255,61,.04)}
+    .selected-file.show{display:flex;animation:slideDown .3s ease}
+    .selected-file-name{font-weight:700;font-size:14.5px;color:var(--ink)}
+    .selected-file-size{font-size:12.5px;color:var(--muted);margin-top:2px}
+    .btn-remove-file{background:none;border:none;color:#d9432f;font-size:18px;font-weight:800;cursor:pointer;outline:none;padding:6px;transition:transform .2s ease,opacity .2s ease;opacity:.8}
+    .btn-remove-file:hover{transform:scale(1.15) rotate(90deg);opacity:1}
+
+    .wizard-step{display:none;text-align:left;animation:fadeIn .3s ease-out}
+    .wizard-step.active{display:block}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+    .step-title{font-size:20px;font-weight:800;margin-bottom:8px;color:var(--ink);display:flex;justify-content:space-between;align-items:center;gap:16px}
+    .step-subtitle{font-size:14px;color:var(--muted);margin-bottom:20px}
+    .option-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+    .option-grid.option-grid-4{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+    .viewer-section{margin-top:8px}
+    .viewer-wrap{position:relative;width:100%;margin-top:10px}
+    
+    #selector3dContainer {
+      height: 460px !important;
+      min-height: 460px;
+      position: relative;
+      background: #111715;
+      border: 2px solid var(--ink);
+      overflow: hidden;
+      transform: translateZ(0); /* Aisla la caja de la página principal */
+    }
+    
+    /* Configuración aislada por hardware para evitar franjas al hacer scroll */
+    #selector3dContainer canvas {
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      display: block !important;
+      width: 100% !important;
+      height: 100% !important;
+      outline: none;
+      transform: translateZ(0); /* Forza al navegador a crear una capa GPU exclusiva */
+      will-change: transform;
+    }
+    
+    .option-card{background:var(--bg);border:1.5px solid var(--line);border-radius:18px;padding:14px 16px;font-size:13.5px;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease,background .18s ease;display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:4px;min-height:100%;box-shadow:0 1px 0 rgba(13,17,16,.03)}
+    .option-card:hover{border-color:var(--ink);background:#fff;transform:translateY(-2px);box-shadow:0 5px 14px rgba(13,17,16,.08)}
+    .option-card.selected{background:var(--dark);color:var(--accent);border-color:var(--dark);box-shadow:0 4px 12px rgba(13,17,16,.12)}
+    .option-card.selected .option-card-desc{color:#b8c0bb}
+    .option-card span.emoji{font-size:20px}
+    .option-card-title{font-weight:800;font-size:13.5px;color:inherit;margin-top:2px}
+    .option-card-desc{font-weight:500;font-size:11px;color:var(--muted);line-height:1.35;margin-top:1px}
+
+    .form-group{margin-bottom:16px;display:flex;flex-direction:column}
+    .form-group label{font-size:12.5px;font-weight:800;margin-bottom:6px;color:var(--muted)}
+    .form-group input,.form-group textarea,.form-group select{padding:12px;border:1.5px solid var(--line);border-radius:12px;font-size:14.5px;font-weight:700;background:var(--bg);color:var(--ink);outline:none;font-family:inherit;transition:border-color .15s,background .15s}
+    .form-group input:focus,.form-group textarea:focus,.form-group select:focus{background:#fff;border-color:var(--ink)}
+
+    .wizard-nav-buttons{display:flex;justify-content:space-between;margin-top:28px;border-top:1.5px solid var(--line);padding-top:20px;gap:16px}
+    .btn-green{display:inline-block;background:var(--accent);color:var(--ink);padding:14px 30px;border-radius:9999px;font-weight:800;font-size:14.5px;border:2px solid var(--ink);box-shadow:0 4px 0 var(--ink);cursor:pointer;transition:transform .15s,box-shadow .15s}
+    .btn-green:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 0 var(--ink)}
+    .btn-green:disabled{opacity:.5;cursor:not-allowed;box-shadow:none;transform:none}
+    .btn-secondary{background:#fff;color:var(--ink);border:2px solid var(--ink);padding:16px 36px;border-radius:9999px;font-weight:800;font-size:14.5px;cursor:pointer;transition:transform .15s,box-shadow .15s}
+    .btn-secondary:hover{transform:translateY(-1px);box-shadow:0 3px 0 var(--ink)}
+    .progress-container{height:6px;background:var(--line);border-radius:3px;margin-bottom:28px;overflow:hidden}
+    .progress-bar{height:100%;background:var(--ink);width:0%;transition:width .3s ease}
+
+    /* SECCIÓN FOOTER */
+    .footer{background:var(--bg);border-top:1px solid var(--line);padding:80px 0 40px;color:var(--muted);font-size:14px;line-height:1.6}
+    .footergrid{display:grid;grid-template-columns:1.3fr .85fr .85fr;gap:60px;margin-bottom:48px}
+    .footer-col h3{font-size:16px;font-weight:800;color:var(--ink);margin:0 0 20px;}
+    .footer-col p{margin:0 0 16px;color:var(--muted)}
+    .footer-secondary-text{font-size:12.5px;line-height:1.5;color:#7d8782;margin-top:12px}
+    .footer-secondary-text a { text-decoration: underline; color: var(--ink); font-weight: 700; }
+    .footer-links{display:flex;flex-direction:column;gap:10px}
+    .footer-links a{color:var(--muted);transition:color .15s ease,transform .15s ease;cursor:pointer;display:inline-flex;align-items:center;gap:6px;text-decoration:none}
+    .footer-links a:hover{color:var(--ink);transform:translateX(2px)}
+    .footer-links a span.arrow{transition:color .15s ease}
+    .footer-links a:hover span.arrow{color:var(--accent)}
+    .footer-bottom{border-top:1px solid var(--line);padding-top:24px;display:flex;justify-content:center;align-items:center;text-align:center;font-size:13px;color:#7d8782}
+
+    @media(max-width:992px){.footergrid{grid-template-columns:1.2fr 1fr;gap:40px}.option-grid{grid-template-columns:repeat(2,1fr)}.option-grid.option-grid-4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:768px){.wrap{padding:0 20px}.top nav{min-height:82px}.brand{font-size:23px}.header-left{gap:14px}.footergrid{grid-template-columns:1fr;gap:36px}.upload-container{margin:35px auto;padding:30px 20px}.step-title{font-size:18px}.wizard-nav-buttons{flex-direction:row}.auth-buttons{gap:8px}}
+    @media(max-width:480px){.option-grid,.option-grid.option-grid-4{grid-template-columns:1fr}.wizard-nav-buttons{gap:10px}.btn-secondary,.btn-green{padding:12px 20px;font-size:13px}.step-title{align-items:flex-start}.step-title span:last-child{white-space:nowrap;font-size:12px!important}}
+  </style>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../assets/js/auth-helper.js?v=13"></script>
+  <!-- Cache busting v=12 forzado para recarga instantánea del auth-helper corregido -->
+  <script src="../assets/js/auth-helper.js?v=12"></script>
 
   <style>
+    /* El analizador requiere una sesión iniciada. Evita mostrar el contenido antes de comprobarla. */
     body { visibility: hidden; }
     body.auth-verified { visibility: visible; }
   </style>
@@ -24,12 +202,15 @@
           window.location.replace("login.html?redirect=analizador-stl.html");
           return;
         }
+
         const { data, error } = await authClient.auth.getSession();
         if (error || !data || !data.session) {
           sessionStorage.setItem("printlab_auth_redirect", "analizador-stl.html");
           window.location.replace("login.html?redirect=analizador-stl.html");
           return;
         }
+
+        // Corrección de condición de carrera para la visibilidad del body
         if (document.readyState === "loading") {
           document.addEventListener("DOMContentLoaded", function(){
             document.body.classList.add("auth-verified");
@@ -38,14 +219,21 @@
           document.body.classList.add("auth-verified");
         }
       } catch (e) {
+        console.error("No se pudo verificar la sesión:", e);
         sessionStorage.setItem("printlab_auth_redirect", "analizador-stl.html");
         window.location.replace("login.html?redirect=analizador-stl.html");
       }
     })();
   </script>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/STLLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/TransformControls.js"></script>
 </head>
 <body>
 
+  <!-- CABECERA DE PRINTLAB CON PARIDAD VISUAL 100% CON EL INDEX -->
   <header class="top">
     <div class="wrap">
       <nav>
@@ -65,6 +253,7 @@
           <a class="brand" href="../index.html#portada">PRINT<span>LAB</span></a>
         </div>
         
+        <!-- Contenedor unificado de sesión con transiciones idénticas a las del index -->
         <div class="auth-buttons" id="authHeaderContainer" style="opacity: 0; visibility: hidden; transition: opacity 0.15s ease, visibility 0.15s ease;">
           <a href="login.html" class="btn-auth light" onclick="localStorage.removeItem('sb-jmwprzgfdkphbxryjbnr-auth-token');">Iniciar Sesión</a>
           <a href="registro.html" class="btn-auth green" onclick="localStorage.removeItem('sb-jmwprzgfdkphbxryjbnr-auth-token');">Registrarse</a>
@@ -73,10 +262,1601 @@
     </div>
   </header>
 
-  <!-- Resto del contenido del Analizador (Wizard, WebGL, etc. 100% igual) -->
-  
+  <main class="wrap">
+    <div class="upload-container" id="uploadContainer">
+      
+      <div class="progress-container" id="progressContainer" style="display:none;">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+
+      <!-- PASO 0: SUBIDA DEL STL -->
+      <div class="wizard-step active" id="step-upload">
+        <div class="upload-icon-wrapper">📁</div>
+        <h3 class="upload-title" style="text-align:center;">Laminar nuevo modelo STL</h3>
+        <p class="upload-desc" style="text-align:center;">Soporte para FDM. Límite: 500MB por archivo.</p>
+        <input type="file" id="stlFile" accept=".stl" hidden>
+        
+        <div style="text-align:center; margin-bottom:20px;">
+          <button type="button" class="btn-green" id="analyzerAccessButton">Seleccionar archivo STL</button>
+        </div>
+
+        <div class="selected-file" id="selectedFile">
+          <div style="display:flex; align-items:center; gap:12px; text-align:left;">
+            <div style="font-size:24px;">📄</div>
+            <div>
+              <div class="selected-file-name" id="selectedFileName"></div>
+              <div class="selected-file-size" id="selectedFileSize"></div>
+            </div>
+          </div>
+          <button type="button" class="btn-remove-file" id="removeFileBtn">✕</button>
+        </div>
+        <div class="drag-help" style="text-align:center;">También puedes arrastrar y soltar aquí tu archivo STL.</div>
+      </div>
+
+      <!-- PREGUNTA 1: TIPO DE BOQUILLA -->
+      <div class="wizard-step" id="step-nozzle">
+        <div class="step-title"><span>¿Qué diámetro de boquilla utilizas?</span> <span style="font-size:14px; color:var(--muted);">1 / 5</span></div>
+        <div class="step-subtitle">Afectará la resolución de detalles y las directrices de espesor de pared.</div>
+        <div class="option-grid option-grid-4">
+          <div class="option-card" data-val="0.2" onclick="selectCard(this, 'nozzleSize')">
+            <span class="emoji">🔬</span>
+            <span class="option-card-title">0,2 mm</span>
+            <span class="option-card-desc">Alta resolución, detalles finos y micro-geometrías.</span>
+          </div>
+          <div class="option-card" data-val="0.4" onclick="selectCard(this, 'nozzleSize')">
+            <span class="emoji">🎯</span>
+            <span class="option-card-title">0,4 mm</span>
+            <span class="option-card-desc">Estándar universal equilibrado para uso general.</span>
+          </div>
+          <div class="option-card" data-val="0.6" onclick="selectCard(this, 'nozzleSize')">
+            <span class="emoji">⚡</span>
+            <span class="option-card-title">0,6 mm</span>
+            <span class="option-card-desc">Mayor velocidad de impresión y resistencia de capas.</span>
+          </div>
+          <div class="option-card" data-val="0.8" onclick="selectCard(this, 'nozzleSize')">
+            <span class="emoji">🏗️</span>
+            <span class="option-card-title">0,8 mm</span>
+            <span class="option-card-desc">Producción industrial rápida de paredes gruesas.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PREGUNTA 2: TIPO DE MATERIAL -->
+      <div class="wizard-step" id="step-material">
+        <div class="step-title"><span>¿Qué tipo de material utilizarás?</span> <span style="font-size:14px; color:var(--muted);">2 / 5</span></div>
+        <div class="step-subtitle">Determina directamente los perfiles térmicos y dinámicos del laminador.</div>
+        <div class="option-grid">
+          <div class="option-card" data-val="PLA" onclick="selectCard(this, 'material')">
+            <span class="emoji">🌱</span>
+            <span class="option-card-title">PLA</span>
+            <span class="option-card-desc">Fácil de impresión, alta rigidez y baja contracción térmica.</span>
+          </div>
+          <div class="option-card" data-val="PETG" onclick="selectCard(this, 'material')">
+            <span class="emoji">🧪</span>
+            <span class="option-card-title">PETG</span>
+            <span class="option-card-desc">Excelente tenacidad, resistencia al impacto y resistencia térmica media.</span>
+          </div>
+          <div class="option-card" data-val="ABS" onclick="selectCard(this, 'material')">
+            <span class="emoji">🔥</span>
+            <span class="option-card-title">ABS</span>
+            <span class="option-card-desc">Alta resistencia mecánica y térmica, ideal para posprocesado.</span>
+          </div>
+          <div class="option-card" data-val="ASA" onclick="selectCard(this, 'material')">
+            <span class="emoji">☀️</span>
+            <span class="option-card-title">ASA</span>
+            <span class="option-card-desc">Gran estabilidad molecular frente a la intemperie y radiación solar UV.</span>
+          </div>
+          <div class="option-card" data-val="TPU" onclick="selectCard(this, 'material')">
+            <span class="emoji">🩹</span>
+            <span class="option-card-title">TPU (Flexible)</span>
+            <span class="option-card-desc">Excelente flexibilidad elastomérica y amortiguación física.</span>
+          </div>
+          <div class="option-card" data-val="Nylon" onclick="selectCard(this, 'material')">
+            <span class="emoji">⚙️</span>
+            <span class="option-card-title">Nylon (PA)</span>
+            <span class="option-card-desc">Bajo coeficiente de fricción y altísima resistencia al desgaste.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PREGUNTA 3: SELECCIÓN DE IMPRESORA -->
+      <div class="wizard-step" id="step-printer" style="padding-bottom: 220px;">
+        <div class="step-title"><span>¿Qué impresora 3D utilizarás?</span> <span style="font-size:14px; color:var(--muted);">3 / 5</span></div>
+        <div class="step-subtitle">Determinará los límites físicos reales de volumen y velocidades.</div>
+        
+        <div class="form-group" style="width:100%; margin-top:10px;">
+          <select id="printerSelect" onchange="selectPrinterDropdown(this)" style="width:100%; padding:14px; border:1.5px solid var(--line); border-radius:12px; font-weight:700; background:var(--bg); color:var(--ink); outline:none;">
+            <option value="" disabled selected>-- Selecciona un modelo del mercado --</option>
+            <optgroup label="Bambu Lab">
+              <option value="Bambu Lab X1 Carbon">Bambu Lab X1 Carbon (256x256x256 mm)</option>
+              <option value="Bambu Lab P1S">Bambu Lab P1S (256x256x256 mm)</option>
+              <option value="Bambu Lab P1P">Bambu Lab P1P (256x256x256 mm)</option>
+              <option value="Bambu Lab A1">Bambu Lab A1 (256x256x256 mm)</option>
+              <option value="Bambu Lab A1 Mini">Bambu Lab A1 Mini (180x180x180 mm)</option>
+            </optgroup>
+            <optgroup label="Original Prusa">
+              <option value="Prusa i3 MK4">Prusa i3 MK4 (250x210x220 mm)</option>
+              <option value="Prusa MINI+">Prusa MINI+ (180x180x180 mm)</option>
+              <option value="Prusa XL">Prusa XL (360x360x360 mm)</option>
+            </optgroup>
+            <optgroup label="Creality">
+              <option value="Creality Ender 3">Creality Ender 3 (220x220x250 mm)</option>
+              <option value="Creality Ender 3 Pro">Creality Ender 3 Pro (220x220x250 mm)</option>
+              <option value="Creality Ender 3 V2">Creality Ender 3 V2 (220x220x250 mm)</option>
+              <option value="Creality Ender 3 Neo">Creality Ender 3 Neo (220x220x250 mm)</option>
+              <option value="Creality Ender 3 S1">Creality Ender 3 S1 (220x220x270 mm)</option>
+              <option value="Creality Ender 3 S1 Pro">Creality Ender 3 S1 Pro (220x220x270 mm)</option>
+              <option value="Creality Ender-3 V3 SE">Creality Ender-3 V3 SE (220x220x250 mm)</option>
+              <option value="Creality Ender-3 V3 Plus">Creality Ender-3 V3 Plus (300x300x330 mm)</option>
+              <option value="Creality Ender 5 Pro">Creality Ender 5 Pro (220x220x300 mm)</option>
+              <option value="Creality Ender 5 S1">Creality Ender 5 S1 (220x220x280 mm)</option>
+              <option value="Creality CR-10">Creality CR-10 (300x300x400 mm)</option>
+              <option value="Creality CR-10 Smart">Creality CR-10 Smart (300x300x400 mm)</option>
+              <option value="Creality K1">Creality K1 (220x220x250 mm)</option>
+              <option value="Creality K1C">Creality K1C (220x220x250 mm)</option>
+              <option value="Creality K1 Max">Creality K1 Max (300x300x300 mm)</option>
+            </optgroup>
+            <optgroup label="Artillery">
+              <option value="Artillery Genius">Artillery Genius (220x220x250 mm)</option>
+              <option value="Artillery Genius Pro">Artillery Genius Pro (220x220x250 mm)</option>
+              <option value="Artillery Sidewinder X1">Artillery Sidewinder X1 (300x300x400 mm)</option>
+              <option value="Artillery Sidewinder X2">Artillery Sidewinder X2 (300x300x400 mm)</option>
+              <option value="Artillery Sidewinder X3 Pro">Artillery Sidewinder X3 Pro (240x240x260 mm)</option>
+              <option value="Artillery Sidewinder X4 Pro">Artillery Sidewinder X4 Pro (240x240x260 mm)</option>
+              <option value="Artillery Sidewinder X4 Plus">Artillery Sidewinder X4 Plus (300x300x300 mm)</option>
+            </optgroup>
+            <optgroup label="Elegoo / Anycubic / Qidi">
+              <option value="Elegoo Neptune 4">Elegoo Neptune 4 (225x225x265 mm)</option>
+              <option value="Elegoo Neptune 4 Max">Elegoo Neptune 4 Max (420x420x480 mm)</option>
+              <option value="Anycubic Kobra 2">Anycubic Kobra 2 (220x220x250 mm)</option>
+              <option value="Anycubic Kobra 3">Anycubic Kobra 3 (250x250x260 mm)</option>
+              <option value="Anycubic i3 Mega S">Anycubic i3 Mega S (210x210x205 mm)</option>
+              <option value="Anycubic Vyper">Anycubic Vyper (245x245x260 mm)</option>
+              <option value="Anycubic Kobra 2 Neo">Anycubic Kobra 2 Neo (220x220x250 mm)</option>
+              <option value="Anycubic Kobra 2 Pro">Anycubic Kobra 2 Pro (220x220x250 mm)</option>
+              <option value="Anycubic Mega Zero">Anycubic Mega Zero (220x220x250 mm)</option>
+              <option value="Qidi Tech Q1 Pro">Qidi Tech Q1 Pro (245x245x240 mm)</option>
+            </optgroup>
+            <optgroup label="Sovol">
+              <option value="Sovol SV08">Sovol SV08 (350x350x345 mm)</option>
+            </optgroup>
+            <optgroup label="Voron (DIY)">
+              <option value="Voron 2.4 (300)">Voron 2.4 (300x300x300 mm)</option>
+              <option value="Voron 2.4 (350)">Voron 2.4 (350x350x350 mm)</option>
+              <option value="Voron V0.2">Voron V0.2 (120x120x120 mm)</option>
+            </optgroup>
+          </select>
+        </div>
+      </div>
+
+      <!-- PREGUNTA 4: PROPÓSITO DE LA PIEZA -->
+      <div class="wizard-step" id="step-purpose">
+        <div class="step-title"><span>¿Cuál es el propósito principal de esta pieza?</span> <span style="font-size:14px; color:var(--muted);">4 / 5</span></div>
+        <div class="step-subtitle">Determinará el espesor de capa, perímetros, densidad y patrón de relleno para optimizar acabado o resistencia mecánica.</div>
+        <div style="font-size:12.5px;color:var(--muted);font-weight:700;margin:-8px 0 16px;">Puedes seleccionar una o varias opciones.</div>
+        <div class="option-grid option-grid-4">
+          <div class="option-card" data-val="aesthetic" onclick="selectCard(this, 'purpose')">
+            <span class="emoji">🎨</span>
+            <span class="option-card-title">Estética / Visual</span>
+            <span class="option-card-desc">Prioriza la calidad de capa fina, el flujo controlado de detalle y el ahorro de filamento interno. Patrones rápidos como lightning.</span>
+          </div>
+          <div class="option-card" data-val="functional" onclick="selectCard(this, 'purpose')">
+            <span class="emoji">⚙️</span>
+            <span class="option-card-title">Funcional / Mecánica</span>
+            <span class="option-card-desc">Prioriza la rigidez del plano XY y la cohesión de capas. Más perímetros robustos, mayor densidad de relleno tridimensional y temperaturas altas.</span>
+          </div>
+          <div class="option-card" data-val="speed" onclick="selectCard(this, 'purpose')">
+            <span class="emoji">⚡</span>
+            <span class="option-card-title">Velocidad</span>
+            <span class="option-card-desc">Prioriza la reducción drástica de tiempos de fabricación utilizando espesores de capa elevados y flujos dinámicos máximos.</span>
+          </div>
+          <div class="option-card" data-val="cost" onclick="selectCard(this, 'purpose')">
+            <span class="emoji">🪙</span>
+            <span class="option-card-title">Coste / Ahorro</span>
+            <span class="option-card-desc">Prioriza el ahorro de material y la fiabilidad. Malla de relleno mínima y velocidades seguras para evitar fallos catastróficos que desperdecien plástico.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- VISOR 3D: SELECCIÓN DE SUPERFICIE DE APOYO -->
+      <div class="wizard-step" id="step-viewer">
+        <div class="step-title"><span>Orientación Interactiva</span> <span style="font-size:14px; color:var(--muted);">5 / 5</span></div>
+        <div class="step-subtitle" style="color:var(--ink); font-weight:700; margin-bottom:12px;">Haz clic sobre la superficie que quieres apoyar en la cama.</div>
+        
+        <div class="viewer-section">
+          <!-- Herramientas de Control de Transformación sin botón de Auto-Escalar -->
+          <div style="display:flex; gap:10px; margin-bottom:12px; align-items:center; width:100%;">
+            <button type="button" id="btnModeTranslate" onclick="setTransformMode('translate')" class="btn-auth green" style="padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: none; display: inline-flex; align-items: center; gap: 6px;">
+              <span>🤚</span> Mover
+            </button>
+            <button type="button" id="btnModeRotate" onclick="setTransformMode('rotate')" class="btn-auth light" style="padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: none; display: inline-flex; align-items: center; gap: 6px;">
+              <span>🔄</span> Rotar
+            </button>
+          </div>
+
+          <div class="viewer-wrap">
+            <div id="selector3dContainer"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTONES NAVEGACIÓN -->
+      <div class="wizard-nav-buttons" id="wizardNavigation" style="display:none;">
+        <button class="btn-secondary" id="prevBtn" onclick="navigateStep(-1)">Atrás</button>
+        <button class="btn-green" id="nextBtn">Siguiente</button>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <div class="footergrid">
+        <div class="footer-col">
+          <h3>PrintLab — Ingeniería 3D</h3>
+          <p>Plataforma profesional de análisis y optimización STL mediante Inteligencia Artificial y simuladores paramétricos. Transformamos modelos 3D con problemas en geometrías perfectas listas para fabricar, ahorrando tiempo, material y costes en entornos industriales.</p>
+          <p class="footer-secondary-text">Desarrollado bajo principios de Privacy by Design. Los datos y archivos STL se procesan con estricta confidencialidad.</p>
+        </div>
+        <div class="footer-col">
+          <h3>Recursos y Herramientas</h3>
+          <div class="footer-links">
+            <a href="../index.html#analizador"><span class="arrow">→</span> Laminador IA</a>
+            <a href="../index.html#simulador"><span class="arrow">→</span> Simulador de Extrusión</a>
+            <a href="calculadora-coste.html"><span class="arrow">→</span> Calculadoras de Coste y Masa</a>
+            <a href="../index.html#guias"><span class="arrow">→</span> Base de Conocimiento</a>
+            <a href="../materiales/index.html"><span class="arrow">→</span> Atlas de Materiales</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h3>Soporte y Legal</h3>
+          <div class="footer-links">
+            <a href="precios.html" onclick="sessionStorage.removeItem('printlab_resume_analysis');"><span class="arrow">→</span> Precios y Suscripciones</a>
+            <a href="contacto.html" ><span class="arrow">→</span> Contacto y Soporte</a>
+            <a href="../condiciones-compra.html"><span class="arrow">→</span> Condiciones de Compra</a>
+            <a href="../terminos.html"><span class="arrow">→</span> Términos y Condiciones</a>
+            <a href="../privacidad.html"><span class="arrow">→</span> Política de Privacidad</a>
+            <a href="../cookies.html"><span class="arrow">→</span> Política de Cookies</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div class="footer-bottom-text">© 2026 PrintLab.</div>
+      </div>
+    </div>
+  </footer>
+
   <script>
     function toggleMenu() { document.getElementById('mainMenu').classList.toggle('show'); }
+  </script>
+
+  <script>
+    // --- LÓGICA DE PERSISTENCIA MEDIANTE INDEXEDDB (BLINDADA CONTRA ERRORES DE SEGURIDAD Y UPGRADES) ---
+    const DB_NAME = "PrintLabDB";
+    const STORE_NAME = "AnalysisSession";
+    const DB_VERSION = 2; // Versión incremental para forzar la creación del objectStore en navegadores existentes
+
+    function openDB() {
+      return new Promise((resolve) => {
+        try {
+          if (!window.indexedDB) {
+            resolve(null); // Evitar rejections que bloqueen el script principal
+            return;
+          }
+          const request = indexedDB.open(DB_NAME, DB_VERSION);
+          request.onupgradeneeded = (e) => {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains(STORE_NAME)) {
+              db.createObjectStore(STORE_NAME, { keyPath: "id" });
+            }
+          };
+          request.onsuccess = (e) => resolve(e.target.result);
+          request.onerror = () => resolve(null); // Retornar nulo ante bloqueos de permisos o modo incógnito
+        } catch (err) {
+          resolve(null);
+        }
+      });
+    }
+
+    async function saveSession(file, answers, stepIdx) {
+      try {
+        const db = await openDB();
+        if (!db) return;
+        return new Promise((resolve) => {
+          try {
+            const transaction = db.transaction(STORE_NAME, "readwrite");
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.put({
+              id: "current_session",
+              file: file,
+              answers: answers,
+              stepIdx: stepIdx,
+              timestamp: Date.now()
+            });
+            request.onsuccess = () => resolve();
+            request.onerror = () => resolve(); // Evitar interrupciones ante fallos de escritura o cuota de disco
+          } catch (e) {
+            console.warn("Fallo síncrono al escribir en el almacén IndexedDB:", e);
+            resolve();
+          }
+        });
+      } catch (err) {
+        console.warn("No se pudo guardar la sesión local:", err);
+      }
+    }
+
+    async function loadSession() {
+      try {
+        const db = await openDB();
+        if (!db) return null;
+        return new Promise((resolve) => {
+          try {
+            const transaction = db.transaction(STORE_NAME, "readonly");
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.get("current_session");
+            request.onsuccess = (e) => resolve(e.target.result);
+            request.onerror = () => resolve(null);
+          } catch (e) {
+            console.warn("Fallo síncrono al leer del almacén IndexedDB:", e);
+            resolve(null);
+          }
+        });
+      } catch (err) {
+        console.warn("No se pudo cargar la sesión local:", err);
+        return null;
+      }
+    }
+
+    async function clearSession() {
+      try {
+        const db = await openDB();
+        if (!db) return;
+        return new Promise((resolve) => {
+          try {
+            const transaction = db.transaction(STORE_NAME, "readwrite");
+            const store = transaction.objectStore(STORE_NAME);
+            const request = store.delete("current_session");
+            request.onsuccess = () => resolve();
+            request.onerror = () => resolve();
+          } catch (e) {
+            console.warn("Fallo síncrono al limpiar almacén IndexedDB:", e);
+            resolve();
+          }
+        });
+      } catch (err) {
+        console.warn("No se pudo limpiar la sesión local:", err);
+      }
+    }
+    // ----------------=======================================----------------
+
+    const answers = {
+      nozzleSize: "",
+      material: "",
+      printer: "",
+      purpose: [],
+      selectedSupportFace: null,
+      supportFaceNormal: null,
+      supportFacePoint: null,
+      transformationMatrix: null
+    };
+
+    const steps = [
+      "step-upload",
+      "step-nozzle",
+      "step-material",
+      "step-printer",
+      "step-purpose",
+      "step-viewer"
+    ];
+    let currentStepIdx = 0;
+
+    const printerLimits = {
+      "Bambu Lab X1 Carbon": { x: 256, y: 256, z: 256 },
+      "Bambu Lab P1S": { x: 256, y: 256, z: 256 },
+      "Bambu Lab P1P": { x: 256, y: 256, z: 256 },
+      "Bambu Lab A1": { x: 256, y: 256, z: 256 },
+      "Bambu Lab A1 Mini": { x: 180, y: 180, z: 180 },
+      "Prusa i3 MK4": { x: 250, y: 210, z: 220 },
+      "Prusa MINI+": { x: 180, y: 180, z: 180 },
+      "Prusa XL": { x: 360, y: 360, z: 360 },
+      // Creality
+      "Creality Ender 3": { x: 220, y: 220, z: 250 },
+      "Creality Ender 3 Pro": { x: 220, y: 220, z: 250 },
+      "Creality Ender 3 V2": { x: 220, y: 220, z: 250 },
+      "Creality Ender 3 Neo": { x: 220, y: 220, z: 250 },
+      "Creality Ender 3 S1": { x: 220, y: 220, z: 270 },
+      "Creality Ender 3 S1 Pro": { x: 220, y: 220, z: 270 },
+      "Creality Ender-3 V3 SE": { x: 220, y: 220, z: 250 },
+      "Creality Ender-3 V3 Plus": { x: 300, y: 300, z: 330 },
+      "Creality Ender 5 Pro": { x: 220, y: 220, z: 300 },
+      "Creality Ender 5 S1": { x: 220, y: 220, z: 280 },
+      "Creality CR-10": { x: 300, y: 300, z: 400 },
+      "Creality CR-10 Smart": { x: 300, y: 300, z: 400 },
+      "Creality K1": { x: 220, y: 220, z: 250 },
+      "Creality K1C": { x: 220, y: 220, z: 250 },
+      "Creality K1 Max": { x: 300, y: 300, z: 300 },
+      // Artillery
+      "Artillery Genius": { x: 220, y: 220, z: 250 },
+      "Artillery Genius Pro": { x: 220, y: 220, z: 250 },
+      "Artillery Sidewinder X1": { x: 300, y: 300, z: 400 },
+      "Artillery Sidewinder X2": { x: 300, y: 300, z: 400 },
+      "Artillery Sidewinder X3 Pro": { x: 240, y: 240, z: 260 },
+      "Artillery Sidewinder X4 Pro": { x: 240, y: 240, z: 260 },
+      "Artillery Sidewinder X4 Plus": { x: 300, y: 300, z: 300 },
+      // Elegoo / Anycubic
+      "Elegoo Neptune 4": { x: 225, y: 225, z: 265 },
+      "Elegoo Neptune 4 Max": { x: 420, y: 420, z: 480 },
+      "Anycubic Kobra 2": { x: 220, y: 220, z: 250 },
+      "Anycubic Kobra 3": { x: 250, y: 250, z: 260 },
+      "Anycubic i3 Mega S": { x: 210, y: 210, z: 205 },
+      "Anycubic Vyper": { x: 245, y: 245, z: 260 },
+      "Anycubic Kobra 2 Neo": { x: 220, y: 220, z: 250 },
+      "Anycubic Kobra 2 Pro": { x: 220, y: 220, z: 250 },
+      "Anycubic Mega Zero": { x: 220, y: 220, z: 250 },
+      "Qidi Tech Q1 Pro": { x: 245, y: 245, z: 240 },
+      "Sovol SV08": { x: 350, y: 350, z: 345 },
+      "Voron 2.4 (300)": { x: 300, y: 300, z: 300 },
+      "Voron 2.4 (350)": { x: 350, y: 350, z: 350 },
+      "Voron V0.2": { x: 120, y: 120, z: 120 }
+    };
+
+    function selectCard(cardElement, field) {
+      const parent = cardElement.parentNode;
+
+      if (field === 'purpose') {
+        if (!Array.isArray(answers.purpose)) answers.purpose = [];
+
+        const value = cardElement.dataset.val;
+        const index = answers.purpose.indexOf(value);
+
+        if (index === -1) {
+          answers.purpose.push(value);
+          cardElement.classList.add('selected');
+        } else {
+          answers.purpose.splice(index, 1);
+          cardElement.classList.remove('selected');
+        }
+      } else {
+        parent.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected'));
+        cardElement.classList.add('selected');
+        answers[field] = cardElement.dataset.val;
+      }
+
+      validateCurrentStep();
+    }
+
+    function selectPrinterDropdown(selectElement) {
+      answers.printer = selectElement.value;
+      validateCurrentStep();
+    }
+
+    function validateCurrentStep() {
+      const nextBtn = document.getElementById("nextBtn");
+      let isValid = true;
+
+      if (currentStepIdx === 0) isValid = window.selectedSTLFile != null;
+      else if (currentStepIdx === 1) isValid = answers.nozzleSize !== "";
+      else if (currentStepIdx === 2) isValid = answers.material !== "";
+      else if (currentStepIdx === 3) isValid = answers.printer !== "";
+      else if (currentStepIdx === 4) isValid = Array.isArray(answers.purpose) && answers.purpose.length > 0;
+      else if (currentStepIdx === 5) isValid = answers.selectedSupportFace !== null;
+
+      nextBtn.disabled = !isValid;
+    }
+
+    function navigateStep(direction) {
+      if (currentStepIdx === steps.length - 1 && direction === 1) return;
+
+      const targetStepIdx = currentStepIdx + direction;
+      
+      if (targetStepIdx === 0) {
+        document.getElementById(steps[currentStepIdx]).classList.remove("active");
+        currentStepIdx = 0;
+        document.getElementById(steps[0]).classList.add("active");
+        document.querySelector(".upload-title").style.display = "none"; 
+        document.querySelector(".upload-desc").style.display = "none";
+        accessButton.style.display = "inline-block";
+        document.querySelector(".drag-help").style.display = "block";
+        progressContainer.style.display = "none";
+        wizardNav.style.display = "none";
+        validateCurrentStep();
+        disposeRendererAndScene();
+        return;
+      }
+
+      document.getElementById(steps[currentStepIdx]).classList.remove("active");
+      currentStepIdx += direction;
+      document.getElementById(steps[currentStepIdx]).classList.add("active");
+
+      const progressPercent = (currentStepIdx / (steps.length - 1)) * 100;
+      document.getElementById("progressBar").style.width = `${progressPercent}%`;
+
+      document.getElementById("prevBtn").style.visibility = currentStepIdx === 0 ? "hidden" : "visible";
+      document.getElementById("nextBtn").textContent = currentStepIdx === steps.length - 1 ? "Iniciar Análisis Real" : "Siguiente";
+
+      if (currentStepIdx !== 5) {
+        disposeRendererAndScene();
+      } else {
+        initSelector3D();
+      }
+
+      validateCurrentStep();
+    }
+
+    // VARIABLES GLOBALES DEL VISOR 3D Y MANIPULACIÓN
+    let sScene, sCamera, sRenderer, sControls, sMesh, highlightRing, gridHelper, printVolumeBox, transformControls;
+    let isDraggingTransform = false;
+    let wasDragging = false;
+    let animationFrameId = null;
+    let sResizeObserver = null;
+
+    function disposeRendererAndScene() {
+      // Cancela el bucle de renderizado anterior antes de destruir los objetos
+      if (animationFrameId !== null) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+      }
+      if (sResizeObserver) {
+        sResizeObserver.disconnect();
+        sResizeObserver = null;
+      }
+      if (transformControls) {
+        transformControls.detach();
+        transformControls.dispose();
+        transformControls = null;
+      }
+      if (sRenderer) {
+        sRenderer.dispose();
+        const container = document.getElementById("selector3dContainer");
+        if (container && sRenderer.domElement && container.contains(sRenderer.domElement)) {
+          container.removeChild(sRenderer.domElement);
+        }
+        sRenderer = null;
+      }
+      if (sScene) {
+        sScene.traverse(object => {
+          if (object.geometry) object.geometry.dispose();
+          if (object.material) {
+            if (Array.isArray(object.material)) {
+              object.material.forEach(mat => mat.dispose());
+            } else {
+              object.material.dispose();
+            }
+          }
+        });
+        sScene = null;
+      }
+      if (highlightRing) highlightRing = null;
+    }
+
+    // ALGORITMOS DE GEOMETRÍA OPTIMIZADOS PARA CÁLCULO EN 100% DE CAPACIDAD
+    function crossProduct(o, a, b) {
+      return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+    }
+
+    // Obtener Convex Hull 2D (Algoritmo Monotone Chain)
+    function get2DConvexHull(points) {
+      if (points.length <= 3) return points.slice();
+      const pts = points.slice().sort((a, b) => a.x === b.x ? a.y - b.y : a.x - b.x);
+      const lower = [];
+      for (let i = 0; i < pts.length; i++) {
+        while (lower.length >= 2 && crossProduct(lower[lower.length - 2], lower[lower.length - 1], pts[i]) <= 0) {
+          lower.pop();
+        }
+        lower.push(pts[i]);
+      }
+      const upper = [];
+      for (let i = pts.length - 1; i >= 0; i--) {
+        while (upper.length >= 2 && crossProduct(upper[upper.length - 2], upper[upper.length - 1], pts[i]) <= 0) {
+          upper.pop();
+        }
+        upper.push(pts[i]);
+      }
+      lower.pop();
+      upper.pop();
+      return lower.concat(upper);
+    }
+
+    // Obtención de vértices únicos aplicando la escala actual del Mesh para consistencia
+    function getUniqueVertices(mesh) {
+      const geometry = mesh.geometry;
+      const scale = mesh.scale;
+      const pos = geometry.attributes.position;
+      const unique = [];
+      const seen = new Set();
+      const step = Math.max(1, Math.floor(pos.count / 3000)); 
+      for (let i = 0; i < pos.count; i += step) {
+        const x = pos.getX(i) * scale.x;
+        const y = pos.getY(i) * scale.y;
+        const z = pos.getZ(i) * scale.z;
+        const rx = Math.round(x * 100) / 100;
+        const ry = Math.round(y * 100) / 100;
+        const rz = Math.round(z * 100) / 100;
+        const key = `${rx}_${ry}_${rz}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          unique.push(new THREE.Vector3(x, y, z));
+        }
+      }
+      return unique;
+    }
+
+    // Analizador de caras para identificar las bases estables
+    function getCandidateNormals(geometry) {
+      const pos = geometry.attributes.position;
+      const normalMap = {};
+      const vA = new THREE.Vector3(), vB = new THREE.Vector3(), vC = new THREE.Vector3();
+      const cb = new THREE.Vector3(), ab = new THREE.Vector3();
+      
+      const step = Math.max(1, Math.floor(pos.count / 4000)) * 3;
+      for (let i = 0; i < pos.count; i += step) {
+        if (i + 2 >= pos.count) break;
+        vA.fromBufferAttribute(pos, i);
+        vB.fromBufferAttribute(pos, i + 1);
+        vC.fromBufferAttribute(pos, i + 2);
+        
+        cb.subVectors(vC, vB);
+        ab.subVectors(vA, vB);
+        cb.cross(ab);
+        const area = cb.length() * 0.5;
+        const normal = cb.clone().normalize();
+        
+        const rx = Math.round(normal.x * 10) / 10;
+        const ry = Math.round(normal.y * 10) / 10;
+        const rz = Math.round(normal.z * 10) / 10;
+        const key = `${rx}_${ry}_${rz}`;
+        
+        if (!normalMap[key]) {
+          normalMap[key] = { normal: normal.clone(), area: 0 };
+        }
+        normalMap[key].area += area;
+      }
+      
+      const candidates = Object.values(normalMap);
+      candidates.sort((a, b) => b.area - a.area);
+      
+      const result = [];
+      const seenNormals = [];
+      const isDuplicate = (n) => {
+        for (const existing of seenNormals) {
+          if (existing.dot(n) > 0.94) return true;
+        }
+        return false;
+      };
+      
+      for (const c of candidates) {
+        if (!isDuplicate(c.normal)) {
+          seenNormals.push(c.normal);
+          result.push(c.normal);
+          if (result.length >= 10) break;
+        }
+      }
+      
+      const axes = [
+        new THREE.Vector3(0, 0, 1),
+        new THREE.Vector3(0, 0, -1),
+        new THREE.Vector3(1, 0, 0),
+        new THREE.Vector3(-1, 0, 0),
+        new THREE.Vector3(0, 1, 0),
+        new THREE.Vector3(0, -1, 0)
+      ];
+      for (const axis of axes) {
+        if (!isDuplicate(axis)) {
+          result.push(axis);
+        }
+      }
+      return result;
+    }
+
+    // FUNCIÓN DE PEGADO AUTOMÁTICO A LA CAMA (Cero físico en Y)
+    function snapToBed() {
+      if (!sMesh) return;
+      sMesh.updateMatrixWorld(true);
+      const bbox = new THREE.Box3().setFromObject(sMesh);
+      const adjustmentY = -bbox.min.y;
+      if (Math.abs(adjustmentY) > 0.0001) {
+        sMesh.position.y += adjustmentY;
+        sMesh.updateMatrixWorld(true);
+      }
+    }
+
+    // COMPROBACIÓN EXACTA DE LÍMITES POR CAJA ORIENTADA (OBB) Y VÉRTICES REALES
+    function isOBBInBounds() {
+      if (!sMesh || !answers.printer) return false;
+      const limits = printerLimits[answers.printer];
+      if (!limits) return false;
+
+      // Forzar la actualización de la matriz mundial para evitar desfases de cálculo
+      sMesh.updateMatrixWorld(true);
+
+      // Comprobar la altura exacta (Y) a través de su punto más alto y más bajo real
+      const bbox = new THREE.Box3().setFromObject(sMesh);
+      const minY = -0.05;
+      const maxY = limits.z + 0.05;
+
+      if (bbox.min.y < minY || bbox.max.y > maxY) {
+        return false; // Altura fuera de rango
+      }
+
+      // Para los ejes horizontales (X/Z), utilizamos los vértices reales muestreandolos de forma eficiente
+      const uniqueVerts = getUniqueVertices(sMesh);
+      
+      const minX = -limits.x / 2 - 0.05;
+      const maxX =  limits.x / 2 + 0.05;
+      const minZ = -limits.y / 2 - 0.05;
+      const maxZ =  limits.y / 2 + 0.05;
+
+      // Matriz de transformación sin escala (ya que getUniqueVertices ya aplica la escala del mesh localmente)
+      const tempMatrix = new THREE.Matrix4().compose(
+        sMesh.position,
+        sMesh.quaternion,
+        new THREE.Vector3(1, 1, 1)
+      );
+
+      for (const v of uniqueVerts) {
+        const worldV = v.clone().applyMatrix4(tempMatrix);
+        if (worldV.x < minX || worldV.x > maxX || worldV.z < minZ || worldV.z > maxZ) {
+          return false; // Colisiona o sobresale de los bordes físicos de la cama
+        }
+      }
+
+      return true; // Todo cabe perfectamente dentro del recinto de impresión
+    }
+
+    // COMPROBACIÓN DINÁMICA DE LÍMITES FÍSICOS DE LA CAMA (TOLERANCIA ESTRICTA DE CENTÉSIMAS)
+    function checkLimits() {
+      if (!sMesh || !answers.printer) return;
+
+      const inBounds = isOBBInBounds();
+
+      if (!inBounds) {
+        sMesh.material.color.setHex(0xb42318); // Rojo de colisión
+        sMesh.material.needsUpdate = true;
+        answers.selectedSupportFace = null; 
+      } else {
+        sMesh.material.color.setHex(0x388e3c); // Verde estándar (posición válida)
+        sMesh.material.needsUpdate = true;
+        answers.selectedSupportFace = 1; 
+      }
+
+      const te = sMesh.matrix.elements;
+      answers.transformationMatrix = [
+        [te[0], te[4], te[8], te[12]],
+        [te[1], te[5], te[9], te[13]],
+        [te[2], te[6], te[10], te[14]],
+        [te[3], te[7], te[11], te[15]]
+      ];
+
+      validateCurrentStep();
+    }
+
+    // CONMUTADOR DE MODOS DEL MOTOR INTERACTIVO TRIDIMENSIONAL (XYZ)
+    window.setTransformMode = function(mode) {
+      if (!transformControls) return;
+      
+      const btnTranslate = document.getElementById("btnModeTranslate");
+      const btnRotate = document.getElementById("btnModeRotate");
+
+      if (mode === 'translate') {
+        transformControls.setMode('translate');
+        transformControls.showX = true;
+        transformControls.showY = true;
+        transformControls.showZ = true;
+
+        if (btnTranslate) {
+          btnTranslate.classList.remove("light");
+          btnTranslate.classList.add("green");
+        }
+        if (btnRotate) {
+          btnRotate.classList.remove("green");
+          btnRotate.classList.add("light");
+        }
+      } else if (mode === 'rotate') {
+        transformControls.setMode('rotate');
+        transformControls.showX = true;
+        transformControls.showY = true;
+        transformControls.showZ = true;
+
+        if (btnTranslate) {
+          btnTranslate.classList.remove("green");
+          btnTranslate.classList.add("light");
+        }
+        if (btnRotate) {
+          btnRotate.classList.remove("light");
+          btnRotate.classList.add("green");
+        }
+      }
+    };
+
+    // FUNCIÓN DE ESCALADO DE EMERGENCIA EXACTO AL 100% CON RE-CENTRADO PRECOZ
+    window.scaleMeshToFit = function() {
+      if (!sMesh || !answers.printer) return;
+      const limits = printerLimits[answers.printer];
+      if (!limits) return;
+
+      const currentBbox = new THREE.Box3().setFromObject(sMesh);
+      const modelSize = new THREE.Vector3();
+      currentBbox.getSize(modelSize);
+
+      // Bed es X (limits.x), Z (limits.y). Altura es Y (limits.z)
+      const scaleX = limits.x / modelSize.x;
+      const scaleY = limits.z / modelSize.y; // altura útil
+      const scaleZ = limits.y / modelSize.z; // profundidad útil
+      const minScale = Math.min(scaleX, scaleY, scaleZ);
+
+      sMesh.scale.multiplyScalar(minScale * 0.95); // Factor de seguridad menor para evitar roces de margen
+      sMesh.updateMatrixWorld(true);
+
+      const finalBbox = new THREE.Box3().setFromObject(sMesh);
+      const boxCenter = new THREE.Vector3();
+      finalBbox.getCenter(boxCenter);
+      
+      // Corrección de posición acumulada relativa para evitar desfases fuera del origen
+      sMesh.position.x += -boxCenter.x;
+      sMesh.position.z += -boxCenter.z;
+      sMesh.position.y += -finalBbox.min.y;
+      sMesh.updateMatrixWorld(true);
+
+      const te = sMesh.matrix.elements;
+      answers.transformationMatrix = [
+        [ te[0], te[4], te[8],  te[12] ],
+        [ te[1], te[5], te[9],  te[13] ],
+        [ te[2], te[6], te[10], te[14] ],
+        [ te[3], te[7], te[11], te[15] ]
+      ];
+
+      sMesh.material.color.setHex(0x388e3c); 
+      answers.selectedSupportFace = 1; 
+      checkLimits();
+    }
+
+    // INICIALIZADOR DE LA ESCENA TRIDIMENSIONAL (Y-UP)
+    function initSelector3D() {
+      disposeRendererAndScene();
+
+      const container = document.getElementById("selector3dContainer");
+      if (!container) return;
+
+      // Limpieza total de elementos previos antes de inicializar para evitar duplicidades
+      container.innerHTML = "";
+
+      sScene = new THREE.Scene();
+      sScene.background = new THREE.Color(0x111715);
+
+      sCamera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 1, 1000);
+      sCamera.position.set(130, 130, 150);
+      sCamera.up.set(0, 1, 0); // Configuración del espacio con Y como vertical (eje verde)
+
+      sRenderer = new THREE.WebGLRenderer({ 
+        antialias: true, 
+        alpha: true, /* PREVIENE TEARING AL HACER SCROLL */
+        powerPreference: "high-performance"
+      });
+      sRenderer.setClearColor(0x111715, 1); /* Asegura el fondo idéntico al contenedor */
+      
+      sRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      sRenderer.setSize(container.clientWidth, container.clientHeight);
+      container.appendChild(sRenderer.domElement);
+
+      const light1 = new THREE.DirectionalLight(0xffffff, 1.4);
+      light1.position.set(1, 3, 1).normalize();
+      sScene.add(light1);
+      sScene.add(new THREE.AmbientLight(0x404040));
+
+      sControls = new THREE.OrbitControls(sCamera, sRenderer.domElement);
+      sControls.enableDamping = true;
+
+      const limits = printerLimits[answers.printer] || { x: 220, y: 220, z: 250 };
+      const gridSize = Math.max(limits.x, limits.y);
+      
+      gridHelper = new THREE.GridHelper(gridSize, 30, 0x5e6661, 0x2e3a35); // Rejilla plana natural sobre X-Z
+      sScene.add(gridHelper);
+
+      const boxGeo = new THREE.BoxGeometry(limits.x, limits.z, limits.y); // Alto en Y (eje verde)
+      const edges = new THREE.EdgesGeometry(boxGeo);
+      const lineMaterial = new THREE.LineBasicMaterial({ color: 0x5e6661, transparent: true, opacity: 0.15 });
+      printVolumeBox = new THREE.LineSegments(edges, lineMaterial);
+      printVolumeBox.position.set(0, limits.z / 2, 0);
+      sScene.add(printVolumeBox);
+
+      // Instanciación del motor manual (TransformControls)
+      transformControls = new THREE.TransformControls(sCamera, sRenderer.domElement);
+      transformControls.size = 0.75;
+      transformControls.space = "local"; // Orientación local de las flechas activada de forma nativa
+      
+      // Restricciones iniciales del motor interactivo
+      transformControls.setMode('translate');
+      transformControls.showX = true;
+      transformControls.showY = true;
+      transformControls.showZ = true; 
+
+      sScene.add(transformControls);
+
+      // Deshabilita OrbitControls temporalmente para evitar conflictos al arrastrar la pieza
+      transformControls.addEventListener('dragging-changed', function (event) {
+        sControls.enabled = !event.value;
+        isDraggingTransform = event.value;
+        if (event.value) {
+          wasDragging = true;
+        } else {
+          // Al soltar el control del mouse, forzamos un pegado ultra-preciso en la cama
+          snapToBed();
+          checkLimits();
+        }
+      });
+
+      // Llama a checkLimits() y restringe la penetración o separación de la cama (eje verde Y)
+      transformControls.addEventListener('objectChange', () => {
+        if (sMesh) {
+          // Fuerza el pegado dinámico en tiempo real para evitar que la pieza flote o se hunda
+          snapToBed();
+          checkLimits();
+        }
+      });
+
+      // Evento de clic en el canvas para seleccionar cara de apoyo (filtrado por temporizador de arrastre)
+      sRenderer.domElement.addEventListener("click", onMeshClick);
+
+      // Observador inteligente para actualizar el aspect ratio evitando redimensionar constantemente en scroll
+      let prevWidth = 0;
+      let prevHeight = 0;
+      sResizeObserver = new ResizeObserver(() => {
+        if (!sRenderer || !sCamera || !container) return;
+        const width = Math.floor(container.clientWidth);
+        const height = Math.floor(container.clientHeight);
+        if (width !== prevWidth || height !== prevHeight) {
+          prevWidth = width;
+          prevHeight = height;
+          sCamera.aspect = width / height;
+          sCamera.updateProjectionMatrix();
+          sRenderer.setSize(width, height, false); /* false EVITA LAYOUT THRASHING QUE ROMPE EL SCROLL */
+        }
+      });
+      sResizeObserver.observe(container);
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const loader = new THREE.STLLoader();
+        const geometry = loader.parse(e.target.result);
+        geometry.center(); 
+        geometry.computeBoundingBox();
+
+        const material = new THREE.MeshPhongMaterial({ 
+          color: 0x388e3c, // Verde de posición correcta por defecto
+          specular: 0x222222, 
+          shininess: 40, 
+          side: THREE.DoubleSide 
+        });
+
+        sMesh = new THREE.Mesh(geometry, material);
+        sMesh.position.set(0, 0, 0);
+        sMesh.updateMatrixWorld(true);
+
+        const bbox = new THREE.Box3().setFromObject(sMesh);
+        sMesh.position.y = -bbox.min.y; // Apoya a nivel Y=0 (cama de impresión)
+        sMesh.updateMatrixWorld(true);
+
+        sScene.add(sMesh); // Agregado a la escena de forma efectiva
+
+        // Adjunta la pieza al motor de manipulación manual
+        transformControls.attach(sMesh);
+
+        const size = geometry.boundingBox.getSize(new THREE.Vector3()).length();
+        sCamera.position.set(size * 1.3, size * 1.3, size * 1.3);
+        sControls.target.copy(geometry.boundingBox.getCenter(new THREE.Vector3()));
+        sControls.update();
+
+        // Inicializa el botón con el estado activo para el modo Traslación
+        window.setTransformMode('translate');
+
+        // Permite avanzar por defecto al cargar el modelo (sin forzar clic en caras de apoyo)
+        answers.selectedSupportFace = 1; 
+        checkLimits();
+        validateCurrentStep();
+      };
+      reader.readAsArrayBuffer(window.selectedSTLFile);
+
+      // FUNCIÓN DE ALINEACIÓN POR PULSACIÓN EN LA PIEZA (RESTABLECIDA DE FORMA SEGURA EN Y-UP)
+      function onMeshClick(event) {
+        if (!sMesh || wasDragging || isDraggingTransform) {
+          wasDragging = false; // Restablece de forma lógica para admitir clics limpios en el futuro
+          return;
+        }
+        
+        const rect = sRenderer.domElement.getBoundingClientRect();
+        const mouse = new THREE.Vector2();
+        mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+        const raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(mouse, sCamera);
+        const intersects = raycaster.intersectObject(sMesh);
+
+        if (intersects.length > 0) {
+          const hit = intersects[0];
+          const supportPointLocal = sMesh.worldToLocal(hit.point.clone());
+          const localNormal = hit.face.normal.clone();
+
+          answers.selectedSupportFace = hit.faceIndex;
+          answers.supportFaceNormal = [localNormal.x, localNormal.y, localNormal.z];
+          answers.supportFacePoint = [supportPointLocal.x, supportPointLocal.y, supportPointLocal.z];
+
+          const q = new THREE.Quaternion().setFromUnitVectors(localNormal, new THREE.Vector3(0, -1, 0)); // Apunta hacia Y negativo
+          const uniqueVerts = getUniqueVertices(sMesh);
+          const limits = printerLimits[answers.printer] || { x: 220, y: 220, z: 250 };
+          
+          const projectedPoints = uniqueVerts.map(v => v.clone().applyQuaternion(q));
+          let minZ = Infinity, maxZ = -Infinity;
+          const pts2D = [];
+          for (const v of projectedPoints) {
+            if (v.z < minZ) minZ = v.z;
+            if (v.z > maxZ) maxZ = v.z;
+            pts2D.push({ x: v.x, y: v.y });
+          }
+          const H = maxZ - minZ;
+          const hull = get2DConvexHull(pts2D);
+          
+          let bestYaw = 0;
+          let foundFit = false;
+          let bestW = 0, bestD = 0;
+          let bestDiff = -Infinity;
+          
+          for (let deg = 0; deg < 180; deg += 1) {
+            const rad = THREE.MathUtils.degToRad(deg);
+            const cos = Math.cos(rad);
+            const sin = Math.sin(rad);
+            let minX = Infinity, maxX = -Infinity;
+            let minY = Infinity, maxY = -Infinity;
+            for (const p of hull) {
+              const rx = p.x * cos - p.y * sin;
+              const ry = p.x * sin + p.y * cos;
+              if (rx < minX) minX = rx;
+              if (rx > maxX) maxX = rx;
+              if (ry < minY) minY = ry;
+              if (ry > maxY) maxY = ry;
+            }
+            const W = maxX - minX;
+            const D = maxY - minY;
+            
+            if (W <= limits.x && D <= limits.y && H <= limits.z) {
+              const diff = -Math.max(W - limits.x, D - limits.y, H - limits.z);
+              if (diff > bestDiff) {
+                bestDiff = diff;
+                bestYaw = rad;
+                foundFit = true;
+                bestW = W;
+                bestD = D;
+              }
+            }
+          }
+          
+          if (foundFit) {
+            const yawQuat = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), bestYaw); // Rotación sobre eje verde Y
+            sMesh.quaternion.copy(yawQuat.multiply(q));
+            sMesh.scale.set(1, 1, 1);
+            sMesh.position.set(0, 0, 0); 
+            sMesh.updateMatrixWorld(true);
+            
+            const bbox = new THREE.Box3().setFromObject(sMesh);
+            const currentCenter = new THREE.Vector3();
+            bbox.getCenter(currentCenter);
+            sMesh.position.x = -currentCenter.x;
+            sMesh.position.z = -currentCenter.z;
+            sMesh.position.y = -bbox.min.y;
+            sMesh.updateMatrixWorld(true);
+            
+            sMesh.material.color.setHex(0x388e3c); // Verde de posición correcta
+            sMesh.material.needsUpdate = true;
+            
+            if (highlightRing) sScene.remove(highlightRing);
+            const ringGeo = new THREE.RingGeometry(2.5, 3.2, 32);
+            const ringMat = new THREE.MeshBasicMaterial({ color: 0xb8ff3d, side: THREE.DoubleSide });
+            highlightRing = new THREE.Mesh(ringGeo, ringMat);
+            highlightRing.position.copy(hit.point);
+            
+            const ringNormal = localNormal.clone().applyQuaternion(sMesh.quaternion);
+            highlightRing.quaternion.copy(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), ringNormal));
+            highlightRing.position.addScaledVector(ringNormal, 0.4);
+            sScene.add(highlightRing);
+
+            checkLimits();
+          } else {
+            sMesh.quaternion.copy(q);
+            sMesh.scale.set(1, 1, 1);
+            sMesh.position.set(0, 0, 0);
+            sMesh.updateMatrixWorld(true);
+            
+            const bbox = new THREE.Box3().setFromObject(sMesh);
+            const currentCenter = new THREE.Vector3();
+            bbox.getCenter(currentCenter);
+            sMesh.position.x = -currentCenter.x;
+            sMesh.position.z = -currentCenter.z;
+            sMesh.position.y = -bbox.min.y;
+            sMesh.updateMatrixWorld(true);
+            
+            sMesh.material.color.setHex(0xb42318);
+            sMesh.material.needsUpdate = true;
+          }
+
+          const te = sMesh.matrix.elements;
+          answers.transformationMatrix = [
+            [te[0], te[4], te[8], te[12]],
+            [te[1], te[5], te[9], te[13]],
+            [te[2], te[6], te[10], te[14]],
+            [te[3], te[7], te[11], te[15]]
+          ];
+          validateCurrentStep();
+        }
+      }
+
+      function animate() {
+        // Almacenamos el ID de la animación actual para poder cancelarla si se destruye el renderizador
+        animationFrameId = requestAnimationFrame(animate);
+        sControls.update();
+        if (sRenderer && sScene && sCamera) {
+          sRenderer.render(sScene, sCamera); // Delegación nativa en Three.js para la limpieza síncrona
+        }
+      }
+      animate();
+    }
+
+    // COMPROBACIÓN DE QUE LA MALLA SEA CERRADA (WATERTIGHT)
+    function checkIsWatertight(geometry) {
+      const pos = geometry.attributes.position;
+      const index = geometry.index;
+      const edgeCount = {};
+      const addEdge = (v1, v2) => {
+        const key = Math.min(v1, v2) + "_" + Math.max(v1, v2);
+        edgeCount[key] = (edgeCount[key] || 0) + 1;
+      };
+      if (index) {
+        for (let i = 0; i < index.count; i += 3) {
+          addEdge(index.getX(i), index.getX(i+1));
+          addEdge(index.getX(i+1), index.getX(i+2));
+          addEdge(index.getX(i+2), index.getX(i));
+        }
+      } else {
+        for (let i = 0; i < pos.count; i += 3) {
+          addEdge(i, i+1); addEdge(i+1, i+2); addEdge(i+2, i);
+        }
+      }
+      for (const key in edgeCount) { if (edgeCount[key] !== 2) return false; }
+      return true;
+    }
+
+    // CÁLCULO DEL VOLUMEN DE LA GEOMETRÍA
+    function calculateVolume(geometry) {
+      let volume = 0;
+      const pos = geometry.attributes.position;
+      const index = geometry.index;
+      if (index) {
+        for (let i = 0; i < index.count; i += 3) {
+          const i1 = index.getX(i), i2 = index.getX(i+1), i3 = index.getX(i+2);
+          const x1 = pos.getX(i1), y1 = pos.getY(i1), z1 = pos.getZ(i1);
+          const x2 = pos.getX(i2), y2 = pos.getY(i2), z2 = pos.getZ(i2);
+          const x3 = pos.getX(i3), y3 = pos.getY(i3), z3 = pos.getZ(i3);
+          volume += (x1*y2*z3 - x1*y3*z2 - x2*y1*z3 + x2*y3*z1 + x3*y1*z2 - x3*y2*z1);
+        }
+      } else {
+        for (let i = 0; i < pos.count; i += 3) {
+          const x1 = pos.getX(i), y1 = pos.getY(i), z1 = pos.getZ(i);
+          const x2 = pos.getX(i+1), y2 = pos.getY(i+1), z2 = pos.getZ(i+1);
+          const x3 = pos.getX(i+2), y3 = pos.getY(i+2), z3 = pos.getZ(i+2);
+          volume += (x1*y2*z3 - x1*y3*z2 - x2*y1*z3 + x2*y3*z1 + x3*y1*z2 - x3*y2*z1);
+        }
+      }
+      return parseFloat(Math.abs(volume / 6.0 / 1000.0).toFixed(2));
+    }
+
+    // CÁLCULO DE ÁREA DE VOLADIZOS CRÍTICOS
+    function calculateOverhangArea(geometry, mesh) {
+      let overhangArea = 0;
+      const pos = geometry.attributes.position;
+      const index = geometry.index;
+      const normal = new THREE.Vector3();
+      const vA = new THREE.Vector3(), vB = new THREE.Vector3(), vC = new THREE.Vector3();
+      const cb = new THREE.Vector3(), ab = new THREE.Vector3();
+      const normalMatrix = new THREE.Matrix3().getNormalMatrix(mesh.matrixWorld);
+      
+      const processFace = (i1, i2, i3) => {
+        vA.fromBufferAttribute(pos, i1);
+        vB.fromBufferAttribute(pos, i2);
+        vC.fromBufferAttribute(pos, i3);
+        cb.subVectors(vC, vB);
+        ab.subVectors(vA, vB);
+        cb.cross(ab);
+        const area = cb.length() * 0.5;
+        normal.copy(cb).normalize().applyMatrix3(normalMatrix).normalize();
+        const dot = normal.dot(new THREE.Vector3(0, 0, -1));
+        const angle = THREE.MathUtils.radToDeg(Math.acos(Math.max(-1, Math.min(1, dot))));
+        const center = new THREE.Vector3().addVectors(vA, vB).add(vC).divideScalar(3).applyMatrix4(mesh.matrixWorld);
+        const bbox = new THREE.Box3().setFromObject(mesh);
+        if (angle < 45.0 && center.z > (bbox.min.z + 1.0)) {
+          overhangArea += area;
+        }
+      };
+      if (index) {
+        for (let i = 0; i < index.count; i += 3) { processFace(index.getX(i), index.getX(i+1), index.getX(i+2)); }
+      } else {
+        for (let i = 0; i < pos.count; i += 3) { processFace(i, i+1, i+2); }
+      }
+      return parseFloat((overhangArea / 100.0).toFixed(2));
+    }
+
+    // EXPORTACIÓN A BASE64 PARA TRANSMISIÓN
+    function exportSTL(geometry) {
+      const pos = geometry.attributes.position;
+      const index = geometry.index;
+      let output = "solid export\n";
+      const processFace = (i1, i2, i3) => {
+        const x1 = pos.getX(i1), y1 = pos.getY(i1), z1 = pos.getZ(i1);
+        const x2 = pos.getX(i2), y2 = pos.getY(i2), z2 = pos.getZ(i2);
+        const x3 = pos.getX(i3), y3 = pos.getY(i3), z3 = pos.getZ(i3);
+        const ax = x2 - x1, ay = y2 - y1, az = z2 - z1;
+        const bx = x3 - x1, by = y3 - y1, bz = z3 - z1;
+        const nx = ay*bz - az*by, ny = az*bx - ax*bz, nz = ax*by - ay*bx;
+        const len = Math.sqrt(nx*nx + ny*ny + nz*nz);
+        const nnx = len ? nx/len : 0, nny = len ? ny/len : 0, nnz = len ? nz/len : 1;
+        
+        output += `  facet normal ${nnx.toFixed(4)} ${nny.toFixed(4)} ${nnz.toFixed(4)}\n`;
+        output += "    outer loop\n";
+        output += `      vertex ${x1.toFixed(4)} ${y1.toFixed(4)} ${z1.toFixed(4)}\n`;
+        output += `      vertex ${x2.toFixed(4)} ${y2.toFixed(4)} ${z2.toFixed(4)}\n`;
+        output += `      vertex ${x3.toFixed(4)} ${y3.toFixed(4)} ${z3.toFixed(4)}\n`;
+        output += "    endloop\n";
+        output += "  endfacet\n";
+      };
+      if (index) {
+        for (let i = 0; i < index.count; i += 3) { processFace(index.getX(i), index.getX(i+1), index.getX(i+2)); }
+      } else {
+        for (let i = 0; i < pos.count; i += 3) { processFace(i, i+1, i+2); }
+      }
+      output += "endsolid export\n";
+      return btoa(output);
+    }
+
+    function handleFile(file) {
+      if (!file || !file.name.toLowerCase().endsWith(".stl")) {
+        alert("Sube un archivo .stl válido"); return;
+      }
+      window.selectedSTLFile = file;
+      selectedFileName.textContent = file.name;
+      selectedFileSize.textContent = file.size < 1024*1024 ? (file.size/1024).toFixed(0) + " KB" : (file.size/(1024*1024)).toFixed(1) + " MB";
+      selectedFile.classList.add("show");
+      updateButtonState();
+
+      // DESPERTADO PRECOZ (PRE-WARM) DEL SERVIDOR BACKEND (AL CARGAR ARCHIVO)
+      // Envía una petición síncrona en segundo plano para iniciar el arranque de la máquina virtual de Render
+      fetch("https://printlab-backend-dy7v.onrender.com/").catch(() => {});
+    }
+
+    const accessButton = document.getElementById("analyzerAccessButton");
+    const fileInput = document.getElementById("stlFile");
+    const uploadContainer = document.getElementById("uploadContainer");
+    const selectedFile = document.getElementById("selectedFile");
+    const selectedFileName = document.getElementById("selectedFileName");
+    const selectedFileSize = document.getElementById("selectedFileSize");
+    const removeFileBtn = document.getElementById("removeFileBtn");
+    const wizardNav = document.getElementById("wizardNavigation");
+    const progressContainer = document.getElementById("progressContainer");
+
+    removeFileBtn.addEventListener("click", (e) => {
+      e.stopPropagation(); window.selectedSTLFile = null; fileInput.value = ""; updateButtonState();
+    });
+    fileInput.addEventListener("change", () => { if (fileInput.files.length > 0) handleFile(fileInput.files[0]); });
+    uploadContainer.addEventListener("dragover", e => { e.preventDefault(); uploadContainer.classList.add("drag-over"); });
+    uploadContainer.addEventListener("dragleave", () => uploadContainer.classList.remove("drag-over");
+    uploadContainer.addEventListener("drop", e => {
+      e.preventDefault(); uploadContainer.classList.remove("drag-over");
+      if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
+    });
+
+    accessButton.addEventListener("click", e => {
+      e.preventDefault();
+      if (accessButton.state === "has-file") {
+        document.querySelector(".upload-title").style.display = "none";
+        document.querySelector(".upload-desc").style.display = "none";
+        accessButton.style.display = "none";
+        document.querySelector(".drag-help").style.display = "none";
+        progressContainer.style.display = "block";
+        wizardNav.style.display = "flex";
+        navigateStep(1);
+      } else {
+        fileInput.click();
+      }
+    });
+
+    const client = window.supabaseClient || null;
+    let mockSession = { user: { id: "mock-user-id", email: "demo@printlab.com" } };
+
+    async function getCurrentSession() {
+      if (!client) return mockSession;
+      try { 
+        const { data } = await client.auth.getSession(); 
+        return data?.session || mockSession; 
+      } catch { 
+        return mockSession; 
+      }
+    }
+
+    async function updateButtonState() {
+      if (window.selectedSTLFile) {
+        accessButton.textContent = "Comenzar Cuestionario";
+        accessButton.dataset.state = "has-file";
+        accessButton.state = "has-file";
+      } else {
+        accessButton.textContent = "Seleccionar archivo STL";
+        accessButton.dataset.state = "logged-in-no-file";
+        accessButton.state = "logged-in-no-file";
+        selectedFile.classList.remove("show");
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      // DESPERTADO PRECOZ (PRE-WARM) DEL SERVIDOR BACKEND (AL CARGAR LA PÁGINA)
+      fetch("https://printlab-backend-dy7v.onrender.com/").catch(() => {});
+
+      await updateButtonState();
+
+      // --- VERIFICAR Y RESTAURAR SESIÓN DE CONTINGENCIA TRAS LA COMPRA ---
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const isResume = urlParams.get("action") === "resume" || sessionStorage.getItem("printlab_resume_analysis") === "true";
+        
+        if (isResume) {
+          const saved = await loadSession();
+          if (saved && saved.file) {
+            // Restaurar archivo STL
+            window.selectedSTLFile = saved.file;
+            selectedFileName.textContent = saved.file.name;
+            selectedFileSize.textContent = saved.file.size < 1024*1024 
+              ? (saved.file.size/1024).toFixed(0) + " KB" 
+              : (saved.file.size/(1024*1024)).toFixed(1) + " MB";
+            selectedFile.classList.add("show");
+            
+            // Restaurar respuestas del cuestionario
+            if (saved.answers) {
+              Object.assign(answers, saved.answers);
+              
+              // Marcar visualmente las tarjetas previamente seleccionadas
+              document.querySelectorAll(".option-card").forEach(card => {
+                const val = card.dataset.val;
+                const onclickAttr = card.getAttribute("onclick");
+                const match = onclickAttr ? onclickAttr.match(/'([^']+)'/) : null;
+                const field = match ? match[1] : null;
+                if (field) {
+                  if (field === 'purpose') {
+                    if (Array.isArray(answers.purpose) && answers.purpose.includes(val)) {
+                      card.classList.add("selected");
+                    }
+                  } else {
+                    if (answers[field] === val) {
+                      card.classList.add("selected");
+                    }
+                  }
+                }
+              });
+              
+              // Restaurar el dropdown de la impresora
+              const printerSelect = document.getElementById("printerSelect");
+              if (printerSelect && answers.printer) {
+                printerSelect.value = answers.printer;
+              }
+            }
+            
+            // Ocultar elementos iniciales de subida y mostrar barra de navegación
+            document.querySelector(".upload-title").style.display = "none";
+            document.querySelector(".upload-desc").style.display = "none";
+            accessButton.style.display = "none";
+            document.querySelector(".drag-help").style.display = "none";
+            progressContainer.style.display = "block";
+            wizardNav.style.display = "flex";
+            
+            // Saltar directamente al paso guardado (generalmente el paso 5 - visor)
+            const targetStep = saved.stepIdx !== undefined ? saved.stepIdx : 5;
+            currentStepIdx = targetStep;
+            
+            document.getElementById(steps[0]).classList.remove("active");
+            document.getElementById(steps[currentStepIdx]).classList.add("active");
+            
+            const progressPercent = (currentStepIdx / (steps.length - 1)) * 100;
+            document.getElementById("progressBar").style.width = `${progressPercent}%`;
+            document.getElementById("prevBtn").style.visibility = "visible";
+            document.getElementById("nextBtn").textContent = "Iniciar Análisis Real";
+            
+            // Inicializar el visor 3D con la pieza restaurada
+            initSelector3D();
+            validateCurrentStep();
+            
+            // Opcional: borrar el indicador temporal de sesión si ya se restauró con éxito
+            sessionStorage.removeItem("printlab_resume_analysis");
+            await clearSession();
+          }
+        }
+      } catch (resumeError) {
+        console.warn("No se pudo recuperar la sesión de contingencia de forma segura:", resumeError);
+      }
+
+      document.getElementById("nextBtn").addEventListener("click", async () => {
+        if (document.getElementById("nextBtn").disabled) return;
+        if (currentStepIdx < steps.length - 1) { navigateStep(1); return; }
+
+        const nextBtn = document.getElementById("nextBtn");
+        nextBtn.disabled = true;
+        nextBtn.textContent = "Procesando...";
+
+        const session = await getCurrentSession();
+
+        // Comprobar créditos antes de iniciar el análisis de forma no bloqueante
+        if (client && session && session !== mockSession) {
+          let credits = 0;
+          try {
+            const { data: profile, error: profileError } = await client
+              .from("profiles")
+              .select("credits")
+              .eq("id", session.user.id)
+              .single();
+
+            if (!profileError && profile && typeof profile.credits === "number") {
+              credits = profile.credits;
+            }
+          } catch (creditError) {
+            console.warn("No se pudo comprobar el saldo de créditos, se asume 0 para asegurar el guardado de la sesión:", creditError);
+          }
+
+          // Si el saldo de créditos es inferior a 1 o se produce un error en la obtención, 
+          // se guarda la sesión de forma síncrona en IndexedDB y se redirige a la página de precios.
+          if (credits < 1) {
+            sessionStorage.setItem("printlab_resume_analysis", "true");
+            await saveSession(window.selectedSTLFile, answers, currentStepIdx);
+            window.location.href = "precios.html";
+            return;
+          }
+        }
+
+        if (!client || session === mockSession) {
+          nextBtn.textContent = "Analizando geometría (Modo Demo)...";
+          try {
+            const formData = new FormData();
+            formData.append("file", window.selectedSTLFile);
+            formData.append("questionnaire", JSON.stringify(answers));
+
+            const res = await fetch("https://printlab-backend-dy7v.onrender.com/analyze", { method: "POST", body: formData });
+            if (res.ok) {
+              const analysisData = await res.json();
+              sessionStorage.setItem("printlab_analysis", JSON.stringify({
+                volume: analysisData.volume_cm3,
+                dimensions: analysisData.dimensions,
+                watertight: analysisData.is_watertight,
+                critical_points: analysisData.critical_points || [],
+                file_name: window.selectedSTLFile.name,
+                optimized_base64: analysisData.optimized_mesh_base64 || null,
+                slicer_settings: analysisData.slicer_settings || null,
+                user_questionnaire: answers
+              }));
+              window.location.href = "informe-stl.html";
+              return;
+            }
+          } catch (e) {
+            console.warn("Servidor ocupado. Usando motor matemático CAD local de contingencia.", e);
+          }
+
+          // FALLBACK LOCAL INTERACTIVO DETERMINISTA:
+          const geom = sMesh.geometry;
+          const isWatertight = checkIsWatertight(geom);
+          const volumeLocal = isWatertight ? calculateVolume(geom) : null;
+          
+          const bbox = new THREE.Box3().setFromObject(sMesh);
+          const sz = new THREE.Vector3();
+          bbox.getSize(sz);
+          const dimsLocal = `${sz.x.toFixed(1)} x ${sz.y.toFixed(1)} x ${sz.z.toFixed(1)} mm`;
+          const overhangLocal = calculateOverhangArea(geom, sMesh);
+          const optimizedMeshBase64 = exportSTL(geom);
+
+          // Configuración local estructurada según propósito adaptado
+          let lh = parseFloat(answers.nozzleSize) * 0.5;
+          let wl = 3;
+          let id = 20;
+          let pat = "gyroid"; 
+          let spMult = 0.7;
+
+          const purposes = Array.isArray(answers.purpose) ? answers.purpose : [answers.purpose];
+          if (purposes.includes("functional")) {
+            lh = parseFloat(answers.nozzleSize) * 0.55;
+            wl = 5; id = 40; pat = "gyroid"; spMult = 0.7; 
+          } else if (purposes.includes("aesthetic")) {
+            lh = parseFloat(answers.nozzleSize) * 0.3;
+            wl = 2; id = 12; pat = "lightning"; spMult = 0.4;
+          } else if (purposes.includes("speed")) {
+            lh = parseFloat(answers.nozzleSize) * 0.6;
+            wl = 2; id = 10; pat = "lightning"; spMult = 1.0;
+          } else if (purposes.includes("cost")) {
+            lh = parseFloat(answers.nozzleSize) * 0.45;
+            wl = 2; id = 8; pat = "lightning"; spMult = 0.6;
+          }
+
+          sessionStorage.setItem("printlab_analysis", JSON.stringify({
+            volume: volumeLocal,
+            dimensions: dimsLocal,
+            watertight: isWatertight,
+            critical_points: [{"x": 0, "y": 0, "z": 0}],
+            file_name: window.selectedSTLFile.name,
+            optimized_base64: optimizedMeshBase64,
+            slicer_settings: {
+              material: answers.material || "PLA",
+              nozzle_temperature: (answers.material === "PLA" ? 215 : (answers.material === "ABS" || answers.material === "ASA" ? 255 : (answers.material === "TPU" ? 225 : 240))),
+              hot_plate_temp: answers.material === "PLA" ? 60 : (answers.material === "ABS" || answers.material === "ASA" ? 100 : (answers.material === "TPU" ? 50 : 80)),
+              layer_height: lh,
+              initial_layer_print_height: 0.2,
+              wall_loops: wl,
+              sparse_infill_density: id,
+              sparse_infill_pattern: pat,
+              outer_wall_speed: Math.round(180 * spMult * 0.8),
+              inner_wall_speed: Math.round(180 * spMult * 1.0),
+              travel_speed: 200,
+              enable_support: overhangLocal > 0.5 ? 1 : 0,
+              support_type: overhangLocal > 0.5 ? "normal" : "none", 
+              support_style: overhangLocal > 5.0 ? "organic" : "default", 
+              filament_max_volumetric_speed: answers.material === "PLA" ? 15.0 : (answers.material === "PETG" ? 10.0 : (answers.material === "TPU" ? 3.5 : 12.0)),
+              fan_cooling_speed: answers.material === "PLA" ? 100 : (answers.material === "PETG" ? 40 : (answers.material === "TPU" ? 100 : 15)),
+              brim_type: "no_brim", 
+              brim_width: 0,
+              flow_ratio: 0.98,
+              pressure_advance: 0.02,
+              retraction_length: 0.8,
+              retraction_speed: 30,
+              travel_acceleration: 5000,
+              overhang_area_cm2: overhangLocal,
+              min_thickness_mm: 1.2,
+              thin_wall_warning: null
+            },
+            user_questionnaire: answers
+          }));
+          window.location.href = "informe-stl.html";
+          return;
+        }
+
+        try {
+          nextBtn.textContent = "Analizando geometría...";
+          const filePath = `uploads/${session.user.id}/${Date.now()}.stl`;
+
+          const formData = new FormData();
+          formData.append("file", window.selectedSTLFile);
+          formData.append("questionnaire", JSON.stringify(answers));
+
+          // EJECUCIÓN EN PARALELO (PROMISE.ALL)
+          // Se transmiten concurrentemente la copia a la base de datos de almacenamiento (Supabase)
+          // y el cuerpo del archivo con sus respuestas correspondientes al motor del servidor de Render.
+          const [uploadResult, res] = await Promise.all([
+            client.storage.from('stls').upload(filePath, window.selectedSTLFile, { cacheControl: '3600', 'upsert': true }),
+            fetch("https://printlab-backend-dy7v.onrender.com/analyze", { method: "POST", body: formData })
+          ]);
+
+          if (!res.ok) throw new Error("Error en servidor. Código: " + res.status);
+
+          const analysisData = await res.json();
+          if (!analysisData || !analysisData.success) throw new Error(analysisData?.error || "Error de cálculo geométrico.");
+
+          sessionStorage.setItem("printlab_analysis", JSON.stringify({
+            volume: analysisData.volume_cm3,
+            dimensions: analysisData.dimensions,
+            watertight: analysisData.is_watertight,
+            critical_points: analysisData.critical_points || [],
+            file_name: window.selectedSTLFile.name,
+            optimized_base64: analysisData.optimized_mesh_base64 || null,
+            slicer_settings: analysisData.slicer_settings || null,
+            user_questionnaire: answers
+          }));
+
+          nextBtn.textContent = "Confirmando créditos...";
+          await client.rpc("deduct_analysis_credit");
+          window.location.href = "informe-stl.html";
+        } catch (err) {
+          alert("Error: " + err.message);
+          nextBtn.disabled = false;
+          nextBtn.textContent = "Iniciar Análisis Real";
+        }
+      });
+    });
   </script>
 </body>
 </html>
