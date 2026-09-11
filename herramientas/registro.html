@@ -470,7 +470,6 @@
 
 </head>
 
-
 <body>
 
 <header class="top">
@@ -748,7 +747,9 @@ registerForm.addEventListener("submit", async function(e) {
         data: {
           full_name: name,
           marketing_consent: marketing
-        }
+        },
+        // Mantiene el enlace a la verificación como solicitaste
+        emailRedirectTo: window.location.origin + "/printLAB/herramientas/verificar-correo.html"
       }
     });
 
@@ -776,7 +777,7 @@ registerForm.addEventListener("submit", async function(e) {
       } else if (message.includes("password")) {
         showMessage("La contraseña no cumple los requisitos de seguridad.");
       } else if (message.includes("sending confirmation") || message.includes("email")) {
-        showMessage("La cuenta no ha podido terminar de registrarse por un error del servidor.");
+        showMessage("La cuenta no ha podido terminar de registrarse por un error del servidor al enviar el correo.");
       } else {
         showMessage("No se ha podido crear la cuenta: " + error.message);
       }
@@ -802,14 +803,19 @@ registerForm.addEventListener("submit", async function(e) {
     }
 
     /* =================================================
-       REGISTRO CORRECTO -> REDIRECCIÓN DIRECTA
+       REGISTRO CORRECTO -> PANTALLA DE VERIFICAR CORREO
     ================================================= */
     if (data && data.user) {
-      registerButton.textContent = "Accediendo...";
-      showMessage("Cuenta creada con éxito. Redirigiendo...", "success");
+      // Guardar información temporal
+      sessionStorage.setItem("printlab_pending_name", name);
+      sessionStorage.setItem("printlab_pending_email", email);
+      sessionStorage.setItem("printlab_redirect_after_auth", redirectTarget);
+
+      registerButton.textContent = "Cuenta creada ✓";
+      showMessage("Cuenta creada. Revisa tu correo para verificarla.", "success");
 
       setTimeout(function() {
-        window.location.href = redirectTarget;
+        window.location.href = "verificar-correo.html";
       }, 500);
 
       return;
